@@ -1,0 +1,6 @@
+wikipedia
+pyperclip
+pyttsx3
+googletrans==3.1.0a0
+cryptography
+pillow
