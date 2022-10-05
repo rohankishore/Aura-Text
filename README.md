@@ -77,3 +77,13 @@ Bugs fixed in this version:
 Your suggestions are most welcome. To make any suggestions or feedbacks, DM me on Instagram. Profile link: 
 www.instagram.com/jops.rekt/
 You can also follow me!!! :)
+
+## Icons Credit
+All the icons are from FlatIcons. Here are the credits for individual artists!
+
+* Zoom out icon (by Pixel Perfect) : https://www.flaticon.com/free-icon/minus_1828779
+* Zoom In icon (by Feen) : https://www.flaticon.com/free-icon/add-button_7030517
+* Menu icon (by Freepik) : https://www.flaticon.com/free-icon/menu_2377841
+* Close icon (by iconproject45) : https://www.flaticon.com/free-icon/close_8001542
+
+Special thanks to Discord group "Tkinter help" (https://discord.gg/gVzy3KBf) for giving me every help I needed to build this app. Thanks!
