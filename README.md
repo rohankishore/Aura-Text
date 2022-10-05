@@ -1,6 +1,8 @@
 # Aura-Notes
-Aura Notes is a Windows based notepad app built with Tkinter and Python. It offers a modern look with menu look with dark mode and it is completely open source with no ads or trackers. All the API's are directly from the devs. You can try pyinstaller to get macOS version.
+Aura Notes is a Windows based notepad app built with Tkinter and Python by a bored 16 year old boy. It offers a modern look with menu look with dark mode and it is completely open source with no ads or trackers. Infact, it might be the only good looking notepad app made with Tkinter. All the API's are directly from the devs. Since this project is open-source, you can try pyinstaller to get macOS version.
 
+
+## UI Photos
 ![image](https://user-images.githubusercontent.com/109947257/194090329-f5701328-8aa0-4f21-bbbd-8aff8e4fd270.png)
 ![image](https://user-images.githubusercontent.com/109947257/194090600-402bf767-e7f2-4fa0-8b97-28aab513d5da.png)
 ![image](https://user-images.githubusercontent.com/109947257/194094298-ab0664d6-53ff-4ae1-ae3e-9cd440561fee.png)
@@ -8,7 +10,6 @@ Aura Notes is a Windows based notepad app built with Tkinter and Python. It offe
 
 ## Documentation
 
-	
 ## Features
 * Translate Notes
 * Built in Text to Speech for easy narration
@@ -68,27 +69,11 @@ Bugs fixed in this version:
 * Overall Stability boost
 * Reduced RAM consumption upto 3MB
 
-## Known Issues
+## Known Issues in 1.0 (Orchid)
 * Wikiepdia doesn't give any results (this's the fault of the Wikipedia API)
 * White line flashing on the menu bar when clicking *open* and *close* buttons fast (rare bug)
 
-##sggest a Feature
+## Suggest a Feature
 Your suggestions are most welcome. To make any suggestions or feedbacks, DM me on Instagram. Profile link: 
 www.instagram.com/jops.rekt/
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+You can also follow me!!! :)
