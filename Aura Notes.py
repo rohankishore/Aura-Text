@@ -29,10 +29,8 @@ editor.iconbitmap("notes.ico")
 # top frame to accompany menu bar and stuff
 # topFrame = tkinter.Frame(editor, background="#212121", width=1550, height=45).place(x=2, y=8)
 
-clear_icon = ImageTk.PhotoImage(Image.open('clear.png').resize((27, 27)))
 plus_icon = ImageTk.PhotoImage(Image.open('add-button.png').resize((15, 15)))
 minus_icon = ImageTk.PhotoImage(Image.open('minus.png').resize((15, 15)))
-ig_icon = ImageTk.PhotoImage(Image.open('instagram.png').resize((27, 27)))
 
 
 def rightSpeak():
@@ -637,8 +635,6 @@ def aboutPage():
            activeforeground="white", activebackground="#1b1b1b",
            width=19, height=4, command=icon_collection_link, cursor="hand2").place(x=340, y=412)
 
-    img = ig_icon
-
     insta = Button(ab, text="Follow Developer on Instagram", background="#1b1b1b", borderwidth=1,
                    activeforeground="white", activebackground="#1b1b1b", foreground="white",
                    width=35, height=3, command=insta, cursor="hand2")
@@ -647,13 +643,13 @@ def aboutPage():
                 activeforeground="white", activebackground="#1b1b1b", foreground="white",
                 width=35, height=3, command=childHelp, cursor="hand2")
 
-    ch = Button(ab, text="Get Source", background="#1b1b1b", borderwidth=1,
+    sr = Button(ab, text="Get Source Code", background="#1b1b1b", borderwidth=0,
                 activeforeground="white", activebackground="#1b1b1b", foreground="white",
-                width=35, height=3, command=childHelp, cursor="hand2")
+                width=35, height=2, command=childHelp, cursor="hand2")
 
     insta.place(x=25, y=572)
     ch.place(x=350, y=572)
-
+    sr.place(y=642, x=187)
 
 def cmdPaste():  # edit menu Paste option
     notepad.event_generate("<<Paste>>")
