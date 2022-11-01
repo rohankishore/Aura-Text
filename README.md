@@ -1,6 +1,10 @@
 
 # Aura Notes
 
+
+![Aura Notes](https://user-images.githubusercontent.com/109947257/199300336-5a45998e-551a-4589-8ad2-bbc7a482f9fc.png)
+
+
 Aura Notes is a notepad app for Windows, made completely with Tkinter and Python. It offers modern look with advanced and some cool features, and I'll explain them all in a minute!
 
 ## Requirements
@@ -24,6 +28,7 @@ pip install -r requirements.txt
 - Press Ctrl + Y to perform a quick YouTube search of the selected word
 - Universal dark mode
 - Adjust transparency of the window, so that you can copy text from another app without even closing or minimizing the Notes.
+- Always on top functionality
 - Extremely low RAM consumption (30MB)*
 ## Color Reference
 
@@ -42,3 +47,24 @@ pip install -r requirements.txt
 ## Contributions
 
 You are welcome to make contributions, bug reports and feature requests. A kind message, kindly contact me via Instagram before doing so we can chat more and discuss briefly! My instagram: @jops.niqqa (I post edits lol)
+
+## Known Issues (v1.0.5)
+
+- App freezing while resizing the window
+- Scaling issues while using an Ultrawide monitor (the app looks too stretched)
+- Unit convertor returns ERROR when trying to convert specific quantities
+
+## To Do 
+
+- Introduce speech typing (ik there's already one made by Windows. Just press Windows + H to activate)
+- Switch between light and dark themes
+- New Plagiarism checker and remover in the 'Tools' menu
+- New and modern icon (i'm using an generic icon rn... Need to change it ASAP)
+- Display time and date but in a indistractive and modern way (maybe in a right click menu) (might change it bcz you can just view the time via taskbar.. But what if you're in full-screen mode?)
+- Upgrade Math Solver so that it can calculate algebraic expressions, roots, squares, powers etc etc (maybe using Wolframalpha?)
+
+That's it for right now! Will update more To Do's later... Also, i'll mark them as complete if i implemented the feature!
+
+## Footer
+
+That's it for the README. I hope that you'll enjoy using it as much as i enjoyed coding it! Contributions and Feature requests are open right now.
