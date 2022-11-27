@@ -46,6 +46,5 @@ Aura Notes is a notepad app for Windows. It offers modern look with advanced and
 
 That's it for right now! Will update more To Do's later... Also, i'll mark them as complete if i implemented the feature!
 
-## Footer
-
-That's it for the README. I hope that you'll enjoy using it as much as i enjoyed coding it!Feature requests are open right now.
+## Get Aura Notes (v1.0.6) Portable
+https://drive.google.com/uc?export=download&id=15g5O82Box9UlDho5-puH1x2aBApJ4Xta
