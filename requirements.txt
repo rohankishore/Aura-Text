@@ -1,0 +1,7 @@
+pyttsx3
+idlelib
+pillow
+sv_ttk
+wikipedia
+googletrans
+pyperclip
