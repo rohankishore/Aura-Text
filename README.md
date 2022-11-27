@@ -8,6 +8,9 @@ Aura Notes is a notepad app for Windows. It offers modern look with advanced and
 - Well, edit text files
 - Command Prompt For Notes (More info below)
 - Built-in translation
+- Highlighter
+- Mail Tools with readymade e-mail formats
+- Text Encrypt and Decrypt
 - Text to Speech
 - Built-in code editor with Syntax Highlighting, etc
 - Can Calculate math expressions right from the editor
