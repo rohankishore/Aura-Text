@@ -1,0 +1,100 @@
+Aura Notes Tutorial / Manual | Complete Tutorial |
+
+
+TEXT EDITING
+
+To Copy: Ctrl + C
+
+To Paste: Ctrl + V
+
+To Cut: Ctrl + X
+
+To Select All: Ctrl + A
+
+
+
+HIGHLIGHTING
+
+Select any text -> Right Click -> Hover on 'Highlighting' -> Select Highlight / Delete highlighting
+
+
+
+TOOLS
+
+Tools menu contains some highly useful stuffs. Right now, Aura Notes has 3 kinds of tools. 
+
+1. Calendar  -- Shows calendar of any year you inputs
+
+2. Scheduled Writing  -- Schedule a note for a specific period of time
+
+3. Mail Tools  -- Automatically inserts mail format, footer, and to & from
+
+
+
+WINDOW
+
+Window menu contains the menu options to minimize, maximize the windows. It also contains some useful options such
+as controlling Transparency of the window, and Always On Top functionality.
+
+
+VIEW
+
+View menu contains the option to Zoom In or Zoom Out. It also contains a " Coding " menu with the option of Syntax Highlighting
+
+
+ACCESSIBILITY
+
+Accessibility menu contains one menu, to control the color behaviour of the app. You can set high contrast theme, or even revert the app colors. More options are coming soon
+
+
+
+
+APP UI 
+
+
+The small button in left top is to view the app in PIP mode. The search bar in right top is to search for words in the notepad. The found words will be highlighted in RED color.
+
+In the bottom center, there is a small area which shows current processes and statuses. It stays hidden until some process takes place.
+
+In the bottom right, there contains a command bar. You can type specific commands to do some cool tasks. Some of them are given below:
+
+save  -  To save file
+open  -  To open a file
+new   -  To create a new file
+dateinsert  -  Inserts the current date in the notepad
+ftrans  -  Translates the entire note
+cal     -  Opens Calendar
+exit    -  Exits the app
+
+yt <search word>  -- Searches YouTube for that word
+stack <search word>  -- Searches Stackoverflow for that word
+git <search word>  --  Searches GitHub for that word
+
+
+
+SPEAK
+
+Select any text -> Right Click -> Speak -- Your selection will be spoken out
+
+
+TRANSLATE
+
+Select any text -> Right Click -> Hover on 'Translate' -> Translate Selection / Full Note
+
+
+SEARCH IN TOOL
+
+Select any text -> Right Click -> Hover on 'Search In: ' -> Select required website
+
+
+NUMERICALS
+
+Select any expression or numbers -> Right Click -> Hover on 'Numericals' -> Select required operation. As of now, Numericals menu contains the option to:
+
+* Check odd or even
+* Check if number is prime
+* Calculate a given expression
+* Convert to Binary
+
+
+That's it for the Manual / Help Guide. I hope you got a better understanding of Aura Notes. I hope you'll enjoy the app as much as i did while coding it.
