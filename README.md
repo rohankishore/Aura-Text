@@ -29,7 +29,7 @@ Aura Notes is a notepad app for Windows. It offers modern look with advanced and
 pip install -r requirements.txt
 ```
 
-
+## 
 
 ![image](https://user-images.githubusercontent.com/109947257/204121772-a33606fa-50a5-45f5-b5d3-09fcfcf63c96.png)
 ![image](https://user-images.githubusercontent.com/109947257/204121956-b1b93d8f-1b81-4381-9157-e29d968e1909.png)
@@ -58,4 +58,7 @@ https://drive.google.com/uc?export=download&id=15g5O82Box9UlDho5-puH1x2aBApJ4Xta
 ##     
 
 ## Contributions
-Contributions are always welcome. You guys help me to keep this project alive. Thanks for being such great community of people!
+Contributions are always welcome. You guys help me to keep this project alive. Thanks for being such great community of people! Contact me at:
+- Instagram: @jops.zuck
+- Reddit: https://www.reddit.com/user/literallyRohan
+- Discord: literallyRohan#3884
