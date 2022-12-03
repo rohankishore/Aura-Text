@@ -8,6 +8,7 @@ Aura Notes is a notepad app for Windows. It offers modern look with advanced and
 - Well, edit text files
 - Command Prompt For Notes (More info below)
 - Built-in translation
+- Quick Translation to English by clicking Alt-T
 - Highlighter
 - Mail Tools with readymade e-mail formats
 - Text Encrypt and Decrypt
@@ -31,10 +32,12 @@ pip install -r requirements.txt
 
 ## 
 
-![image](https://user-images.githubusercontent.com/109947257/204121772-a33606fa-50a5-45f5-b5d3-09fcfcf63c96.png)
-![image](https://user-images.githubusercontent.com/109947257/204121956-b1b93d8f-1b81-4381-9157-e29d968e1909.png)
-![image](https://user-images.githubusercontent.com/109947257/204121993-b26a440d-f150-4556-a7a8-de5875229952.png)
+![image](https://user-images.githubusercontent.com/109947257/205427717-660ad706-3543-4a47-8dbd-fb1434952ff0.png)
 
+![image](https://user-images.githubusercontent.com/109947257/205427748-09f5ef87-c221-4bf4-926a-be5030c7b5fd.png)
+
+![image](https://user-images.githubusercontent.com/109947257/205427834-86d6d7b7-f02a-42ab-9e51-76d04ba70312.png)
+A demo of Quick Translate feature! Select a text and click Alt-T
 
 ## Command Prompt Cheat List
 
