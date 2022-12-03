@@ -82,6 +82,9 @@ TRANSLATE
 Select any text -> Right Click -> Hover on 'Translate' -> Translate Selection / Full Note
 
 
+QUICK TRANSLATE
+Select any text -> Click Alt-T
+
 SEARCH IN TOOL
 
 Select any text -> Right Click -> Hover on 'Search In: ' -> Select required website
