@@ -55,9 +55,8 @@ A demo of Quick Translate feature! Select a text and click Alt-T
 
 That's it for right now! Will update more To Do's later... Also, i'll mark them as complete if i implemented the feature!
 
-## Get Aura Notes (v1.0.6) Portable
-https://drive.google.com/uc?export=download&id=15g5O82Box9UlDho5-puH1x2aBApJ4Xta
-
+## Get Aura Notes (v1.0.7) Portable
+https://drive.google.com/drive/folders/1-h0ME7TgRWyUD1u6rNvgn9wfrwFTjSt4?usp=share_link
 ##     
 
 ## Contributions
