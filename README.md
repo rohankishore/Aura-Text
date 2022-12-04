@@ -32,11 +32,11 @@ pip install -r requirements.txt
 
 ## 
 
-![image](https://user-images.githubusercontent.com/109947257/205427717-660ad706-3543-4a47-8dbd-fb1434952ff0.png)
+![image](https://user-images.githubusercontent.com/109947257/205478076-d139bda3-0802-4307-9b4f-61a78e7b06d1.png)
 
-![image](https://user-images.githubusercontent.com/109947257/205427748-09f5ef87-c221-4bf4-926a-be5030c7b5fd.png)
+![image](https://user-images.githubusercontent.com/109947257/205478120-cc4ab866-2bba-477a-9ac7-deb6ae48a963.png)
 
-![image](https://user-images.githubusercontent.com/109947257/205427834-86d6d7b7-f02a-42ab-9e51-76d04ba70312.png)
+![image](https://user-images.githubusercontent.com/109947257/205478159-861fbfec-8a6e-4c5a-894a-0e754ae65db0.png)
 A demo of Quick Translate feature! Select a text and click Alt-T
 
 ## Command Prompt Cheat List
@@ -46,12 +46,10 @@ A demo of Quick Translate feature! Select a text and click Alt-T
 
 ## To Do 
 
-- Introduce speech typing (ik there's already one made by Windows. Just press Windows + H to activate)
 - ~~Switch between light and dark themes~~
 - New Plagiarism checker and remover in the 'Tools' menu
 - ~~New and modern icon (i'm using an generic icon rn... Need to change it ASAP)~~
 - Display time and date but in a indistractive and modern way (maybe in a right click menu) (might change it bcz you can just view the time via taskbar.. But what if you're in full-screen mode?)
-- Upgrade Math Solver so that it can calculate algebraic expressions, roots, squares, powers etc etc (maybe using Wolframalpha?)
 
 That's it for right now! Will update more To Do's later... Also, i'll mark them as complete if i implemented the feature!
 
