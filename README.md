@@ -1,7 +1,8 @@
+![icon (Icons)](https://user-images.githubusercontent.com/109947257/206664064-1827e49f-9736-4e6a-b89a-bb4458603b05.png)   
 
 # Aura Notes
 
-Aura Notes is a notepad app for Windows. It offers modern look with advanced and some cool features, and I'll explain them all in a minute!
+Aura Notes is a notepad app for Windows, completely made with Python. It offers modern look with advanced and some cool features, and I'll explain them all in a minute!
 
 ## Features
 
