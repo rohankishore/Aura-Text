@@ -31,7 +31,11 @@ Aura Notes is a notepad app for Windows, completely made with Python. It offers 
 pip install -r requirements.txt
 ```
 
-## 
+## Benchmarks
+
+- Can easily crunch through 100-150MB Text Files with real time translation, highlighting and searching.
+
+## Screenshots
 
 ![image](https://user-images.githubusercontent.com/109947257/205478076-d139bda3-0802-4307-9b4f-61a78e7b06d1.png)
 
