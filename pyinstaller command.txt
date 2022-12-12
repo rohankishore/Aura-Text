@@ -1,1 +1,0 @@
-pyinstaller --onefile -w '.\main.py' --hidden-import sv_ttk --hidden-import wikipedia --hidden-import wolframalpha --collect-data sv_ttk
