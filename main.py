@@ -1,78 +1,58 @@
-"""
-Main file for Aura Notes. Run this file to experience what a TRUE Notepad feels lile.
-
-Functions for the features are split into different files for better readablity for devs. This includes:
-- Translator
-- Wikipedia
-- Hiighlight feature
-- Find in Notes
-- Search tools
-And much more
-"""
-
-# system libs
 import base64
+import os.path
 import re
+import tkinter
 import webbrowser
 from datetime import date
 from random import choice
-
-# Tkinter
 from tkinter import *
-from tkinter import messagebox, filedialog, colorchooser
+from tkinter import messagebox, filedialog
 from tkinter import ttk
-import tkinter
-
-# Image Processing
-import PIL.Image
-from PIL import ImageTk
-
-
-# Extra Files
+import customtkinter
+from customtkinter import *
 import ModuleFile
-import Translate
 import SearchMod
+import Translate
 
 # main gui window for editor
-root = Tk()
+root = CTk()
 root.tk_setPalette('SystemButtonFace')
 root.title("Aura Notes")
+root.configure(background="#1d1d1d")
+
+customtkinter.set_appearance_mode("dark")
+customtkinter.set_default_color_theme("blue")  # Themes: blue (default), dark-blue, green
 
 # Function for 'resize_button'
 def resize():
     ModuleFile.resize(root)
 
-# icon files
-cmdlist_icon = ImageTk.PhotoImage(PIL.Image.open('cmdlist.png').resize((1170, 950)))
+def new_frame():
+    ModuleFile.new_frame()
 
-# setting theme (light/dark)
-root.tk.call("source", "theme.tcl")
-
-root.tk.call("set_theme", "dark")
-# making the window resizable and adjusting its size
 root.resizable(True, True)
 
 # Making the window maximized always
-root.state('zoomed')
+root.geometry("1300x700")
 
 # Declaring the icon file
-root.iconbitmap("notepad.ico")
+root.iconbitmap("icon.ico")
 
 # top frame to accompany menu bar and stuff
 topFrame = tkinter.Frame(root, height=50)
 
 # bottom frame for line numbers, cmd, etc
-bottomFrame = tkinter.Frame(root, background="#1b1b1b", height=20)
+bottomFrame = Frame(root, background="#1b1b1b", height=20)
 
 #packing both
 bottomFrame.pack(side=BOTTOM, fill=X)
 topFrame.pack(side=TOP, fill=X)
 
 # Find in Notes Entry
-textfinded = ttk.Entry(topFrame, width=25, foreground="light blue", font=("Arial", 13))
+textfinded = CTkEntry(topFrame, width=250, text_color="light blue", text_font=("Arial", 12), height=32)
 
 # cmd
-cmd_line = Entry(bottomFrame, width=30, foreground="sky blue", borderwidth=0, background="black")
+cmd_line = CTkEntry(bottomFrame, width=200 , borderwidth=0, text_color="light blue")
 cmd_line.pack(side=RIGHT)
 
 # cmd main function
@@ -88,20 +68,20 @@ def cmdline(e):
         aa = choice(choices)
 
         if aa == "Heads":
-            minibuffer.insert(0.0, "It's HEAD")
+            messagebox.showinfo("Toss", "HEADS")
         else:
-            minibuffer.insert(0.0, "It's TAIL")
+            messagebox.showinfo("Toss", "TAILS")
 
     def dice_roll():
         choices = [1, 2, 3, 4, 5, 6]
         aa = choice(choices)
         aa = str(aa)
-        minibuffer.insert(0.0, aa)
+        messagebox.showinfo("Dice Roll", aa)
 
     def stackcmd():
         s = str(cmdget.replace("stack", ""))
-        l = "https://stackoverflow.com/search?q=" + s + "&s=ddab4d49-a574-4a62-8794-24ac8a478c20"
-        webbrowser.open_new_tab(l)
+        stack_link = "https://stackoverflow.com/search?q=" + s + "&s=ddab4d49-a574-4a62-8794-24ac8a478c20"
+        webbrowser.open_new_tab(stack_link)
 
     def githubcmd():
         s = str(cmdget.replace("git", ""))
@@ -113,12 +93,10 @@ def cmdline(e):
     def ntp_changr_bg():
         s = str(cmdget.replace("npbg ", ""))
         notepad.config(background=s)
-        minibuffer.insert(0.0, "Bg has been changed to: " + s)
 
     def ntp_changr_fg():
         s = str(cmdget.replace("npfg ", ""))
         notepad.config(foreground=s)
-        minibuffer.insert(0.0, "Fg has been changed to: " + s)
 
     if "save" in cmdget:
         cmd_save_ss()
@@ -139,7 +117,6 @@ def cmdline(e):
     elif "stx" in cmdget:
         syntax_highlighting()
         notepad.config(font="Consolas")
-        minibuffer.insert(0.0, "Syntax Highlighting ON")
     elif "yt" in cmdget:
         ytcmd()
     elif "stack" in cmdget:
@@ -148,43 +125,36 @@ def cmdline(e):
         githubcmd()
     elif "cal" in cmdget:
         calendar()
-        minibuffer.insert(0.0, "Calendar Opened")
+    elif "wordwrap" in cmdget:
+        word_wrap()
     elif "aot" in cmdget:
         alwaysontop()
-        minibuffer.insert(0.0, "Always On Top Enabled")
     elif "mailff" in cmdget:
         add_full_format()
-        minibuffer.insert(0.0, "Added full mail format")
     elif "ain" in cmdget:
         auto_intend()
-        minibuffer.insert(0.0, "Turned on Auto Intend")
     elif "mailfooter" in cmdget:
         add_footer()
-        minibuffer.insert(0.0, "Added footer of the mail")
     elif "mailtf" in cmdget:
         to_and_from()
-        minibuffer.insert(0.0, "Added to and from mail")
     elif "cflip" in cmdget:
         coin_flip()
+    elif "autoin" in cmdget:
+        auto_intend()
     elif "droll" in cmdget:
         dice_roll()
     elif "ltk" in cmdget:
         lightmode()
-        minibuffer.insert(0.0, "Light Mode")
     elif "dtk" in cmdget:
         darkmode()
-        minibuffer.insert(0.0, "Dark Mode")
     elif "htk" in cmdget:
         highContrastMode()
-        minibuffer.insert(0.0, "High Contrast")
     elif "cdm" in cmdget:
         syntax_highlighting()
-        minibuffer.insert(0.0, "Coding Mode Turned ON")
     elif "min" in cmdget:
         minimize()
     elif "max" in cmdget:
         maximize()
-        minibuffer.insert(0.0, "Window Maximized")
     else:
         messagebox.showerror("Error!", "Command Error!")
 
@@ -211,19 +181,8 @@ def full_speak():
 def yt_search():
     SearchMod.yt_search(notepad)
 
-def SummaryBttn():
+def summary():
     ModuleFile.Summary(notepad)
-
-# label for line numbers
-lineLabel = Button(bottomFrame, text="1.0", justify=CENTER, foreground="light blue",
-                  font=("Helvetica", 10), borderwidth=0, background="#1b1b1b",
-                   activebackground="#1b1b1b", activeforeground="light blue", command=SummaryBttn)
-lineLabel.pack(side=LEFT, padx=6)
-
-# updating the line numbers
-def line_update(e):
-    cindex = str(notepad.index(INSERT))
-    lineLabel.config(text=cindex)
 
 # base64 encode
 def encypt():
@@ -249,14 +208,7 @@ def decode():
 
 # cmd cheat list func
 def cmd_list():
-    tt = Toplevel()
-    tt.geometry("1397x1080")
-    tt.state('zoomed')
-    tt.config(background="#f8f3f3")
-    img_label = Label(tt, image=cmdlist_icon, background="#f8f3f3")
-    img_label.image = cmdlist_icon
-    img_label.pack()
-    tt.mainloop()
+    webbrowser.open_new_tab("https://github.com/rohankishore/Aura-Notes/wiki/Command-Prompt-for-Aura-Notes")
 
 # new file
 def cmd_new():  # file menu New option
@@ -264,19 +216,13 @@ def cmd_new():  # file menu New option
     if len(notepad.get('1.0', END + '-1c')) > 0:
         if messagebox.askyesno("Notepad", "Do you want to save changes?"):
             cmd_save_ss()
-            minibuffer.insert(0.0, "New file has been created!")
         else:
             notepad.delete(0.0, END)
-            minibuffer.insert(0.0, "New file has been created!")
 
 # inserting the current date
 def insert_date_up():
     cdate = str(date.today())
     notepad.insert(1.0, cdate)
-
-# to see all the ongoing processes
-minibuffer = Text(bottomFrame, background="#1b1b1b", foreground="sky blue", height=1, borderwidth=0, width=30)
-minibuffer.pack(side=RIGHT, padx=2)
 
 # save file
 def cmd_save_ss():  # file menu Save As option
@@ -284,9 +230,8 @@ def cmd_save_ss():  # file menu Save As option
     t = notepad.get(0.0, END)  # t stands for the text gotten from notepad
     try:
         fd.write(t.rstrip())
-        minibuffer.insert(0.0, "File Saved Successfully!")
-    except ValueError:
-        messagebox.showinfo(title="Error", message="Not able to save file!")
+    except AttributeError:
+        messagebox.showinfo(title="No, Not Again!", message="I'm currently not able to save this file!")
 
 # exit the app
 def cmdexit():  # file menu Exit option
@@ -348,14 +293,14 @@ def cmd_redo():
     notepad.edit_redo()
 
 def quick_translate_eng(e):
-    Translate.rightTranslateEng(notepad)
+    Translate.quick_translate(notepad)
 
 # text box for entry
-notepad = Text(root, font=("Consolas", 13), height=48, foreground="white",
+notepad = Text(root, font=("Consolas", 12), height=48, foreground="white",
                insertbackground="light blue", borderwidth=0, undo=True)
 
-notepad.bind('<KeyPress>', line_update)
-notepad.bind('<KeyRelease>', line_update)
+
+notepad.focus_set()
 
 notepad.bind('<Control-F>', findActivate)
 notepad.bind('<Control-f>', findActivate)
@@ -365,11 +310,12 @@ notepad.bind('<Alt-t>', quick_translate_eng)
 
 textfinded.bind('<Escape>', notepadAct)
 
+
 # opening configs
 with open("synhig.txt", 'r+') as syn:
     synhigh = syn.readline()
 
-with open("theme.txt", 'r+') as thm:
+with open("TEMP/theme.txt", 'r+') as thm:
     themeget = thm.readline()
 
 with open("auto_intend.txt", 'r+') as ain:
@@ -377,6 +323,7 @@ with open("auto_intend.txt", 'r+') as ain:
 
 with open("tabnumber.txt", 'r+') as tbn:
     tabnumberget = tbn.readline()
+
 
 # auto indent func
 def auto_indent(event):
@@ -395,9 +342,8 @@ def auto_indent(event):
 
 # changing number of tabs
 def tab_pressed(event: Event) -> str:
-    tabnumber = int(tabnumberget)
     # Insert the 4 spaces
-    notepad.insert("insert", " " * tabnumber)
+    notepad.insert("insert", " " * 4)
     # Prevent the default tkinter behaviour
     return "break"
 
@@ -419,27 +365,43 @@ def search_stack():
 notepad.tag_configure("tag_name", justify='center')
 
 # scrollbar
-scrollbar = ttk.Scrollbar(root)
+scrollbar = CTkScrollbar(root, command=notepad.yview)
 scrollbar.pack(side=RIGHT, fill=Y)
-notepad.config(yscrollcommand=scrollbar.set, background="#151718")
-scrollbar.config(command=notepad.yview, )
+notepad.config(yscrollcommand=scrollbar.set, background="#1d1d1d")
 
 notepad.focus_set()
-
-notepad.pack(fill=BOTH, side=TOP)
+notepad.pack(fill=BOTH, side=TOP, padx=3)
 
 # always on top
 def alwaysontop():
     root.attributes('-topmost', 1)
-    minibuffer.insert(0.0, "Always On Top Enabled")
 
 def bug_report():
     webbrowser.open_new_tab("https://github.com/rohankishore/Aura-Notes/issues/new")
 
+file_type = Label(bottomFrame, text="Text File", font=("ds-digital", 8), background="#1b1b1b", foreground="light blue")
+file_type.pack(side=LEFT, padx=5)
+
 # open note files
 def noteopen():  # file menu Open option
-    fd = filedialog.askopenfile(parent=root, mode='r')
+    fd = (filedialog.askopenfile(parent=root, mode='r'))
+    fd_str = str(fd)
+    ext = os.path.splitext(fd_str)
+    ext = ext[1]
+    ext = ext[0] + ext[1] + ext[2]
     t = fd.read()  # t is the text read through filedialog
+
+    if ext == ".tx":
+        file_type.config(text="Text File")
+    elif ext == ".py":
+        file_type.config(text="Python File")
+    elif ext == ".js":
+        file_type.config(text="JSON File")
+    elif ext == ".cs":
+        file_type.config(text="CSV File")
+    elif ext == ".sp":
+        file_type.config(text="SPEC File")
+
     notepad.delete(0.0, END)
     notepad.insert(0.0, t)
 
@@ -489,8 +451,8 @@ encode.add_command(label="Decode Base64", command=decode)
 speak.add_command(label="Speak Selection", command=right_speak)
 speak.add_command(label="Speak Full Note", command=full_speak)
 
-translate.add_command(label="Translate Selection", command=right_translate)
-translate.add_command(label="Translate Full Note", command=full_translate)
+translate.add_command(label="Selection", command=right_translate)
+translate.add_command(label="Full Note", command=full_translate)
 
 
 def clear_highlight():
@@ -536,16 +498,6 @@ notepad_right_click_event.add_command(label="Cut                                
 
 notepad_right_click_event.add_separator()
 
-def font_color():
-    color_chooser = colorchooser.askcolor(title="Choose color")
-    rgb, hexx = color_chooser
-    st_ind = notepad.index("sel.first")
-    end_ind = notepad.index("sel.last")
-
-    notepad.tag_add("start", st_ind, end_ind)
-    notepad.tag_config("start", foreground=hexx)
-
-
 notepad.bind('<Control-s>', cmd_save_ss)
 notepad.bind('<Control-b>', right_speak)
 notepad.bind('<Control-m>', math_exp)
@@ -557,7 +509,6 @@ notepad.bind('<Control-M>', math_exp)
 notepad.bind('<Control-D>', insert_date_up)
 notepad.bind('<Control-Y>', yt_search)
 
-notepad_right_click_event.add_separator()
 
 notepad_right_click_event.add_cascade(label="Speak", menu=speak)
 notepad_right_click_event.add_cascade(label="Translate", menu=translate)
@@ -578,8 +529,8 @@ notepad.bind("<Button-3>", notes_popup)
 
 # Prompt while exiting the app
 def ExitApplication():
-    MsgBox = messagebox.askquestion('Close Document',
-                                    'The app is about to close. Do you want to save this document?',
+    MsgBox = messagebox.askquestion('Not this fast! Consider saving the file?',
+                                    'Do you want to save this document before leaving?',
                                     icon='warning')
     if MsgBox == 'yes':
         cmd_save_ss()
@@ -591,17 +542,26 @@ def Transparent25():
     root.attributes('-alpha', 0.75)
 
 def Transparent20():
-    root.attributes('-alpha', 0.75)
+    root.attributes('-alpha', 0.8)
+
+def Transparent5():
+    root.attributes('-alpha', 0.95)
+
+def Transparent10():
+    root.attributes('-alpha', 0.9)
 
 def Transparent30():
-    root.attributes('-alpha', 0.75)
+    root.attributes('-alpha', 0.7)
 
 def Transparent40():
-    root.attributes('-alpha', 0.75)
+    root.attributes('-alpha', 0.6)
 
 # 50% Transparency
 def Transparent50():
     root.attributes('-alpha', 0.5)
+
+def Transparent60():
+    root.attributes('-alpha', 0.4)
 
 # 75% Transparency
 def Transparent75():
@@ -635,7 +595,7 @@ if autointendget == "on":
 mails = Menubutton(topFrame, text="Mail", background="#1b1b1b", activebackground="#1b1b1b", borderwidth=0)
 translate = Menubutton(topFrame, text="Translate", background="#1b1b1b", activebackground="#1b1b1b", borderwidth=0)
 
-textfinded.pack()
+textfinded.pack(pady=5)
 
 mails.menu = Menu(mails, tearoff=0, background="#303030", foreground="cyan", borderwidth=0)
 mails["menu"] = mails.menu
@@ -664,6 +624,18 @@ def zoomin(str1):
 
     notepad.config(font=font1)
 
+line_label = Label(bottomFrame, text="1.0", background="#1b1b1b", foreground="cyan")
+line_label.pack(side=RIGHT, padx=20)
+
+def update_line_label(e):
+    cindex = str(notepad.index(INSERT))
+    line_label.config(text=cindex)
+
+notepad.bind('<KeyPress>', update_line_label)
+notepad.bind('<KeyRelease>', update_line_label)
+notepad.bind('<Button-2>', update_line_label)
+
+
 # Declare file and edit for showing in menubar
 file = Menu(menubar, tearoff=False, background='#2c2f33', foreground="light blue")
 edit = Menu(menubar, tearoff=False, background='#2c2f33', foreground="light blue")
@@ -675,25 +647,36 @@ view = Menu(menubar, tearoff=False, background="#2c2f33", foreground="light blue
 helptab = Menu(menubar, tearoff=False, background="#2c2f33", foreground="light blue")
 transparency = Menu(window, tearoff=False, background="#2c2f33", foreground="light blue")
 
+transparency.add_command(label="5%", command=Transparent5)
+transparency.add_command(label="10%", command=Transparent10)
 transparency.add_command(label="20%", command=Transparent20)
 transparency.add_command(label="25%", command=Transparent25)
 transparency.add_command(label="30%", command=Transparent30)
+transparency.add_command(label="40%", command=Transparent40)
 transparency.add_command(label="50%", command=Transparent50)
 transparency.add_command(label="75%", command=Transparent75)
 transparency.add_command(label="Reset", command=resetTransparent)
 
 helptab.add_command(label="Command List", command=cmd_list)
+helptab.add_command(label="Bug Report", command=bug_report)
 
 # current version
 def version():
-    text_ver = "Current Version: " + "1.0.7" + "\n" + "\n" + "\n" + "What's New:" + "\n" + "\n" + "* Improved Color Science" + "\n" \
-               + "* Complete Visual Overhaul with simpler look" + "\n" + "* New Formatting Features such as Bold, Italic, etc" + "\n" + "* Quicker translations" + "\n" + "* More organised menus" + "\n" + "* Improved overall Stability"
-
+    text_ver = "Current Version: " + "1.0.8" + "\n" + "\n" + "\n" + "What's New:" + "\n" + "\n" + "* Improved Color Science" + "\n" \
+               + "* Line Numbers" + "\n" + "* New Icon" + "\n" + "* Quicker Translations" + "\n" + "* More Transparency Options" + "\n" + "* Improved overall Stability"
     messagebox.showinfo("Version Info", text_ver)
+
+def find_replace():
+    ModuleFile.find_replace(notepad)
+
+def word_wrap():
+    notepad.config(wrap=WORD)
 
 file.add_command(label="New Document", command=cmd_new)
 file.add_command(label="Open Document", command=noteopen)
 file.add_command(label="Save Document", command=cmd_save_ss)
+file.add_command(label="New Frame", command=new_frame)
+file.add_command(label="Summary", command=summary)
 file.add_command(label="Exit", command=cmdexit)
 
 view.add_command(label="Zoom In", command=lambda: zoomin("plus"))
@@ -705,25 +688,16 @@ edit.add_command(label="Cut", command=cmdcut)
 edit.add_command(label="Select All", command=cmdselectall)
 edit.add_command(label="Undo", command=cmd_undo)
 edit.add_command(label="Redo", command=cmd_redo)
+edit.add_command(label="Find & Replace", command=find_replace)
 
 window.add_command(label="Minimize", command=minimize)
 window.add_command(label="Maximize", command=maximize)
 window.add_command(label="Resize", command=resize)
 window.add_checkbutton(label="Always on Top", command=alwaysontop)
-window.add_cascade(label="Window Transparency", menu=transparency)
+window.add_cascade(label="Transparency", menu=transparency)
 
 tools.add_command(label="Calendar", command=calendar)
 tools.add_cascade(label="Mail Tools", menu=mail_tools)
-
-def minibuffer_clear(e):
-    def delete():
-        minibuffer.delete(0.0, END)
-
-    root.after(4500, delete)
-
-root.bind('<KeyRelease>', minibuffer_clear)
-root.bind('<FocusIn>', minibuffer_clear)
-root.bind('<MouseWheel>', minibuffer_clear)
 
 def about_github():
     webbrowser.open_new_tab("https://github.com/rohankishore/Aura-Notes")
