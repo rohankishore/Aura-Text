@@ -6,10 +6,11 @@ import webbrowser
 from datetime import date
 from random import choice
 from tkinter import *
-from tkinter import messagebox, filedialog
-from tkinter import ttk
+from tkinter import messagebox, ttk
+
 import customtkinter
 from customtkinter import *
+
 import ModuleFile
 import SearchMod
 import Translate
@@ -23,12 +24,21 @@ root.configure(background="#1d1d1d")
 customtkinter.set_appearance_mode("dark")
 customtkinter.set_default_color_theme("blue")  # Themes: blue (default), dark-blue, green
 
+default_dir = os.path.join(os.path.expanduser('~'), 'Documents')
+if os.path.isdir(default_dir + '/Aura Notes'):
+    print("Dir already exist!")
+else:
+    make_defualt_dir = os.mkdir(default_dir + "/Aura Notes")
+
+
 # Function for 'resize_button'
 def resize():
     ModuleFile.resize(root)
 
+
 def new_frame():
     ModuleFile.new_frame()
+
 
 root.resizable(True, True)
 
@@ -44,16 +54,17 @@ topFrame = tkinter.Frame(root, height=50)
 # bottom frame for line numbers, cmd, etc
 bottomFrame = Frame(root, background="#1b1b1b", height=20)
 
-#packing both
+# packing both
 bottomFrame.pack(side=BOTTOM, fill=X)
 topFrame.pack(side=TOP, fill=X)
 
 # Find in Notes Entry
-textfinded = CTkEntry(topFrame, width=250, text_color="light blue", text_font=("Arial", 12), height=32)
+textfinded = CTkEntry(topFrame, width=250, text_color="light blue", font=("Arial", 12), height=32)
 
 # cmd
-cmd_line = CTkEntry(bottomFrame, width=200 , borderwidth=0, text_color="light blue")
+cmd_line = CTkEntry(bottomFrame, width=200, border_width=0, text_color="light blue")
 cmd_line.pack(side=RIGHT)
+
 
 # cmd main function
 def cmdline(e):
@@ -99,7 +110,7 @@ def cmdline(e):
         notepad.config(foreground=s)
 
     if "save" in cmdget:
-        cmd_save_ss()
+        cmd_save_as()
     elif "open" in cmdget:
         noteopen()
     elif "new" in cmdget:
@@ -158,31 +169,94 @@ def cmdline(e):
     else:
         messagebox.showerror("Error!", "Command Error!")
 
+
+tab_order = {'ky': 0}
+tabs = {}
+notebook = ttk.Notebook(root)
+notebook.pack(pady=10, expand=True, fill='both')
+
+
+def new_tab():
+    tab = tkinter.Frame(notebook)
+    txtbox = Text(tab, background="#1d1d1d", font=("Consolas", 12), height=48, foreground="white",
+                  insertbackground="light blue", borderwidth=0, undo=True)
+
+    # the horizontal scroll bar is having some issue
+    # Horizontal Scroll Bar
+    # xscrollbar=CTkScrollbar(tab, command=txtbox.xview)
+    # xscrollbar.pack(side='bottom', fill='x')
+
+    # Vertical Scroll Bar
+    yscrollbar = CTkScrollbar(tab, command=txtbox.yview)
+    yscrollbar.pack(side='right', fill='y')
+    txtbox.configure(yscrollcommand=yscrollbar.set, background="#1d1d1d")
+    txtbox.focus_set()
+    txtbox.pack(fill='both', expand=True, side=TOP)
+
+    tabs[tab] = txtbox
+    tab_order['ky'] += 1
+    notebook.add(tab, text='Document ' + str(tab_order['ky']))
+    notebook.select(tab)
+    txtbox.delete(0.0, END)
+
+
+new_tab()
+
+
+def create_tab(t, fname):
+    tab = tkinter.Frame(notebook)
+    txtbox = Text(tab, background="#1d1d1d", font=("Consolas", 12), height=48, foreground="white",
+                  insertbackground="light blue", borderwidth=0, undo=True)
+
+    # Horizontal Scroll Bar
+    # xscrollbar=CTkScrollbar(tab, command=txtbox.xview)
+    # xscrollbar.pack(side='bottom', fill='x')
+    # Vertical Scroll Bar
+    yscrollbar = CTkScrollbar(tab, command=txtbox.yview)
+    yscrollbar.pack(side='right', fill='y')
+    txtbox.configure(yscrollcommand=yscrollbar.set, background="#1d1d1d")
+    txtbox.focus_set()
+    txtbox.pack(fill='both', expand=True, side=TOP)
+
+    tabs[tab] = txtbox
+    notebook.add(tab, text=fname)
+    notebook.select(tab)
+    txtbox.delete(0.0, END)
+    txtbox.insert(0.0, t)
+
+
 def findActivate(e):
     textfinded.focus_set()
+
 
 def notepadAct(e):
     notepad.focus_set()
 
+
 cmd_line.bind('<Return>', cmdline)
 
-#speak selection
+
+# speak selection
 def right_speak():
     notepad_selection = notepad.selection_get()
     full_notepad_get = notepad.get(0.0, END)
     ModuleFile.rightSpeak(notepad_selection)
+
 
 # full note speak
 def full_speak():
     full_notepad_get = notepad.get(0.0, END)
     ModuleFile.fullSpeak(full_notepad_get)
 
+
 # yt search
 def yt_search():
     SearchMod.yt_search(notepad)
 
+
 def summary():
     ModuleFile.Summary(notepad)
+
 
 # base64 encode
 def encypt():
@@ -196,7 +270,8 @@ def encypt():
 
     notepad.insert(cindex, base64_encoded)
 
-#base64 decode
+
+# base64 decode
 def decode():
     base64_string = notepad.selection_get()
     base64_bytes = base64_string.encode("ascii")
@@ -206,26 +281,33 @@ def decode():
 
     notepad.insert(notepad.index(INSERT), sample_string)
 
+
 # cmd cheat list func
 def cmd_list():
     webbrowser.open_new_tab("https://github.com/rohankishore/Aura-Notes/wiki/Command-Prompt-for-Aura-Notes")
 
+
 # new file
 def cmd_new():  # file menu New option
+    '''''
     global fileName
     if len(notepad.get('1.0', END + '-1c')) > 0:
         if messagebox.askyesno("Notepad", "Do you want to save changes?"):
-            cmd_save_ss()
+            cmd_save_as()
         else:
             notepad.delete(0.0, END)
+    '''''
+    new_tab()
+
 
 # inserting the current date
 def insert_date_up():
     cdate = str(date.today())
     notepad.insert(1.0, cdate)
 
+
 # save file
-def cmd_save_ss():  # file menu Save As option
+def cmd_save_as():  # file menu Save As option
     fd = filedialog.asksaveasfile(mode='w', defaultextension='.txt', initialfile="textfile")
     t = notepad.get(0.0, END)  # t stands for the text gotten from notepad
     try:
@@ -233,26 +315,32 @@ def cmd_save_ss():  # file menu Save As option
     except AttributeError:
         messagebox.showinfo(title="No, Not Again!", message="I'm currently not able to save this file!")
 
+
 # exit the app
 def cmdexit():  # file menu Exit option
     if messagebox.askyesno("Notepad", "Are you sure you want to exit?"):
         root.destroy()
 
+
 # minimize
 def minimize():
     root.iconify()
+
 
 # maximize
 def maximize():
     root.state('zoomed')
 
+
 # cut
 def cmdcut():  # edit menu Cut option
     notepad.event_generate("<<Cut>>")
 
+
 # copy
 def cmdcopy():  # edit menu Copy option
     notepad.event_generate("<<Copy>>")
+
 
 # check if number even or odd
 def check_even_odd():
@@ -263,42 +351,50 @@ def check_even_odd():
     else:
         messagebox.showinfo("Odd!", "Odd Number Found")
 
+
 # check if number is prime
 def checkprime():
     num = int(notepad.selection_get())
     ModuleFile.checkPrime(num)
 
+
 # google search
 def search():
     SearchMod.search_google(notepad)
+
 
 # translate selection
 def right_translate():
     Translate.rightTranslate(notepad)
 
+
 # full note translate
 def full_translate():
     Translate.fullTranslate(notepad)
+
 
 # wikipedia
 def wiki():
     ModuleFile.wiki(notepad)
 
+
 # undo
 def cmd_undo():
     notepad.edit_undo()
+
 
 # redo
 def cmd_redo():
     notepad.edit_redo()
 
+
 def quick_translate_eng(e):
     Translate.quick_translate(notepad)
+
 
 # text box for entry
 notepad = Text(root, font=("Consolas", 12), height=48, foreground="white",
                insertbackground="light blue", borderwidth=0, undo=True)
-
 
 notepad.focus_set()
 
@@ -310,12 +406,11 @@ notepad.bind('<Alt-t>', quick_translate_eng)
 
 textfinded.bind('<Escape>', notepadAct)
 
-
 # opening configs
 with open("synhig.txt", 'r+') as syn:
     synhigh = syn.readline()
 
-with open("TEMP/theme.txt", 'r+') as thm:
+with open("theme.txt", 'r+') as thm:
     themeget = thm.readline()
 
 with open("auto_intend.txt", 'r+') as ain:
@@ -340,6 +435,7 @@ def auto_indent(event):
     # return "break" to inhibit default insertion of newline
     return "break"
 
+
 # changing number of tabs
 def tab_pressed(event: Event) -> str:
     # Insert the 4 spaces
@@ -347,20 +443,25 @@ def tab_pressed(event: Event) -> str:
     # Prevent the default tkinter behaviour
     return "break"
 
+
 # syntax highlighting
 def syntax_highlighting():
     ModuleFile.syntaxHighlighting(notepad)
+
 
 # triggering auto indent
 def auto_intend():
     notepad.bind("<Return>", auto_indent)
     notepad.bind("<Tab>", tab_pressed)
 
+
 if synhigh == "stx":
     syntax_highlighting()
 
+
 def search_stack():
     SearchMod.search_stack(notepad)
+
 
 notepad.tag_configure("tag_name", justify='center')
 
@@ -372,50 +473,59 @@ notepad.config(yscrollcommand=scrollbar.set, background="#1d1d1d")
 notepad.focus_set()
 notepad.pack(fill=BOTH, side=TOP, padx=3)
 
+
 # always on top
 def alwaysontop():
     root.attributes('-topmost', 1)
 
+
 def bug_report():
     webbrowser.open_new_tab("https://github.com/rohankishore/Aura-Notes/issues/new")
+
 
 file_type = Label(bottomFrame, text="Text File", font=("ds-digital", 8), background="#1b1b1b", foreground="light blue")
 file_type.pack(side=LEFT, padx=5)
 
+
 # open note files
 def noteopen():  # file menu Open option
-    fd = (filedialog.askopenfile(parent=root, mode='r'))
+    fd = (filedialog.askopenfile(parent=root, mode='r', filetypes=(
+        ("Text File", "*.txt"), ("Python File", "*.py"), ("JSON File", "*.js"), ("CSV File", "*.csv"),
+        ("SPEC File", "*.spec"))))
     fd_str = str(fd)
     ext = os.path.splitext(fd_str)
     ext = ext[1]
     ext = ext[0] + ext[1] + ext[2]
     t = fd.read()  # t is the text read through filedialog
-
     if ext == ".tx":
         file_type.config(text="Text File")
     elif ext == ".py":
         file_type.config(text="Python File")
     elif ext == ".js":
         file_type.config(text="JSON File")
-    elif ext == ".cs":
+    elif ext == ".csv":
         file_type.config(text="CSV File")
     elif ext == ".sp":
         file_type.config(text="SPEC File")
 
-    notepad.delete(0.0, END)
-    notepad.insert(0.0, t)
+    fname = os.path.basename(fd.name)
+    create_tab(t, fname)
+
 
 # Calendar
 def calendar():
     ModuleFile.calendar()
 
+
 # find in notes
 def find(e):
     ModuleFile.find(e, notepad, textfinded)
 
+
 # calc math exp
 def math_exp():
     ModuleFile.mathExpUp(notepad)
+
 
 # right click menu
 notepad_right_click_event = Menu(notepad, tearoff=0)
@@ -433,6 +543,7 @@ speak = Menu(cmenubar, tearoff=False, background="#2c2f33", foreground="light bl
 
 def search_github():
     SearchMod.search_github(notepad)
+
 
 # highlighter
 def highlight_note():
@@ -461,18 +572,24 @@ def clear_highlight():
 
     notepad.tag_remove("start", st_ind, end_ind)
 
+
 highlight_text.add_command(label="Highlight", command=highlight_note)
 highlight_text.add_command(label="Remove Highlight", command=clear_highlight)
+
 
 # mail tools start #
 def to_and_from():
     ModuleFile.to_and_from(notepad)
 
+
 def add_footer():
     ModuleFile.add_footer(notepad)
 
+
 def add_full_format():
     ModuleFile.add_full_format(notepad)
+
+
 # mail tools end #
 
 mail_tools.add_command(label="Add full mail format", command=add_full_format)
@@ -483,13 +600,16 @@ numericals.add_command(label="Calculate Expression", command=math_exp)
 numericals.add_command(label="Check EVEN or ODD", command=check_even_odd)
 numericals.add_command(label="Check if PRIME", command=checkprime)
 
+
 # paste
 def cmdpaste():  # edit menu Paste option
     notepad.event_generate("<<Paste>>")
 
+
 # select all
 def cmdselectall():  # edit menu Select All option
     notepad.event_generate("<<SelectAll>>")
+
 
 notepad_right_click_event.add_command(label="Copy                               Ctrl + C", command=cmdcopy)
 notepad_right_click_event.add_command(label="Paste                               Ctrl + V", command=cmdpaste)
@@ -498,17 +618,16 @@ notepad_right_click_event.add_command(label="Cut                                
 
 notepad_right_click_event.add_separator()
 
-notepad.bind('<Control-s>', cmd_save_ss)
+notepad.bind('<Control-s>', cmd_save_as)
 notepad.bind('<Control-b>', right_speak)
 notepad.bind('<Control-m>', math_exp)
 notepad.bind('<Control-d>', insert_date_up)
 notepad.bind('<Control-y>', yt_search)
-notepad.bind('<Control-S>', cmd_save_ss)
+notepad.bind('<Control-S>', cmd_save_as)
 notepad.bind('<Control-B>', right_speak)
 notepad.bind('<Control-M>', math_exp)
 notepad.bind('<Control-D>', insert_date_up)
 notepad.bind('<Control-Y>', yt_search)
-
 
 notepad_right_click_event.add_cascade(label="Speak", menu=speak)
 notepad_right_click_event.add_cascade(label="Translate", menu=translate)
@@ -516,6 +635,7 @@ notepad_right_click_event.add_cascade(label="Highlight", menu=highlight_text)
 notepad_right_click_event.add_cascade(label="Search In", menu=web_tools)
 notepad_right_click_event.add_cascade(label="Numericals", menu=numericals)
 notepad_right_click_event.add_cascade(label="Encrypt", menu=encode)
+
 
 def notes_popup(event):
     try:
@@ -527,59 +647,75 @@ def notes_popup(event):
 
 notepad.bind("<Button-3>", notes_popup)
 
+
 # Prompt while exiting the app
 def ExitApplication():
     MsgBox = messagebox.askquestion('Not this fast! Consider saving the file?',
                                     'Do you want to save this document before leaving?',
                                     icon='warning')
     if MsgBox == 'yes':
-        cmd_save_ss()
+        cmd_save_as()
     else:
         root.destroy()
+
 
 # Transparency Adjustments start #
 def Transparent25():
     root.attributes('-alpha', 0.75)
 
+
 def Transparent20():
     root.attributes('-alpha', 0.8)
+
 
 def Transparent5():
     root.attributes('-alpha', 0.95)
 
+
 def Transparent10():
     root.attributes('-alpha', 0.9)
+
 
 def Transparent30():
     root.attributes('-alpha', 0.7)
 
+
 def Transparent40():
     root.attributes('-alpha', 0.6)
+
 
 # 50% Transparency
 def Transparent50():
     root.attributes('-alpha', 0.5)
 
+
 def Transparent60():
     root.attributes('-alpha', 0.4)
+
 
 # 75% Transparency
 def Transparent75():
     root.attributes('-alpha', 0.25)
 
+
 # Reset transparency to default (0%)
 def resetTransparent():
     root.attributes('-alpha', 1)
+
+
 # Transparency Adjustments end #
 
 def highContrastMode():
     ModuleFile.highContrastMode(notepad, topFrame, cmd_line)
 
+
 def darkmode():
     ModuleFile.darkmode(notepad, topFrame, cmd_line)
 
+
 def lightmode():
     ModuleFile.lightmode(notepad, topFrame, cmd_line)
+
 
 # adjusting themes
 if themeget == "dark":
@@ -615,6 +751,7 @@ menubar = Menu(root, background='blue', fg='light blue')
 
 font1 = ['Arial', 13]
 
+
 # zoom in and out
 def zoomin(str1):
     if str1 == 'plus':
@@ -624,17 +761,19 @@ def zoomin(str1):
 
     notepad.config(font=font1)
 
+
 line_label = Label(bottomFrame, text="1.0", background="#1b1b1b", foreground="cyan")
 line_label.pack(side=RIGHT, padx=20)
+
 
 def update_line_label(e):
     cindex = str(notepad.index(INSERT))
     line_label.config(text=cindex)
 
+
 notepad.bind('<KeyPress>', update_line_label)
 notepad.bind('<KeyRelease>', update_line_label)
 notepad.bind('<Button-2>', update_line_label)
-
 
 # Declare file and edit for showing in menubar
 file = Menu(menubar, tearoff=False, background='#2c2f33', foreground="light blue")
@@ -660,21 +799,25 @@ transparency.add_command(label="Reset", command=resetTransparent)
 helptab.add_command(label="Command List", command=cmd_list)
 helptab.add_command(label="Bug Report", command=bug_report)
 
+
 # current version
 def version():
     text_ver = "Current Version: " + "1.0.8" + "\n" + "\n" + "\n" + "What's New:" + "\n" + "\n" + "* Improved Color Science" + "\n" \
                + "* Line Numbers" + "\n" + "* New Icon" + "\n" + "* Quicker Translations" + "\n" + "* More Transparency Options" + "\n" + "* Improved overall Stability"
     messagebox.showinfo("Version Info", text_ver)
 
+
 def find_replace():
     ModuleFile.find_replace(notepad)
+
 
 def word_wrap():
     notepad.config(wrap=WORD)
 
+
 file.add_command(label="New Document", command=cmd_new)
 file.add_command(label="Open Document", command=noteopen)
-file.add_command(label="Save Document", command=cmd_save_ss)
+file.add_command(label="Save Document", command=cmd_save_as)
 file.add_command(label="New Frame", command=new_frame)
 file.add_command(label="Summary", command=summary)
 file.add_command(label="Exit", command=cmdexit)
@@ -699,16 +842,20 @@ window.add_cascade(label="Transparency", menu=transparency)
 tools.add_command(label="Calendar", command=calendar)
 tools.add_cascade(label="Mail Tools", menu=mail_tools)
 
+
 def about_github():
     webbrowser.open_new_tab("https://github.com/rohankishore/Aura-Notes")
+
 
 # Add commands in about menu
 abb.add_command(label="Current Version", command=version)
 abb.add_command(label="GitHub", command=about_github)
 
+
 # settings page
 def settings():
     ModuleFile.settings()
+
 
 # Display the file and edit declared in previous step
 menubar.add_cascade(label="File", menu=file)
