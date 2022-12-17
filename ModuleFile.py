@@ -4,7 +4,7 @@ ModuleFile
 This file contains all the functions for the features of Aura Notes. This makes the code better accessible and easy to contribute
 for the devs
 
-Translate feature isnt included in this file as the number of lines increases dramatically. That's in an different .py file.
+Translate feature isn't included in this file as the number of lines increases dramatically. That's in a different .py file.
 """
 import os
 import tkinter
@@ -58,7 +58,7 @@ def calendar():
     def showCalender():
         global gui
         gui = Tk()
-        gui.config(background='#303030')
+        gui.configure(background='#303030')
         gui.title("Calender for the year")
         yearr = int(year_field.get())
         gui_content = calendar.calendar(yearr)
@@ -70,7 +70,7 @@ def calendar():
         global year_field
         new = Tk()
         new.title("Calender"), new.geometry("300x200")
-        new.config(background="#1b1b1b")
+        new.configure(background="#1b1b1b")
         cal = ttk.Label(new, text="Calender", font=("times", 28, "bold"), background="#1b1b1b", foreground="white")
         year = ttk.Label(new, text="Enter year", background="#1b1b1b", foreground="white")
         year_field = ttk.Entry(new)
@@ -101,7 +101,7 @@ def Summary(textwidget):
     tk = Toplevel()
     tk.overrideredirect(True)
 
-    tk.config(background="black")
+    tk.configure(background="black")
 
     w = 300  # width for the Tk root
     h = 100  # height for the Tk root
@@ -126,19 +126,19 @@ def Summary(textwidget):
     ttk.Button(tk, text="OK", command=close).pack(side=BOTTOM)
 
 def highContrastMode(notepad, topFrame, cmd_line):
-    notepad.config(background="black", foreground="#44ad88")
-    cmd_line.config(background="grey")
-    topFrame.config(background="black")
+    notepad.configure(background="black", foreground="#44ad88")
+    cmd_line.configure(background="grey")
+    topFrame.configure(background="black")
 
 def darkmode(notepad, topFrame, cmd_line):
-    notepad.config(background="#1d1d1d", foreground="white")
-    topFrame.config(background="#1d1d1d")
-    cmd_line.config(background="#313335")
+    notepad.configure(background="#1d1d1d", foreground="white")
+    topFrame.configure(background="#1d1d1d")
+    #cmd_line.configure(background="#313335") #this line give error ('background' is a invalid argument something)
 
 def lightmode(notepad, topFrame, cmd_line):
-    notepad.config(background="#d3d3d3", foreground="black")
-    topFrame.config(background="white")
-    cmd_line.config(background="white")
+    notepad.configure(background="#d3d3d3", foreground="black")
+    topFrame.configure(background="white")
+    cmd_line.configure(background="white")
 
 def add_full_format(textwidget):
     from datetime import date
@@ -185,7 +185,7 @@ def highlightText(notepad):
     end_ind = notepad.index("sel.last")
 
     notepad.tag_add("start", st_ind, end_ind)
-    notepad.tag_config("start", background="gold", foreground="black")
+    notepad.tag_configure("start", background="gold", foreground="black")
 
 def mathExpUp(notepad):
     global res_txt
@@ -218,7 +218,7 @@ def find(e, notepad, textfinded):
             idx = lastidx
 
         # mark located string as red
-        notepad.tag_config('found', foreground='red')
+        notepad.tag_configure('found', foreground='red')
 
 # func for syntax highlighting
 def syntaxHighlighting(notepad):
@@ -257,7 +257,7 @@ def settings():
     settings_page.geometry("350x400")
     settings_page.resizable(True, True)
     settings_page.state('zoomed')
-    settings_page.config(background="black")
+    settings_page.configure(background="black")
 
     syvar = StringVar()
     themevar = StringVar()
@@ -270,9 +270,9 @@ def settings():
     theme = OptionMenu(settings_page, themevar, *themeval)
     tabnumber = ttk.Entry(settings_page, width=18, textvariable=tabnovar)
     ait = OptionMenu(settings_page, autoindvar, *aival)
-    synt.config(width=15, borderwidth=0, activebackground="#1b1b1b")
-    theme.config(width=15, borderwidth=0, activebackground="#1b1b1b")
-    ait.config(width=15, borderwidth=0, activebackground="#1b1b1b")
+    synt.configure(width=15, borderwidth=0, activebackground="#1b1b1b")
+    theme.configure(width=15, borderwidth=0, activebackground="#1b1b1b")
+    ait.configure(width=15, borderwidth=0, activebackground="#1b1b1b")
     ttk.Label(settings_page, text="Syntax Highlighting", background="#121212", foreground="white").place(x=10, y=50)
     ttk.Label(settings_page, text="Theme", background="#121212", foreground="white").place(x=10, y=120)
     ttk.Label(settings_page, text="Auto Intend", background="#121212", foreground="white").place(x=10, y=190)
@@ -346,7 +346,7 @@ def wiki(notepad):
         messagebox.showerror("Error!", "Select any text or word to continue")
         w.destroy()
 
-    w.configure(background="#1b1b1b"), w.title("Wikipedia"), w.resizable(False, False)
+    w.configureure(background="#1b1b1b"), w.title("Wikipedia"), w.resizable(False, False)
 
     text_w = Text(w, background="#1b1b1b", foreground="white", font=("Helvetica", 12))
     text_w.pack(pady=10)
@@ -360,7 +360,7 @@ def wiki(notepad):
     result = wikipedia.page(query).content
 
     text_w.insert(1.0, result)
-    text_w.config(state=DISABLED)
+    text_w.configure(state=DISABLED)
 
 def txt_analyze():
     filepath = str(askopenfilename(filetypes=[("Text files", "*.txt")]))
@@ -374,7 +374,7 @@ def txt_analyze():
     tk = Toplevel()
     tk.overrideredirect(True)
 
-    tk.config(background="black")
+    tk.configure(background="black")
 
     w = 300  # width for the Tk root
     h = 100  # height for the Tk root

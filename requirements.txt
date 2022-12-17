@@ -1,7 +1,8 @@
 pyttsx3
-idlelib
+idle
 pillow
 sv_ttk
 wikipedia
 googletrans
 pyperclip
+customtkinter
