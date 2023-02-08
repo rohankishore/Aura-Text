@@ -32,7 +32,7 @@ def rightSpeak(text):
 def fullSpeak(text):
     engine = pyttsx3.init()
     engine.say(text)
-    engine.runAndWait()
+    engine.runAndWait() 
 
 def checkPrime(num):
     if num > 1:
