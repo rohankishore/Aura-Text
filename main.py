@@ -1,6 +1,7 @@
 import re
 import tkinter as tk
 import webbrowser
+from datetime import date
 from idlelib.colorizer import ColorDelegator
 from idlelib.percolator import Percolator
 from tkinter import ttk
@@ -24,51 +25,26 @@ class AutocompleteText(tk.Text):
     def __init__(self, *args, **kwargs):
         self.callback = kwargs.pop("autocomplete", None)
         super().__init__(*args, **kwargs)
-
-        # bind on key release, which will happen after tkinter
-        # inserts the typed character
         self.bind("<Any-KeyRelease>", self._autocomplete)
-
-        # special handling for tab, which needs to happen on the
-        # key _press_
         self.bind("<Tab>", self._handle_tab)
 
     def _handle_tab(self, event):
-        # see if any text has the "autocomplete" tag
         tag_ranges= self.tag_ranges("autocomplete")
         if tag_ranges:
-            # move the insertion cursor to the end of
-            # the selected text, and then remove the "sel"
-            # and "autocomplete" tags
             self.mark_set("insert", tag_ranges[1])
             self.tag_remove("sel", "1.0", "end")
             self.tag_remove("autocomplete", "1.0", "end")
-
-            # prevent the default behavior of inserting a literal tab
             return "break"
 
     def _autocomplete(self, event):
         if event.char and self.callback:
-            # get word preceeding the insertion cursor
             word = self.get("insert-1c wordstart", "insert-1c wordend")
-
-            # pass word to callback to get possible matches
             matches = self.callback(word)
 
             if matches:
-                # autocomplete on the first match
                 remainder = matches[0][len(word):]
-
-                # remember the current insertion cursor
                 insert = self.index("insert")
-
-                # insert at the insertion cursor the remainder of
-                # the matched word, and apply the tag "sel" so that
-                # it is selected. Also, add the "autocomplete" text
-                # which will make it easier to find later.
                 self.insert(insert, remainder, ("sel", "autocomplete"))
-
-                # move the cursor back to the saved position
                 self.mark_set("insert", insert)
 
 class Editor:
@@ -238,12 +214,14 @@ class Editor:
         textbox.config(xscrollcommand=xscrollbar.set)
 
         textbox.bind('<Control-s>', self.save_file)
+        textbox.bind('<Control-s>', self.save_file)
         textbox.bind('<Control-o>', self.open_file)
+        textbox.bind('<Control-O>', self.open_file)
         textbox.bind('<Control-n>', self.new_file)
-        textbox.bind('<Control-a>', self.select_all)
+        textbox.bind('<Control-N>', self.new_file)
         textbox.bind('<Control-w>', self.close_tab)
+        textbox.bind('<Control-W>', self.close_tab)
         textbox.bind('<Button-3>', self.right_click)
-
         textbox.bind('<Control-F>', self.finder)
         textbox.bind('<Control-f>', self.finder)
 
@@ -433,6 +411,10 @@ class Editor:
         self.tabs[curr_tab].textbox.mark_set(tk.INSERT, tk.END)
         self.tabs[curr_tab].textbox.see(tk.INSERT)
 
+    def insert_date_up(self):
+        cdate = str(date.today())
+        self.tabs[self.get_tab()].textbox.insert(1.0, cdate)
+
     def undo(self):
         self.tabs[self.get_tab()].textbox.edit_undo()
 
@@ -448,7 +430,8 @@ class Editor:
     def right_click_tab(self, event):
         self.tab_right_click_menu.post(event.x_root, event.y_root)
 
-    def learn_features(self):
+    @staticmethod
+    def learn_features():
         webbrowser.open_new_tab("https://github.com/rohankishore/Aura-Notes/wiki")
 
     @staticmethod
