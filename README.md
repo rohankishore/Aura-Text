@@ -1,11 +1,13 @@
 ![Scriptextr (1)](https://user-images.githubusercontent.com/109947257/217301300-da761ccf-b36b-4e10-b408-073e46925558.png)
 
 # Aura Text
+### Like any text-editor, Unlike any text-editor
 
 Aura Text is a notepad app for Windows, completely made with Python. It offers modern look with advanced and some cool features, and I'll explain them all in a minute!
 
-## Features
+![image](https://user-images.githubusercontent.com/109947257/217451965-a8d6d744-788d-40ab-a64b-a70771dd189f.png)
 
+## Features
 - Well, edit text files
 - Auto Completion (Python only as of v1.1.0)
 - Highlighter
@@ -21,15 +23,6 @@ Aura Text is a notepad app for Windows, completely made with Python. It offers m
 - Always on top functionality
 - Search for words in sites like Google, Stackoverflow and Github
 
-## Setting Up
-```
-pip install -r requirements.txt
-```
-
-## Benchmarks
-
-- Can easily crunch through 100-150MB Text Files with real time translation, highlighting and searching.
-
 ## Screenshots
 
 ![image](https://user-images.githubusercontent.com/109947257/217451965-a8d6d744-788d-40ab-a64b-a70771dd189f.png)
@@ -44,8 +37,10 @@ pip install -r requirements.txt
 - Display time and date but in a indistractive and modern way (maybe in a right click menu) (might change it bcz you can just view the time via taskbar.. But what if you're in full-screen mode?)
 - Filetree to open files quicker
 - File-type recognition 
+- Line nnumbers
 
-That's it for right now! Will update more To Do's later... Also, i'll mark them as complete if i implemented the feature!
+## Contact
+Created by [@rohankishore](mailto:rohankishore746@gmail.com) - feel free to contact me!
 
 ## Get Aura Notes (vLATEST) now:
 https://github.com/rohankishore/Aura-Text/releases/tag/v1.1.0
@@ -54,6 +49,17 @@ https://github.com/rohankishore/Aura-Text/releases/tag/v1.1.0
 
 ## Contributions
 Contributions are always welcome. You guys help me to keep this project alive. Thanks for being such great community of people! Contact me at:
-- Instagram: @jops.zuck
+- Instagram: @_.j0ps
 - Reddit: https://www.reddit.com/user/literallyRohan
 - Discord: literallyRohan#3884
+
+## 
+
+## Credits and Acknowledgements 
+
+- Inspired from PyCharm and MS Notepad
+- This project is based on Python (Tkinter)
+- Many thanks to Tkinter/Tcl discord group for their suggestions etc
+
+## Project Status
+Project is: _in progress_. Bigger updates coming every 1 or 2 month and smaller ones ever 1-2 weeks.
