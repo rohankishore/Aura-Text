@@ -63,3 +63,17 @@ Contributions are always welcome. You guys help me to keep this project alive. T
 
 ## Project Status
 Project is: _in progress_. Bigger updates coming every 1 or 2 month and smaller ones ever 1-2 weeks.
+
+
+# Advanced Readme
+
+### Color Science
+
+| Part  | Color Hex |
+| ------------- | ------------- |
+| Text Editor  | #1d1d1d  |
+| Menu bar  | white / #FFFFFF |
+| Menubar Texts | light blue |
+| Find In Notes Text Color | #FF0000 |
+| Highlighter Background | #FFFF00 |
+| Scrollbar | #878787 |
