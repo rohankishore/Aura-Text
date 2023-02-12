@@ -67,7 +67,9 @@ Project is: _in progress_. Bigger updates coming every 1 or 2 month and smaller 
 
 # Advanced Readme
 
-### Color Science
+## Color Science
+
+### Primary Colors Used
 
 | Part  | Color Hex |
 | ------------- | ------------- |
@@ -77,3 +79,21 @@ Project is: _in progress_. Bigger updates coming every 1 or 2 month and smaller 
 | Find In Notes Text Color | #FF0000 |
 | Highlighter Background | #FFFF00 |
 | Scrollbar | #878787 |
+
+### -- -- -- -- -- -- -- -- -- -- 
+
+### Syntax Highlighting Colors
+
+| Type  | Color / Hex |
+| ------------- | ------------- |
+| COMMENT  | grey  |
+| KEYWORD  | orange |
+| BUILTIN | gold |
+| STRING | #95e7ad |
+| DEFINITION | #bb6733 |
+| BRACKETS | #007F7F |
+
+## -- -- -- -- -- -- -- -- -- -- --
+
+# Keybindings
+
