@@ -97,3 +97,4 @@ Project is: _in progress_. Bigger updates coming every 1 or 2 month and smaller 
 
 # Keybindings
 
+![Group 1](https://user-images.githubusercontent.com/109947257/218295897-3d37e29e-49a9-4401-9104-965bf3f52f42.png)
