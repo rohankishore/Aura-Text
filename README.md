@@ -1,4 +1,4 @@
-![Scriptextr (1)](https://user-images.githubusercontent.com/109947257/217301300-da761ccf-b36b-4e10-b408-073e46925558.png)
+![Scriptextr](https://user-images.githubusercontent.com/109947257/218734573-a2ab5fab-c45a-48b6-b2c8-06fc190cab76.png)
 
 # Aura Text
 ### Like any text-editor, Unlike any text-editor
