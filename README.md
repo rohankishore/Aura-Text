@@ -5,7 +5,7 @@
 
 Aura Text is a notepad app for Windows, completely made with Python. It offers modern look with advanced and some cool features, and I'll explain them all in a minute!
 
-![image](https://user-images.githubusercontent.com/109947257/217451965-a8d6d744-788d-40ab-a64b-a70771dd189f.png)
+![image](https://user-images.githubusercontent.com/109947257/218779814-9c5a074e-8875-4b99-8a9f-267ba19a7a17.png)
 
 ## Features
 - Well, edit text files
