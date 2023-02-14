@@ -9,7 +9,12 @@ Aura Text is a notepad app for Windows, completely made with Python. It offers m
 
 ## Features
 - Well, edit text files
-- Auto Completion (Python only as of v1.1.0)
+- Line Numbers
+- File Directory open
+- Plagiarism Checker
+- Refractoring
+- Goto Line
+- Auto Completion (Python and bit of C++ only as of v1.1.1)
 - Highlighter
 - Text Encrypt and Decrypt
 - Text to Speech
@@ -43,7 +48,7 @@ Aura Text is a notepad app for Windows, completely made with Python. It offers m
 Created by [@rohankishore](mailto:rohankishore746@gmail.com) - feel free to contact me!
 
 ## Get Aura Notes (vLATEST) now:
-https://github.com/rohankishore/Aura-Text/releases/tag/v1.1.0
+https://github.com/rohankishore/Aura-Text/releases/tag/v1.1.1
 
 ##     
 
