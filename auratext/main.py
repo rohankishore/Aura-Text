@@ -44,7 +44,7 @@ class Editor:
 
         self.lineNumber = CTkCanvas(self.master, background="#212325", width=80, highlightthickness=0)
         self.lineNumber.pack(side=LEFT, fill=Y, pady=25)
-
+ 
         self.wordCount = StringVar()
         self.wordCount.set("Word Count -> 0")
 
