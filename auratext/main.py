@@ -361,7 +361,7 @@ class Editor:
                 self.nb.insert(event.widget.index('@%d,%d' % (event.x, y)), self.nb.select())
             except TclError:
                 return
-
+ 
 def main():
     root = CTk()
     app = Editor(root)
