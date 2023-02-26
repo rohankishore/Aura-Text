@@ -37,3 +37,4 @@ In the interest of fostering an open and welcoming environment, we as contributo
 - Gracefully accepting constructive criticism
 - Focusing on what is best for the community
 - Showing empathy towards other community members+
+ 
