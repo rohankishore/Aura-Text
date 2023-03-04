@@ -47,7 +47,7 @@ Aura Text is a versatile and user-friendly text editor that supports multiple pr
 ## Contact
 Created by [@rohankishore](mailto:rohankishore746@gmail.com) - feel free to contact me!
 
-## Get Aura Notes (vLATEST) now:
+## Get Aura Text (vLATEST) now:
 https://github.com/rohankishore/Aura-Text/releases/tag/v1.1.1
 
 ##     
