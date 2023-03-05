@@ -1,20 +1,34 @@
-![Scriptextr](https://user-images.githubusercontent.com/109947257/218734573-a2ab5fab-c45a-48b6-b2c8-06fc190cab76.png)
+![img](https://user-images.githubusercontent.com/109947257/222976694-41e52aff-e2ce-43e4-8f98-e90706929ba2.png)
 
 # Aura Text
-### Like any text-editor, Unlike any text-editor
+### Like Any Text Editor, Unlike Any Text Editor
 
-Aura Text is a versatile and user-friendly text editor that supports multiple programming languages. It features a customizable interface, syntax highlighting, auto-completion, and much more tools for everyone.
+![image](https://user-images.githubusercontent.com/109947257/222976702-a2b50a38-886e-45fa-b3a4-bc4e28095ee2.png)
 
-![image](https://user-images.githubusercontent.com/109947257/218779814-9c5a074e-8875-4b99-8a9f-267ba19a7a17.png)
+[![License](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
+## Description
+
+Aura Text is a versatile and powerful text editor that provides all the necessary tools for developers. It is build using Tkinter and Python.
+
+## Table of Contents
+
+- [Features](#features)
+- [Screenshots](#screenshots)
+- [Installation](#installation)
+- [Usage](#usage)
+- [Contributing](#contributing)
+- [License](#license)
+- [Contact](#contact)
 
 ## Features
-- Well, edit text files
+
+- Well, edit Text Files
 - Line Numbers
-- File Directory open
-- Plagiarism Checker
+- Open files via File Directory
 - Refractoring
 - Goto Line
-- Auto Completion (Python and bit of C++ only as of v1.1.1)
+- Auto Completion (Python, C++ and HTML(beta) Supported)
 - Highlighter
 - Text Encrypt and Decrypt
 - Text to Speech
@@ -25,81 +39,38 @@ Aura Text is a versatile and user-friendly text editor that supports multiple pr
 - Instantly get article from Wikipedia about the selected word from the notes, without even leaving the app
 - Universal dark mode
 - Adjust transparency of the window, so that you can copy text from another app without even closing or minimizing the Notes.
-- Always on top functionality
+- Always on top
 - Search for words in sites like Google, Stackoverflow and Github
 
 ## Screenshots
 
-![image](https://user-images.githubusercontent.com/109947257/217451965-a8d6d744-788d-40ab-a64b-a70771dd189f.png)
+![image](https://user-images.githubusercontent.com/109947257/222976713-85f0d9cb-1fc6-4ab8-99f6-5afb33c65034.png)
 
-![image](https://user-images.githubusercontent.com/109947257/217451998-7dfda718-5454-49c4-9cc2-bad90325470d.png)
+![image](https://user-images.githubusercontent.com/109947257/222976718-c0cbafc0-acb5-4071-b75e-4f4f91c19a18.png)
 
+![image](https://user-images.githubusercontent.com/109947257/222976724-6951597e-1ea2-4bde-af49-2c2328892b40.png)
 
-## To Do 
+## Installation
 
-- ~~Switch between light and dark themes~~
-- ~~New and modern icon (i'm using an generic icon rn... Need to change it ASAP)~~
-- Display time and date but in a indistractive and modern way (maybe in a right click menu) (might change it bcz you can just view the time via taskbar.. But what if you're in full-screen mode?)
-- Filetree to open files quicker
-- File-type recognition 
-- Line nnumbers
+Download or Clone this repo. Then, install all the libraries mentioned in the `requirements.txt` file.
+Use the command`pip install -r requirements.txt` to install all the libs at a single go.
+
+## Usage
+
+The text editor will be opened with a defualt file named `Scratch`. You can edit the file and save it as your preffered filetype.
+Aura Text supports most of the mainstream Text file types excl the ones that has images.
+
+## Contributing
+
+We always welcome contributions. We're thrilled to have you.
+But before making your first contribution, kindly take a look
+at the `CONTRIBUTING.md` file listed in the `main` branch of the repo. It contains everything you need to know.
+
+## License
+
+This project is licensed under the terms of the [MIT license](https://opensource.org/licenses/MIT).
 
 ## Contact
-Created by [@rohankishore](mailto:rohankishore746@gmail.com) - feel free to contact me!
 
-## Get Aura Text (vLATEST) now:
-https://github.com/rohankishore/Aura-Text/releases/tag/v1.1.1
-
-##     
-
-## Contributions
-Contributions are always welcome. You guys help me to keep this project alive. Thanks for being such great community of people! Contact me at:
-- Instagram: @_.j0ps
-- Reddit: https://www.reddit.com/user/literallyRohan
-- Discord: literallyRohan#3884
-
-## 
-
-## Credits and Acknowledgements 
-
-- Inspired from PyCharm and MS Notepad
-- This project is based on Python (Tkinter)
-- Many thanks to Tkinter/Tcl discord group for their suggestions etc
-
-## Project Status
-Project is: _in progress_. Bigger updates coming every 1 or 2 month and smaller ones ever 1-2 weeks.
-
-
-# Advanced Readme
-
-## Color Science
-
-### Primary Colors Used
-
-| Part  | Color Hex |
-| ------------- | ------------- |
-| Text Editor  | #1d1d1d  |
-| Menu bar  | white / #FFFFFF |
-| Menubar Texts | light blue |
-| Find In Notes Text Color | #FF0000 |
-| Highlighter Background | #FFFF00 |
-| Scrollbar | #878787 |
-
-### -- -- -- -- -- -- -- -- -- -- 
-
-### Syntax Highlighting Colors
-
-| Type  | Color / Hex |
-| ------------- | ------------- |
-| COMMENT  | grey  |
-| KEYWORD  | orange |
-| BUILTIN | gold |
-| STRING | #95e7ad |
-| DEFINITION | #bb6733 |
-| BRACKETS | #007F7F |
-
-## -- -- -- -- -- -- -- -- -- -- --
-
-# Keybindings
-
-![Group 1](https://user-images.githubusercontent.com/109947257/218295897-3d37e29e-49a9-4401-9104-965bf3f52f42.png)
+Visit my profile bio to get all of my contact details. 
+This includes my Instagram, Reddit and also my Discord. 
