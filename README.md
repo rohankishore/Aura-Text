@@ -19,6 +19,7 @@ Aura Text is a versatile and powerful text editor that provides all the necessar
 - [Usage](#usage)
 - [Contributing](#contributing)
 - [License](#license)
+- [Full Details of the Proejct](#full-details-about-the-project)
 - [Contact](#contact)
 
 ## Features
@@ -69,6 +70,13 @@ at the `CONTRIBUTING.md` file listed in the `main` branch of the repo. It contai
 ## License
 
 This project is licensed under the terms of the [MIT license](https://opensource.org/licenses/MIT).
+
+## Full Details about the Project
+
+- Total Python Files : 3
+- Total Image Files : 1 (icon.ico)
+- Total number of lines of code : 771 lines
+- Birthday : Oct 2 2022
 
 ## Contact
 
