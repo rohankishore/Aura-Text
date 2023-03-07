@@ -8,7 +8,7 @@ def search_stack(notepad):
     cquery = notepad.selection_get()
     l = "https://stackoverflow.com/search?q=" + cquery + "&s=ddab4d49-a574-4a62-8794-24ac8a478c20"
     webbrowser.open_new_tab(l)
-
+ 
 def search_github(notepad):
     gquery = notepad.selection_get()
     link = "https://github.com/search?q=" + gquery
