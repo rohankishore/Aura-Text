@@ -1,6 +1,6 @@
 from datetime import datetime
 from tkinter import *
-import webbrowser, re, ModuleFile, SearchMod, os, config
+import webbrowser, re, ModuleFile, SearchMod, os
 from idlelib.colorizer import ColorDelegator
 from idlelib.percolator import Percolator
 from customtkinter import  CTk, CTkCanvas, CTkScrollbar, CTkEntry, CTkToplevel
@@ -9,13 +9,13 @@ from hashlib import md5
 
 python_wd = ModuleFile.words
 
-theme_get = "dark" #config.config_json["theme"]
-lang_get = "python"  #config.config_json["language"]
-fg_get = "white" #config.config_json["foreground"]
-bg_get = "#1d1d1d"#config.config_json["background"]
-tc_get = "cyan" #config.config_json["txt_cursor"]
-font = "Consolas" #config.config_json["font"]
-fontsize = 12 #config.config_json["font_size"]
+theme_get = "dark"
+lang_get = "python"
+fg_get = "white"
+bg_get = "#1d1d1d"
+tc_get = "cyan"
+font = "Consolas"
+fontsize = 12
 
 
 class Document:
@@ -42,9 +42,9 @@ class Editor:
         self.master = master
         self.master.set_appearance_mode(theme_get); self.master.geometry("1250x700"); self.master.iconbitmap("icon.ico"); self.master.title("Aura Text"); self.frame = Frame(self.master); self.frame.pack()
 
-        self.lineNumber = CTkCanvas(self.master, background="#212325", width=80, highlightthickness=0)
+        self.lineNumber = CTkCanvas(self.master, background="#212325", width=60, highlightthickness=0)
         self.lineNumber.pack(side=LEFT, fill=Y, pady=25)
- 
+
         self.wordCount = StringVar()
         self.wordCount.set("Word Count -> 0")
 
@@ -60,7 +60,7 @@ class Editor:
 
         filemenu = Menu(menubar, tearoff=0, background="#2c2f33", foreground="light blue")
         new_file_menu = Menu(filemenu, tearoff=0, background="#2c2f33", foreground="light blue")
-        new_file_menu.add_command(label="Python File            ", command=self.python_add); new_file_menu.add_command(label="C++ File", command=self.cpp_add); new_file_menu.add_command(label="Text File", command=self.txt_add)
+        new_file_menu.add_command(label="Python File            ", command=self.python_add); new_file_menu.add_command(label="C++ File", command=self.cpp_add);new_file_menu.add_command(label="HTML File", command=self.html_add); new_file_menu.add_command(label="Text File", command=self.txt_add)
 
         filemenu.add_cascade(label="New", menu=new_file_menu)
         filemenu.add_command(label="Open", command=self.open_file, accelerator="Ctrl + O")
@@ -100,8 +100,8 @@ class Editor:
         editmenu.add_checkbutton(label="Word Wrap", onvalue=True, offvalue=False, variable=self.word_wrap,
                                    command=self.wrap)
 
-        menubar.add_cascade(label="File", menu=filemenu) ;menubar.add_cascade(label="Edit", menu=editmenu);
-        menubar.add_cascade(label="Tools", menu=toolsmenu); menubar.add_cascade(label="Window", menu=windowmenu);
+        menubar.add_cascade(label="File", menu=filemenu) ;menubar.add_cascade(label="Edit", menu=editmenu)
+        menubar.add_cascade(label="Tools", menu=toolsmenu); menubar.add_cascade(label="Window", menu=windowmenu)
         menubar.add_cascade(label="Help", menu=abb)
         self.master.config(menu=menubar)
 
@@ -200,7 +200,7 @@ class Editor:
         finde.attributes('-topmost', 1)
 
         def finded(v):
-            ModuleFile.find(self.tabs[self.get_tab()].textbox, textfindedd)
+            ModuleFile.find(self, textfindedd)
 
         textfindedd.bind('<KeyPress>', finded)
         textfindedd.bind('KeyRelease', finded)
@@ -232,6 +232,9 @@ class Editor:
     def python_add(self):
         self.new_file()
         ModuleFile.python_temp(self.tabs[self.get_tab()].textbox)
+    def html_add(self):
+        self.new_file()
+        ModuleFile.html_temp(self)
     def cpp_add(self):
         self.new_file()
         ModuleFile.cpp_temp(self.tabs[self.get_tab()].textbox)
@@ -312,7 +315,7 @@ class Editor:
     def bug_report(self):
         webbrowser.open_new_tab("https://github.com/rohankishore/Aura-Text/issues/new/choose")
     def version(self):
-        text_ver = "Current Version: " + "1.2" + "\n" + "Codename: " + "Hi Speed!"
+        text_ver = "Current Version: " + "1.6" + "\n" + "Codename: " + "Bye, Bugs!"
         messagebox.showinfo("Version Info", text_ver)
     def about_github(self):
         webbrowser.open_new_tab("https://github.com/rohankishore/Aura-Notes")
@@ -361,7 +364,7 @@ class Editor:
                 self.nb.insert(event.widget.index('@%d,%d' % (event.x, y)), self.nb.select())
             except TclError:
                 return
- 
+
 def main():
     root = CTk()
     app = Editor(root)
