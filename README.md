@@ -84,3 +84,13 @@ This project is licensed under the terms of the [MIT license](https://opensource
 
 Visit my profile bio to get all of my contact details. 
 This includes my Instagram, Reddit and also my Discord. 
+
+# Been Featured In:
+
+![image](https://user-images.githubusercontent.com/109947257/223731099-86a24887-dede-42c9-9737-e1d0817db288.png)   ![image](https://user-images.githubusercontent.com/109947257/223731266-842deb1a-e651-4714-9a28-7690059f145d.png)
+
+### Article Links
+
+- [Tistory](https://sansamlife.com/entry/IT-%EC%B5%9C%EC%8B%A0-%EC%A0%95%EB%B3%B4-%EC%98%A4%ED%94%88%EC%86%8C%EC%8A%A4-%EC%9B%B9-%EC%95%A0%ED%94%8C%EB%A6%AC%EC%BC%80%EC%9D%B4%EC%85%98-%EC%95%88%EB%93%9C%EB%A1%9C%EC%9D%B4%EB%93%9C%ED%8F%B0-AudioLM#idx4:~:text=github.com/rohankishore/-,Aura%2DText,-GitHub%20%2D%20rohankishore/Aura)
+
+- [Adafruit](https://blog.adafruit.com/2023/03/07/a-novel-text-programming-editor-aura-text-programming-software/)
