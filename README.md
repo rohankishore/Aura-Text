@@ -1,5 +1,7 @@
 ![at](https://user-images.githubusercontent.com/109947257/223049150-2f49e21e-c5b8-4e40-9da3-9b06b8cf34ac.png)
 
+[![License](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
 ![img](https://user-images.githubusercontent.com/109947257/222976694-41e52aff-e2ce-43e4-8f98-e90706929ba2.png)
 
 # Aura Text
@@ -7,11 +9,14 @@
 
 ![image](https://user-images.githubusercontent.com/109947257/222976702-a2b50a38-886e-45fa-b3a4-bc4e28095ee2.png)
 
-[![License](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 ## Description
 
 Aura Text is a versatile and powerful text editor that provides all the necessary tools for developers. It is build using Tkinter and Python.
+
+# Donate
+
+Donate to Aura Text and get a custom Aura Text designed for you (ABOVE 100INR OR $1), with custom colors, splash screens, fonts etc. [DONATE 💝](https://auratext-donate.carrd.co/)
 
 ## Table of Contents
 
