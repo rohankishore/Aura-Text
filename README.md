@@ -15,7 +15,7 @@ Aura Text is a versatile and powerful text editor that provides all the necessar
 
 # Donate
 
-Donate to Aura Text and get a custom Aura Text designed for you (ABOVE 100INR OR $1), with custom colors, splash screens, fonts etc. [DONATE 💝](https://auratext-donate.carrd.co/)
+Donate to Aura Text and get a custom Aura Text designed for you (ABOVE 100INR OR $1), with custom colors, splash screens, fonts etc. [Buy Me a Coffee ☕](https://www.buymeacoffee.com/auratext)
 
 ## Table of Contents
 
