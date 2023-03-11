@@ -2,6 +2,7 @@
 
 [![License](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
+<a href="https://www.buymeacoffee.com/auratext" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/default-orange.png" alt="Buy Me A Coffee" height="41" width="174"></a>
 
 # Aura Text
 ### Like Any Text Editor, Unlike Any Text Editor
@@ -15,7 +16,7 @@ Aura Text is a versatile and powerful text editor that provides all the necessar
 
 # Donate
 
-Donate to Aura Text and get a custom Aura Text designed for you (ABOVE 100INR OR $1), with custom colors, splash screens, fonts etc. [Buy Me a Coffee ☕](https://www.buymeacoffee.com/auratext)
+<a href="https://www.buymeacoffee.com/auratext" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/default-orange.png" alt="Buy Me A Coffee" height="41" width="174"></a>
 
 ## Table of Contents
 
