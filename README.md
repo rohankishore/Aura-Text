@@ -12,11 +12,14 @@
 
 ## Description
 
-Aura Text is a versatile and powerful text editor that provides all the necessary tools for developers. It is build using Tkinter and Python.
+Aura Text is a versatile and powerful text editor that provides all the necessary tools for developers. It is build using Tkinter and Python. Everything about Aura Text is completely open-source.
 
 # Donate
 
 <a href="https://www.buymeacoffee.com/auratext" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/default-orange.png" alt="Buy Me A Coffee" height="41" width="174"></a>
+
+![bmc_qr](https://user-images.githubusercontent.com/109947257/224487963-bd22c2f6-dd90-4662-a079-30c30d7cc949.png)
+
 
 ## Table of Contents
 
