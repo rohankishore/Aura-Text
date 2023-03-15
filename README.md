@@ -4,10 +4,13 @@
 
 <a href="https://www.buymeacoffee.com/auratext" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/default-orange.png" alt="Buy Me A Coffee" height="41" width="174"></a>
 
+(![image](https://user-images.githubusercontent.com/109947257/225382370-f12018cd-7eda-40c7-811d-46001feb9bd8.png)(https://discord.gg/Hm9GCThD)
+
+
 # Aura Text
 ### Like Any Text Editor, Unlike Any Text Editor
 
-![image](https://user-images.githubusercontent.com/109947257/222976702-a2b50a38-886e-45fa-b3a4-bc4e28095ee2.png)
+[image](https://user-images.githubusercontent.com/109947257/222976702-a2b50a38-886e-45fa-b3a4-bc4e28095ee2.png)
 
 
 ## Description
