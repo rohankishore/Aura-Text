@@ -63,6 +63,10 @@ Aura Text is a versatile and powerful text editor that provides all the necessar
 
 ## Installation
 
+### For Users
+Download the exe file from the Releases page (make sure it's the latest one available) and open the exe. Install wizard will guide you. After the installation is complete, click 'Finish' and Aura Text will open automatically (considering you have checked "Run Aura Text After clicking Finish"). 
+
+### For Developers
 Download or Clone this repo. Then, install all the libraries mentioned in the `requirements.txt` file.
 Use the command`pip install -r requirements.txt` to install all the libs at a single go.
 
