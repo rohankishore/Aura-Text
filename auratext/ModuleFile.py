@@ -286,6 +286,28 @@ def add_par(self):
     self.tabs[self.get_tab()].textbox.insert(st_ind, '(')
     self.tabs[self.get_tab()].textbox.insert(end_ind, ')')
 
+def calculate(self):
+    string = self.tabs[self.get_tab()].textbox.selection_get()
+    #integer = int(string)
+    try:
+        res = int(eval(string))
+        res = str(res)
+        messagebox.showinfo("Result", res)
+    except:
+        messagebox.showerror("Error!", "The selected text isn't either a mathematical expression or have operations that aren't supported by this function.")
+
+def calc_enter_res(self):
+    string = self.tabs[self.get_tab()].textbox.selection_get()
+    st_ind = self.tabs[self.get_tab()].textbox.index("sel.first")
+    end_ind = self.tabs[self.get_tab()].textbox.index("sel.last")
+    try:
+        res = int(eval(string))
+        res = str(res)
+        self.tabs[self.get_tab()].textbox.delete(st_ind, end_ind)
+        self.tabs[self.get_tab()].textbox.insert(st_ind, res)
+    except:
+        messagebox.showerror("Error!", "The selected text isn't either a mathematical expression or have operations that aren't supported by this function.")
+
 
 def open_file(self, *args, Document):
     file_dir = (filedialog.askopenfilename(initialdir=self.init_dir, title="Select file", ))
@@ -358,3 +380,37 @@ def save_file(self, *args):
         with open(self.tabs[curr_tab].file_dir, 'w') as file:
             file.write(self.tabs[curr_tab].textbox.get(1.0, 'end'))
         self.tabs[curr_tab].status = md5(self.tabs[curr_tab].textbox.get(1.0, 'end').encode('utf-8'))
+
+def new_file(self):
+    file_ui = CTkToplevel()
+    file_ui.title("New"), file_ui.geometry("250x150")
+    CTkLabel(file_ui, text="Filename:").pack()
+
+    file_name = CTkEntry(file_ui, width=200, text_color="light blue")
+    file_name.pack(pady=5)
+
+    type_selection = CTkComboBox(master=file_ui,
+                                 values=["Python File", "C++ File", "HTML File", "File"])
+
+    type_selection.set("File")
+    type_selection.pack(pady=15)
+
+    def apply():
+        type_val = type_selection.get()
+        filename = file_name.get()
+
+        if type_val == "Python File":
+            filename = filename + ".py"
+            self.new_filed(filename = filename)
+        elif type_val == "C++ File":
+            filename = filename + ".cpp"
+            self.new_filed(filename=filename)
+        elif type_val == "File":
+            filename = filename
+            self.new_filed(filename=filename)
+        elif type_val == "HTML":
+            filename = filename + ".html"
+            self.new_filed(filename=filename)
+        file_ui.destroy()
+
+    CTkButton(file_ui, text="Create", command=apply).pack(side=BOTTOM)
