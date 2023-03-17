@@ -1,6 +1,5 @@
 pyttsx3
 idle
-pillow
 sv_ttk
 wikipedia
 googletrans
