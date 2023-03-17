@@ -1,21 +1,21 @@
 from datetime import datetime
 from tkinter import *
-import webbrowser, re, ModuleFile, SearchMod, os
+import webbrowser, re, ModuleFile, SearchMod
 from idlelib.colorizer import ColorDelegator
 from idlelib.percolator import Percolator
-from customtkinter import CTk, CTkCanvas, CTkScrollbar, CTkEntry, CTkToplevel
+from customtkinter import *
 from tkinter import messagebox, ttk
 from hashlib import md5
 
-python_wd = ModuleFile.words
+all_wd = ModuleFile.words
 
 theme_get = "dark"
 lang_get = "python"
 fg_get = "white"
-bg_get = "#1d1d1d"
+bg_get = "#1e1f22"
 tc_get = "cyan"
 font = "Consolas"
-fontsize = 12
+fontsize = 15
 
 
 class Document:
@@ -95,17 +95,8 @@ class Editor:
         filemenu = Menu(
             menubar, tearoff=0, background="#2c2f33", foreground="light blue"
         )
-        new_file_menu = Menu(
-            filemenu, tearoff=0, background="#2c2f33", foreground="light blue"
-        )
-        new_file_menu.add_command(
-            label="Python File            ", command=self.python_add
-        )
-        new_file_menu.add_command(label="C++ File", command=self.cpp_add)
-        new_file_menu.add_command(label="HTML File", command=self.html_add)
-        new_file_menu.add_command(label="Text File", command=self.txt_add)
 
-        filemenu.add_cascade(label="New", menu=new_file_menu)
+        filemenu.add_command(label="New", command=self.new_file_mo)
         filemenu.add_command(
             label="Open", command=self.open_file, accelerator="Ctrl + O"
         )
@@ -180,6 +171,10 @@ class Editor:
         abb = Menu(
             menubar, tearoff=False, background="#2c2f33", foreground="light blue"
         )
+        abb.add_command(label="Donate", command=self.donate)
+        abb.add_command(label="Buy Me a Coffee", command=self.buymeacoffee)
+        abb.add_command(label="Join Discord Server", command=self.discord)
+        abb.add_separator()
         abb.add_command(label="Learn IDE Features", command=self.learn_features)
         abb.add_command(label="Submit a Bug Report", command=self.bug_report)
         abb.add_separator()
@@ -215,7 +210,7 @@ class Editor:
             self.right_click_menu,
             tearoff=0,
             foreground="light blue",
-            background="#2c2f33",
+            background="#3c3f41",
         )
         self.encodemenu = Menu(
             self.right_click_menu,
@@ -224,6 +219,13 @@ class Editor:
             background="#2c2f33",
         )
         self.highlightmenu = Menu(
+            self.right_click_menu,
+            tearoff=0,
+            foreground="light blue",
+            background="#2c2f33",
+        )
+
+        self.calc_menu = Menu(
             self.right_click_menu,
             tearoff=0,
             foreground="light blue",
@@ -248,12 +250,22 @@ class Editor:
             label="Select All", command=self.select_all, accelerator="Ctrl + A"
         )
         self.right_click_menu.add_separator()
+
+        self.calc_menu.add_command(label="Calculate", command=self.calculate)
+        self.calc_menu.add_command(label="Calculate and Enter the Result", command=self.calc_enter_res)
+
+        self.speakmenu.add_command(label="Full File       ", command=self.full_speak)
+        self.speakmenu.add_command(label="Selection", command=self.right_speak)
+
+        self.right_click_menu.add_cascade(label="Read Aloud", menu=self.speakmenu)
+
+        self.right_click_menu.add_cascade(label="Calculate", menu=self.calc_menu)
+
         self.right_click_menu.add_command(label="Refractor", command=self.refractoring)
         self.right_click_menu.add_separator()
-        self.speakmenu.add_command(label="Speak", command=self.right_speak)
         self.searchmenu.add_command(label="Wikipedia", command=self.wiki)
         self.searchmenu.add_command(label="StackOverflow", command=self.search_stack)
-        self.encodemenu.add_command(label="Encode", command=self.encypt)
+        self.encodemenu.add_command(label="Encode         ", command=self.encypt)
         self.encodemenu.add_command(label="Decode", command=self.decode)
         self.highlightmenu.add_command(label="Highlight", command=self.highlight_note)
         self.highlightmenu.add_command(
@@ -261,12 +273,12 @@ class Editor:
         )
 
         self.right_click_menu.add_cascade(label="Highlighting", menu=self.highlightmenu)
-        self.right_click_menu.add_cascade(label="Speak", menu=self.speakmenu)
         self.right_click_menu.add_cascade(label="Search In", menu=self.searchmenu)
         self.right_click_menu.add_cascade(label="Encryption", menu=self.encodemenu)
 
         self.tab_right_click_menu = Menu(self.master, tearoff=0)
         self.tab_right_click_menu.add_command(label="New Tab", command=self.new_file)
+        self.tab_right_click_menu.add_command(label="Close Tab", command=self.close_tab)
         self.nb.bind("<Button-3>", self.right_click_tab)
 
         first_tab = ttk.Frame(self.nb)
@@ -275,7 +287,7 @@ class Editor:
 
     def get_matches(self, word):
         wordd = self.tabs[self.get_tab()].textbox.get("1.0", "end-1c").split()
-        words = python_wd + list(wordd)
+        words = all_wd + list(wordd)
         matches = [x for x in words if x.startswith(word)]
         return matches
 
@@ -338,12 +350,12 @@ class Editor:
         textbox.bind("<Control-f>", self.finder)
 
         cdg = ColorDelegator()
-        cdg.tagdefs["COMMENT"] = {"foreground": "grey", "background": "#1d1d1d"}
-        cdg.tagdefs["KEYWORD"] = {"foreground": "orange", "background": "#1d1d1d"}
-        cdg.tagdefs["BUILTIN"] = {"foreground": "gold", "background": "#1d1d1d"}
-        cdg.tagdefs["STRING"] = {"foreground": "#95e7ad", "background": "#1d1d1d"}
-        cdg.tagdefs["DEFINITION"] = {"foreground": "#bb6733", "background": "#1d1d1d"}
-        cdg.tagdefs["BRACKETS"] = {"foreground": "#007F7F", "background": "#1d1d1d"}
+        cdg.tagdefs["COMMENT"] = {"foreground": "grey", "background": bg_get}
+        cdg.tagdefs["KEYWORD"] = {"foreground": "orange", "background": bg_get}
+        cdg.tagdefs["BUILTIN"] = {"foreground": "gold", "background": bg_get}
+        cdg.tagdefs["STRING"] = {"foreground": "#95e7ad", "background": bg_get}
+        cdg.tagdefs["DEFINITION"] = {"foreground": "#bb6733", "background": bg_get}
+        cdg.tagdefs["BRACKETS"] = {"foreground": "#007F7F", "background": bg_get}
         Percolator(textbox).insertfilter(cdg)
 
         textbox.pack(fill="both", expand=True)
@@ -363,15 +375,6 @@ class Editor:
 
     def open_in_dir(self):
         ModuleFile.open_in_dir(self)
-
-    def new_file(self, *args):
-        new_tab = ttk.Frame(self.nb)
-        self.tabs[new_tab] = Document(new_tab, self.create_text_widget(new_tab))
-        self.tabs[new_tab].textbox.config(
-            wrap="word" if self.word_wrap.get() else "none"
-        )
-        self.nb.add(new_tab, text="Scratch")
-        self.nb.select(new_tab)
 
     def copy(self):
         try:
@@ -426,6 +429,9 @@ class Editor:
         end_ind = self.tabs[self.get_tab()].textbox.index("sel.last")
         self.tabs[self.get_tab()].textbox.tag_remove("start", st_ind, end_ind)
 
+    def buymeacoffee(self):
+        webbrowser.open_new_tab("https://www.buymeacoffee.com/auratext")
+
     def decode(self):
         ModuleFile.decode(self.tabs[self.get_tab()].textbox)
 
@@ -449,20 +455,6 @@ class Editor:
         count = self.tabs[self.get_tab()].textbox.get("1.0", END)
         self.wordCount.set(f"Word Count -> {len(count) - 1}")
 
-    def python_add(self):
-        self.new_file()
-        ModuleFile.python_temp(self.tabs[self.get_tab()].textbox)
-
-    def html_add(self):
-        self.new_file()
-        ModuleFile.html_temp(self)
-
-    def cpp_add(self):
-        self.new_file()
-        ModuleFile.cpp_temp(self.tabs[self.get_tab()].textbox)
-
-    def txt_add(self):
-        self.new_file()
 
     def wrap(self):
         if self.word_wrap.get():
@@ -490,6 +482,15 @@ class Editor:
     def summary(self):
         ModuleFile.Summary(self.tabs[self.get_tab()].textbox)
 
+    def new_filed(self, *args, filename):
+        new_tab = ttk.Frame(self.nb)
+        self.tabs[new_tab] = Document(new_tab, self.create_text_widget(new_tab))
+        self.tabs[new_tab].textbox.config(
+            wrap="word" if self.word_wrap.get() else "none"
+        )
+        self.nb.add(new_tab, text=filename)
+        self.nb.select(new_tab)
+
     def paste(self):
         try:
             self.tabs[self.get_tab()].textbox.insert(
@@ -497,6 +498,45 @@ class Editor:
             )
         except TclError:
             pass
+
+    def new_file(self, e):
+        file_ui = CTkToplevel()
+        file_ui.title("New"), file_ui.geometry("250x150")
+        CTkLabel(file_ui, text="Filename:").pack()
+
+        file_name = CTkEntry(file_ui, width=200, text_color="light blue")
+        file_name.pack(pady=5)
+
+        type_selection = CTkComboBox(master=file_ui,
+                                     values=["Python File", "C++ File", "HTML File", "File"])
+
+        type_selection.set("File")
+        type_selection.pack(pady=15)
+
+        def apply(e):
+            type_val = type_selection.get()
+            filename = file_name.get()
+
+            if type_val == "Python File":
+                filename = filename + ".py"
+                self.new_filed(filename = filename)
+            elif type_val == "C++ File":
+                filename = filename + ".cpp"
+                self.new_filed(filename=filename)
+            elif type_val == "File":
+                filename = filename
+                self.new_filed(filename=filename)
+            elif type_val == "HTML":
+                filename = filename + ".html"
+                self.new_filed(filename=filename)
+            file_ui.destroy()
+
+        CTkButton(file_ui, text="Create", command=apply).pack(side=BOTTOM)
+
+        file_ui.bind("<Return>", apply)
+
+    def new_file_mo(self):
+        ModuleFile.new_file(self)
 
     def duplicate_line(self):
         line = self.tabs[self.get_tab()].textbox.index("insert")
@@ -527,6 +567,12 @@ class Editor:
     def Transparent50(self):
         self.master.attributes("-alpha", 0.5)
 
+    def calculate(self):
+        ModuleFile.calculate(self)
+
+    def calc_enter_res(self):
+        ModuleFile.calc_enter_res(self)
+
     def Transparent60(self):
         self.master.attributes("-alpha", 0.4)
 
@@ -542,6 +588,10 @@ class Editor:
     def right_speak(self):
         notepad_selection = self.tabs[self.get_tab()].textbox.selection_get()
         ModuleFile.rightSpeak(notepad_selection)
+
+    def full_speak(self):
+        full_note = self.tabs[self.get_tab()].textbox.get(0.0, END)
+        ModuleFile.rightSpeak(full_note)
 
     def select_all(self, *args):
         curr_tab = self.get_tab()
@@ -577,7 +627,7 @@ class Editor:
         )
 
     def version(self):
-        text_ver = "Current Version: " + "1.6" + "\n" + "Codename: " + "Bye, Bugs!"
+        text_ver = "Current Version: " + "1.7"
         messagebox.showinfo("Version Info", text_ver)
 
     def about_github(self):
@@ -606,6 +656,16 @@ class Editor:
 
     def alwaysontop(self):
         self.master.attributes("-topmost", 1)
+
+    def donate(self):
+        messagebox.showinfo(
+            "Thanks!",
+            "Hey! Thanks for showing the interest to donate to Aura Text. We're keeping this project alive with donation from people like you. You'll be redirected to the donation website after you click OK or by closing this message. Once again, thanks! We LOVE you!",
+        )
+        webbrowser.open_new_tab("https://auratext-donate.carrd.co/")
+
+    def discord(self):
+        webbrowser.open_new_tab("https://discord.gg/5nVgJ6Q5")
 
     def save_changes(self):
         curr_tab = self.get_tab()
@@ -641,12 +701,36 @@ class Editor:
             except TclError:
                 return
 
+splash_root = Tk()
+splash_image = PhotoImage(file="splash.png")
+splash_root.overrideredirect(True)
+
+window_height = 350
+window_width = 700
+
+screen_width = splash_root.winfo_screenwidth()
+screen_height = splash_root.winfo_screenheight()
+
+x_cordinate = int((screen_width / 2) - (window_width / 2))
+y_cordinate = int((screen_height / 2) - (window_height / 2))
+
+splash_root.geometry(
+    "{}x{}+{}+{}".format(window_width, window_height, x_cordinate, y_cordinate)
+)
+
+splash_label = Label(splash_root, image=splash_image)
+splash_label.pack()
+
 
 def main():
+    splash_root.destroy()
     root = CTk()
+    # p1 = PhotoImage(file='info.png')
     app = Editor(root)
     root.mainloop()
 
 
 if __name__ == "__main__":
-    main()
+    splash_root.after(1000, main)
+
+splash_root.mainloop()
