@@ -1,4 +1,4 @@
-![Untitled design](https://user-images.githubusercontent.com/109947257/224382677-356f158b-a964-4f9f-8b6f-603817b2825d.png)
+![image](https://user-images.githubusercontent.com/109947257/226104627-f7a120bf-9fd3-476b-98e1-dc7c38e26c2e.png)
 
 [![License](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
