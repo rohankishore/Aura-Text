@@ -1,7 +1,4 @@
 pyttsx3
-idle
-sv_ttk
-wikipedia
-googletrans
 pyperclip
-customtkinter
+PySide6
+autopep8
