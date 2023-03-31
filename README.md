@@ -1,11 +1,10 @@
-![image](https://user-images.githubusercontent.com/109947257/226104627-f7a120bf-9fd3-476b-98e1-dc7c38e26c2e.png)
+![splash](https://user-images.githubusercontent.com/109947257/229192957-ef3f645c-20c1-43f7-97ca-e0ad5853ce03.png)
 
 [![License](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 <a href="https://www.buymeacoffee.com/auratext" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/default-orange.png" alt="Buy Me A Coffee" height="41" width="174"></a>
 
-(![image](https://user-images.githubusercontent.com/109947257/225382370-f12018cd-7eda-40c7-811d-46001feb9bd8.png)(https://discord.gg/Hm9GCThD)
-
+[JOIN OUR DISCORD SERVER](https://opensource.org/licenses/MIT)
 
 # Aura Text
 ### Like Any Text Editor, Unlike Any Text Editor
@@ -21,53 +20,32 @@ Aura Text is a versatile and powerful text editor that provides all the necessar
 
 <a href="https://www.buymeacoffee.com/auratext" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/default-orange.png" alt="Buy Me A Coffee" height="41" width="174"></a>
 
-![bmc_qr](https://user-images.githubusercontent.com/109947257/224487963-bd22c2f6-dd90-4662-a079-30c30d7cc949.png)
-
-
 ## Table of Contents
 
 - [Features](#features)
-- [Screenshots](#screenshots)
 - [Installation](#installation)
 - [Usage](#usage)
 - [Contributing](#contributing)
 - [License](#license)
-- [Full Details of the Proejct](#full-details-about-the-project)
 - [Contact](#contact)
 
 ## Features
 
 - Well, edit Text Files
 - Line Numbers
-- Open files via File Directory
-- Refractoring
-- Goto Line
-- Auto Completion (Python, C++ and HTML(beta) Supported)
-- Highlighter
+- Auto Completion (Python, C++ and HTML(beta) Supported) [COMING REALLY SOON]
 - Text Encrypt and Decrypt
 - Text to Speech
 - Syntax Highlighting
 - Auto Indent
 - Summary mode to see entire data of your file(s)
-- Google search a specific keyword from the notes
-- Instantly get article from Wikipedia about the selected word from the notes, without even leaving the app
 - Universal dark mode
-- Adjust transparency of the window, so that you can copy text from another app without even closing or minimizing the Notes.
 - Always on top
-- Search for words in sites like Google, Stackoverflow and Github
-
-## Screenshots
-
-![image](https://user-images.githubusercontent.com/109947257/222976713-85f0d9cb-1fc6-4ab8-99f6-5afb33c65034.png)
-
-![image](https://user-images.githubusercontent.com/109947257/222976718-c0cbafc0-acb5-4071-b75e-4f4f91c19a18.png)
-
-![image](https://user-images.githubusercontent.com/109947257/222976724-6951597e-1ea2-4bde-af49-2c2328892b40.png)
 
 ## Installation
 
 ### For Users
-Download the exe file from the Releases page (make sure it's the latest one available) and open the exe. Install wizard will guide you. After the installation is complete, click 'Finish' and Aura Text will open automatically (considering you have checked "Run Aura Text After clicking Finish"). 
+Download the exe file from the Releases page (make sure it's the latest one available) and unzip the file. Now open the unzipped folder and click on `AT.exe`
 
 ### For Developers
 Download or Clone this repo. Then, install all the libraries mentioned in the `requirements.txt` file.
@@ -76,7 +54,7 @@ Use the command`pip install -r requirements.txt` to install all the libs at a si
 ## Usage
 
 The text editor will be opened with a defualt file named `Scratch`. You can edit the file and save it as your preffered filetype.
-Aura Text supports most of the mainstream Text file types excl the ones that has images.
+Aura Text supports most of the mainstream Text file types excl the ones that has images or is PDF or related filetypes (Refer to Wiki for more info.
 
 ## Contributing
 
@@ -87,13 +65,6 @@ at the `CONTRIBUTING.md` file listed in the `main` branch of the repo. It contai
 ## License
 
 This project is licensed under the terms of the [MIT license](https://opensource.org/licenses/MIT).
-
-## Full Details about the Project
-
-- Total Python Files : 3
-- Total Image Files : 1 (icon.ico)
-- Total number of lines of code : 771 lines
-- Birthday : Oct 2 2022
 
 ## Contact
 
