@@ -2,19 +2,14 @@
 
 [![License](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-<a href="https://www.buymeacoffee.com/auratext" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/default-orange.png" alt="Buy Me A Coffee" height="41" width="174"></a>
-
 [JOIN OUR DISCORD SERVER](https://opensource.org/licenses/MIT)
 
 # Aura Text
 ### Like Any Text Editor, Unlike Any Text Editor
 
-[image](https://user-images.githubusercontent.com/109947257/222976702-a2b50a38-886e-45fa-b3a4-bc4e28095ee2.png)
+Aura Text is a versatile and powerful text editor that provides all the necessary tools for developers. It is build using PySide6 and Python. Everything about Aura Text is completely open-source.
 
-
-## Description
-
-Aura Text is a versatile and powerful text editor that provides all the necessary tools for developers. It is build using Tkinter and Python. Everything about Aura Text is completely open-source.
+![image](https://user-images.githubusercontent.com/109947257/229269670-927196e7-cc81-48af-b930-20a6eba801c8.png)
 
 # Donate
 
@@ -52,28 +47,24 @@ Download or Clone this repo. Then, install all the libraries mentioned in the `r
 Use the command`pip install -r requirements.txt` to install all the libs at a single go.
 
 ## Usage
-
 The text editor will be opened with a defualt file named `Scratch`. You can edit the file and save it as your preffered filetype.
-Aura Text supports most of the mainstream Text file types excl the ones that has images or is PDF or related filetypes (Refer to Wiki for more info.
+Aura Text supports most of the mainstream Text file types excl the ones that has images or is PDF or related filetypes (Refer to Wiki for more info).
 
 ## Contributing
-
 We always welcome contributions. We're thrilled to have you.
 But before making your first contribution, kindly take a look
-at the `CONTRIBUTING.md` file listed in the `main` branch of the repo. It contains everything you need to know.
+at the `CONTRIBUTING.md` file listed in the main branch of the repo. It contains everything you need to know.
 
 ## License
-
 This project is licensed under the terms of the [MIT license](https://opensource.org/licenses/MIT).
 
 ## Contact
-
 Visit my profile bio to get all of my contact details. 
 This includes my Instagram, Reddit and also my Discord. 
 
 # Been Featured In:
 
-![image](https://user-images.githubusercontent.com/109947257/223731099-86a24887-dede-42c9-9737-e1d0817db288.png)   ![image](https://user-images.githubusercontent.com/109947257/223731266-842deb1a-e651-4714-9a28-7690059f145d.png)
+![image](https://user-images.githubusercontent.com/109947257/229269607-5932f25a-7e87-4769-af9d-119a5b07477a.png)   ![image](https://user-images.githubusercontent.com/109947257/223731266-842deb1a-e651-4714-9a28-7690059f145d.png)
 
 ### Article Links
 
