@@ -11,7 +11,7 @@ Hi there. If you're looking forward to make Aura Text better by contributing, th
 - Increase the version numbers in any examples files and the README.md to the new version that this Pull Request would represent.
 - The new version format should be like this: `vVERSION` , where VERSION should be `n.n.n` or `n.n` (like our existing version codes`
 
-### Use pull-requests only when necessary 
+### Use pull-requests only when necessary
 - Use pull requests if it is a small contribution, like Typo correction, optimising README, etc.
 - Message me on Discord, or Instagram (Links in my Github profile or at bottom of this page) before making a pull request if it's a critical feature or bug fix. That way, we both can make sure we're doing the right thing!
 
@@ -37,4 +37,3 @@ In the interest of fostering an open and welcoming environment, we as contributo
 - Gracefully accepting constructive criticism
 - Focusing on what is best for the community
 - Showing empathy towards other community members+
- 

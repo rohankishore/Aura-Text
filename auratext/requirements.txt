@@ -1,4 +1,0 @@
-pyttsx3
-pyperclip
-PySide6
-autopep8

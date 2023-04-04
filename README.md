@@ -47,7 +47,7 @@ Download or Clone this repo. Then, install all the libraries mentioned in the `r
 Use the command`pip install -r requirements.txt` to install all the libs at a single go.
 
 ## Usage
-The text editor will be opened with a defualt file named `Scratch`. You can edit the file and save it as your preffered filetype.
+The text editor will be opened with a default file named `Scratch`. You can edit the file and save it as your preferred filetype.
 Aura Text supports most of the mainstream Text file types excl the ones that has images or is PDF or related filetypes (Refer to Wiki for more info).
 
 ## Contributing
@@ -59,8 +59,8 @@ at the `CONTRIBUTING.md` file listed in the main branch of the repo. It contains
 This project is licensed under the terms of the [MIT license](https://opensource.org/licenses/MIT).
 
 ## Contact
-Visit my profile bio to get all of my contact details. 
-This includes my Instagram, Reddit and also my Discord. 
+Visit my profile bio to get all of my contact details.
+This includes my Instagram, Reddit and also my Discord.
 
 # Been Featured In:
 
