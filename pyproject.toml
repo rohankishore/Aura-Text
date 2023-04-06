@@ -1,0 +1,173 @@
+[tool.poetry]
+name = "aura-text"
+version = "2.0.0"
+description = "IDE built with PySide6"
+authors = ["Rohan Kishore (@rohankishore on GitHub)"]
+license = "MIT"
+readme = "README.md"
+packages = [{include = "aura_text"}]
+
+[tool.poetry.dependencies]
+python = ">=3.7,<3.12"
+pyttsx3 = "^2.90"
+pyperclip = "^1.8.2"
+pyside6 = "^6.5.0"
+autopep8 = "^2.0.2"
+
+
+[tool.black]
+line-length = 100
+target-version = ['py310']
+exclude = '''
+/(
+    \.eggs
+  | \.git
+  | \.hg
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | __pycached__
+  | _build
+  | buck-out
+  | build
+  | dist
+)/
+'''
+
+[tool.ruff]
+line-length = 100
+select = ["ALL"]
+target-version = "py38"
+ignore = [
+    "I001", # isort, handled by pc-hook.
+    "TID252",
+    # we use asserts in tests and to hint mypy
+    "E501", # line too long, handled by black.
+    "S101",
+    "S102",
+    "S104",
+    "S324",
+    "EXE002",
+    # maybe we can enable this in future
+    # we'd want to have consistent docstrings in future
+    "D",
+    "ANN101", # missing annotation for self?
+    # definitely enable these, maybe not in tests
+    "ANN001",
+    "ANN002",
+    "ANN003",
+    "ANN102",
+    "ANN201",
+    "ANN202",
+    "ANN204",
+    "ANN205",
+    "ANN206",
+    "ANN401",
+    "PGH003",
+    "PGH004",
+    "RET504",
+    "RET505",
+    "RET506",
+    "RET507",
+    "BLE001",
+    "RET503",
+    "B008",
+    "N811",
+    "N804",
+    "N818",
+    # Variable `T` in function should be lowercase
+    # this seems a potential bug or opportunity for improvement in ruff
+    "N806",
+
+    # first argument should named self (found in tests)
+    "N805",
+
+    "N815",
+
+    # shadowing builtins
+    "A001",
+    "A002",
+    "A003",
+
+    "ARG001",
+    "ARG002",
+    "ARG003",
+    "ARG004",
+    "ARG005",
+    "FBT001",
+    "FBT002",
+    "FBT003",
+
+    "PT001",
+    "PT023",
+
+    # enable these, we have some in tests
+    "B006",
+    "PT004",
+    "PT007",
+    "PT011",
+    "PT012",
+    "PT015",
+    "PT017",
+    "C414",
+    "N802",
+
+    "SIM117",
+    "SIM102",
+
+    "F841",
+    "B027",
+    "B905",
+    "ISC001",
+
+    # same?
+    "S105",
+    "S106",
+
+    "DTZ003",
+    "DTZ005",
+
+    "RSE102",
+    "SLF001",
+
+    # in tests
+    "DTZ001",
+
+    "EM101",
+    "EM102",
+    "EM103",
+
+    "B904",
+    "B019",
+
+    "N801",
+    "N807",
+
+    # pandas
+    "PD",
+
+    # code complexity
+    "C",
+    "C901",
+
+    # trailing commas
+    "COM812",
+
+    "PLR",
+    "INP",
+    "TRY",
+    "SIM300",
+    "SIM114",
+    "DJ008",
+]
+fix = true
+src = ["qtgql", "tests"]
+[tool.ruff.flake8-annotations]
+suppress-none-returning = true
+
+[tool.ruff.pyupgrade]
+keep-runtime-typing = true
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

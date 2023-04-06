@@ -1,8 +1,15 @@
-from PySide6 import QtGui
-from PySide6.QtCore import *
-from PySide6.QtWidgets import *
-from PySide6.QtGui import *
 import ModuleFile
+from PySide6 import QtGui
+from PySide6.QtCore import QRect
+from PySide6.QtCore import Qt
+from PySide6.QtGui import QColor
+from PySide6.QtGui import QPainter
+from PySide6.QtGui import QTextFormat
+from PySide6.QtWidgets import QMenu
+from PySide6.QtWidgets import QPlainTextEdit
+from PySide6.QtWidgets import QTextEdit
+from PySide6.QtWidgets import QWidget
+
 
 class LineNumberArea(QWidget):
     def __init__(self, editor):
@@ -12,6 +19,7 @@ class LineNumberArea(QWidget):
 
     def paintEvent(self, event):
         self.codeEditor.lineNumberAreaPaintEvent(event)
+
 
 class CodeEditor(QPlainTextEdit):
     def __init__(self, parent=None):
@@ -35,9 +43,14 @@ class CodeEditor(QPlainTextEdit):
             if block.isVisible() and bottom >= event.rect().top():
                 number = str(blockNumber + 1)
                 painter.setPen(Qt.white)
-                painter.drawText(0, top, self.lineNumberArea.width(),
-                                 self.fontMetrics().height(),
-                                 Qt.AlignmentFlag.AlignCenter, number)
+                painter.drawText(
+                    0,
+                    top,
+                    self.lineNumberArea.width(),
+                    self.fontMetrics().height(),
+                    Qt.AlignmentFlag.AlignCenter,
+                    number,
+                )
             block = block.next()
             top = bottom
             bottom = top + self.blockBoundingRect(block).height()
@@ -45,7 +58,7 @@ class CodeEditor(QPlainTextEdit):
 
     def lineNumberAreaWidth(self):
         digits = len(str(self.blockCount()))
-        space = 50 + 2 *digits
+        space = 50 + 2 * digits
         return space
 
     def encrypt(self):
@@ -70,7 +83,10 @@ class CodeEditor(QPlainTextEdit):
         contextMenu.addSeparator()
         contextMenu.addAction("Select All", self.selectAll).setShortcut("Ctrl+A")
         contextMenu.addAction("Cut", self.cut).setShortcut("Ctrl+X")
-        contextMenu.addAction("Copy                                  ", self.copy).setShortcut("Ctrl+C")
+        contextMenu.addAction(
+            "Copy                                  ",
+            self.copy,
+        ).setShortcut("Ctrl+C")
         contextMenu.addAction("Paste", self.paste).setShortcut("Ctrl+V")
         contextMenu.addSeparator()
         contextMenu.addAction("Calculate", self.calculate)
@@ -80,9 +96,11 @@ class CodeEditor(QPlainTextEdit):
     def resizeEvent(self, event):
         QPlainTextEdit.resizeEvent(self, event)
         cr = self.contentsRect()
-        self.lineNumberArea.setGeometry(QRect(cr.left(), cr.top(), self.lineNumberAreaWidth(), cr.height()))
+        self.lineNumberArea.setGeometry(
+            QRect(cr.left(), cr.top(), self.lineNumberAreaWidth(), cr.height()),
+        )
 
-    def updateLineNumberAreaWidth(self, newBlockCount):
+    def updateLineNumberAreaWidth(self, _):
         self.setViewportMargins(self.lineNumberAreaWidth(), 0, 0, 0)
 
     def highlightCurrentLine(self):
@@ -103,6 +121,11 @@ class CodeEditor(QPlainTextEdit):
         if dy:
             self.lineNumberArea.scroll(0, dy)
         else:
-            self.lineNumberArea.update(0, rect.y(), self.lineNumberArea.width(), rect.height())
+            self.lineNumberArea.update(
+                0,
+                rect.y(),
+                self.lineNumberArea.width(),
+                rect.height(),
+            )
         if rect.contains(self.viewport().rect()):
             self.updateLineNumberAreaWidth(0)

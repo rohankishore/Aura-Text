@@ -1,18 +1,31 @@
-import os, webbrowser, sys, ModuleFile, time, autopep8
-from tkinter import filedialog, messagebox
+import sys
+import time
+import webbrowser
+from pathlib import Path
+from tkinter import filedialog
+from tkinter import messagebox
+
+import autopep8
+import ModuleFile
+from CodeEditor import CodeEditor
 from PySide6 import QtGui
-from PySide6.QtWidgets import *
-from PySide6.QtGui import *
+from PySide6.QtGui import QFont
+from PySide6.QtGui import QKeySequence
+from PySide6.QtGui import QPixmap
+from PySide6.QtGui import QShortcut
+from PySide6.QtWidgets import QApplication
+from PySide6.QtWidgets import QMainWindow
+from PySide6.QtWidgets import QMessageBox
+from PySide6.QtWidgets import QSplashScreen
 from Syntax_Highlighter import PythonHighlighter
 from TabWidget import TabWidget
-from CodeEditor import CodeEditor
 
 __author__ = "Rohan Kishore (@rohankishore on GitHub)"
 __copyright__ = "Copyright (C) 2023 Rohan Kishore"
 __license__ = "MIT License"
 __version__ = "2.0"
 
-tab_stylesheet = """ ........0 
+tab_stylesheet = """ ........0
     QTabBar::tab:selected {background: white;}
     QTabWidget::pane{ border: 0;}
     QTabBar::tab:hover {background-color: #d5d5d5; color: black;}
@@ -21,7 +34,7 @@ tab_stylesheet = """ ........0
 
 class Window(QMainWindow):
     def __init__(self, parent=None):
-        super(Window, self).__init__()
+        super().__init__()
 
         splash_pix = QPixmap("splash.png")
         splash = QSplashScreen(splash_pix)
@@ -65,13 +78,13 @@ class Window(QMainWindow):
                 QMenu {
                     background-color: rgb(49,49,49);
                     color: rgb(255,255,255);
-                    border: 1px solid #000;           
+                    border: 1px solid #000;
                 }
 
                 QMenu::item::selected {
                     background-color: rgb(30,30,30);
                 }
-            """
+            """,
         )
 
         menubar_items = {
@@ -98,7 +111,6 @@ class Window(QMainWindow):
                 None,
                 ("&Make Code Snippet", None, self.save_snippet),
                 ("&Load Code Snippet", None, self.load_snippet),
-                # ("&Redo", "Ctrl+Y", self.redo_document),
                 None,
             ],
             "&View": [("&Fullscreen       ", "F11", self.fullscreen), None],
@@ -125,7 +137,6 @@ class Window(QMainWindow):
                 if act:
                     text, shorcut, callback = act
                     action = QtGui.QAction(text, self)
-                    # action.setShortcut(shorcut)
                     action.triggered.connect(callback)
                     menu.addAction(action)
                 else:
@@ -141,19 +152,19 @@ class Window(QMainWindow):
         self.text_editor.setFont(QFont("Consolas", 11))
         highlighter = PythonHighlighter(self.text_editor.document())
         self.text_editor.setStyleSheet(
-            "QPlainTextEdit {background-color: #1e1f22; color: white;}"
+            "QPlainTextEdit {background-color: #1e1f22; color: white;}",
         )
         self.text_editor.setTabStopDistance(12)
 
         # bindings
         QShortcut(QKeySequence("Ctrl+N"), self.text_editor).activated.connect(
-            self.new_document
+            self.new_document,
         )
         QShortcut(QKeySequence("Ctrl+O"), self.text_editor).activated.connect(
-            self.open_document
+            self.open_document,
         )
         QShortcut(QKeySequence("Ctrl+S"), self.text_editor).activated.connect(
-            self.save_document
+            self.save_document,
         )
         return self.text_editor
 
@@ -175,7 +186,7 @@ class Window(QMainWindow):
 
     def contrib(self):
         webbrowser.open_new_tab(
-            "https://github.com/rohankishore/Aura-Text/blob/main/CONTRIBUTING.md"
+            "https://github.com/rohankishore/Aura-Text/blob/main/CONTRIBUTING.md",
         )
 
     def open_document(self):
@@ -184,11 +195,9 @@ class Window(QMainWindow):
         )
         if file_dir:
             try:
-                f = open(file_dir, "r")
-                filedata = f.read()
-                self.new_document(title=os.path.basename(file_dir))
-                self.current_editor.setPlainText(filedata)
-                f.close()
+                path = Path(file_dir)
+                self.new_document(title=path.as_uri())
+                self.current_editor.setPlainText(path.read_text())
             except FileNotFoundError:
                 return
 
@@ -210,7 +219,7 @@ class Window(QMainWindow):
 
     def code_formatting(self):
         og_code = str(self.current_editor.toPlainText())
-        if og_code != "":
+        if og_code:
             options = {
                 "aggressive": 1,
                 "experimental": True,
@@ -263,7 +272,7 @@ class Window(QMainWindow):
     @staticmethod
     def version():
         text_ver = (
-            "Aura Text"
+            "Aura Text"  # noqa: ISC003
             + "\n"
             + "Current Version: "
             + "2.0"
@@ -288,7 +297,7 @@ class Window(QMainWindow):
     @staticmethod
     def bug_report():
         webbrowser.open_new_tab(
-            "https://github.com/rohankishore/Aura-Text/issues/new/choose"
+            "https://github.com/rohankishore/Aura-Text/issues/new/choose",
         )
 
     @staticmethod
@@ -299,7 +308,6 @@ class Window(QMainWindow):
 def run():
     app = QApplication(sys.argv)
     GUI = Window()
-    # GUI.showMaximized()
     GUI.setGeometry(200, 100, 1300, 750)
     sys.exit(app.exec())
 
