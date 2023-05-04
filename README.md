@@ -9,7 +9,7 @@
 
 Aura Text is a versatile and powerful text editor that provides all the necessary tools for developers. It is build using PySide6 and Python. Everything about Aura Text is completely open-source.
 
-![image](https://user-images.githubusercontent.com/109947257/229269670-927196e7-cc81-48af-b930-20a6eba801c8.png)
+![image](https://user-images.githubusercontent.com/109947257/236134482-b7ad8e7e-374f-4c94-9a72-3bdb931758d1.png)
 
 # Donate
 
