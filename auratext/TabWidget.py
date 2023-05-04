@@ -1,12 +1,6 @@
-from PySide6.QtCore import QMimeData
-from PySide6.QtCore import QPoint
-from PySide6.QtCore import Qt
-from PySide6.QtGui import QCursor
-from PySide6.QtGui import QDrag
-from PySide6.QtGui import QPixmap
-from PySide6.QtGui import QRegion
+from PySide6.QtCore import QMimeData, QPoint, Qt
+from PySide6.QtGui import QCursor, QDrag, QPixmap, QRegion
 from PySide6.QtWidgets import QTabWidget
-
 
 class TabWidget(QTabWidget):
     def __init__(self, parent=None, new=None):
