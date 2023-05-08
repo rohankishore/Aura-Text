@@ -1,6 +1,6 @@
 ![Aura Text](https://user-images.githubusercontent.com/109947257/235744636-79d70a17-e860-4b3b-a7f2-af6958fc8506.png)
 
-[![License](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+![image](https://user-images.githubusercontent.com/109947257/236764186-347b32fa-3baf-4e44-a27d-135114f6e256.png)   [![License](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 [JOIN OUR DISCORD SERVER](https://opensource.org/licenses/MIT)
 
