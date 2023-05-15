@@ -1,19 +1,18 @@
-![Aura Text](https://user-images.githubusercontent.com/109947257/235744636-79d70a17-e860-4b3b-a7f2-af6958fc8506.png)
+<h1 align="center"> Aura Text</h1>
 
-![image](https://user-images.githubusercontent.com/109947257/236764186-347b32fa-3baf-4e44-a27d-135114f6e256.png)   [![License](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+<h3 align="center"> Like Any Text Editor, Unlike Any Text Editor</h3>
 
-[JOIN OUR DISCORD SERVER](https://opensource.org/licenses/MIT)
+<div align="center">
 
-# Aura Text
-### Like Any Text Editor, Unlike Any Text Editor
+  <a href="https://opensource.org/licenses/MIT">![License](https://img.shields.io/badge/License-MIT-yellow)</a>
+  <a href="https://opensource.org/">![Language](https://img.shields.io/badge/Open-Source-blue)</a>
+  <a href="https://github.com/rohankishore/Aura-Text/releases">![Demo](https://img.shields.io/badge/Download-Now-indigo)</a>
+  <a href="https://www.buymeacoffee.com/auratext">![Demo](https://img.shields.io/badge/Donate-BuyMeACoffee-red)</a>
+</div>
 
 Aura Text is a versatile and powerful text editor that provides all the necessary tools for developers. It is build using PySide6 and Python. Everything about Aura Text is completely open-source.
 
 ![image](https://user-images.githubusercontent.com/109947257/236134482-b7ad8e7e-374f-4c94-9a72-3bdb931758d1.png)
-
-# Donate
-
-<a href="https://www.buymeacoffee.com/auratext" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/default-orange.png" alt="Buy Me A Coffee" height="41" width="174"></a>
 
 ## Table of Contents
 
@@ -31,13 +30,12 @@ Aura Text is a versatile and powerful text editor that provides all the necessar
 - Auto Completion (Python, C++ and HTML(beta) Supported) [COMING REALLY SOON]
 - Text Encrypt and Decrypt
 - Text to Speech
-- Syntax Highlighting
+- Syntax Highlighting (10+ Languages)
 - Auto Indent
-- Summary mode to see entire data of your file(s)
 - Universal dark mode
 - Always on top
 
-## Installation
+<h2 align="center">Installation</h2>
 
 ### For Users
 Download the exe file from the Releases page (make sure it's the latest one available) and unzip the file. Now open the unzipped folder and click on `AT.exe`
@@ -46,23 +44,20 @@ Download the exe file from the Releases page (make sure it's the latest one avai
 Download or Clone this repo. Then, install all the libraries mentioned in the `requirements.txt` file.
 Use the command`pip install -r requirements.txt` to install all the libs at a single go.
 
-## Usage
-The text editor will be opened with a default file named `Scratch`. You can edit the file and save it as your preferred filetype.
-Aura Text supports most of the mainstream Text file types excl the ones that has images or is PDF or related filetypes (Refer to Wiki for more info).
 
-## Contributing
+<h2 align="center">Contributing</h2>
 We always welcome contributions. We're thrilled to have you.
 But before making your first contribution, kindly take a look
 at the `CONTRIBUTING.md` file listed in the main branch of the repo. It contains everything you need to know.
 
-## License
+<h2 align="center">License</h2>
 This project is licensed under the terms of the [MIT license](https://opensource.org/licenses/MIT).
 
-## Contact
+<h2 align="center">Contact</h2>
 Visit my profile bio to get all of my contact details.
 This includes my Instagram, Reddit and also my Discord.
 
-# Been Featured In:
+<h1 align="center">Been Featured On</h1>
 
 ![image](https://user-images.githubusercontent.com/109947257/229269607-5932f25a-7e87-4769-af9d-119a5b07477a.png)   ![image](https://user-images.githubusercontent.com/109947257/223731266-842deb1a-e651-4714-9a28-7690059f145d.png)
 
