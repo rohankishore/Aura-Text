@@ -8,6 +8,7 @@
   <a href="https://opensource.org/">![Language](https://img.shields.io/badge/Open-Source-blue)</a>
   <a href="https://github.com/rohankishore/Aura-Text/releases">![Demo](https://img.shields.io/badge/Download-Now-indigo)</a>
   <a href="https://www.buymeacoffee.com/auratext">![Demo](https://img.shields.io/badge/Donate-BuyMeACoffee-red)</a>
+  <a href="https://www.buymeacoffee.com/auratext">![Demo](https://img.shields.io/badge/Fiverr-Hire-green)</a>
 </div>
 
 Aura Text is a versatile and powerful text editor that provides all the necessary tools for developers. It is build using PySide6 and Python. Everything about Aura Text is completely open-source.
