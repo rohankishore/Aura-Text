@@ -13,28 +13,36 @@
 
 Aura Text is a versatile and powerful text editor that provides all the necessary tools for developers. It is build using PySide6 and Python. Everything about Aura Text is completely open-source.
 
-![image](https://user-images.githubusercontent.com/109947257/236134482-b7ad8e7e-374f-4c94-9a72-3bdb931758d1.png)
-
-## Table of Contents
-
-- [Features](#features)
-- [Installation](#installation)
-- [Usage](#usage)
-- [Contributing](#contributing)
-- [License](#license)
-- [Contact](#contact)
+![image](https://github.com/rohankishore/Aura-Text/assets/109947257/ecfa855e-bcaa-4fbb-918f-efe0d8695c33)
 
 ## Features
 
-- Well, edit Text Files
+- Well, edit files
 - Line Numbers
 - Auto Completion (Python, C++ and HTML(beta) Supported) [COMING REALLY SOON]
 - Text Encrypt and Decrypt
+- Code Folding
+- Instant Notes
+- Upload to Pastebin
 - Text to Speech
-- Syntax Highlighting (10+ Languages)
+- Bracket Matching
+- Edit Multiple Projects at the same window
+- Syntax Highlighting (25+ Languages)
 - Auto Indent
-- Universal dark mode
-- Always on top
+
+<br>
+<br>
+
+<div align="center">
+
+![image](https://github.com/rohankishore/Aura-Text/assets/109947257/5c94da8f-046b-47c4-ab8e-3744388a3e59)
+
+<br>
+
+![image](https://github.com/rohankishore/Aura-Text/assets/109947257/a80c8af4-2e74-4221-a446-e03cd209db58)
+
+</div>
+
 
 <h2 align="center">Installation</h2>
 
@@ -46,17 +54,9 @@ Download or Clone this repo. Then, install all the libraries mentioned in the `r
 Use the command`pip install -r requirements.txt` to install all the libs at a single go.
 
 
-<h2 align="center">Contributing</h2>
-We always welcome contributions. We're thrilled to have you.
-But before making your first contribution, kindly take a look
-at the `CONTRIBUTING.md` file listed in the main branch of the repo. It contains everything you need to know.
-
 <h2 align="center">License</h2>
-This project is licensed under the terms of the [MIT license](https://opensource.org/licenses/MIT).
+This project is licensed under the terms of the MIT license.
 
-<h2 align="center">Contact</h2>
-Visit my profile bio to get all of my contact details.
-This includes my Instagram, Reddit and also my Discord.
 
 <h1 align="center">Been Featured On</h1>
 
