@@ -6,8 +6,8 @@ import webbrowser
 import base64
 import pyttsx3
 import win32clipboard
-from PySide6.QtWidgets import QTextEdit
-from PySide6.QtGui import QTextCursor, QTextCharFormat, QColor
+from PyQt6.Qsci import QsciScintilla
+from PyQt6.QtGui import QTextCursor
 
 api_key_pastebin = '_L_ZkBp7K3aZMY7z4ombPIztLxITOOpD'
 
@@ -48,14 +48,12 @@ def rightSpeak(text):
 
 
 def encypt(self):
-    cursor = QTextCursor(self.document())
-    sample_string = self.textCursor().selectedText()
+    sample_string = self.selectedText()
     if sample_string != "":
         sample_string_bytes = sample_string.encode("ascii")
         base64_bytes = base64.b64encode(sample_string_bytes)
         base64_encoded = base64_bytes.decode("ascii") + "   "
-        self.setTextCursor(cursor)
-        self.insertPlainText(base64_encoded)
+        self.replaceSelectedText(base64_encoded)
     else:
         messagebox.showerror(
             "No Selection!",
@@ -63,14 +61,12 @@ def encypt(self):
 
 
 def decode(self):
-    cursor = QTextCursor(self.document())
-    base64_string = self.textCursor().selectedText()
+    base64_string = self.selectedText()
     if base64_string != "":
         base64_bytes = base64_string.encode("ascii")
         sample_string_bytes = base64.b64decode(base64_bytes)
         sample_string = sample_string_bytes.decode("ascii") + "   "
-        self.setTextCursor(cursor)
-        self.insertPlainText(sample_string)
+        self.replaceSelectedText(sample_string)
     else:
         messagebox.showerror(
             "No Selection!",
@@ -78,7 +74,7 @@ def decode(self):
 
 
 def calculate(self):
-    stringg = self.textCursor().selectedText()
+    stringg = self.selectedText()
     try:
         try:
             res = int(eval(stringg))
@@ -96,36 +92,24 @@ def calculate(self):
 
 
 def pastebin(self):
-    text_pb = self.current_editor.toPlainText()
-    data = {
-        'api_dev_key': api_key_pastebin,
-        'api_option': 'paste',
-        'api_paste_code': text_pb}
-    response = (
-        requests.post(
-            'https://pastebin.com/api/api_post.php',
-            data=data)).text
-    text = "Your Pastebin link has been copied to the clipboard!"
-    messagebox.showinfo("Success!", text)
-    win32clipboard.OpenClipboard()
-    win32clipboard.EmptyClipboard()
-    win32clipboard.SetClipboardText(response)
-    win32clipboard.CloseClipboard()
-
-def goToLine(self, line):
-    # Get the QTextDocument object
-    doc = self.current_editor.document()
-
-    # Get the QTextBlock object corresponding to the line number
-    block = doc.findBlockByLineNumber(line - 1)
-
-    # Set the cursor position to the beginning of the block
-    cursor = self.current_editor.textCursor()
-    cursor.setPosition(block.position())
-
-    # Set the cursor in the text edit and ensure it's visible
-    self.current_editor.setTextCursor(cursor)
-    self.current_editor.ensureCursorVisible()
+    text_pb = self.current_editor.text()
+    if text_pb != "":
+        data = {
+            'api_dev_key': api_key_pastebin,
+            'api_option': 'paste',
+            'api_paste_code': text_pb}
+        response = (
+            requests.post(
+                'https://pastebin.com/api/api_post.php',
+                data=data)).text
+        text = "Your Pastebin link has been copied to the clipboard!"
+        messagebox.showinfo("Success!", text)
+        win32clipboard.OpenClipboard()
+        win32clipboard.EmptyClipboard()
+        win32clipboard.SetClipboardText(response)
+        win32clipboard.CloseClipboard()
+    else:
+        messagebox.showerror("No Code Found!", random.choice(emsg_nocode_list))
 
 def summary(self):
     doc = self.current_editor.document()
@@ -144,7 +128,7 @@ def save_document(self):
                 title="Select file",
                 defaultextension='.py'))
         file = open(name, 'w')
-        text = self.current_editor.toPlainText()
+        text = self.current_editor.text()
         file.write(text)
         title = os.path.basename(file.name) + "   ~ Aura Text"
         active_tab_index = self.tab_widget.currentIndex()
@@ -161,30 +145,8 @@ def save_document(self):
             " Please come back and save your work before it's too late!")
 
 
-def duplicate_line(self):
-    cursor = self.current_editor.textCursor()
-    line_number = cursor.blockNumber()
-    line_text = cursor.block().text()
-    cursor.movePosition(QTextCursor.MoveOperation.EndOfLine)
-    cursor.insertText("\n" + line_text)
-    self.current_editor.setTextCursor(cursor)
-    self.current_editor.ensureCursorVisible()
-
-
-def reverse_line(self):
-    cursor = self.current_editor.textCursor()
-    line_number = cursor.blockNumber()
-    line_text = str(cursor.block().text())
-    line_text_reversed = line_text[::-1]
-    cursor.movePosition(QTextCursor.MoveOperation.EndOfLine)
-    cursor.insertText("\n" + line_text_reversed)
-    self.current_editor.setTextCursor(cursor)
-    self.current_editor.ensureCursorVisible()
-
-
 def search_google(self):
-    cursor = QTextCursor(self.document())
-    sample_string = self.textCursor().selectedText()
+    sample_string = self.current_editor.selectedText()
     if sample_string != "":
         link = str(
             "https://www.google.com/search?q=" +
@@ -207,7 +169,7 @@ def open_document(self):
             try:
                 filedata = f.read()
                 self.new_document(title=os.path.basename(file_dir))
-                self.current_editor.setPlainText(filedata)
+                self.current_editor.insert(filedata)
                 f.close()
             except UnicodeDecodeError:
                 messagebox.showerror("Wrong Filetype!", "This file type is not supported!")
@@ -227,16 +189,9 @@ def open_custom_document(self, file_dir):
             return
 
 
-def new_document(self, title, checked=False):
-    self.current_editor = self.create_editor()
-    self.editors.append(self.current_editor)
-    self.tab_widget.addTab(self.current_editor, title)
-    self.tab_widget.setCurrentWidget(self.current_editor)
-
-
 def code_formatting(self):
     import autopep8
-    og_code = str(self.current_editor.toPlainText())
+    og_code = str(self.current_editor.text())
     if og_code != "":
         options = {
             "aggressive": 2,
@@ -244,41 +199,8 @@ def code_formatting(self):
         }
         clean_code = autopep8.fix_code(og_code, options=options)
         self.custom_new_document(title="Code Formatting")
-        self.current_editor.setPlainText(clean_code)
+        self.current_editor.insert(clean_code)
     else:
         messagebox.showerror(
             "Error: No Code Found!",
-            random.choice(emsg_nocode_list)
-        )
-
-
-def find_first_match(self, word):
-    cursor = self.current_editor.textCursor()
-    selection = QTextEdit.ExtraSelection()
-    format = QTextCharFormat()
-    format.setBackground(QColor("yellow"))
-    format.setForeground(QColor("red"))
-    selection.format = format
-    while cursor.hasSelection() is False:
-        cursor = self.current_editor.document().find(word, cursor)
-        if cursor is None:
-            break
-        selection.cursor = cursor
-        selection.cursor.movePosition(QTextCursor.WordRight, QTextCursor.KeepAnchor)
-        self.current_editor.setExtraSelections([selection])
-
-def searcch_and_highlight_word(self, word):
-    cursor = self.current_editor.textCursor()
-    format = QTextCharFormat()
-    format.setBackground(QColor("yellow"))
-    format.setForeground(QColor("red"))
-    while cursor.hasSelection() is False:
-        cursor = self.current_editor.document().find(word, cursor)
-        if cursor is None:
-            break
-        selection = QTextEdit.ExtraSelection()
-        selection.format = format
-        selection.cursor = cursor
-        selection.cursor.movePosition(QTextCursor.WordRight, QTextCursor.KeepAnchor)
-        self.current_editor.setExtraSelections([selection])
-        cursor = selection.cursor
+            random.choice(emsg_nocode_list))
