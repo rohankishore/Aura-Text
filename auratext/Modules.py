@@ -138,6 +138,7 @@ def save_document(self):
                 file.name))
         self.setWindowTitle(title)
         file.close()
+        return os.path.basename(file)
     except FileNotFoundError:
         messagebox.showerror(
             "Don't wanna save your file?",

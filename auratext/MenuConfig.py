@@ -8,11 +8,11 @@ def configure_menuBar(self):
         """
             QMenuBar {
                 background-color: #1d1d1d;
-                border: 1px solid #000;
             }
             QMenuBar::item {
                 background-color: #1d1d1d;
                 color: rgb(255,255,255);
+                
             }
             QMenuBar::item::selected {
                 background-color: #1b1b1b;
@@ -20,13 +20,11 @@ def configure_menuBar(self):
             QMenu {
                 background-color: rgb(49,49,49);
                 color: rgb(255,255,255);
-                border: 1px solid #000;
+                border: 0px solid #000;
             }
             QMenu::item::selected {
-                background-color: rgb(30,30,30);
-            }
-        """
-    )
+                background-color: rgb(30,30,30);}
+        """)
 
     whats_this_action = QAction(self)
     whats_this_action.setShortcut("Shift+F1")
@@ -44,6 +42,7 @@ def configure_menuBar(self):
     file_menu.addSeparator()
     file_menu.addAction("Summary", self.summary).setWhatsThis("Get basic info of a file (Eg: Number of lines)")
     file_menu.addSeparator()
+    file_menu.addAction("Settings", self.expandSidebar__Settings)
     file_menu.addAction("Exit").setWhatsThis("Exit Aura Text")
     menubar.addMenu(file_menu)
 
@@ -59,8 +58,8 @@ def configure_menuBar(self):
     edit_menu.addSeparator()
    # edit_menu.addAction("Duplicate Line", self.duplicate_line).setWhatsThis("Duplicate a line to another line")
     #edit_menu.addAction("Reverse Line",).setWhatsThis("Reverse the alphabets of a line (Eg: Hello -->  olleH")
-    edit_menu.addSeparator()
-    #edit_menu.addAction("Find", self.find).setWhatsThis("Find a specific word inside the editor")
+    #edit_menu.addSeparator()
+    #edit_menu.addAction("Find & Replace", self.find_replace).setWhatsThis("Find a specific word inside the editor")
     menubar.addMenu(edit_menu)
 
     view_menu = QMenu("&View",  self)
@@ -68,16 +67,13 @@ def configure_menuBar(self):
     view_menu.addAction("Project Directory", self.treeview_viewmenu).setWhatsThis("Shows the files and folder in your project as treeview")
     menubar.addMenu(view_menu)
 
-    nav_menu = QMenu("&Navigate", self)
-    nav_menu.addAction("Goto Line", self.jump_to_line).setWhatsThis("Go to a specific line inside your editor")
-    menubar.addMenu(nav_menu)
-
     code_menu = QMenu("&Code", self)
     code_menu.addAction("Code Formatting", self.code_formatting).setWhatsThis("Beautifies and Formats the code in your current tab with pep-8 standard")
+    code_menu.addAction("Terminal", self.terminal_widget)
     menubar.addMenu(code_menu)
 
     tools_menu = QMenu("&Tools", self)
-    tools_menu.addAction("Read Aloud", ).setWhatsThis("Reads aloud the entire text content of your current editor")
+    tools_menu.addAction("Read Aloud", self.speak).setWhatsThis("Reads aloud the entire text content of your current editor")
     tools_menu.addAction("Upload to Pastebin", self.pastebin).setWhatsThis("Uploads the entire text content in your current editor to Pastebin and automatically copies the link")
     tools_menu.addAction("Notes", self.notes).setWhatsThis("Creates a new dock to write down ideas and temporary stuffs. The contents will be erased if you close the dock or the app")
     menubar.addMenu(tools_menu)
