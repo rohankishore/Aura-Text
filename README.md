@@ -11,16 +11,37 @@
   <a href="https://www.fiverr.com/rohancodespy/">![Demo](https://img.shields.io/badge/Fiverr-Hire-green)</a>
 </div>
 
-Aura Text is a versatile and powerful text editor that provides all the necessary tools for developers. It is build using PySide6 and Python. Everything about Aura Text is completely open-source.
+Aura Text is an exceptional text editor that offers developers a wide array of essential tools. Built with PySide6 and Python, it harnesses the power and flexibility of these technologies. One of the remarkable aspects of Aura Text is its complete commitment to the open-source philosophy.
 
-![image](https://github.com/rohankishore/Aura-Text/assets/109947257/ecfa855e-bcaa-4fbb-918f-efe0d8695c33)
+With Aura Text, developers gain access to a versatile and powerful editing environment. Whether you're working on a small script or a complex project, Aura Text equips you with all the necessary features to streamline your workflow. From syntax highlighting and code completion to smart indentation and error checking, Aura Text ensures that your coding experience is both efficient and enjoyable, while being extremely light on your PC.
+
+<div align="Center">
+
+Read the Docs (Contains some hidden tricks too ;] ) : 
+
+</div>
+
+<div align="center">
+
+![image](https://github.com/rohankishore/Aura-Text/assets/109947257/269c90db-6947-4483-a84b-cd2146cbe654)
+
+![image](https://github.com/rohankishore/Aura-Text/assets/109947257/e8be9ce1-f547-44e3-93ab-1e3cb2427dce)
+
+<br>
+
+![image](https://github.com/rohankishore/Aura-Text/assets/109947257/58fb7532-6180-4926-8eda-47d2bcab8b88)
+
+</div>
 
 ## Features
 
 - Well, edit files
 - Line Numbers
-- Auto Completion (Python, C++ and HTML(beta) Supported) [COMING REALLY SOON]
+- Auto Completion
 - Text Encrypt and Decrypt
+- Terminal (with Aura Text Specific Commands)
+- Git Integration
+- Multiple Material Themes
 - Code Folding
 - Instant Notes
 - Upload to Pastebin
@@ -31,31 +52,23 @@ Aura Text is a versatile and powerful text editor that provides all the necessar
 - Auto Indent
 
 <br>
-<br>
+
+<h2 align="center">Running Aura Text</h2>
+
+### For Users
+Download the exe file from the Releases page (make sure it's the latest one available) and unzip the file. Now open the unzipped folder and click on `AuraText.exe`
+
+### For Developers
 
 <div align="center">
 
-![image](https://github.com/rohankishore/Aura-Text/assets/109947257/5c94da8f-046b-47c4-ab8e-3744388a3e59)
+```pip install -r requirements.txt```
 
-<br>
-
-![image](https://github.com/rohankishore/Aura-Text/assets/109947257/a80c8af4-2e74-4221-a446-e03cd209db58)
+```python AuraText.py```
 
 </div>
 
-
-<h2 align="center">Installation</h2>
-
-### For Users
-Download the exe file from the Releases page (make sure it's the latest one available) and unzip the file. Now open the unzipped folder and click on `AT.exe`
-
-### For Developers
-Download or Clone this repo. Then, install all the libraries mentioned in the `requirements.txt` file.
-Use the command`pip install -r requirements.txt` to install all the libs at a single go.
-
-
-<h2 align="center">License</h2>
-This project is licensed under the terms of the MIT license.
+<br>
 
 
 <h1 align="center">Been Featured On</h1>
@@ -67,3 +80,6 @@ This project is licensed under the terms of the MIT license.
 - [Tistory](https://sansamlife.com/entry/IT-%EC%B5%9C%EC%8B%A0-%EC%A0%95%EB%B3%B4-%EC%98%A4%ED%94%88%EC%86%8C%EC%8A%A4-%EC%9B%B9-%EC%95%A0%ED%94%8C%EB%A6%AC%EC%BC%80%EC%9D%B4%EC%85%98-%EC%95%88%EB%93%9C%EB%A1%9C%EC%9D%B4%EB%93%9C%ED%8F%B0-AudioLM#idx4:~:text=github.com/rohankishore/-,Aura%2DText,-GitHub%20%2D%20rohankishore/Aura)
 
 - [Adafruit](https://blog.adafruit.com/2023/03/07/a-novel-text-programming-editor-aura-text-programming-software/)
+
+<h2 align="center">License</h2>
+This project is licensed under the terms of the MIT license. 
