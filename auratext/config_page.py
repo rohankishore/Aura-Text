@@ -29,6 +29,28 @@ class ConfigPage(QWidget):
         layout.addStretch()
         layout.addSpacing(100)
 
+        # Theme
+        theme_label = QLabel("Theme:")
+        self.theme_combobox = QComboBox()
+        self.theme_combobox.setStyleSheet(
+            "QComboBox {"
+            "   border-radius: 10px;"
+            "   padding: 5px;"
+            "   background-color: #282c2f;"
+            "   color: white;"
+            "}"
+        )
+        themes = [
+            'dark_amber.xml', 'dark_blue.xml', 'dark_cyan.xml', 'dark_lightgreen.xml',
+            'dark_pink.xml', 'dark_purple.xml', 'dark_red.xml', 'dark_teal.xml',
+            'dark_yellow.xml', 'light_amber.xml', 'light_blue.xml', 'light_cyan.xml',
+            'light_cyan_500.xml', 'light_lightgreen.xml', 'light_pink.xml',
+            'light_purple.xml', 'light_red.xml', 'light_teal.xml', 'light_yellow.xml'
+        ]
+        self.theme_combobox.addItems([theme.split(".")[0] for theme in themes])
+        layout.addWidget(theme_label)
+        layout.addWidget(self.theme_combobox)
+
         # Editor Theme
         editor_theme_label = QLabel("Editor Background:")
         self.editor_theme_input = QLineEdit()
@@ -96,6 +118,7 @@ class ConfigPage(QWidget):
         layout.addWidget(font_theme_label)
         layout.addWidget(self.font_theme_combobox)
 
+
         # Save Button
         save_button = QPushButton("Apply")
         save_button.setStyleSheet(
@@ -114,6 +137,7 @@ class ConfigPage(QWidget):
         self.show()
 
     def save_json(self):
+        self.json_data["theme"] = self.theme_combobox.currentText()
         self.json_data["editor_theme"] = self.editor_theme_input.text()
         self.json_data["margin_theme"] = self.margin_theme_input.text()
         self.json_data["lines_theme"] = self.lines_theme_input.text()

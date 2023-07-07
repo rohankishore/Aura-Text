@@ -1,11 +1,10 @@
 import json
 import os
 import random
-import subprocess
 import sys
 import time
 import webbrowser
-from tkinter import messagebox, filedialog
+from tkinter import filedialog
 from PyQt6.Qsci import *
 from PyQt6.QtCore import Qt, QSize
 from PyQt6.QtGui import QColor, QFont, QActionGroup, QFileSystemModel, QPixmap, QIcon, QFontMetrics
@@ -15,6 +14,7 @@ import Lexers
 import terminal
 import config_page
 import MenuConfig
+from qt_material import apply_stylesheet
 import Modules as ModuleFile
 from TabWidget import TabWidget
 
@@ -33,11 +33,18 @@ editor_fg = str(json_data["editor_fg"])
 linenumber_fg = str(json_data["lines_fg"])
 sidebar_bg = str(json_data["sidebar_bg"])
 font = str(json_data["font"])
+theme = str(json_data["theme"]) + ".xml"
 
-# noinspection PyUnresolvedReferences
-class CodeEditor(QsciScintilla):
+class CustomWidget(QWidget):
     def __init__(self):
         super().__init__()
+        # Customize the appearance of the widget here
+        self.setStyleSheet("background-color: #000000;")
+
+
+class CodeEditor(QsciScintilla):
+    def __init__(self):
+        super().__init__(parent=None)
         lexer = Lexers.PythonLexer()
         self.setLexer(lexer)
         self.setPaper(QColor(editor_bg))
@@ -129,6 +136,7 @@ class Window(QMainWindow):
         splash.hide()
 
         self.tab_widget = TabWidget()
+        self.custom_widget = CustomWidget()
 
         self.tab_widget.setTabsClosable(True)
 
@@ -237,6 +245,12 @@ class Window(QMainWindow):
         self.text_editor = CodeEditor()
         return self.text_editor
 
+    def update_central_widget(self):
+        if self.tab_widget.count() is None:
+            self.setCentralWidget(self.custom_widget)
+        else:
+            self.setCentralWidget(self.tab_widget)
+
     def expandSidebar__Explorer(self):
         self.treeview_viewmenu()
 
@@ -298,6 +312,33 @@ class Window(QMainWindow):
         else:
             event.ignore()
 
+    def gitClone(self):
+        try:
+            from git import Repo
+            repo_url, ok = QInputDialog.getText(self, "Git Repo", "URL of the Repository")
+            try:
+                path = filedialog.askdirectory(title="Repo Path", initialdir="./",
+                                                          mustexist=False)
+            except:
+                messagebox = QMessageBox()
+                messagebox.setWindowTitle("Path Error"), messagebox.setText(
+                    "The folder should be EMPTY! Please try again with an EMPTY folder")
+                messagebox.exec()
+
+            Repo.clone_from(repo_url, path)
+            with open('Data/CPath_Project.txt', 'w') as file:
+                file.write(path)
+            messagebox = QMessageBox()
+            messagebox.setWindowTitle("Success!"), messagebox.setText(
+                "The repository has been cloned successfully!")
+            messagebox.exec()
+            self.treeview_project(path)
+
+        except ImportError:
+            messagebox = QMessageBox()
+            messagebox.setWindowTitle("Git Import Error"), messagebox.setText("Aura Text can't find Git in your PC. Make sure Git is installed and has been added to PATH.")
+            messagebox.exec()
+
     def open_file(self, index):
         path = self.model.filePath(index)
         if path:
@@ -309,7 +350,9 @@ class Window(QMainWindow):
                     self.current_editor.insert(filedata)
                     f.close()
                 except UnicodeDecodeError:
-                    messagebox.showerror("Wrong Filetype!", "This file type is not supported!")
+                    messagebox = QMessageBox()
+                    messagebox.setWindowTitle("Wrong Filetype!"), messagebox.setText("This file type is not supported!")
+                    messagebox.exec()
             except FileNotFoundError:
                 return
 
@@ -321,7 +364,7 @@ class Window(QMainWindow):
         MenuConfig.configure_menuBar(self)
 
     def python(self):
-        lexer = Lexers.python(self)
+        Lexers.python(self)
         self.current_editor.setMarginsBackgroundColor(QColor("#1e1f22"))
         self.current_editor.setMarginsForegroundColor(QColor("#FFFFFF"))
 
@@ -480,7 +523,9 @@ class Window(QMainWindow):
             pathh = str(project_path)
             with open('Data/CPath_Project.txt', 'w') as file:
                 file.write(pathh)
-            messagebox.showinfo("New Project", f"New project created at {project_path}")
+            messagebox = QMessageBox()
+            messagebox.setWindowTitle("New Project"), messagebox.setText(f"New project created at {project_path}")
+            messagebox.exec()
             self.treeview_project(project_path)
 
     def open_project_as_treeview(self):
@@ -490,12 +535,6 @@ class Window(QMainWindow):
         if dialog.exec():
             project_path = dialog.selectedFiles()[0]
             self.treeview_project(project_path)
-
-    def run_code(self):
-        messagebox.showwarning("Hold up!", "Before moving forward, make sure that you've saved your code.")
-        a = ModuleFile.save_document()
-        command = "python " + a
-        subprocess.call(command, shell=True)
 
     def new_document(self, checked=False, title="Scratch 1"):
         self.current_editor = self.create_editor()
@@ -543,11 +582,9 @@ class Window(QMainWindow):
         lines = str(self.current_editor.lines())
         text = self.current_editor.text()
         text = "Number of Lines: " + lines
-        messagebox.showinfo("Summary", text)
-
-    def find(self):
-        text, ok = QInputDialog.getText(None, "Find", "Enter Word:")
-        ModuleFile.find_and_highlight_word(self, text)
+        messagebox = QMessageBox()
+        messagebox.setText(text), messagebox.setWindowTitle("Summary")
+        messagebox.exec()
 
     def paste_document(self):
         self.current_editor.paste()
@@ -557,6 +594,7 @@ class Window(QMainWindow):
         self.tab_widget.removeTab(index)
         if index < len(self.editors):
             del self.editors[index]
+        self.update_central_widget()
 
     def open_document(self):
         ModuleFile.open_document(self)
@@ -574,12 +612,15 @@ class Window(QMainWindow):
                 "Aura Text"
                 + "\n"
                 + "Current Version: "
-                + "3.0"
+                + "4.0"
                 + "\n"
                 + "\n"
                 + "Copyright © 2023 Rohan Kishore."
         )
-        messagebox.showinfo("About", text_ver)
+        msg_box = QMessageBox()
+        msg_box.setWindowTitle("About")
+        msg_box.setText(text_ver)
+        msg_box.exec()
 
     @staticmethod
     def getting_started():
@@ -608,7 +649,18 @@ class Window(QMainWindow):
 
 
 def main():
+    extra = {
+        # Button colors
+        'danger': '#dc3545',
+        'warning': '#ffc107',
+        'success': '#17a2b8',
+
+        # Font
+        'font_family': 'Roboto',
+    }
+
     app = QApplication(sys.argv)
+    apply_stylesheet(app, theme=theme, extra=extra)
     ex = Window()
     sys.exit(app.exec())
 

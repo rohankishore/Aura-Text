@@ -36,6 +36,7 @@ def configure_menuBar(self):
     file_menu.addSeparator()
     file_menu.addAction("New Project", self.new_project).setWhatsThis("Create a new project")
     file_menu.addAction("Open Project", self.open_project).setWhatsThis("Open an existing project")
+    file_menu.addAction("Clone Project from Git", self.gitClone)
     file_menu.addAction("Open Project as Treeview", self.open_project_as_treeview).setWhatsThis("Open an existing project as a treeview dock")
     file_menu.addSeparator()
     file_menu.addAction("Save As", self.save_document).setWhatsThis("Save the document")

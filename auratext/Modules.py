@@ -6,8 +6,7 @@ import webbrowser
 import base64
 import pyttsx3
 import win32clipboard
-from PyQt6.Qsci import QsciScintilla
-from PyQt6.QtGui import QTextCursor
+
 
 api_key_pastebin = '_L_ZkBp7K3aZMY7z4ombPIztLxITOOpD'
 
