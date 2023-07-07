@@ -5,6 +5,8 @@ import sys
 import time
 import webbrowser
 from tkinter import filedialog
+
+import git
 from PyQt6.Qsci import *
 from PyQt6.QtCore import Qt, QSize
 from PyQt6.QtGui import QColor, QFont, QActionGroup, QFileSystemModel, QPixmap, QIcon, QFontMetrics
@@ -325,14 +327,17 @@ class Window(QMainWindow):
                     "The folder should be EMPTY! Please try again with an EMPTY folder")
                 messagebox.exec()
 
-            Repo.clone_from(repo_url, path)
-            with open('Data/CPath_Project.txt', 'w') as file:
-                file.write(path)
-            messagebox = QMessageBox()
-            messagebox.setWindowTitle("Success!"), messagebox.setText(
-                "The repository has been cloned successfully!")
-            messagebox.exec()
-            self.treeview_project(path)
+            try:
+                Repo.clone_from(repo_url, path)
+                with open('Data/CPath_Project.txt', 'w') as file:
+                    file.write(path)
+                messagebox = QMessageBox()
+                messagebox.setWindowTitle("Success!"), messagebox.setText(
+                    "The repository has been cloned successfully!")
+                messagebox.exec()
+                self.treeview_project(path)
+            except git.GitCommandError:
+                pass
 
         except ImportError:
             messagebox = QMessageBox()
