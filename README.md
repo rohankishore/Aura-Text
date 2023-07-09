@@ -17,19 +17,13 @@ With Aura Text, developers gain access to a versatile and powerful editing envir
 
 <div align="Center">
 
-Read the Docs (Contains some hidden tricks too ;] ) : 
+Read the Docs (Contains some hidden tricks too ;] ) : https://github.com/rohankishore/Aura-Text/wiki
 
 </div>
 
 <div align="center">
 
-![image](https://github.com/rohankishore/Aura-Text/assets/109947257/269c90db-6947-4483-a84b-cd2146cbe654)
-
-![image](https://github.com/rohankishore/Aura-Text/assets/109947257/e8be9ce1-f547-44e3-93ab-1e3cb2427dce)
-
-<br>
-
-![image](https://github.com/rohankishore/Aura-Text/assets/109947257/58fb7532-6180-4926-8eda-47d2bcab8b88)
+![image](https://github.com/rohankishore/Aura-Text/assets/109947257/e7cfe148-7c5f-4609-a7be-09085a253f83)
 
 </div>
 
@@ -41,7 +35,7 @@ Read the Docs (Contains some hidden tricks too ;] ) :
 - Text Encrypt and Decrypt
 - Terminal (with Aura Text Specific Commands)
 - Git Integration
-- Multiple Material Themes
+- Material Themes
 - Code Folding
 - Instant Notes
 - Upload to Pastebin
