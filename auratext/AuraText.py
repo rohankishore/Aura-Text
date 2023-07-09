@@ -5,7 +5,7 @@ import sys
 import time
 import webbrowser
 from tkinter import filedialog
-
+import qdarktheme
 import git
 from PyQt6.Qsci import *
 from PyQt6.QtCore import Qt, QSize
@@ -16,7 +16,12 @@ import Lexers
 import terminal
 import config_page
 import MenuConfig
-from qt_material import apply_stylesheet
+#from qt_material import apply_stylesheet
+
+#######
+
+########
+
 import Modules as ModuleFile
 from TabWidget import TabWidget
 
@@ -35,14 +40,7 @@ editor_fg = str(json_data["editor_fg"])
 linenumber_fg = str(json_data["lines_fg"])
 sidebar_bg = str(json_data["sidebar_bg"])
 font = str(json_data["font"])
-theme = str(json_data["theme"]) + ".xml"
-
-class CustomWidget(QWidget):
-    def __init__(self):
-        super().__init__()
-        # Customize the appearance of the widget here
-        self.setStyleSheet("background-color: #000000;")
-
+theme = str(json_data["theme"])
 
 class CodeEditor(QsciScintilla):
     def __init__(self):
@@ -138,7 +136,6 @@ class Window(QMainWindow):
         splash.hide()
 
         self.tab_widget = TabWidget()
-        self.custom_widget = CustomWidget()
 
         self.tab_widget.setTabsClosable(True)
 
@@ -167,17 +164,6 @@ class Window(QMainWindow):
         self.terminal_button.setIcon(terminal_icon)
         self.terminal_button.setIconSize(QSize(20, 20))
         self.terminal_button.setFixedSize(30, 30)
-        self.terminal_button.setStyleSheet(
-            """
-            QPushButton {
-                border: none;
-                border-radius:10;
-            }
-            QPushButton:hover {
-                background-color: #000000;
-            }
-            """
-        )
 
         explorer_icon = QIcon('Icons/explorer.png')
         self.explorer_button = QPushButton(self)
@@ -247,24 +233,43 @@ class Window(QMainWindow):
         self.text_editor = CodeEditor()
         return self.text_editor
 
-    def update_central_widget(self):
-        if self.tab_widget.count() is None:
-            self.setCentralWidget(self.custom_widget)
+    def onDockWidgetVisibilityChanged(self, visible, button):
+        if visible:
+            button.setStyleSheet(
+                """
+                QPushButton {
+                    border: none;
+                    border-radius:10;
+                    background-color : #000000;
+                }
+                QPushButton:hover {
+                    background-color: #000000;
+                }
+                """)
         else:
-            self.setCentralWidget(self.tab_widget)
+            button.setStyleSheet(
+                """
+                QPushButton {
+                    border: none;
+                    border-radius:10;
+                }
+                QPushButton:hover {
+                    background-color: #000000;
+                }
+                """
+            )
 
     def expandSidebar__Explorer(self):
         self.treeview_viewmenu()
 
     def expandSidebar__Settings(self):
         self.settings_dock = QDockWidget("Settings", self)
+        self.settings_dock.visibilityChanged.connect(lambda visible: self.onDockWidgetVisibilityChanged(visible, self.settings_button))
         self.settings_dock.setStyleSheet("QDockWidget {background-color : #1b1b1b; color : white;}")
         self.settings_dock.setFixedWidth(200)
         self.settings_widget = config_page.ConfigPage()
-        #self.settings_widget.setStyleSheet("""QWidget{background-color : #313335;}""")
         self.settings_layout = QVBoxLayout(self.settings_widget)
         self.settings_layout.addWidget(self.settings_widget)
-        #self.settings_layout.setAlignment(Qt.AlignmentFlag.AlignHCenter)
         self.settings_dock.setWidget(self.settings_widget)
         self.addDockWidget(Qt.DockWidgetArea.RightDockWidgetArea, self.settings_dock)
 
@@ -279,6 +284,7 @@ class Window(QMainWindow):
 
     def treeview_project(self, path):
         dock = QDockWidget("Explorer", self)
+        dock.visibilityChanged.connect(lambda visible: self.onDockWidgetVisibilityChanged(visible, self.explorer_button))
         dock.setStyleSheet("QDockWidget { background-color: #191a1b; color: white;}")
         dock.setAllowedAreas(Qt.DockWidgetArea.RightDockWidgetArea)
         tree_view = QTreeView()
@@ -293,6 +299,7 @@ class Window(QMainWindow):
 
     def terminal_widget(self):
         self.terminal_dock = QDockWidget("Terminal", self)
+        self.terminal_dock.visibilityChanged.connect(lambda visible: self.onDockWidgetVisibilityChanged(visible, self.terminal_button))
         terminal_widget = terminal.AuraTextTerminalWidget()
         self.sidebar_layout_Terminal = QVBoxLayout(terminal_widget)
         self.terminal_dock.setWidget(terminal_widget)
@@ -599,7 +606,6 @@ class Window(QMainWindow):
         self.tab_widget.removeTab(index)
         if index < len(self.editors):
             del self.editors[index]
-        self.update_central_widget()
 
     def open_document(self):
         ModuleFile.open_document(self)
@@ -665,7 +671,7 @@ def main():
     }
 
     app = QApplication(sys.argv)
-    apply_stylesheet(app, theme=theme, extra=extra)
+    qdarktheme.setup_theme(custom_colors={"primary" : theme})
     ex = Window()
     sys.exit(app.exec())
 
