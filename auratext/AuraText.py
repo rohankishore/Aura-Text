@@ -5,25 +5,26 @@ import sys
 import time
 import webbrowser
 from tkinter import filedialog
-import qdarktheme
+
 import git
-from PyQt6.Qsci import *
+import qdarktheme
+import pyjokes
+from PyQt6.Qsci import QsciScintilla, QsciAPIs
 from PyQt6.QtCore import Qt, QSize
 from PyQt6.QtGui import QColor, QFont, QActionGroup, QFileSystemModel, QPixmap, QIcon, QFontMetrics
 from PyQt6.QtWidgets import QApplication, QMainWindow, QInputDialog, QDockWidget, QTreeView, QFileDialog, QSplashScreen, \
-    QMessageBox, QMenu, QPlainTextEdit, QPushButton, QWidget, QVBoxLayout
+    QMessageBox, QMenu, QPlainTextEdit, QPushButton, QWidget, QVBoxLayout, QTextEdit
+
 import Lexers
-import terminal
+import datetime
 import config_page
-import MenuConfig
-#from qt_material import apply_stylesheet
+from Core import MenuConfig, terminal, WelcomeScreen
+import Modules as ModuleFile
+from Core.TabWidget import TabWidget
+import threading
 
 #######
-
 ########
-
-import Modules as ModuleFile
-from TabWidget import TabWidget
 
 
 path_file = open("Data/CPath_Project.txt", 'r+')
@@ -40,7 +41,8 @@ editor_fg = str(json_data["editor_fg"])
 linenumber_fg = str(json_data["lines_fg"])
 sidebar_bg = str(json_data["sidebar_bg"])
 font = str(json_data["font"])
-theme = str(json_data["theme"])
+theme_color = str(json_data["theme"])
+theme = str(json_data["theme_type"])
 
 class CodeEditor(QsciScintilla):
     def __init__(self):
@@ -54,14 +56,20 @@ class CodeEditor(QsciScintilla):
         self.setAutoCompletionSource(QsciScintilla.AutoCompletionSource.AcsAll)
         self.setAutoCompletionThreshold(1)
         self.setAutoCompletionCaseSensitivity(True)
+        self.setWrapMode(QsciScintilla.WrapMode.WrapNone)
         self.setAutoCompletionThreshold(1)
         self.setAutoCompletionFillupsEnabled(True)
+
 
         # Setting up lexers
         lexer.setPaper(QColor(editor_bg))
         lexer.setColor(QColor('#808080'), lexer.Comment)
         lexer.setColor(QColor('#FFA500'), lexer.Keyword)
         lexer.setColor(QColor('#FFFFFF'), lexer.ClassName)
+        lexer.setColor(QColor("#59ff00"), lexer.TripleSingleQuotedString)
+        lexer.setColor(QColor("#59ff00"), lexer.TripleDoubleQuotedString)
+        lexer.setColor(QColor("#3ba800"), lexer.SingleQuotedString)
+        lexer.setColor(QColor("#3ba800"), lexer.DoubleQuotedString)
         lexer.setColor(QColor(editor_fg), lexer.Default)
         lexer.setFont(QFont(font))
 
@@ -79,7 +87,7 @@ class CodeEditor(QsciScintilla):
         self.setFolding(QsciScintilla.FoldStyle.BoxedTreeFoldStyle)
         self.setMarginSensitivity(2, True)
         self.setFoldMarginColors(QColor(margin_bg), QColor(margin_bg))
-        self.setBraceMatching(QsciScintilla.BraceMatch.SloppyBraceMatch)
+        self.setBraceMatching(QsciScintilla.BraceMatch.StrictBraceMatch)
         self.setCaretLineVisible(True)
         self.setCaretLineBackgroundColor(QColor("#80d3d3d3"))
         self.setWrapMode(QsciScintilla.WrapMode.WrapWord)
@@ -102,7 +110,6 @@ class CodeEditor(QsciScintilla):
         self.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
         self.customContextMenuRequested.connect(self.show_context_menu)
 
-
     def show_context_menu(self, point):
         self.context_menu.popup(self.mapToGlobal(point))
 
@@ -122,22 +129,43 @@ class Sidebar(QDockWidget):
         self.setAllowedAreas(Qt.DockWidgetArea.LeftDockWidgetArea)
         self.setFeatures(QDockWidget.DockWidgetFeature.NoDockWidgetFeatures)
 
-
 # noinspection PyUnresolvedReferences
 class Window(QMainWindow):
     def __init__(self):
         super().__init__()
 
         # Splash Screen
-        splash_pix = QPixmap("Icons/splash.png")
+        splash_pix = ""
+        current_time = datetime.datetime.now().time()
+        sunrise_time = current_time.replace(hour=6, minute=0, second=0, microsecond=0)
+        sunset_time = current_time.replace(hour=18, minute=0, second=0, microsecond=0)
+
+        # Check which time interval the current time falls into
+        if sunrise_time <= current_time < sunrise_time.replace(hour=12):
+            splash_pix = QPixmap("Core/Icons/splash_morning.png")
+        elif sunrise_time.replace(hour=12) <= current_time < sunset_time:
+            splash_pix = QPixmap("Core/Icons/splash_afternoon.png")
+        else:
+            splash_pix = QPixmap("Core/Icons/splash_night.png")
+
         splash = QSplashScreen(splash_pix)
         splash.show()
-        time.sleep(0.5)
+        time.sleep(1)
         splash.hide()
 
         self.tab_widget = TabWidget()
+        self.current_editor = ""
+
+        if cpath == "" or cpath == " ":
+            welcome_widget = WelcomeScreen.WelcomeWidget(self)
+            self.tab_widget.addTab(welcome_widget, "Welcome")
+        else:
+            self.treeview_viewmenu()
 
         self.tab_widget.setTabsClosable(True)
+
+        self.md_dock = QDockWidget("Markdown Preview")
+        self.mdnew = QDockWidget("Markdown Preview")
 
         # Sidebar
         self.sidebar_main = Sidebar("", self)
@@ -160,12 +188,12 @@ class Window(QMainWindow):
         self.statusbar.setWidget(self.statusbar_widget)
         self.addDockWidget(Qt.DockWidgetArea.LeftDockWidgetArea, self.statusbar)
 
-        terminal_icon = QIcon('Icons/terminal.png')
+        terminal_icon = QIcon('Core/Icons/terminal.png')
         self.terminal_button.setIcon(terminal_icon)
         self.terminal_button.setIconSize(QSize(20, 20))
         self.terminal_button.setFixedSize(30, 30)
 
-        explorer_icon = QIcon('Icons/explorer.png')
+        explorer_icon = QIcon('Core/Icons/explorer.png')
         self.explorer_button = QPushButton(self)
         self.explorer_button.setIcon(explorer_icon)
         self.explorer_button.setIconSize(QSize(30, 30))
@@ -178,12 +206,12 @@ class Window(QMainWindow):
                 align: botton;
             }
             QPushButton:hover {
-                background-color: #000000;
+                background-color: #3574f0;
             }
             """
         )
 
-        settings_icon = QIcon('Icons/settings.png')
+        settings_icon = QIcon('Core/Icons/settings.png')
         self.settings_button = QPushButton(self)
         self.settings_button.setIcon(settings_icon)
         self.settings_button.setIconSize(QSize(30, 30))
@@ -196,7 +224,7 @@ class Window(QMainWindow):
                 align: botton;
             }
             QPushButton:hover {
-                background-color: #000000;
+                background-color: #3574f0;
             }
             """
         )
@@ -222,11 +250,10 @@ class Window(QMainWindow):
 
         self.tab_widget.currentChanged.connect(self.change_text_editor)
         self.tab_widget.tabCloseRequested.connect(self.remove_editor)
-        self.new_document()
+        #self.new_document()
         self.setWindowTitle('Aura Text')
-        self.setWindowIcon(QIcon("Icons/icon.ico"))
+        self.setWindowIcon(QIcon("Core/Icons/icon.ico"))
         self.configure_menuBar()
-        #self.treeview_viewmenu()
         self.showMaximized()
 
     def create_editor(self):
@@ -240,10 +267,10 @@ class Window(QMainWindow):
                 QPushButton {
                     border: none;
                     border-radius:10;
-                    background-color : #000000;
+                    background-color : #3574f0;
                 }
                 QPushButton:hover {
-                    background-color: #000000;
+                    background-color: #3574f0;
                 }
                 """)
         else:
@@ -254,7 +281,7 @@ class Window(QMainWindow):
                     border-radius:10;
                 }
                 QPushButton:hover {
-                    background-color: #000000;
+                    background-color: #3574f0;
                 }
                 """
             )
@@ -262,16 +289,26 @@ class Window(QMainWindow):
     def expandSidebar__Explorer(self):
         self.treeview_viewmenu()
 
+    def create_snippet(self):
+        ModuleFile.CodeSnippets.snippets_gen(self.current_editor)
+
+    def import_snippet(self):
+        ModuleFile.CodeSnippets.snippets_open(self.current_editor)
+
     def expandSidebar__Settings(self):
         self.settings_dock = QDockWidget("Settings", self)
-        self.settings_dock.visibilityChanged.connect(lambda visible: self.onDockWidgetVisibilityChanged(visible, self.settings_button))
-        self.settings_dock.setStyleSheet("QDockWidget {background-color : #1b1b1b; color : white;}")
-        self.settings_dock.setFixedWidth(200)
-        self.settings_widget = config_page.ConfigPage()
-        self.settings_layout = QVBoxLayout(self.settings_widget)
-        self.settings_layout.addWidget(self.settings_widget)
-        self.settings_dock.setWidget(self.settings_widget)
-        self.addDockWidget(Qt.DockWidgetArea.RightDockWidgetArea, self.settings_dock)
+        background_color = self.settings_button.palette().color(self.settings_button.backgroundRole()).name()
+        if background_color == "#000000":
+            self.settings_dock.destroy()
+        else:
+            self.settings_dock.visibilityChanged.connect(lambda visible: self.onDockWidgetVisibilityChanged(visible, self.settings_button))
+            self.settings_dock.setStyleSheet("QDockWidget {background-color : #1b1b1b; color : white;}")
+            self.settings_dock.setFixedWidth(200)
+            self.settings_widget = config_page.ConfigPage()
+            self.settings_layout = QVBoxLayout(self.settings_widget)
+            self.settings_layout.addWidget(self.settings_widget)
+            self.settings_dock.setWidget(self.settings_widget)
+            self.addDockWidget(Qt.DockWidgetArea.RightDockWidgetArea, self.settings_dock)
 
     def treeview_viewmenu(self):
         self.treeview_project(cpath)
@@ -281,6 +318,10 @@ class Window(QMainWindow):
                                                   mustexist=False)
         with open('Data/CPath_Project.txt', 'w') as file:
             file.write(new_folder_path)
+
+    def code_jokes(self):
+        a =  pyjokes.get_joke(language='en', category='neutral')
+        QMessageBox.information(self, "A Byte of Humour!", a)
 
     def treeview_project(self, path):
         dock = QDockWidget("Explorer", self)
@@ -351,13 +392,63 @@ class Window(QMainWindow):
             messagebox.setWindowTitle("Git Import Error"), messagebox.setText("Aura Text can't find Git in your PC. Make sure Git is installed and has been added to PATH.")
             messagebox.exec()
 
+    def markdown_open(self, path_data):
+        #self.md_dock = QDockWidget("Markdown Preview")
+        self.md_dock.setStyleSheet("QDockWidget {background-color : #1b1b1b; color : white;}")
+        self.md_dock.setMinimumWidth(400)
+        self.md_widget = QTextEdit()
+        self.md_widget.setMarkdown(path_data)
+        self.md_widget.setReadOnly(True)
+        self.md_layout = QVBoxLayout(self.md_widget)
+        self.md_layout.addWidget(self.md_widget)
+        self.md_dock.setWidget(self.md_widget)
+        self.addDockWidget(Qt.DockWidgetArea.RightDockWidgetArea, self.md_dock)
+
+    def markdown_new(self):
+        self.mdnew.setStyleSheet("QDockWidget {background-color : #1b1b1b; color : white;}")
+        self.mdnew.setMinimumWidth(400)
+        self.md_widget = QTextEdit()
+        self.md_widget.setReadOnly(True)
+        self.md_layout = QVBoxLayout(self.md_widget)
+        self.md_layout.addWidget(self.md_widget)
+        self.mdnew.setWidget(self.md_widget)
+        self.addDockWidget(Qt.DockWidgetArea.RightDockWidgetArea, self.mdnew)
+
+        def update():
+            a = self.current_editor.text()
+            self.md_widget.setMarkdown(a)
+
+        self.current_editor.textChanged.connect(update)
+
+    # TREEVIEW
     def open_file(self, index):
         path = self.model.filePath(index)
+        image_extensions = ["png", "jpg", "jpeg", "ico", "gif", "bmp"]
+        ext = path.split(".")[-1]
+
+        def add_image_tab():
+            ModuleFile.add_image_tab(self, self.tab_widget, path, os.path.basename(path))
+
         if path:
+
+            try:
+                if ext in image_extensions:
+                    add_image_tab()
+                    return
+
+            except UnicodeDecodeError:
+                messagebox = QMessageBox()
+                messagebox.setWindowTitle("Wrong Filetype!"), messagebox.setText("This file type is not supported!")
+                messagebox.exec()
+
             try:
                 f = open(path, "r")
                 try:
                     filedata = f.read()
+                    if ext == "md" or ext == "MD":
+                        self.markdown_open(filedata)
+                    elif ext == "png" or ext == "PNG":
+                        add_image_tab()
                     self.new_document(title=os.path.basename(path))
                     self.current_editor.insert(filedata)
                     f.close()
@@ -368,151 +459,198 @@ class Window(QMainWindow):
             except FileNotFoundError:
                 return
 
-    def speak(self):
+    def speak_init(self):
         text = self.current_editor.text()
         ModuleFile.rightSpeak(text)
+
+    def speak(self):
+        speak_thread = threading.Thread(target=self.speak_init)
+        speak_thread.start()
+
+    def check_for_issues(self):
+        ModuleFile.check_for_issues()
 
     def configure_menuBar(self):
         MenuConfig.configure_menuBar(self)
 
     def python(self):
         Lexers.python(self)
-        self.current_editor.setMarginsBackgroundColor(QColor("#1e1f22"))
+        self.current_editor.setMarginsBackgroundColor(QColor(margin_bg))
         self.current_editor.setMarginsForegroundColor(QColor("#FFFFFF"))
 
     def csharp(self):
         Lexers.csharp(self)
-        self.current_editor.setMarginsBackgroundColor(QColor("#1e1f22"))
+        self.current_editor.setMarginsBackgroundColor(QColor(margin_bg))
         self.current_editor.setMarginsForegroundColor(QColor("#FFFFFF"))
 
     def json(self):
         Lexers.json(self)
-        self.current_editor.setMarginsBackgroundColor(QColor("#1e1f22"))
+        self.current_editor.setMarginsBackgroundColor(QColor(margin_bg))
         self.current_editor.setMarginsForegroundColor(QColor("#FFFFFF"))
 
     def duplicate_line(self):
         ModuleFile.duplicate_line(self)
-        self.current_editor.setMarginsBackgroundColor(QColor("#1e1f22"))
+        self.current_editor.setMarginsBackgroundColor(QColor(margin_bg))
         self.current_editor.setMarginsForegroundColor(QColor("#FFFFFF"))
 
     def yaml(self):
         Lexers.yaml(self)
-        self.current_editor.setMarginsBackgroundColor(QColor("#1e1f22"))
+        self.current_editor.setMarginsBackgroundColor(QColor(margin_bg))
         self.current_editor.setMarginsForegroundColor(QColor("#FFFFFF"))
 
     def xml(self):
         Lexers.xml(self)
-        self.current_editor.setMarginsBackgroundColor(QColor("#1e1f22"))
+        self.current_editor.setMarginsBackgroundColor(QColor(margin_bg))
         self.current_editor.setMarginsForegroundColor(QColor("#FFFFFF"))
 
     def html(self):
         Lexers.html(self)
-        self.current_editor.setMarginsBackgroundColor(QColor("#1e1f22"))
+        self.current_editor.setMarginsBackgroundColor(QColor(margin_bg))
         self.current_editor.setMarginsForegroundColor(QColor("#FFFFFF"))
 
     def cpp(self):
         Lexers.cpp(self)
-        self.current_editor.setMarginsBackgroundColor(QColor("#1e1f22"))
+        self.current_editor.setMarginsBackgroundColor(QColor(margin_bg))
         self.current_editor.setMarginsForegroundColor(QColor("#FFFFFF"))
 
     def ruby(self):
         Lexers.ruby(self)
-        self.current_editor.setMarginsBackgroundColor(QColor("#1e1f22"))
+        self.current_editor.setMarginsBackgroundColor(QColor(margin_bg))
         self.current_editor.setMarginsForegroundColor(QColor("#FFFFFF"))
 
     def perl(self):
         Lexers.perl(self)
-        self.current_editor.setMarginsBackgroundColor(QColor("#1e1f22"))
+        self.current_editor.setMarginsBackgroundColor(QColor(margin_bg))
         self.current_editor.setMarginsForegroundColor(QColor("#FFFFFF"))
 
     def pascal(self):
         Lexers.pascal(self)
-        self.current_editor.setMarginsBackgroundColor(QColor("#1e1f22"))
+        self.current_editor.setMarginsBackgroundColor(QColor(margin_bg))
         self.current_editor.setMarginsForegroundColor(QColor("#FFFFFF"))
 
     def css(self):
         Lexers.css(self)
-        self.current_editor.setMarginsBackgroundColor(QColor("#1e1f22"))
+        self.current_editor.setMarginsBackgroundColor(QColor(margin_bg))
         self.current_editor.setMarginsForegroundColor(QColor("#FFFFFF"))
 
     def sql(self):
         Lexers.sql(self)
-        self.current_editor.setMarginsBackgroundColor(QColor("#1e1f22"))
+        self.current_editor.setMarginsBackgroundColor(QColor(margin_bg))
         self.current_editor.setMarginsForegroundColor(QColor("#FFFFFF"))
 
     def lua(self):
         Lexers.lua(self)
-        self.current_editor.setMarginsBackgroundColor(QColor("#1e1f22"))
+        self.current_editor.setMarginsBackgroundColor(QColor(margin_bg))
+        self.current_editor.setMarginsForegroundColor(QColor("#FFFFFF"))
+
+    def cmake(self):
+        Lexers.cmake(self)
+        self.current_editor.setMarginsBackgroundColor(QColor(margin_bg))
+        self.current_editor.setMarginsForegroundColor(QColor("#FFFFFF"))
+
+    def postscript(self):
+        Lexers.postscript(self)
+        self.current_editor.setMarginsBackgroundColor(QColor(margin_bg))
+        self.current_editor.setMarginsForegroundColor(QColor("#FFFFFF"))
+
+    def asm(self):
+        Lexers.asm(self)
+        self.current_editor.setMarginsBackgroundColor(QColor(margin_bg))
+        self.current_editor.setMarginsForegroundColor(QColor("#FFFFFF"))
+
+    def avs(self):
+        Lexers.avs(self)
+        self.current_editor.setMarginsBackgroundColor(QColor(margin_bg))
+        self.current_editor.setMarginsForegroundColor(QColor("#FFFFFF"))
+
+    def coffeescript(self):
+        Lexers.coffeescript(self)
+        self.current_editor.setMarginsBackgroundColor(QColor(margin_bg))
+        self.current_editor.setMarginsForegroundColor(QColor("#FFFFFF"))
+
+    def batch(self):
+        Lexers.bat(self)
+        self.current_editor.setMarginsBackgroundColor(QColor(margin_bg))
+        self.current_editor.setMarginsForegroundColor(QColor("#FFFFFF"))
+
+    def bash(self):
+        Lexers.bash(self)
+        self.current_editor.setMarginsBackgroundColor(QColor(margin_bg))
+        self.current_editor.setMarginsForegroundColor(QColor("#FFFFFF"))
+
+    def srec(self):
+        Lexers.srec(self)
+        self.current_editor.setMarginsBackgroundColor(QColor(margin_bg))
         self.current_editor.setMarginsForegroundColor(QColor("#FFFFFF"))
 
     def idl(self):
         Lexers.idl(self)
-        self.current_editor.setMarginsBackgroundColor(QColor("#1e1f22"))
+        self.current_editor.setMarginsBackgroundColor(QColor(margin_bg))
         self.current_editor.setMarginsForegroundColor(QColor("#FFFFFF"))
 
     def matlab(self):
         Lexers.matlab(self)
-        self.current_editor.setMarginsBackgroundColor(QColor("#1e1f22"))
+        self.current_editor.setMarginsBackgroundColor(QColor(margin_bg))
         self.current_editor.setMarginsForegroundColor(QColor("#FFFFFF"))
 
     def tcl(self):
         Lexers.tcl(self)
-        self.current_editor.setMarginsBackgroundColor(QColor("#1e1f22"))
+        self.current_editor.setMarginsBackgroundColor(QColor(margin_bg))
         self.current_editor.setMarginsForegroundColor(QColor("#FFFFFF"))
 
     def verilog(self):
         Lexers.verilog(self)
-        self.current_editor.setMarginsBackgroundColor(QColor("#1e1f22"))
+        self.current_editor.setMarginsBackgroundColor(QColor(margin_bg))
         self.current_editor.setMarginsForegroundColor(QColor("#FFFFFF"))
 
     def spice(self):
         Lexers.spice(self)
-        self.current_editor.setMarginsBackgroundColor(QColor("#1e1f22"))
+        self.current_editor.setMarginsBackgroundColor(QColor(margin_bg))
         self.current_editor.setMarginsForegroundColor(QColor("#FFFFFF"))
 
     def vhdl(self):
         Lexers.vhdl(self)
-        self.current_editor.setMarginsBackgroundColor(QColor("#1e1f22"))
+        self.current_editor.setMarginsBackgroundColor(QColor(margin_bg))
         self.current_editor.setMarginsForegroundColor(QColor("#FFFFFF"))
 
     def octave(self):
         Lexers.octave(self)
-        self.current_editor.setMarginsBackgroundColor(QColor("#1e1f22"))
+        self.current_editor.setMarginsBackgroundColor(QColor(margin_bg))
         self.current_editor.setMarginsForegroundColor(QColor("#FFFFFF"))
 
     def fortran77(self):
         Lexers.fortran77(self)
-        self.current_editor.setMarginsBackgroundColor(QColor("#1e1f22"))
+        self.current_editor.setMarginsBackgroundColor(QColor(margin_bg))
         self.current_editor.setMarginsForegroundColor(QColor("#FFFFFF"))
 
     def tex(self):
         Lexers.tex(self)
-        self.current_editor.setMarginsBackgroundColor(QColor("#1e1f22"))
+        self.current_editor.setMarginsBackgroundColor(QColor(margin_bg))
         self.current_editor.setMarginsForegroundColor(QColor("#FFFFFF"))
 
     def makefile(self):
         Lexers.makefile(self)
-        self.current_editor.setMarginsBackgroundColor(QColor("#1e1f22"))
+        self.current_editor.setMarginsBackgroundColor(QColor(margin_bg))
         self.current_editor.setMarginsForegroundColor(QColor("#FFFFFF"))
 
     def markdown(self):
         Lexers.markdown(self)
-        self.current_editor.setMarginsBackgroundColor(QColor("#1e1f22"))
+        self.current_editor.setMarginsBackgroundColor(QColor(margin_bg))
         self.current_editor.setMarginsForegroundColor(QColor("#FFFFFF"))
 
     def js(self):
         Lexers.js(self)
-        self.current_editor.setMarginsBackgroundColor(QColor("#1e1f22"))
+        self.current_editor.setMarginsBackgroundColor(QColor(margin_bg))
         self.current_editor.setMarginsForegroundColor(QColor("#FFFFFF"))
 
     def fortran(self):
         Lexers.fortran(self)
-        self.current_editor.setMarginsBackgroundColor(QColor("#1e1f22"))
+        self.current_editor.setMarginsBackgroundColor(QColor(margin_bg))
         self.current_editor.setMarginsForegroundColor(QColor("#FFFFFF"))
 
     def java(self):
         Lexers.java(self)
-        self.current_editor.setMarginsBackgroundColor(QColor("#1e1f22"))
+        self.current_editor.setMarginsBackgroundColor(QColor(margin_bg))
         self.current_editor.setMarginsForegroundColor(QColor("#FFFFFF"))
 
     def pastebin(self):
@@ -550,6 +688,7 @@ class Window(QMainWindow):
 
     def new_document(self, checked=False, title="Scratch 1"):
         self.current_editor = self.create_editor()
+
         self.editors.append(self.current_editor)
         self.tab_widget.addTab(self.current_editor, title)
         self.tab_widget.setCurrentWidget(self.current_editor)
@@ -562,14 +701,23 @@ class Window(QMainWindow):
 
     def cs_new_document(self, checked=False):
         text, ok = QInputDialog.getText(None, "New File", "Filename:")
+        ext = text.split(".")[-1]
         self.current_editor = self.create_editor()
         self.editors.append(self.current_editor)
         self.tab_widget.addTab(self.current_editor, text)
+        if ext == "md" or ext == "MD":
+            self.markdown_new()
         self.tab_widget.setCurrentWidget(self.current_editor)
 
     def change_text_editor(self, index):
         if index < len(self.editors):
+            # Set the previous editor as read-only
+            if self.current_editor:
+                self.current_editor.setReadOnly(True)
+
             self.current_editor = self.editors[index]
+
+            self.current_editor.setReadOnly(False)
 
     def undo_document(self):
         self.current_editor.undo()
@@ -601,14 +749,13 @@ class Window(QMainWindow):
     def paste_document(self):
         self.current_editor.paste()
 
-
     def remove_editor(self, index):
         self.tab_widget.removeTab(index)
         if index < len(self.editors):
             del self.editors[index]
 
     def open_document(self):
-        ModuleFile.open_document(self)
+        a = ModuleFile.open_document(self)
 
     def save_document(self):
         ModuleFile.save_document(self)
@@ -660,18 +807,8 @@ class Window(QMainWindow):
 
 
 def main():
-    extra = {
-        # Button colors
-        'danger': '#dc3545',
-        'warning': '#ffc107',
-        'success': '#17a2b8',
-
-        # Font
-        'font_family': 'Roboto',
-    }
-
     app = QApplication(sys.argv)
-    qdarktheme.setup_theme(custom_colors={"primary" : theme})
+    qdarktheme.setup_theme(theme, custom_colors={"primary" : theme_color})
     ex = Window()
     sys.exit(app.exec())
 
