@@ -25,13 +25,23 @@ Read the Docs (Contains some hidden tricks too ;] ) : https://github.com/rohanki
 
 ![image](https://github.com/rohankishore/Aura-Text/assets/109947257/e7cfe148-7c5f-4609-a7be-09085a253f83)
 
+<be>
+
+![image](https://github.com/rohankishore/Aura-Text/assets/109947257/85475b88-7125-4fa0-a4c6-f02094bd0b79)
+
+<be>
+
+![image](https://github.com/rohankishore/Aura-Text/assets/109947257/e0c67056-6a31-481b-946d-b39a3d372fa2)
+
+<be>
+
 </div>
 
 ## Features
 
 - Well, edit files
 - Line Numbers
-- Auto Completion
+- Auto-Completion
 - Text Encrypt and Decrypt
 - Terminal (with Aura Text Specific Commands)
 - Git Integration
@@ -40,10 +50,13 @@ Read the Docs (Contains some hidden tricks too ;] ) : https://github.com/rohanki
 - Instant Notes
 - Upload to Pastebin
 - Text to Speech
+- Markdown Preview
+- Built-In Image Viewer (Supports most of the image formats)
 - Bracket Matching
 - Edit Multiple Projects at the same window
 - Syntax Highlighting (25+ Languages)
 - Auto Indent
+- Adaptive Splash Screens (UI Enhancements)
 
 <br>
 
