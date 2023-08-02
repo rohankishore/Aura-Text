@@ -71,8 +71,12 @@ def configure_menuBar(self):
     menubar.addMenu(view_menu)
 
     code_menu = QMenu("&Code", self)
+    snippet_menu = QMenu("&Code Snippets", self)
+    snippet_menu.addAction("Create a Code Snippet from the Selection", self.create_snippet)
+    snippet_menu.addAction("Import a Code Snippet", self.import_snippet)
     code_menu.addAction("Code Formatting", self.code_formatting).setWhatsThis("Beautifies and Formats the code in your current tab with pep-8 standard")
     code_menu.addAction("Terminal", self.terminal_widget)
+    code_menu.addMenu(snippet_menu)
     menubar.addMenu(code_menu)
 
     tools_menu = QMenu("&Tools", self)
@@ -82,7 +86,7 @@ def configure_menuBar(self):
     menubar.addMenu(tools_menu)
 
 
-    plugin_menu = QMenu("&Plugins", self)
+    #plugin_menu = QMenu("&Plugins", self)
     #plugin_menu.addAction("Read Aloud", self.speak)
 
 
@@ -355,6 +359,8 @@ def configure_menuBar(self):
     help_menu = QMenu("&?", self)
     help_menu.addAction("Getting Started", self.getting_started).setWhatsThis("Manuals and tutorials on how to use Aura Text")
     help_menu.addAction("Submit a Bug Report", self.bug_report).setWhatsThis("Submit a bug report if you've faced any bug(s)")
+    help_menu.addAction("Check for missing files", self.check_for_issues)
+    help_menu.addAction("A Byte of Humour!", self.code_jokes).setWhatsThis("Shows a joke to cheer you up!")
     help_menu.addSeparator()
     help_menu.addAction("GitHub", self.about_github).setWhatsThis("GitHub repository")
     help_menu.addAction("Contribute to Aura Text", ).setWhatsThis("For developers who are looking forward to make Aura Text even better")

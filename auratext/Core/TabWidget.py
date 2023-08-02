@@ -1,6 +1,6 @@
 from PyQt6.QtCore import QMimeData, QPoint, Qt
-from PyQt6.QtGui import QCursor, QDrag, QPixmap, QRegion
-from PyQt6.QtWidgets import QTabWidget
+from PyQt6.QtGui import QCursor, QDrag, QPixmap, QRegion, QAction
+from PyQt6.QtWidgets import QTabWidget, QMenu
 
 class TabWidget(QTabWidget):
     def __init__(self, parent=None, new=None):
@@ -70,3 +70,16 @@ class TabWidget(QTabWidget):
         e.accept()
         tabBar = e.source()
         self.addTab(tabBar.dragged_content, tabBar.dragged_tabname)
+
+    def contextMenuEvent(self, event):
+        menu = QMenu(self)
+        close_alltabs = QAction("Close ALl Tabs", self)
+
+        close_alltabs.triggered.connect(self.close_all_tabs)
+
+        menu.addAction(close_alltabs)
+
+        menu.exec(event.globalPos())
+
+    def close_all_tabs(self):
+        self.clear()

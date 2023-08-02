@@ -11,7 +11,7 @@ class WelcomeWidget(QWidget):
 
         label2 = QLabel()
         label2.setAlignment(Qt.AlignmentFlag.AlignHCenter)
-        pixmap = QPixmap("Icons/splash.png")
+        pixmap = QPixmap("Icons/splash_morning.png")
         label2.setPixmap(pixmap)
 
         label = QLabel("Welcome to Aura Text")

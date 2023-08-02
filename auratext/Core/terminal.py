@@ -1,9 +1,12 @@
 import subprocess
 import sys
+from art import text2art
 
 from PyQt6.QtCore import Qt
 from PyQt6.QtGui import QShortcut, QKeySequence
 from PyQt6.QtWidgets import QWidget, QLineEdit, QTextEdit, QVBoxLayout
+from pyjokes import pyjokes
+
 from AuraText import json_data
 from datetime import datetime
 
@@ -50,6 +53,18 @@ class AuraTextTerminalWidget(QWidget):
 
         elif script == "cdate":
             self.text.setPlainText(str(now))
+
+        elif script == "joke":
+            a =  pyjokes.get_joke(language='en', category='neutral')
+            self.text.setPlainText(a)
+
+        elif "ascii" in script or "ASCII" in script:
+            a = str(script.replace("ascii", ""))
+            ascii_art = text2art(a)
+            self.text.setPlainText(ascii_art)
+
+        elif "birthday" in script or "BIRTHDAY" in script:
+            self.text.setPlainText("Aura Text's GitHub Repo was created on 2022-10-05.")
 
         elif script == "cproject" or script == "cpath":
             with open('Data/CPath_Project.txt', 'r') as file:
