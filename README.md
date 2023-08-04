@@ -4,6 +4,7 @@
 
 <div align="center">
 
+  <a href="https://github.com/rohankishore/AuraText-Plugins">![Demo](https://img.shields.io/badge/AuraText-Plugins-orange)</a>
   <a href="https://opensource.org/licenses/MIT">![License](https://img.shields.io/badge/License-MIT-yellow)</a>
   <a href="https://opensource.org/">![Language](https://img.shields.io/badge/Open-Source-blue)</a>
   <a href="https://github.com/rohankishore/Aura-Text/releases">![Demo](https://img.shields.io/badge/Download-Now-indigo)</a>
