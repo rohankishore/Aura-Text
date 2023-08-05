@@ -12,6 +12,8 @@
   <a href="https://www.fiverr.com/rohancodespy/">![Demo](https://img.shields.io/badge/Fiverr-Hire-green)</a>
 </div>
 
+![Group 1](https://github.com/rohankishore/Aura-Text/assets/109947257/662b1d9c-01ea-49c8-aa56-0a71df45d9ea)
+
 Aura Text is an exceptional text editor that offers developers a wide array of essential tools. Built with PySide6 and Python, it harnesses the power and flexibility of these technologies. One of the remarkable aspects of Aura Text is its complete commitment to the open-source philosophy.
 
 With Aura Text, developers gain access to a versatile and powerful editing environment. Whether you're working on a small script or a complex project, Aura Text equips you with all the necessary features to streamline your workflow. From syntax highlighting and code completion to smart indentation and error checking, Aura Text ensures that your coding experience is both efficient and enjoyable, while being extremely light on your PC.
@@ -24,15 +26,25 @@ Read the Docs (Contains some hidden tricks too ;] ) : https://github.com/rohanki
 
 <div align="center">
 
-![image](https://github.com/rohankishore/Aura-Text/assets/109947257/e7cfe148-7c5f-4609-a7be-09085a253f83)
+
+
+https://github.com/rohankishore/Aura-Text/assets/109947257/0ffaa12a-36b4-4194-abb5-9e239216d148
+
+<br>
+
+https://github.com/rohankishore/Aura-Text/assets/109947257/2fbadfae-5aca-45c6-a46a-a9999c3daf31
+
+<br>
+
+![image](https://github.com/rohankishore/Aura-Text/assets/109947257/93aac773-8c91-4ac2-a279-9bdc5df3a831)
 
 <be>
 
-![image](https://github.com/rohankishore/Aura-Text/assets/109947257/85475b88-7125-4fa0-a4c6-f02094bd0b79)
+![image](https://github.com/rohankishore/Aura-Text/assets/109947257/22e55d12-bc30-4eaa-91ee-b1fac323aaac)
 
 <be>
 
-![image](https://github.com/rohankishore/Aura-Text/assets/109947257/e0c67056-6a31-481b-946d-b39a3d372fa2)
+![image](https://github.com/rohankishore/Aura-Text/assets/109947257/f68d25e2-f408-43a2-9506-8f9d143d701c)
 
 <be>
 
@@ -51,7 +63,8 @@ Read the Docs (Contains some hidden tricks too ;] ) : https://github.com/rohanki
 - Instant Notes
 - Upload to Pastebin
 - Text to Speech
-- Markdown Preview
+- Markdown Preview (BETA) (Via MArkdown Plugin)
+- Plugin Support (BETA)
 - Built-In Image Viewer (Supports most of the image formats)
 - Bracket Matching
 - Edit Multiple Projects at the same window
