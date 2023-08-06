@@ -93,7 +93,7 @@ Download the exe file from the Releases page (make sure it's the latest one avai
 
 <h1 align="center">Been Featured On</h1>
 
-![image](https://user-images.githubusercontent.com/109947257/229269607-5932f25a-7e87-4769-af9d-119a5b07477a.png)   ![image](https://user-images.githubusercontent.com/109947257/223731266-842deb1a-e651-4714-9a28-7690059f145d.png)
+![Modern Graphs with PyQt6 and Matplotlib 1](https://github.com/rohankishore/Aura-Text/assets/109947257/782e8127-a8bf-489a-84b9-31db539f6f49)
 
 ### Article Links
 
