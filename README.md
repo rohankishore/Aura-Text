@@ -10,6 +10,7 @@
   <a href="https://github.com/rohankishore/Aura-Text/releases">![Demo](https://img.shields.io/badge/Download-Now-indigo)</a>
   <a href="https://www.buymeacoffee.com/auratext">![Demo](https://img.shields.io/badge/Donate-BuyMeACoffee-red)</a>
   <a href="https://www.fiverr.com/rohancodespy/">![Demo](https://img.shields.io/badge/Fiverr-Hire-green)</a>
+  [![Open Source Helpers](https://www.codetriage.com/rohankishore/aura-text/badges/users.svg)](https://www.codetriage.com/rohankishore/aura-text)
 </div>
 
 ![Group 1](https://github.com/rohankishore/Aura-Text/assets/109947257/662b1d9c-01ea-49c8-aa56-0a71df45d9ea)
