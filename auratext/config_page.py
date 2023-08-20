@@ -97,7 +97,6 @@ class ConfigPage(QWidget):
 
         self.setLayout(layout)
         self.setWindowTitle("Settings")
-        self.show()
 
     def save_json(self):
         self.json_data["theme"] = self.theme_input.text()

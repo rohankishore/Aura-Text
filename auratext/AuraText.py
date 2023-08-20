@@ -5,23 +5,26 @@ import sys
 import time
 import webbrowser
 from tkinter import filedialog
-
 import git
 import qdarktheme
 import pyjokes
+import importlib
 from PyQt6.Qsci import QsciScintilla, QsciAPIs
 from PyQt6.QtCore import Qt, QSize
 from PyQt6.QtGui import QColor, QFont, QActionGroup, QFileSystemModel, QPixmap, QIcon, QFontMetrics
 from PyQt6.QtWidgets import QApplication, QMainWindow, QInputDialog, QDockWidget, QTreeView, QFileDialog, QSplashScreen, \
-    QMessageBox, QMenu, QPlainTextEdit, QPushButton, QWidget, QVBoxLayout, QTextEdit
-
+    QMessageBox, QMenu, QPlainTextEdit, QPushButton, QWidget, QVBoxLayout, QDialog, QLabel, QSizePolicy, QStatusBar
+from plugin_interface import ContextMenuPluginInterface
 import Lexers
 import datetime
+
+import PluginDownload
 import config_page
-from Core import MenuConfig, terminal, WelcomeScreen
+from Core import WelcomeScreen
+import terminal
+import MenuConfig
 import Modules as ModuleFile
 from Core.TabWidget import TabWidget
-import threading
 
 #######
 ########
@@ -47,6 +50,7 @@ theme = str(json_data["theme_type"])
 class CodeEditor(QsciScintilla):
     def __init__(self):
         super().__init__(parent=None)
+
         lexer = Lexers.PythonLexer()
         self.setLexer(lexer)
         self.setPaper(QColor(editor_bg))
@@ -89,23 +93,48 @@ class CodeEditor(QsciScintilla):
         self.setFoldMarginColors(QColor(margin_bg), QColor(margin_bg))
         self.setBraceMatching(QsciScintilla.BraceMatch.StrictBraceMatch)
         self.setCaretLineVisible(True)
-        self.setCaretLineBackgroundColor(QColor("#80d3d3d3"))
+        self.setCaretLineBackgroundColor(QColor("#20d3d3d3"))
         self.setWrapMode(QsciScintilla.WrapMode.WrapWord)
         self.setAutoCompletionThreshold(1)
         self.setBackspaceUnindents(True)
         self.setIndentationGuides(True)
 
         self.context_menu = QMenu(self)
-        encrypt_menu = QMenu("Encryption", self.context_menu)
+
+        plugin_dir = os.path.abspath("C:/Users/rohan/PycharmProjects/AuraText PyQt6/Plugins")
+        sys.path.append(plugin_dir)
+
+        for file_name in os.listdir(plugin_dir):
+            if file_name.endswith(".py"):
+                plugin_module_name = os.path.splitext(file_name)[0]
+                try:
+                    plugin_module = importlib.import_module(plugin_module_name)
+                    for obj_name in dir(plugin_module):
+                        obj = getattr(plugin_module, obj_name)
+                        if isinstance(obj, type) and (
+                                issubclass(obj, ContextMenuPluginInterface)
+                        ) and obj != ContextMenuPluginInterface:
+                            plugin = obj()
+                            plugin.add_menu_items(self.context_menu)
+                            print(f"Loaded plugin: {plugin_module_name}")
+                except Exception as e:
+                    print(f"Error loading plugin {plugin_module_name}: {e}")
+
+
+        self.encrypt_menu = QMenu("Encryption", self.context_menu)
         self.context_menu.addAction("Cut        ").triggered.connect(self.cut)
         self.context_menu.addAction("Copy").triggered.connect(self.copy)
         self.context_menu.addAction("Paste").triggered.connect(self.paste)
         self.context_menu.addAction("Select All").triggered.connect(self.selectAll)
         self.context_menu.addSeparator()
-        encrypt_menu.addAction("Encrypt Selection", self.encode)
-        encrypt_menu.addAction("Decrypt Selection", self.decode)
+        if os.path.isfile("Plugins/Base64.py"):
+            import Plugins.Base64 as Base64
+            self.encrypt_menu.addAction("Encrypt Selection", lambda : Base64.encypt(self))
+            self.encrypt_menu.addAction("Decrypt Selection", lambda : Base64.decode(self))
+            self.context_menu.addMenu(self.encrypt_menu)
+        else:
+            pass
         self.context_menu.addAction("Calculate", self.calculate)
-        self.context_menu.addMenu(encrypt_menu)
 
         self.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
         self.customContextMenuRequested.connect(self.show_context_menu)
@@ -125,7 +154,7 @@ class CodeEditor(QsciScintilla):
 class Sidebar(QDockWidget):
     def __init__(self, title, parent=None):
         super().__init__(title, parent)
-        self.setFixedWidth(70)
+        self.setFixedWidth(40)
         self.setAllowedAreas(Qt.DockWidgetArea.LeftDockWidgetArea)
         self.setFeatures(QDockWidget.DockWidgetFeature.NoDockWidgetFeatures)
 
@@ -134,11 +163,13 @@ class Window(QMainWindow):
     def __init__(self):
         super().__init__()
 
+
         # Splash Screen
         splash_pix = ""
         current_time = datetime.datetime.now().time()
         sunrise_time = current_time.replace(hour=6, minute=0, second=0, microsecond=0)
         sunset_time = current_time.replace(hour=18, minute=0, second=0, microsecond=0)
+
 
         # Check which time interval the current time falls into
         if sunrise_time <= current_time < sunrise_time.replace(hour=12):
@@ -160,12 +191,13 @@ class Window(QMainWindow):
             welcome_widget = WelcomeScreen.WelcomeWidget(self)
             self.tab_widget.addTab(welcome_widget, "Welcome")
         else:
-            self.treeview_viewmenu()
+            pass
 
         self.tab_widget.setTabsClosable(True)
 
         self.md_dock = QDockWidget("Markdown Preview")
         self.mdnew = QDockWidget("Markdown Preview")
+
 
         # Sidebar
         self.sidebar_main = Sidebar("", self)
@@ -175,6 +207,9 @@ class Window(QMainWindow):
         self.sidebar_layout = QVBoxLayout(self.sidebar_widget)
         self.sidebar_main.setWidget(self.sidebar_widget)
         self.addDockWidget(Qt.DockWidgetArea.LeftDockWidgetArea, self.sidebar_main)
+
+        self.bottom_bar = QStatusBar()
+        self.setStatusBar(self.bottom_bar)
 
         self.statusbar = Sidebar("", self)
         self.statusbar.setTitleBarWidget(QWidget())
@@ -188,17 +223,35 @@ class Window(QMainWindow):
         self.statusbar.setWidget(self.statusbar_widget)
         self.addDockWidget(Qt.DockWidgetArea.LeftDockWidgetArea, self.statusbar)
 
-        terminal_icon = QIcon('Core/Icons/terminal.png')
+        terminal_icon = QIcon('Core/Icons/terminal_unfilled.png')
         self.terminal_button.setIcon(terminal_icon)
-        self.terminal_button.setIconSize(QSize(20, 20))
-        self.terminal_button.setFixedSize(30, 30)
+        self.terminal_button.setIconSize(QSize(22, 20))
+        self.terminal_button.setFixedSize(22, 20)
 
-        explorer_icon = QIcon('Core/Icons/explorer.png')
+        explorer_icon = QIcon('Core/Icons/explorer_unfilled.png')
         self.explorer_button = QPushButton(self)
         self.explorer_button.setIcon(explorer_icon)
-        self.explorer_button.setIconSize(QSize(30, 30))
-        self.explorer_button.setFixedSize(50, 50)
+        self.explorer_button.setIconSize(QSize(23, 23))
+        self.explorer_button.setFixedSize(28, 28)
         self.explorer_button.setStyleSheet(
+            """
+            QPushButton {
+                border: none;
+                border-radius:10;
+                align: left;
+            }
+            QPushButton:hover {
+                background-color: #4e5157;
+            }
+            """
+        )
+
+        plugin_icon = QIcon('Core/Icons/extension_unfilled.png')
+        self.plugin_button = QPushButton(self)
+        self.plugin_button.setIcon(plugin_icon)
+        self.plugin_button.setIconSize(QSize(21, 21))
+        self.plugin_button.setFixedSize(30, 30)
+        self.plugin_button.setStyleSheet(
             """
             QPushButton {
                 border: none;
@@ -206,7 +259,7 @@ class Window(QMainWindow):
                 align: botton;
             }
             QPushButton:hover {
-                background-color: #3574f0;
+                background-color: #4e5157;
             }
             """
         )
@@ -215,7 +268,7 @@ class Window(QMainWindow):
         self.settings_button = QPushButton(self)
         self.settings_button.setIcon(settings_icon)
         self.settings_button.setIconSize(QSize(30, 30))
-        self.settings_button.setFixedSize(30, 30)
+        self.settings_button.setFixedSize(23, 20)
         self.settings_button.setStyleSheet(
             """
             QPushButton {
@@ -224,19 +277,22 @@ class Window(QMainWindow):
                 align: botton;
             }
             QPushButton:hover {
-                background-color: #3574f0;
+                background-color: #4e5157;
             }
             """
         )
 
         self.sidebar_layout.insertWidget(0, self.explorer_button)
+        self.sidebar_layout.insertWidget(1, self.plugin_button)
         self.statusbar_layout.insertWidget(2, self.settings_button)
 
         self.sidebar_layout.addStretch()
         self.statusbar_layout.addStretch()
+        self.statusbar_layout.addSpacing(45)
 
         # Connect the button's clicked signal to the slot
         self.explorer_button.clicked.connect(self.expandSidebar__Explorer)
+        self.plugin_button.clicked.connect(self.expandSidebar__Plugins)
         self.terminal_button.clicked.connect(self.terminal_widget)
         self.settings_button.clicked.connect(self.expandSidebar__Settings)
 
@@ -258,36 +314,88 @@ class Window(QMainWindow):
 
     def create_editor(self):
         self.text_editor = CodeEditor()
+        #self.tabifyDockWidget(self.sidebar_main, self.plugin_dock)
+        #self.tabifyDockWidget(self.sidebar_main, self.terminal_dock)
         return self.text_editor
 
-    def onDockWidgetVisibilityChanged(self, visible, button):
+    def load_plugins(self, plugins_directory):
+        plugin_files = [f for f in os.listdir(plugins_directory) if f.endswith(".py")]
+        for plugin_file in plugin_files:
+            module_name = os.path.splitext(plugin_file)[0]
+            module_path = os.path.join(plugins_directory, plugin_file)
+            spec = importlib.util.spec_from_file_location(module_name, module_path)
+            module = importlib.util.module_from_spec(spec)
+            spec.loader.exec_module(module)
+            for name, obj in module.__dict__.items():
+                if isinstance(obj, type) and issubclass(obj, PluginBase) and obj is not PluginBase:
+                    self.plugins.append(obj())
+
+    def onPluginDockVisibilityChanged(self, visible):
         if visible:
-            button.setStyleSheet(
-                """
-                QPushButton {
-                    border: none;
-                    border-radius:10;
-                    background-color : #3574f0;
-                }
-                QPushButton:hover {
-                    background-color: #3574f0;
-                }
-                """)
+            self.plugin_button.setIcon(QIcon('Core/Icons/extension_filled.png'))
         else:
-            button.setStyleSheet(
-                """
-                QPushButton {
-                    border: none;
-                    border-radius:10;
-                }
-                QPushButton:hover {
-                    background-color: #3574f0;
-                }
-                """
-            )
+            self.plugin_button.setIcon(QIcon('Core/Icons/extension_unfilled.png'))
+
+    def onSettingsDockVisibilityChanged(self, visible):
+        if visible:
+            self.terminal_button.setDisabled(True)
+        else:
+            self.terminal_button.setEnabled(True)
+
+    def onTerminalDockVisibilityChanged(self, visible):
+        if visible:
+            self.terminal_button.setIcon(QIcon('Core/Icons/terminal_filled.png'))
+            self.settings_button.setDisabled(True)
+        else:
+            self.settings_button.setEnabled(True)
+            self.terminal_button.setIcon(QIcon('Core/Icons/terminal_unfilled.png'))
+
+    def onExplorerDockVisibilityChanged(self, visible):
+        if visible:
+            self.explorer_button.setIcon(QIcon('Core/Icons/explorer_filled.png'))
+        else:
+            self.explorer_button.setIcon(QIcon('Core/Icons/explorer_unfilled.png'))
+
+    def treeview_project(self, path):
+        self.dock = QDockWidget("Explorer", self)
+        self.dock.visibilityChanged.connect(lambda visible: self.onExplorerDockVisibilityChanged(visible))
+        #dock.setStyleSheet("QDockWidget { background-color: #191a1b; color: white;}")
+        self.dock.setAllowedAreas(Qt.DockWidgetArea.RightDockWidgetArea)
+        tree_view = QTreeView()
+        self.model = QFileSystemModel()
+        tree_view.setStyleSheet("QTreeView { background-color: #191a1b; color: white; border: none; }")
+        tree_view.setModel(self.model)
+        tree_view.setRootIndex(self.model.index(path))
+        self.model.setRootPath(path)
+        self.dock.setWidget(tree_view)
+        self.addDockWidget(Qt.DockWidgetArea.LeftDockWidgetArea, self.dock)
+        tree_view.doubleClicked.connect(self.open_file)
 
     def expandSidebar__Explorer(self):
-        self.treeview_viewmenu()
+        self.dock = QDockWidget("Explorer", self)
+        self.dock.setMinimumWidth(200)
+        self.dock.visibilityChanged.connect(
+            lambda visible: self.onExplorerDockVisibilityChanged(visible))
+        self.dock.setAllowedAreas(Qt.DockWidgetArea.RightDockWidgetArea)
+        tree_view = QTreeView()
+
+        self.model = QFileSystemModel()
+        tree_view.setStyleSheet("QTreeView { background-color: #191a1b; color: white; border: none; }")
+        tree_view.setModel(self.model)
+        tree_view.setRootIndex(self.model.index(cpath))
+        self.model.setRootPath(cpath)
+        self.dock.setWidget(tree_view)
+        self.addDockWidget(Qt.DockWidgetArea.RightDockWidgetArea, self.dock)
+
+        tree_view.setFont(QFont("Consolas"))
+
+        tree_view.setColumnHidden(1, True)  # File type column
+        tree_view.setColumnHidden(2, True)  # Size column
+        tree_view.setColumnHidden(3, True)  # Date modified column
+
+        #self.splitDockWidget(self.sidebar_main, self.dock, Qt.Orientation.Horizontal)
+
+        tree_view.doubleClicked.connect(self.open_file)
 
     def create_snippet(self):
         ModuleFile.CodeSnippets.snippets_gen(self.current_editor)
@@ -298,10 +406,10 @@ class Window(QMainWindow):
     def expandSidebar__Settings(self):
         self.settings_dock = QDockWidget("Settings", self)
         background_color = self.settings_button.palette().color(self.settings_button.backgroundRole()).name()
-        if background_color == "#000000":
+        if background_color == "#4e5157":
             self.settings_dock.destroy()
         else:
-            self.settings_dock.visibilityChanged.connect(lambda visible: self.onDockWidgetVisibilityChanged(visible, self.settings_button))
+            self.settings_dock.visibilityChanged.connect(lambda visible: self.onSettingsDockVisibilityChanged(visible))
             self.settings_dock.setStyleSheet("QDockWidget {background-color : #1b1b1b; color : white;}")
             self.settings_dock.setFixedWidth(200)
             self.settings_widget = config_page.ConfigPage()
@@ -309,9 +417,37 @@ class Window(QMainWindow):
             self.settings_layout.addWidget(self.settings_widget)
             self.settings_dock.setWidget(self.settings_widget)
             self.addDockWidget(Qt.DockWidgetArea.RightDockWidgetArea, self.settings_dock)
+            self.splitDockWidget(self.sidebar_main, self.settings_dock, Qt.Orientation.Horizontal)
+
+
+    def expandSidebar__Plugins(self):
+        self.plugin_dock = QDockWidget("Extensions", self)
+        background_color = self.plugin_button.palette().color(self.plugin_button.backgroundRole()).name()
+        if background_color == "#3574f0":
+            self.plugin_dock.destroy()
+        else:
+            self.plugin_dock.visibilityChanged.connect(lambda visible: self.onPluginDockVisibilityChanged(visible))
+            self.plugin_dock.setMinimumWidth(300)
+            self.plugin_widget = PluginDownload.FileDownloader()
+            self.plugin_layout = QVBoxLayout(self.plugin_widget)
+            self.plugin_layout.addStretch(1)
+            self.plugin_layout.addWidget(self.plugin_widget)
+            self.plugin_dock.setWidget(self.plugin_widget)
+            self.addDockWidget(Qt.DockWidgetArea.RightDockWidgetArea, self.plugin_dock)
 
     def treeview_viewmenu(self):
-        self.treeview_project(cpath)
+        self.dock = QDockWidget("Explorer", self)
+        self.dock.setAllowedAreas(Qt.DockWidgetArea.RightDockWidgetArea)
+        tree_view = QTreeView()
+        self.model = QFileSystemModel()
+        tree_view.setStyleSheet("QTreeView { background-color: #191a1b; color: white; border: none; }")
+        tree_view.setModel(self.model)
+        tree_view.setRootIndex(self.model.index(cpath))
+        self.model.setRootPath(cpath)
+        self.dock.setWidget(tree_view)
+        self.addDockWidget(Qt.DockWidgetArea.LeftDockWidgetArea, self.dock)
+
+        tree_view.doubleClicked.connect(self.open_file)
 
     def new_project(self):
         new_folder_path = filedialog.askdirectory(title="Create New Folder", initialdir="./",
@@ -323,24 +459,9 @@ class Window(QMainWindow):
         a =  pyjokes.get_joke(language='en', category='neutral')
         QMessageBox.information(self, "A Byte of Humour!", a)
 
-    def treeview_project(self, path):
-        dock = QDockWidget("Explorer", self)
-        dock.visibilityChanged.connect(lambda visible: self.onDockWidgetVisibilityChanged(visible, self.explorer_button))
-        dock.setStyleSheet("QDockWidget { background-color: #191a1b; color: white;}")
-        dock.setAllowedAreas(Qt.DockWidgetArea.RightDockWidgetArea)
-        tree_view = QTreeView()
-        self.model = QFileSystemModel()
-        tree_view.setStyleSheet("QTreeView { background-color: #191a1b; color: white; border: none; }")
-        tree_view.setModel(self.model)
-        tree_view.setRootIndex(self.model.index(path))
-        self.model.setRootPath(path)
-        dock.setWidget(tree_view)
-        self.addDockWidget(Qt.DockWidgetArea.RightDockWidgetArea, dock)
-        tree_view.doubleClicked.connect(self.open_file)
-
     def terminal_widget(self):
         self.terminal_dock = QDockWidget("Terminal", self)
-        self.terminal_dock.visibilityChanged.connect(lambda visible: self.onDockWidgetVisibilityChanged(visible, self.terminal_button))
+        self.terminal_dock.visibilityChanged.connect(lambda visible: self.onTerminalDockVisibilityChanged(visible))
         terminal_widget = terminal.AuraTextTerminalWidget()
         self.sidebar_layout_Terminal = QVBoxLayout(terminal_widget)
         self.terminal_dock.setWidget(terminal_widget)
@@ -393,32 +514,10 @@ class Window(QMainWindow):
             messagebox.exec()
 
     def markdown_open(self, path_data):
-        #self.md_dock = QDockWidget("Markdown Preview")
-        self.md_dock.setStyleSheet("QDockWidget {background-color : #1b1b1b; color : white;}")
-        self.md_dock.setMinimumWidth(400)
-        self.md_widget = QTextEdit()
-        self.md_widget.setMarkdown(path_data)
-        self.md_widget.setReadOnly(True)
-        self.md_layout = QVBoxLayout(self.md_widget)
-        self.md_layout.addWidget(self.md_widget)
-        self.md_dock.setWidget(self.md_widget)
-        self.addDockWidget(Qt.DockWidgetArea.RightDockWidgetArea, self.md_dock)
+        ModuleFile.markdown_open(self, path_data)
 
     def markdown_new(self):
-        self.mdnew.setStyleSheet("QDockWidget {background-color : #1b1b1b; color : white;}")
-        self.mdnew.setMinimumWidth(400)
-        self.md_widget = QTextEdit()
-        self.md_widget.setReadOnly(True)
-        self.md_layout = QVBoxLayout(self.md_widget)
-        self.md_layout.addWidget(self.md_widget)
-        self.mdnew.setWidget(self.md_widget)
-        self.addDockWidget(Qt.DockWidgetArea.RightDockWidgetArea, self.mdnew)
-
-        def update():
-            a = self.current_editor.text()
-            self.md_widget.setMarkdown(a)
-
-        self.current_editor.textChanged.connect(update)
+        ModuleFile.markdown_new(self)
 
     # TREEVIEW
     def open_file(self, index):
@@ -445,12 +544,12 @@ class Window(QMainWindow):
                 f = open(path, "r")
                 try:
                     filedata = f.read()
+                    self.new_document(title=os.path.basename(path))
+                    self.current_editor.insert(filedata)
                     if ext == "md" or ext == "MD":
                         self.markdown_open(filedata)
                     elif ext == "png" or ext == "PNG":
                         add_image_tab()
-                    self.new_document(title=os.path.basename(path))
-                    self.current_editor.insert(filedata)
                     f.close()
                 except UnicodeDecodeError:
                     messagebox = QMessageBox()
@@ -458,14 +557,6 @@ class Window(QMainWindow):
                     messagebox.exec()
             except FileNotFoundError:
                 return
-
-    def speak_init(self):
-        text = self.current_editor.text()
-        ModuleFile.rightSpeak(text)
-
-    def speak(self):
-        speak_thread = threading.Thread(target=self.speak_init)
-        speak_thread.start()
 
     def check_for_issues(self):
         ModuleFile.check_for_issues()
@@ -507,6 +598,12 @@ class Window(QMainWindow):
         Lexers.html(self)
         self.current_editor.setMarginsBackgroundColor(QColor(margin_bg))
         self.current_editor.setMarginsForegroundColor(QColor("#FFFFFF"))
+
+    def show_available_plugins(self):
+        main = QDialog()
+        main.setWindowTitle("Available Plugins")
+
+
 
     def cpp(self):
         Lexers.cpp(self)
@@ -705,8 +802,10 @@ class Window(QMainWindow):
         self.current_editor = self.create_editor()
         self.editors.append(self.current_editor)
         self.tab_widget.addTab(self.current_editor, text)
-        if ext == "md" or ext == "MD":
+        if os.path.isfile("Plugins/Markdown.py"):
             self.markdown_new()
+        else:
+            pass
         self.tab_widget.setCurrentWidget(self.current_editor)
 
     def change_text_editor(self, index):
@@ -770,7 +869,7 @@ class Window(QMainWindow):
                 "Aura Text"
                 + "\n"
                 + "Current Version: "
-                + "4.0"
+                + "4.2"
                 + "\n"
                 + "\n"
                 + "Copyright © 2023 Rohan Kishore."
