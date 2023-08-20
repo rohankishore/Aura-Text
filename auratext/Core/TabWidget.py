@@ -73,7 +73,7 @@ class TabWidget(QTabWidget):
 
     def contextMenuEvent(self, event):
         menu = QMenu(self)
-        close_alltabs = QAction("Close ALl Tabs", self)
+        close_alltabs = QAction("Close All Tabs", self)
 
         close_alltabs.triggered.connect(self.close_all_tabs)
 
