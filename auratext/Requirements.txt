@@ -1,2 +1,0 @@
-pyttsx3
-PySide6
