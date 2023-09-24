@@ -8,6 +8,7 @@ class TabWidget(QTabWidget):
         self.setAcceptDrops(True)
         self.tabBar().setMouseTracking(True)
         self.setMovable(True)
+        self.setDocumentMode(True)
         if new:
             TabWidget.setup(self)
 
@@ -38,38 +39,11 @@ class TabWidget(QTabWidget):
         tabBar = self.tabBar()
         posInTab = tabBar.mapFromGlobal(globalPos)
         index = tabBar.tabAt(e.pos())
-        tabBar.dragged_content = self.widget(index)
-        tabBar.dragged_tabname = self.tabText(index)
         tabRect = tabBar.tabRect(index)
 
         pixmap = QPixmap(tabRect.size())
         tabBar.render(pixmap, QPoint(), QRegion(tabRect))
         mimeData = QMimeData()
-
-        drag = QDrag(tabBar)
-        drag.setMimeData(mimeData)
-        drag.setPixmap(pixmap)
-
-        cursor = QCursor(Qt.CursorShape.OpenHandCursor)
-
-        drag.setHotSpot(e.pos() - posInTab)
-        drag.setDragCursor(cursor.pixmap(), Qt.DropAction.MoveAction)
-        drag.exec(Qt.DropAction.MoveAction)
-
-    def dragEnterEvent(self, e):
-        e.accept()
-
-    def dragLeaveEvent(self, e):
-        e.accept()
-
-    def dropEvent(self, e):
-        if e.source().parentWidget() == self:
-            return
-
-        e.setDropAction(Qt.DropAction.MoveAction)
-        e.accept()
-        tabBar = e.source()
-        self.addTab(tabBar.dragged_content, tabBar.dragged_tabname)
 
     def contextMenuEvent(self, event):
         menu = QMenu(self)

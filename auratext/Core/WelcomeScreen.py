@@ -9,10 +9,10 @@ class WelcomeWidget(QWidget):
         layout = QVBoxLayout()
         #layout.addStretch(102)
 
-        label2 = QLabel()
-        label2.setAlignment(Qt.AlignmentFlag.AlignHCenter)
-        pixmap = QPixmap("Icons/splash_morning.png")
+        label2 = QLabel(self)
+        pixmap = QPixmap('cat.jpg')
         label2.setPixmap(pixmap)
+        self.resize(pixmap.width(), pixmap.height())
 
         label = QLabel("Welcome to Aura Text")
         label3 = QLabel("Aura Text is a versatile and powerful text editor powered by QScintilla that provides all the " + "\n" +
