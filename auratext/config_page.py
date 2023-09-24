@@ -13,13 +13,20 @@ class ConfigPage(QWidget):
             "lines_theme": ""
         }
 
+        self.json_data_config = {
+            "intend_length": ""
+        }
+
         self.load_json()
         self.init_ui()
 
     def load_json(self):
         try:
-            with open("Data/config.json", "r") as json_file:
+            with open("Data/theme.json", "r") as json_file:
                 self.json_data = json.load(json_file)
+
+            with open("Data/config.json", "r") as json_file_config:
+                self.json_data_config = json.load(json_file_config)
         except FileNotFoundError:
             QMessageBox.warning(self, "Error!", "JSON file not found.")
 
@@ -60,6 +67,13 @@ class ConfigPage(QWidget):
         layout.addWidget(margin_theme_label)
         layout.addWidget(self.margin_theme_input)
 
+        #Sidebar bg
+        sidebar_tl = QLabel("Sidebar Background:")
+        self.sidebar_theme_input = QLineEdit()
+        self.sidebar_theme_input.setText(self.json_data["sidebar_bg"])
+        layout.addWidget(sidebar_tl)
+        layout.addWidget(self.sidebar_theme_input)
+
         # Lines Theme
         lines_theme_label = QLabel("Line Number Background:")
         self.lines_theme_input = QLineEdit()
@@ -81,6 +95,12 @@ class ConfigPage(QWidget):
         layout.addWidget(font_theme_label)
         layout.addWidget(self.font_theme_combobox)
 
+        # Intend Length
+        il_label = QLabel("Intend Length:")
+        self.intend_length_input = QLineEdit()
+        self.intend_length_input.setText(str(self.json_data_config["intend_length"]))
+        layout.addWidget(il_label)
+        layout.addWidget(self.intend_length_input)
 
         # Save Button
         save_button = QPushButton("Apply")
@@ -98,6 +118,9 @@ class ConfigPage(QWidget):
         self.setLayout(layout)
         self.setWindowTitle("Settings")
 
+    def jumpToIntend(self):
+        self.intend_length_input.setFocus()
+
     def save_json(self):
         self.json_data["theme"] = self.theme_input.text()
         self.json_data["editor_theme"] = self.editor_theme_input.text()
@@ -105,9 +128,14 @@ class ConfigPage(QWidget):
         self.json_data["lines_theme"] = self.lines_theme_input.text()
         self.json_data["font"] = self.font_theme_combobox.currentText()
         self.json_data["theme_type"] = self.theme_combobox.currentText()
+        self.json_data["sidebar_bg"] = self.sidebar_theme_input.text()
+        self.json_data_config["intend_length"] = int(self.intend_length_input.text())
 
-        with open("Data/config.json", "w") as json_file:
+        with open("Data/theme.json", "w") as json_file:
             json.dump(self.json_data, json_file)
+
+        with open("Data/config.json", "w") as json_file_config:
+            json.dump(self.json_data_config, json_file_config)
 
         QMessageBox.information(self, "Settings Applied!", "The chosen settings have been applied. Restart Aura Text to see the changes.")
 

@@ -8,7 +8,7 @@ import pyttsx3
 import win32clipboard
 from PyQt6.QtCore import Qt
 from PyQt6.QtGui import QIcon, QPixmap
-from PyQt6.QtWidgets import QLabel, QDockWidget, QVBoxLayout, QTextEdit
+from PyQt6.QtWidgets import QLabel, QDockWidget, QVBoxLayout, QTextEdit, QFileDialog, QMessageBox
 
 import Lexers
 
@@ -83,12 +83,12 @@ def rightSpeak(text):
 
 
 def encypt(self):
-    sample_string = self.selectedText()
+    sample_string = self.current_editor.selectedText()
     if sample_string != "":
         sample_string_bytes = sample_string.encode("ascii")
         base64_bytes = base64.b64encode(sample_string_bytes)
         base64_encoded = base64_bytes.decode("ascii") + "   "
-        self.replaceSelectedText(base64_encoded)
+        self.current_editor.replaceSelectedText(base64_encoded)
     else:
         messagebox.showerror(
             "No Selection!",
@@ -96,12 +96,12 @@ def encypt(self):
 
 
 def decode(self):
-    base64_string = self.selectedText()
+    base64_string = self.current_editor.selectedText()
     if base64_string != "":
         base64_bytes = base64_string.encode("ascii")
         sample_string_bytes = base64.b64decode(base64_bytes)
         sample_string = sample_string_bytes.decode("ascii") + "   "
-        self.replaceSelectedText(sample_string)
+        self.current_editor.replaceSelectedText(sample_string)
     else:
         messagebox.showerror(
             "No Selection!",
@@ -202,6 +202,7 @@ def save_document(self):
         text = self.current_editor.text()
         file.write(text)
         title = os.path.basename(file.name) + "   ~ Aura Text"
+        self.update_linear_dir(file.name)
         active_tab_index = self.tab_widget.currentIndex()
         self.tab_widget.setTabText(
             active_tab_index,
@@ -242,6 +243,7 @@ def open_document(self):
         title="Select file",
     )
     ext = file_dir.split(".")[-1]
+    self.cfpath = file_dir
     image_extensions = ["png", "jpg", "jpeg", "ico", "gif", "bmp"]
 
     if file_dir:
@@ -249,7 +251,6 @@ def open_document(self):
         try:
             if ext in image_extensions:
                 add_image_tab(self, self.tab_widget, file_dir, os.path.basename(file_dir))
-                return
 
         except UnicodeDecodeError:
             messagebox.showerror("Wrong Filetype!", "This file type is not supported!")
@@ -273,9 +274,12 @@ def open_custom_document(self, file_dir):
     if file_dir:
         try:
             f = open(file_dir, "r")
+            ext = file_dir.split(".")[-1]
             filedata = f.read()
             self.new_document(title=os.path.basename(file_dir))
-            self.current_editor.setPlainText(filedata)
+            self.current_editor.append(filedata)
+            if ext == "md" or ext == "MD":
+                self.markdown_open(filedata)
             f.close()
         except FileNotFoundError:
             return
@@ -287,62 +291,6 @@ def check_file_in_directory(directory_path):
         return True
     else:
         return False
-
-def check_for_issues():
-    menu_file = "MenuConfig.py"
-    tab_file = "Core/TabWidget.py"
-    terminal_file = "terminal.py"
-    welcomescreen_file = "Core/WelcomeScreen.py"
-    module_file = "Modules.py"
-    config_page_file = "config_page.py"
-    lexers_file = "Lexers.py"
-    json_config_file = "Data/config.json"
-    cpath_file = "Data/CPath_Project.txt"
-
-    if check_file_in_directory(menu_file):
-        messagebox.showinfo("File is there!", f"The file '{menu_file}' exists in the directory.")
-    else:
-        messagebox.showerror("File not found", f"The file '{menu_file}' does not exist in the directory. Please re-install Aura Text from the Official GitHub Repo ('? -> GitHub')")
-
-    if check_file_in_directory(tab_file):
-        messagebox.showinfo("File is there!", f"The file '{tab_file}' exists in the directory.")
-    else:
-        messagebox.showerror("File not found", f"The file '{tab_file}' does not exist in the directory. Please re-install Aura Text from the Official GitHub Repo ('? -> GitHub')")
-
-    if check_file_in_directory(terminal_file):
-        messagebox.showinfo("File is there!", f"The file '{terminal_file}' exists in the directory.")
-    else:
-        messagebox.showerror("File not found", f"The file '{terminal_file}' does not exist in the directory. Please re-install Aura Text from the Official GitHub Repo ('? -> GitHub')")
-
-    if check_file_in_directory(welcomescreen_file):
-        messagebox.showinfo("File is there!", f"The file '{welcomescreen_file}' exists in the directory.")
-    else:
-        messagebox.showerror("File not found", f"The file '{welcomescreen_file}' does not exist in the directory. Please re-install Aura Text from the Official GitHub Repo ('? -> GitHub')")
-
-    if check_file_in_directory(module_file):
-        messagebox.showinfo("File is there!", f"The file '{module_file}' exists in the directory.")
-    else:
-        messagebox.showerror("File not found", f"The file '{module_file}' does not exist in the directory. Please re-install Aura Text from the Official GitHub Repo ('? -> GitHub')")
-
-    if check_file_in_directory(config_page_file):
-        messagebox.showinfo("File is there!", f"The file '{config_page_file}' exists in the directory.")
-    else:
-        messagebox.showerror("File not found", f"The file '{config_page_file}' does not exist in the directory. Please re-install Aura Text from the Official GitHub Repo ('? -> GitHub')")
-
-    if check_file_in_directory(lexers_file):
-        messagebox.showinfo("File is there!", f"The file '{lexers_file}' exists in the directory.")
-    else:
-        messagebox.showerror("File not found", f"The file '{lexers_file}' does not exist in the directory. Please re-install Aura Text from the Official GitHub Repo ('? -> GitHub')")
-
-    if check_file_in_directory(cpath_file):
-        messagebox.showinfo("File is there!", f"The file '{cpath_file}' exists in the directory.")
-    else:
-        messagebox.showerror("File not found", f"The file '{cpath_file}' does not exist in the directory. Please re-install Aura Text from the Official GitHub Repo ('? -> GitHub')")
-
-    if check_file_in_directory(json_config_file):
-        messagebox.showinfo("File is there!", f"The file '{json_config_file}' exists in the directory.")
-    else:
-        messagebox.showerror("File not found", f"The file '{json_config_file}' does not exist in the directory. Please re-install Aura Text from the Official GitHub Repo ('? -> GitHub')")
 
 
 def code_formatting(self):
@@ -360,3 +308,34 @@ def code_formatting(self):
         messagebox.showerror(
             "Error: No Code Found!",
             random.choice(emsg_nocode_list))
+
+def search_files_in_directory(directory, filename):
+    file_paths = []
+    for root, dirs, files in os.walk(directory):
+        for file in files:
+            if file == filename:
+                file_paths.append(os.path.join(root, file))
+    return file_paths
+
+def open_project(self):
+    dialog = QFileDialog(self)
+    dialog.setFileMode(QFileDialog.FileMode.Directory)
+    dialog.setOption(QFileDialog.Option.ShowDirsOnly, True)
+    if dialog.exec():
+        project_path = dialog.selectedFiles()[0]
+        pathh = str(project_path)
+
+        result = search_files_in_directory(pathh, "README.md")
+
+        if result:
+            for file_path in result:
+                open_custom_document(self, file_dir=file_path)
+        else:
+            pass
+
+        with open('Data/CPath_Project.txt', 'w') as file:
+            file.write(pathh)
+        messagebox = QMessageBox()
+        messagebox.setWindowTitle("New Project"), messagebox.setText(f"Opened Project {project_path}")
+        messagebox.exec()
+        self.expandSidebar__Explorer()

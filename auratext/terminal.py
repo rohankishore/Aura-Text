@@ -1,15 +1,17 @@
 import os
 import subprocess
-import sys
+import threading
 from art import text2art
 
 from PyQt6.QtCore import Qt
 from PyQt6.QtGui import QShortcut, QKeySequence
 from PyQt6.QtWidgets import QWidget, QLineEdit, QTextEdit, QVBoxLayout
+import sys
 from pyjokes import pyjokes
 
-from AuraText import json_data
+from AuraText import json_data_theme
 from datetime import datetime
+from pyqtconsole.console import PythonConsole
 
 now = datetime.now()
 
@@ -29,6 +31,7 @@ class AuraTextTerminalWidget(QWidget):
         )
         self.script_edit.setAlignment(Qt.AlignmentFlag.AlignBottom)
         self.text = QTextEdit()
+        self.text.setReadOnly(True)
         self.text.setStyleSheet("QTextEdit {background-color: #000000;color: white; border:none;}")
 
 
@@ -46,7 +49,7 @@ class AuraTextTerminalWidget(QWidget):
         self.script_edit.clear()
 
         if script == "ctheme":
-            self.text.setPlainText(json_data["theme"])
+            self.text.setPlainText(json_data_theme["theme"])
 
         elif script == "ctime":
             current_time = now.strftime("%H:%M:%S")
@@ -101,3 +104,12 @@ class AuraTextTerminalWidget(QWidget):
                 print(e)
 
 
+class PythonShell(QWidget):
+    def __init__(self):
+        super().__init__()
+
+        console = PythonConsole()
+        console.eval_in_thread()
+        layout1 = QVBoxLayout()
+        layout1.addWidget(console)
+        self.setLayout(layout1)

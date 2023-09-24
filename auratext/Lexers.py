@@ -11,7 +11,7 @@ from PyQt6.Qsci import QsciLexerTeX, QsciLexerPython, QsciLexerXML, QsciLexerMak
     QsciLexerFortran
 from PyQt6.QtGui import QColor, QFont
 
-with open("Data/config.json", "r") as json_file:
+with open("Data/theme.json", "r") as json_file:
     json_data = json.load(json_file)
 
 
@@ -155,7 +155,9 @@ def html(self):
     lexer.setDefaultColor(QColor("#FFFFFF"))
     self.current_editor.setLexer(lexer)
     lexer.setPaper(QColor(editor_bg))
-    lexer.setColor(QColor('#808080'), lexer.Tag)
+    lexer.setColor(QColor('#AB3254'), lexer.Tag)
+    lexer.setColor(QColor("#FFFFFF"), lexer.Default)
+    lexer.setColor(QColor("#BB8A29"), lexer.Entity)
     lexer.setFont(QFont(font))
 
 def cpp(self):
@@ -166,6 +168,7 @@ def cpp(self):
     lexer.setColor(QColor('#808080'), lexer.Comment)
     lexer.setColor(QColor('#FFA500'), lexer.Keyword)
     lexer.setColor(QColor('#ffffff'), lexer.Identifier)
+    lexer.setColor(QColor('#ffffff'), lexer.Default)
     lexer.setFont(QFont(font))
 
 def srec(self):

@@ -1,4 +1,5 @@
 import importlib
+import json
 import os
 import sys
 
@@ -6,52 +7,65 @@ from PyQt6.QtWidgets import QMenu
 from PyQt6.QtGui import QAction
 from plugin_interface import MenuPluginInterface
 
-#import Plugins.LoremIpsumGenerator
 
 
- 
+with open("Data/theme.json", "r") as json_file:
+    json_data = json.load(json_file)
+
+menubar_bg = str(json_data["menubar_bg"])
+menu_item_bg = str(json_data["menu_item_bg"])
 
 def configure_menuBar(self):
     menubar = self.menuBar()
 
-
     self.setMenuBar(menubar)
-    self.setStyleSheet(
-        """
-            QMenuBar {
-                background-color: #1d1d1d;
-            }
-            QMenuBar::item {
-                background-color: #1d1d1d;
-                color: rgb(255,255,255);
-                
-            }
-            QMenuBar::item::selected {
-                background-color: #1b1b1b;
-            }
-            QMenu {
-                background-color: rgb(49,49,49);
-                color: rgb(255,255,255);
-                border: 0px solid #000;
-            }
-            QMenu::item::selected {
-                background-color: rgb(30,30,30);}
-        """)
+    style_sheet = f"""
+        QMenuBar {{
+            background-color: {menubar_bg};
+        }}
+        QMenuBar::item {{
+            background-color: {menu_item_bg};
+            color: rgb(255, 255, 255);
+        }}
+        QMenuBar::item::selected {{
+            background-color: #1b1b1b;
+        }}
+        QMenu {{
+            background-color: rgb(49, 49, 49);
+            color: rgb(255, 255, 255);
+            border: 0px solid #000;
+        }}
+        QMenu::item::selected {{
+            background-color: rgb(30, 30, 30);
+        }}
+    """
+    self.setStyleSheet(style_sheet)
 
     whats_this_action = QAction(self)
     whats_this_action.setShortcut("Shift+F1")
     menubar.addAction(whats_this_action)
 
     file_menu = QMenu("&File", self)
+    new_with_temp = QMenu("&New (with Template)", self)
+    new_with_temp.addAction("main.py", self.insert_py)
+    new_with_temp.addAction("file.html", self.insert_html)
+    new_with_temp.addAction("file.php", self.insert_php)
+    new_with_temp.addAction("main.java", self.insert_java)
+    new_with_temp.addAction("main.tex", self.insert_tex)
+    new_with_temp.addAction("main.cpp", self.insert_cpp)
     file_menu.addAction("New", self.cs_new_document).setWhatsThis("Create a New File")
+    file_menu.addMenu(new_with_temp)
     file_menu.addAction("Open", self.open_document).setWhatsThis("Open an existing file")
     file_menu.addSeparator()
     file_menu.addAction("New Project", self.new_project).setWhatsThis("Create a new project")
     file_menu.addAction("Open Project", self.open_project).setWhatsThis("Open an existing project")
     file_menu.addAction("Clone Project from Git", self.gitClone)
-    file_menu.addAction("Open Project as Treeview", self.open_project_as_treeview).setWhatsThis("Open an existing project as a treeview dock")
+    file_menu.addAction("Open Project as Treeview", self.open_project_as_treeview).setWhatsThis(
+        "Open an existing project as a treeview dock")
     file_menu.addSeparator()
-    file_menu.addAction("Save As", self.save_document).setWhatsThis("Save the document")
+    file_menu.addAction("Save", self.save).setWhatsThis("Save the document")
+    file_menu.addAction("Save As", self.save_document).setWhatsThis(
+        "Save the document in your choice of folder and name")
     file_menu.addSeparator()
     file_menu.addAction("Summary", self.summary).setWhatsThis("Get basic info of a file (Eg: Number of lines)")
     file_menu.addSeparator()
@@ -69,32 +83,51 @@ def configure_menuBar(self):
     edit_menu.addAction("Undo Changes", self.undo_document).setWhatsThis("Undo last edit")
     edit_menu.addAction("Redo Changes", self.redo_document).setWhatsThis("Redo last edit")
     edit_menu.addSeparator()
-   # edit_menu.addAction("Duplicate Line", self.duplicate_line).setWhatsThis("Duplicate a line to another line")
-    #edit_menu.addAction("Reverse Line",).setWhatsThis("Reverse the alphabets of a line (Eg: Hello -->  olleH")
-    #edit_menu.addSeparator()
-    #edit_menu.addAction("Find & Replace", self.find_replace).setWhatsThis("Find a specific word inside the editor")
+    edit_menu.addAction("Toggle Case", self.toggleCase).setShortcut("Ctrl + Shift + U")
+    # edit_menu.addAction("Duplicate Line", self.duplicate_line).setWhatsThis("Duplicate a line to another line")
+    # edit_menu.addAction("Reverse Line",).setWhatsThis("Reverse the alphabets of a line (Eg: Hello -->  olleH")
+    # edit_menu.addSeparator()
+    # edit_menu.addAction("Find & Replace", self.find_replace).setWhatsThis("Find a specific word inside the editor")
     menubar.addMenu(edit_menu)
 
-    view_menu = QMenu("&View",  self)
+    def read_only():
+        if toggle_read_only_action.isChecked():
+            self.toggle_read_only()
+        else:
+            self.read_only_reset()
+
+    view_menu = QMenu("&View", self)
     view_menu.addAction("Full Screen", self.fullscreen).setWhatsThis("Makes the window full screen")
-    view_menu.addAction("Project Directory", self.treeview_viewmenu).setWhatsThis("Shows the files and folder in your project as treeview")
+    view_menu.addAction("Project Directory", self.expandSidebar__Explorer).setWhatsThis(
+        "Shows the files and folder in your project as treeview")
+    view_menu.addAction("Split Editor", self.splitView)
+    toggle_read_only_action = QAction("Read-Only", self)
+    toggle_read_only_action.setCheckable(True)
+    toggle_read_only_action.triggered.connect(read_only)
+    view_menu.addAction(toggle_read_only_action)
     menubar.addMenu(view_menu)
 
-    code_menu = QMenu("&Code", self)
+    selection_menu = QMenu("&Selection", self)
     snippet_menu = QMenu("&Code Snippets", self)
     snippet_menu.addAction("Create a Code Snippet from the Selection", self.create_snippet)
     snippet_menu.addAction("Import a Code Snippet", self.import_snippet)
-    code_menu.addAction("Code Formatting", self.code_formatting).setWhatsThis("Beautifies and Formats the code in your current tab with pep-8 standard")
+    selection_menu.addAction("Upload to Pastebin", self.pastebin).setWhatsThis(
+        "Uploads the entire text content in your current editor to Pastebin and automatically copies the link")
+    selection_menu.addAction("Encrypt", self.encode)
+    selection_menu.addAction("Decrypt", self.decode)
+    menubar.addMenu(selection_menu)
+
+    code_menu = QMenu("&Code", self)
+    code_menu.addAction("Code Formatting", self.code_formatting).setWhatsThis(
+        "Beautifies and Formats the code in your current tab with pep-8 standard")
     code_menu.addAction("Terminal", self.terminal_widget)
-    code_menu.addMenu(snippet_menu)
+    code_menu.addAction("Run Python Lint", self.lintCode)
+    code_menu.addMenu(snippet_menu).setWhatsThis("Creates Code Snippets from the Selection")
     menubar.addMenu(code_menu)
 
-
     tools_menu = QMenu("&Tools", self)
-
-
-    tools_menu.addAction("Upload to Pastebin", self.pastebin).setWhatsThis("Uploads the entire text content in your current editor to Pastebin and automatically copies the link")
-    tools_menu.addAction("Notes", self.notes).setWhatsThis("Creates a new dock to write down ideas and temporary stuffs. The contents will be erased if you close the dock or the app")
+    tools_menu.addAction("Notes", self.notes).setWhatsThis(
+        "Creates a new dock to write down ideas and temporary stuffs. The contents will be erased if you close the dock or the app")
 
     menubar.addMenu(tools_menu)
 
@@ -273,25 +306,25 @@ def configure_menuBar(self):
     p_menu.addAction(action_postscript)
     p_menu.addAction(action_py)
 
-    #h menu
+    # h menu
     h_menu.addAction(action_html)
 
-    #y menu
+    # y menu
     y_menu.addAction(action_yaml)
 
     # r menu
     r_menu.addAction(action_ruby)
 
-    #v menu
+    # v menu
     v_menu.addAction(action_verilog)
     v_menu.addAction(action_vhdl)
 
-    #m menu
+    # m menu
     m_menu.addAction(action_mk)
     m_menu.addAction(action_md)
     m_menu.addAction(action_matlab)
 
-    #c menu
+    # c menu
     c_menu.addAction(action_cmake)
     c_menu.addAction(action_coffeescript)
     c_menu.addAction(action_cpp)
@@ -306,89 +339,90 @@ def configure_menuBar(self):
     b_menu.addAction(action_bash)
     b_menu.addAction(action_batch)
 
-    #j menu
+    # j menu
     j_menu.addAction(action_java)
     j_menu.addAction(action_js)
     j_menu.addAction(action_json)
 
-    #i menu
+    # i menu
     i_menu.addAction(action_idl)
 
-    #a menu
+    # a menu
     a_menu.addAction(action_asm)
     a_menu.addAction(action_avs)
 
-    #s menu
+    # s menu
     s_menu.addAction(action_spice)
     s_menu.addAction(action_sql)
     s_menu.addAction(action_srec)
 
-    #t menu
+    # t menu
     t_menu.addAction(action_tcl)
     t_menu.addAction(action_tex)
 
-    #o menu
+    # o menu
     o_menu.addAction(action_octave)
 
-    #l menu
+    # l menu
     l_menu.addAction(action_lua)
 
     language_menu.addMenu(a_menu)
     language_menu.addMenu(b_menu)
     language_menu.addMenu(c_menu)
-    #language_menu.addMenu(d_menu)
-    #language_menu.addMenu(e_menu)
+    # language_menu.addMenu(d_menu)
+    # language_menu.addMenu(e_menu)
     language_menu.addMenu(f_menu)
-    #language_menu.addMenu(g_menu)
+    # language_menu.addMenu(g_menu)
     language_menu.addMenu(h_menu)
     language_menu.addMenu(i_menu)
     language_menu.addMenu(j_menu)
-    #language_menu.addMenu(k_menu)
+    # language_menu.addMenu(k_menu)
     language_menu.addMenu(l_menu)
     language_menu.addMenu(m_menu)
-    #language_menu.addMenu(n_menu)
+    # language_menu.addMenu(n_menu)
     language_menu.addMenu(o_menu)
     language_menu.addMenu(p_menu)
-    #language_menu.addMenu(q_menu)
+    # language_menu.addMenu(q_menu)
     language_menu.addMenu(r_menu)
     language_menu.addMenu(s_menu)
     language_menu.addMenu(t_menu)
-    #language_menu.addMenu(u_menu)
+    # language_menu.addMenu(u_menu)
     language_menu.addMenu(v_menu)
-    #language_menu.addMenu(w_menu)
-    #language_menu.addMenu(x_menu)
+    # language_menu.addMenu(w_menu)
+    # language_menu.addMenu(x_menu)
     language_menu.addMenu(y_menu)
-    #language_menu.addMenu(z_menu)
+    # language_menu.addMenu(z_menu)
 
     prefernces_menu.addMenu(language_menu)
-   # prefernces_menu.addAction("Autocomplete Dictionary", )
+    prefernces_menu.addAction("Import Theme", self.import_theme)
     menubar.addMenu(prefernces_menu)
 
     help_menu = QMenu("&?", self)
-    help_menu.addAction("Getting Started", self.getting_started).setWhatsThis("Manuals and tutorials on how to use Aura Text")
-    help_menu.addAction("Submit a Bug Report", self.bug_report).setWhatsThis("Submit a bug report if you've faced any bug(s)")
-    help_menu.addAction("Check for missing files", self.check_for_issues)
+    help_menu.addAction("Getting Started", self.getting_started).setWhatsThis(
+        "Manuals and tutorials on how to use Aura Text")
+    help_menu.addAction("Submit a Bug Report", self.bug_report).setWhatsThis(
+        "Submit a bug report if you've faced any bug(s)")
     help_menu.addAction("A Byte of Humour!", self.code_jokes).setWhatsThis("Shows a joke to cheer you up!")
     help_menu.addSeparator()
     help_menu.addAction("GitHub", self.about_github).setWhatsThis("GitHub repository")
-    help_menu.addAction("Contribute to Aura Text", ).setWhatsThis("For developers who are looking forward to make Aura Text even better")
+    help_menu.addAction("Contribute to Aura Text", ).setWhatsThis(
+        "For developers who are looking forward to make Aura Text even better")
     help_menu.addAction("Join Discord Server", self.discord).setWhatsThis("Join Aura Text's Discord server")
     help_menu.addAction("Buy Me A Coffee", self.buymeacoffee).setWhatsThis("Donate to Aura Text developer")
-    help_menu.addAction("About",  self.version).setWhatsThis("Shows current version of Aura Text")
+    help_menu.addAction("About", self.version).setWhatsThis("Shows current version of Aura Text")
     menubar.addMenu(help_menu)
-
 
     # Define a dictionary to map section names to corresponding QMenu instances
     sections = {
-        "File" : file_menu,
-        "Edit" : edit_menu,
-        "View" : view_menu,
-        "Code" : code_menu,
+        "File": file_menu,
+        "Edit": edit_menu,
+        "View": view_menu,
+        "Selection": selection_menu,
+        "Code": code_menu,
         "Tools": tools_menu,
-        "Preferences" : prefernces_menu,
-        "?" : help_menu,
+        "Preferences": prefernces_menu,
+        "?": help_menu,
     }
-
 
     # Load and categorize plugins
     plugin_dir = os.path.abspath("Plugins")  # Path to your plugins directory
