@@ -13,15 +13,16 @@
   [![Open Source Helpers](https://www.codetriage.com/rohankishore/aura-text/badges/users.svg)](https://www.codetriage.com/rohankishore/aura-text)
 </div>
 
-![Group 1](https://github.com/rohankishore/Aura-Text/assets/109947257/662b1d9c-01ea-49c8-aa56-0a71df45d9ea)
+![image](https://github.com/rohankishore/Aura-Text/assets/109947257/2e366de1-1ad6-4f79-90d9-f87d42a910b5)
+
 
 Aura Text is an exceptional text editor that offers developers a wide array of essential tools. Built with PySide6 and Python, it harnesses the power and flexibility of these technologies. One of the remarkable aspects of Aura Text is its complete commitment to the open-source philosophy.
 
-With Aura Text, developers gain access to a versatile and powerful editing environment. Whether you're working on a small script or a complex project, Aura Text equips you with all the necessary features to streamline your workflow. From syntax highlighting and code completion to smart indentation and error checking, Aura Text ensures that your coding experience is both efficient and enjoyable, while being extremely light on your PC.
+With Aura Text, developers gain access to a versatile and powerful editing environment. Whether you're working on a small script or a complex project, Aura Text equips you with all the necessary features to streamline your workflow. From syntax highlighting and code completion to smart indentation and error checking, Aura Text ensures that your coding experience is both efficient and enjoyable while being extremely light on your PC.
 
 <div align="Center">
 
-Read the Docs (Contains some hidden tricks too ;] ) : https://github.com/rohankishore/Aura-Text/wiki
+Read the Docs (Contains some hidden tricks too ;] ): https://github.com/rohankishore/Aura-Text/wiki
 
 </div>
 
@@ -59,12 +60,17 @@ https://github.com/rohankishore/Aura-Text/assets/109947257/2fbadfae-5aca-45c6-a4
 - Terminal (with Aura Text Specific Commands)
 - Git Integration
 - Material Themes
+- Custom themeing
 - Code Folding
+- Code Linting
+- Go To Line
+- Read-only mode
+- Case Toggling
 - Instant Notes
 - Upload to Pastebin
-- Text to Speech
-- Markdown Preview (BETA) (Via MArkdown Plugin)
-- Plugin Support (BETA)
+- Text to Speech (Changed to a Plugin)
+- Markdown Preview
+- Plugin Support (ALPHA STAGE)
 - Built-In Image Viewer (Supports most of the image formats)
 - Bracket Matching
 - Edit Multiple Projects at the same window
