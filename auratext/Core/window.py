@@ -55,7 +55,7 @@ class Window(QMainWindow):
         super().__init__()
         self.local_app_data = local_app_data
 
-        with open(f"{local_app_data}/data/config.json", "r") as json_file:
+        with open(f"{local_app_data}/data/theme.json", "r") as json_file:
             self._themes = json.load(json_file)
         qdarktheme.setup_theme(
             self._themes["theme_type"], custom_colors={"primary": self._themes["theme"]}
