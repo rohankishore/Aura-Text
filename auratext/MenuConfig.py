@@ -8,7 +8,6 @@ from PyQt6.QtGui import QAction
 from plugin_interface import MenuPluginInterface
 
 
-
 with open("Data/theme.json", "r") as json_file:
     json_data = json.load(json_file)
 
