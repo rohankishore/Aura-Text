@@ -108,20 +108,13 @@ class Window(QMainWindow):
 
         self.statusbar = Sidebar("", self)
         self.statusbar.setTitleBarWidget(QWidget())
-        self.terminal_button = QPushButton(self.statusbar)
         self.statusbar_widget = QWidget(self.statusbar)
         self.statusbar_widget.setStyleSheet("""QWidget{background-color : #313335;}""")
         self.statusbar_layout = QVBoxLayout(self.statusbar_widget)
         self.statusbar_layout.addStretch()
-        self.statusbar_layout.addWidget(self.terminal_button)
         self.statusbar_layout.setAlignment(Qt.AlignmentFlag.AlignHCenter)
         self.statusbar.setWidget(self.statusbar_widget)
         self.addDockWidget(Qt.DockWidgetArea.LeftDockWidgetArea, self.statusbar)
-
-        terminal_icon = QIcon(f"{local_app_data}/icons/terminal_unfilled.png")
-        self.terminal_button.setIcon(terminal_icon)
-        self.terminal_button.setIconSize(QSize(22, 20))
-        self.terminal_button.setFixedSize(22, 20)
 
         explorer_icon = QIcon(f"{local_app_data}/icons/explorer_unfilled.png")
         self.explorer_button = QPushButton(self)
@@ -159,27 +152,9 @@ class Window(QMainWindow):
             """
         )
 
-        settings_icon = QIcon(f"{local_app_data}/icons/settings.png")
-        self.settings_button = QPushButton(self)
-        self.settings_button.setIcon(settings_icon)
-        self.settings_button.setIconSize(QSize(30, 30))
-        self.settings_button.setFixedSize(23, 20)
-        self.settings_button.setStyleSheet(
-            """
-            QPushButton {
-                border: none;
-                border-radius:10;
-                align: botton;
-            }
-            QPushButton:hover {
-                background-color: #4e5157;
-            }
-            """
-        )
 
         self.sidebar_layout.insertWidget(0, self.explorer_button)
         self.sidebar_layout.insertWidget(1, self.plugin_button)
-        self.statusbar_layout.insertWidget(2, self.settings_button)
 
         self.sidebar_layout.addStretch()
         self.statusbar_layout.addStretch()
@@ -188,8 +163,7 @@ class Window(QMainWindow):
         # Connect the button's clicked signal to the slot
         self.explorer_button.clicked.connect(self.expandSidebar__Explorer)
         self.plugin_button.clicked.connect(self.expandSidebar__Plugins)
-        self.terminal_button.clicked.connect(self.terminal_widget)
-        self.settings_button.clicked.connect(self.expandSidebar__Settings)
+
 
         self.setCentralWidget(self.tab_widget)
         self.editors = []
