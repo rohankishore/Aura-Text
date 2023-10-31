@@ -13,6 +13,7 @@ pyttsx3 = "^2.90"
 pyperclip = "^1.8.2"
 pyside6 = "^6.5.0"
 autopep8 = "^2.0.2"
+pyqtconsole = "^1.2.3"
 
 
 [tool.black]
