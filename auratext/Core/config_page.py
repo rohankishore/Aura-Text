@@ -62,12 +62,19 @@ class ConfigPage(QWidget):
         layout.addWidget(margin_theme_label)
         layout.addWidget(self.margin_theme_input)
 
-        # Lines Theme
+        # Lines Background
         lines_theme_label = QLabel("Line Number Background:")
         self.lines_theme_input = QLineEdit()
         self.lines_theme_input.setText(self._window._themes["lines_theme"])
         layout.addWidget(lines_theme_label)
         layout.addWidget(self.lines_theme_input)
+
+        # Lines Foreground
+        lines_fg_label = QLabel("Line Number Foreground:")
+        self.lines_fg_input = QLineEdit()
+        self.lines_fg_input.setText(self._window._themes["lines_fg"])
+        layout.addWidget(lines_fg_label)
+        layout.addWidget(self.lines_fg_input)
 
         # Get the list of installed fonts
         font_names = self.get_installed_fonts()
@@ -104,10 +111,11 @@ class ConfigPage(QWidget):
         self._window._themes["editor_theme"] = self.editor_theme_input.text()
         self._window._themes["margin_theme"] = self.margin_theme_input.text()
         self._window._themes["lines_theme"] = self.lines_theme_input.text()
+        self._window._themes["lines_fg"] = self.lines_fg_input.text()
         self._window._themes["font"] = self.font_theme_combobox.currentText()
         self._window._themes["theme_type"] = self.theme_combobox.currentText()
 
-        with open(f"{self._window.local_app_data}/data/config.json", "w") as json_file:
+        with open(f"{self._window.local_app_data}/data/theme.json", "w") as json_file:
             json.dump(self._window._themes, json_file)
 
         QMessageBox.information(

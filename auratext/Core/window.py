@@ -57,6 +57,7 @@ class Window(QMainWindow):
 
         with open(f"{local_app_data}/data/theme.json", "r") as json_file:
             self._themes = json.load(json_file)
+            print(self._themes)
         qdarktheme.setup_theme(
             self._themes["theme_type"], custom_colors={"primary": self._themes["theme"]}
         )
@@ -205,19 +206,6 @@ class Window(QMainWindow):
         else:
             self.plugin_button.setIcon(QIcon(f"{local_app_data}/icons/extension_unfilled.png"))
 
-    def onSettingsDockVisibilityChanged(self, visible):
-        if visible:
-            self.terminal_button.setDisabled(True)
-        else:
-            self.terminal_button.setEnabled(True)
-
-    def onTerminalDockVisibilityChanged(self, visible):
-        if visible:
-            self.terminal_button.setIcon(QIcon(f"{local_app_data}/icons/terminal_filled.png"))
-            self.settings_button.setDisabled(True)
-        else:
-            self.settings_button.setEnabled(True)
-            self.terminal_button.setIcon(QIcon(f"{local_app_data}/icons/terminal_unfilled.png"))
 
     def onExplorerDockVisibilityChanged(self, visible):
         if visible:
@@ -281,25 +269,17 @@ class Window(QMainWindow):
 
     def expandSidebar__Settings(self):
         self.settings_dock = QDockWidget("Settings", self)
-        background_color = (
-            self.settings_button.palette().color(self.settings_button.backgroundRole()).name()
+        
+        self.settings_dock.setStyleSheet(
+            "QDockWidget {background-color : #1b1b1b; color : white;}"
         )
-        if background_color == "#4e5157":
-            self.settings_dock.destroy()
-        else:
-            self.settings_dock.visibilityChanged.connect(
-                lambda visible: self.onSettingsDockVisibilityChanged(visible)
-            )
-            self.settings_dock.setStyleSheet(
-                "QDockWidget {background-color : #1b1b1b; color : white;}"
-            )
-            self.settings_dock.setFixedWidth(200)
-            self.settings_widget = config_page.ConfigPage(self)
-            self.settings_layout = QVBoxLayout(self.settings_widget)
-            self.settings_layout.addWidget(self.settings_widget)
-            self.settings_dock.setWidget(self.settings_widget)
-            self.addDockWidget(Qt.DockWidgetArea.RightDockWidgetArea, self.settings_dock)
-            self.splitDockWidget(self.sidebar_main, self.settings_dock, Qt.Orientation.Horizontal)
+        self.settings_dock.setFixedWidth(200)
+        self.settings_widget = config_page.ConfigPage(self)
+        self.settings_layout = QVBoxLayout(self.settings_widget)
+        self.settings_layout.addWidget(self.settings_widget)
+        self.settings_dock.setWidget(self.settings_widget)
+        self.addDockWidget(Qt.DockWidgetArea.RightDockWidgetArea, self.settings_dock)
+        self.splitDockWidget(self.sidebar_main, self.settings_dock, Qt.Orientation.Horizontal)
 
     def expandSidebar__Plugins(self):
         self.plugin_dock = QDockWidget("Extensions", self)
