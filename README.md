@@ -82,10 +82,10 @@ https://github.com/rohankishore/Aura-Text/assets/109947257/2fbadfae-5aca-45c6-a4
 
 <h2 align="center">Running Aura Text</h2>
 
-### For Users
-Download the exe file from the Releases page (make sure it's the latest one available) and unzip the file. Now open the unzipped folder and click on `AuraText.exe`
-
-### For Developers
+- Download / Clone this repository
+- Make a folder named `AuraText` in the 'Local' section of your 'AppData' folder. Then make another 3 subfolders. `data` , `icons` and `plugins`.
+- Then copy the items from Icons, Data folder in the repo to the corresponding folders in the AppData folder
+- Run `main.py`
 
 <div align="center">
 
