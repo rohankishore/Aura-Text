@@ -26,41 +26,19 @@ Read the Docs (Contains some hidden tricks too ;] ): https://github.com/rohankis
 
 </div>
 
-<div align="center">
-
-
-![image](https://github.com/rohankishore/Aura-Text/assets/109947257/93aac773-8c91-4ac2-a279-9bdc5df3a831)
-
-<be>
-
-![image](https://github.com/rohankishore/Aura-Text/assets/109947257/22e55d12-bc30-4eaa-91ee-b1fac323aaac)
-
-<be>
-
-![image](https://github.com/rohankishore/Aura-Text/assets/109947257/f68d25e2-f408-43a2-9506-8f9d143d701c)
-
-<bR>
-
-https://github.com/rohankishore/Aura-Text/assets/109947257/0ffaa12a-36b4-4194-abb5-9e239216d148
-
 <br>
 
-https://github.com/rohankishore/Aura-Text/assets/109947257/2fbadfae-5aca-45c6-a46a-a9999c3daf31
-
-<br>
-
-</div>
 
 ## Features
 
-- Well, edit files
+- Well, edit files (duh)
 - Line Numbers
 - Auto-Completion
 - Text Encrypt and Decrypt
 - Terminal (with Aura Text Specific Commands)
 - Git Integration
 - Material Themes
-- Custom themeing
+- Custom theming
 - Code Folding
 - Code Linting
 - Go To Line
@@ -83,7 +61,7 @@ https://github.com/rohankishore/Aura-Text/assets/109947257/2fbadfae-5aca-45c6-a4
 <h2 align="center">Running Aura Text</h2>
 
 - Download / Clone this repository
-- Make a folder named `AuraText` in the 'Local' section of your 'AppData' folder. Then make another 3 subfolders. `data` , `icons` and `plugins`.
+- Make a folder named `AuraText` in the 'Local' section of your 'AppData' folder. Then make another 3 subfolders. `data`, `icons` and `plugins`.
 - Then copy the items from Icons, Data folder in the repo to the corresponding folders in the AppData folder
 - Run `main.py`
 
