@@ -58,7 +58,7 @@ Read the Docs (Contains some hidden tricks too ;] ): https://github.com/rohankis
 
 <br>
 
-<h2 align="center">Running Aura Text</h2>
+## Running Aura Text
 
 - Download / Clone this repository
 - Make a folder named `AuraText` in the 'Local' section of your 'AppData' folder. Then make another 3 subfolders. `data`, `icons` and `plugins`.
@@ -75,8 +75,13 @@ Read the Docs (Contains some hidden tricks too ;] ): https://github.com/rohankis
 
 <br>
 
+## Contributing
+Your contributions are greatly appreciated! please have a look at our [**developer docs**](https://github.com/rohankishore/Aura-Text/blob/main/CONTRIBUTING.md) for an outline of the project and to set up the environment.
 
-<h1 align="center">Been Featured On</h1>
+For feature suggestions and bug reports, please check [**issue tracker**](https://github.com/rohankishore/Aura-Text/issues).
+
+<br>
+
 
 ![Modern Graphs with PyQt6 and Matplotlib 1](https://github.com/rohankishore/Aura-Text/assets/109947257/782e8127-a8bf-489a-84b9-31db539f6f49)
 
