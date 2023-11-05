@@ -1,9 +1,5 @@
 from __future__ import annotations
 from typing import TYPE_CHECKING
-import os
-import sys
-import importlib
-import json
 from PyQt6.Qsci import QsciScintilla, QsciAPIs
 from PyQt6.QtCore import Qt
 from PyQt6.QtGui import QColor, QFont, QFontMetrics
@@ -31,6 +27,8 @@ class CodeEditor(QsciScintilla):
         self.setAutoCompletionThreshold(1)
         self.setAutoCompletionCaseSensitivity(True)
         self.setWrapMode(QsciScintilla.WrapMode.WrapNone)
+        self.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAsNeeded)
+        self.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAsNeeded)
         self.setAutoCompletionThreshold(1)
         self.setAutoCompletionFillupsEnabled(True)
 
@@ -65,7 +63,7 @@ class CodeEditor(QsciScintilla):
         self.setBraceMatching(QsciScintilla.BraceMatch.StrictBraceMatch)
         self.setCaretLineVisible(True)
         self.setCaretLineBackgroundColor(QColor("#20d3d3d3"))
-        self.setWrapMode(QsciScintilla.WrapMode.WrapWord)
+        self.setWrapMode(QsciScintilla.WrapMode.WrapNone)
         self.setAutoCompletionThreshold(1)
         self.setBackspaceUnindents(True)
         self.setIndentationGuides(True)
