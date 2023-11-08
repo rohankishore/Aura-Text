@@ -5,14 +5,16 @@ import sys
 
 from PyQt6.QtWidgets import QMenu
 from PyQt6.QtGui import QAction
-from plugin_interface import MenuPluginInterface
+from .Core.plugin_interface import MenuPluginInterface
 
 
-with open("Data/theme.json", "r") as json_file:
+local_app_data = os.path.join(os.getenv("LocalAppData"), "AuraText")
+with open(f"{local_app_data}/data/theme.json", "r") as json_file:
     json_data = json.load(json_file)
 
 menubar_bg = str(json_data["menubar_bg"])
 menu_item_bg = str(json_data["menu_item_bg"])
+
 
 def configure_menuBar(self):
     menubar = self.menuBar()
@@ -60,13 +62,17 @@ def configure_menuBar(self):
     file_menu.addAction("Open Project", self.open_project).setWhatsThis("Open an existing project")
     file_menu.addAction("Clone Project from Git", self.gitClone)
     file_menu.addAction("Open Project as Treeview", self.open_project_as_treeview).setWhatsThis(
-        "Open an existing project as a treeview dock")
+        "Open an existing project as a treeview dock"
+    )
     file_menu.addSeparator()
     file_menu.addAction("Save", self.save).setWhatsThis("Save the document")
     file_menu.addAction("Save As", self.save_document).setWhatsThis(
-        "Save the document in your choice of folder and name")
+        "Save the document in your choice of folder and name"
+    )
     file_menu.addSeparator()
-    file_menu.addAction("Summary", self.summary).setWhatsThis("Get basic info of a file (Eg: Number of lines)")
+    file_menu.addAction("Summary", self.summary).setWhatsThis(
+        "Get basic info of a file (Eg: Number of lines)"
+    )
     file_menu.addSeparator()
     file_menu.addAction("Settings", self.expandSidebar__Settings)
     file_menu.addAction("Exit", sys.exit).setWhatsThis("Exit Aura Text")
@@ -98,7 +104,8 @@ def configure_menuBar(self):
     view_menu = QMenu("&View", self)
     view_menu.addAction("Full Screen", self.fullscreen).setWhatsThis("Makes the window full screen")
     view_menu.addAction("Project Directory", self.expandSidebar__Explorer).setWhatsThis(
-        "Shows the files and folder in your project as treeview")
+        "Shows the files and folder in your project as treeview"
+    )
     view_menu.addAction("Split Editor", self.splitView)
     toggle_read_only_action = QAction("Read-Only", self)
     toggle_read_only_action.setCheckable(True)
@@ -111,14 +118,16 @@ def configure_menuBar(self):
     snippet_menu.addAction("Create a Code Snippet from the Selection", self.create_snippet)
     snippet_menu.addAction("Import a Code Snippet", self.import_snippet)
     selection_menu.addAction("Upload to Pastebin", self.pastebin).setWhatsThis(
-        "Uploads the entire text content in your current editor to Pastebin and automatically copies the link")
+        "Uploads the entire text content in your current editor to Pastebin and automatically copies the link"
+    )
     selection_menu.addAction("Encrypt", self.encode)
     selection_menu.addAction("Decrypt", self.decode)
     menubar.addMenu(selection_menu)
 
     code_menu = QMenu("&Code", self)
     code_menu.addAction("Code Formatting", self.code_formatting).setWhatsThis(
-        "Beautifies and Formats the code in your current tab with pep-8 standard")
+        "Beautifies and Formats the code in your current tab with pep-8 standard"
+    )
     code_menu.addAction("Terminal", self.terminal_widget)
     code_menu.addAction("Run Python Lint", self.lintCode)
     code_menu.addMenu(snippet_menu).setWhatsThis("Creates Code Snippets from the Selection")
@@ -126,7 +135,8 @@ def configure_menuBar(self):
 
     tools_menu = QMenu("&Tools", self)
     tools_menu.addAction("Notes", self.notes).setWhatsThis(
-        "Creates a new dock to write down ideas and temporary stuffs. The contents will be erased if you close the dock or the app")
+        "Creates a new dock to write down ideas and temporary stuffs. The contents will be erased if you close the dock or the app"
+    )
 
     menubar.addMenu(tools_menu)
 
@@ -398,16 +408,25 @@ def configure_menuBar(self):
 
     help_menu = QMenu("&?", self)
     help_menu.addAction("Getting Started", self.getting_started).setWhatsThis(
-        "Manuals and tutorials on how to use Aura Text")
+        "Manuals and tutorials on how to use Aura Text"
+    )
     help_menu.addAction("Submit a Bug Report", self.bug_report).setWhatsThis(
-        "Submit a bug report if you've faced any bug(s)")
-    help_menu.addAction("A Byte of Humour!", self.code_jokes).setWhatsThis("Shows a joke to cheer you up!")
+        "Submit a bug report if you've faced any bug(s)"
+    )
+    help_menu.addAction("A Byte of Humour!", self.code_jokes).setWhatsThis(
+        "Shows a joke to cheer you up!"
+    )
     help_menu.addSeparator()
     help_menu.addAction("GitHub", self.about_github).setWhatsThis("GitHub repository")
-    help_menu.addAction("Contribute to Aura Text", ).setWhatsThis(
-        "For developers who are looking forward to make Aura Text even better")
-    help_menu.addAction("Join Discord Server", self.discord).setWhatsThis("Join Aura Text's Discord server")
-    help_menu.addAction("Buy Me A Coffee", self.buymeacoffee).setWhatsThis("Donate to Aura Text developer")
+    help_menu.addAction(
+        "Contribute to Aura Text",
+    ).setWhatsThis("For developers who are looking forward to make Aura Text even better")
+    help_menu.addAction("Join Discord Server", self.discord).setWhatsThis(
+        "Join Aura Text's Discord server"
+    )
+    help_menu.addAction("Buy Me A Coffee", self.buymeacoffee).setWhatsThis(
+        "Donate to Aura Text developer"
+    )
     help_menu.addAction("About", self.version).setWhatsThis("Shows current version of Aura Text")
     menubar.addMenu(help_menu)
 
@@ -435,9 +454,9 @@ def configure_menuBar(self):
                 for obj_name in dir(plugin_module):
                     obj = getattr(plugin_module, obj_name)
                     if (
-                            isinstance(obj, type)
-                            and issubclass(obj, MenuPluginInterface)
-                            and obj != MenuPluginInterface
+                        isinstance(obj, type)
+                        and issubclass(obj, MenuPluginInterface)
+                        and obj != MenuPluginInterface
                     ):
                         plugin = obj(self.current_editor)
                         section = plugin.section
@@ -448,4 +467,3 @@ def configure_menuBar(self):
 
     for section, submenu in sections.items():
         menubar.addMenu(submenu)
-
