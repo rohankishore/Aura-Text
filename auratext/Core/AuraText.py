@@ -71,27 +71,6 @@ class CodeEditor(QsciScintilla):
 
         self.context_menu = QMenu(self)
 
-        # plugin_dir = os.path.abspath("C:/Users/rohan/PycharmProjects/AuraText PyQt6/Plugins")
-        # sys.path.append(plugin_dir)
-
-        # for file_name in os.listdir(plugin_dir):
-        #     if file_name.endswith(".py"):
-        #         plugin_module_name = os.path.splitext(file_name)[0]
-        #         try:
-        #             plugin_module = importlib.import_module(plugin_module_name)
-        #             for obj_name in dir(plugin_module):
-        #                 obj = getattr(plugin_module, obj_name)
-        #                 if (
-        #                     isinstance(obj, type)
-        #                     and (issubclass(obj, ContextMenuPluginInterface))
-        #                     and obj != ContextMenuPluginInterface
-        #                 ):
-        #                     plugin = obj()
-        #                     plugin.add_menu_items(self.context_menu)
-        #                     print(f"Loaded plugin: {plugin_module_name}")
-        #         except Exception as e:
-        #             print(f"Error loading plugin {plugin_module_name}: {e}")
-
         self.encrypt_menu = QMenu("Encryption", self.context_menu)
         self.context_menu.addAction("Cut        ").triggered.connect(self.cut)
         self.context_menu.addAction("Copy").triggered.connect(self.copy)

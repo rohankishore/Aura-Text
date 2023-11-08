@@ -301,8 +301,8 @@ def check_for_issues():
     module_file = "Modules.py"
     config_page_file = "config_page.py"
     lexers_file = "Lexers.py"
-    json_config_file = "Data/config.json"
-    cpath_file = "Data/CPath_Project.txt"
+    json_config_file = f"{os.getenv('LocalAppData')}/data/config.json"
+    cpath_file = f"{os.getenv('LocalAppData')}/data/CPath_Project.txt"
 
     if check_file_in_directory(menu_file):
         messagebox.showinfo("File is there!", f"The file '{menu_file}' exists in the directory.")

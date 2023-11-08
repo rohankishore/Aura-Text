@@ -6,8 +6,10 @@ import webbrowser
 from tkinter import filedialog
 import git
 import pyjokes
+import importlib
+import sys
 from PyQt6.QtCore import Qt, QSize
-from PyQt6.QtGui import QColor, QFont, QActionGroup, QFileSystemModel, QPixmap, QIcon, QFontMetrics
+from PyQt6.QtGui import QColor, QFont, QActionGroup, QFileSystemModel, QPixmap, QIcon
 from PyQt6.QtWidgets import (
     QMainWindow,
     QInputDialog,
@@ -34,6 +36,8 @@ from . import MenuConfig
 from . import Modules as ModuleFile
 from .TabWidget import TabWidget
 from .AuraText import CodeEditor
+from .plugin_interface import Plugin
+
 
 local_app_data = os.path.join(os.getenv("LocalAppData"), "AuraText")
 
@@ -57,7 +61,6 @@ class Window(QMainWindow):
 
         with open(f"{local_app_data}/data/theme.json", "r") as json_file:
             self._themes = json.load(json_file)
-            print(self._themes)
         qdarktheme.setup_theme(
             self._themes["theme_type"], custom_colors={"primary": self._themes["theme"]}
         )
@@ -153,7 +156,6 @@ class Window(QMainWindow):
             """
         )
 
-
         self.sidebar_layout.insertWidget(0, self.explorer_button)
         self.sidebar_layout.insertWidget(1, self.plugin_button)
 
@@ -164,7 +166,6 @@ class Window(QMainWindow):
         # Connect the button's clicked signal to the slot
         self.explorer_button.clicked.connect(self.expandSidebar__Explorer)
         self.plugin_button.clicked.connect(self.expandSidebar__Plugins)
-
 
         self.setCentralWidget(self.tab_widget)
         self.editors = []
@@ -180,6 +181,8 @@ class Window(QMainWindow):
         self.setWindowTitle("Aura Text")
         self.setWindowIcon(QIcon(f"{local_app_data}/icons/icon.ico"))
         self.configure_menuBar()
+        sys.path.append(f"{local_app_data}/plugins")
+        self.load_plugins()
         self.showMaximized()
 
     def create_editor(self):
@@ -188,24 +191,25 @@ class Window(QMainWindow):
         # self.tabifyDockWidget(self.sidebar_main, self.terminal_dock)
         return self.text_editor
 
-    # def load_plugins(self, plugins_directory):
-    #     plugin_files = [f for f in os.listdir(plugins_directory) if f.endswith(".py")]
-    #     for plugin_file in plugin_files:
-    #         module_name = os.path.splitext(plugin_file)[0]
-    #         module_path = os.path.join(plugins_directory, plugin_file)
-    #         spec = importlib.util.spec_from_file_location(module_name, module_path)
-    #         module = importlib.util.module_from_spec(spec)
-    #         spec.loader.exec_module(module)
-    #         for name, obj in module.__dict__.items():
-    #             if isinstance(obj, type) and issubclass(obj, PluginBase) and obj is not PluginBase:
-    #                 self.plugins.append(obj())
+    def load_plugins(self):
+        self.plugins = []
+        plugin_files = [
+            f.split(".")[0] for f in os.listdir(f"{local_app_data}/plugins") if f.endswith(".py")
+        ]
+        for plugin_file in plugin_files:
+            module = importlib.import_module(plugin_file)
+            for name, obj in module.__dict__.items():
+                if isinstance(obj, type) and issubclass(obj, Plugin) and obj is not Plugin:
+                    try:
+                        self.plugins.append(obj(self))
+                    except Exception:
+                        continue
 
     def onPluginDockVisibilityChanged(self, visible):
         if visible:
             self.plugin_button.setIcon(QIcon(f"{local_app_data}/icons/extension_filled.png"))
         else:
             self.plugin_button.setIcon(QIcon(f"{local_app_data}/icons/extension_unfilled.png"))
-
 
     def onExplorerDockVisibilityChanged(self, visible):
         if visible:
@@ -269,10 +273,8 @@ class Window(QMainWindow):
 
     def expandSidebar__Settings(self):
         self.settings_dock = QDockWidget("Settings", self)
-        
-        self.settings_dock.setStyleSheet(
-            "QDockWidget {background-color : #1b1b1b; color : white;}"
-        )
+
+        self.settings_dock.setStyleSheet("QDockWidget {background-color : #1b1b1b; color : white;}")
         self.settings_dock.setFixedWidth(200)
         self.settings_widget = config_page.ConfigPage(self)
         self.settings_layout = QVBoxLayout(self.settings_widget)

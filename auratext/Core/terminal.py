@@ -1,3 +1,5 @@
+from __future__ import annotations
+from typing import TYPE_CHECKING
 import os
 import subprocess
 from art import text2art
@@ -13,9 +15,12 @@ from pyqtconsole.console import PythonConsole
 
 now = datetime.now()
 
+if TYPE_CHECKING:
+    from .window import Window
+
 
 class AuraTextTerminalWidget(QWidget):
-    def __init__(self, window):
+    def __init__(self, window: Window):
         super().__init__(window)
         self._window = window
 
@@ -85,7 +90,7 @@ class AuraTextTerminalWidget(QWidget):
             self.text.setPlainText("Aura Text's GitHub Repo was created on 2022-10-05.")
 
         elif script == "cproject" or script == "cpath":
-            with open("Data/CPath_Project.txt", "r") as file:
+            with open(f"{self._window.local_app_data}/data/CPath_Project.txt", "r") as file:
                 a = file.readline()
 
                 if a != "" or a != " ":
