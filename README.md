@@ -4,13 +4,8 @@
 
 <div align="center">
 
-  <a href="https://github.com/rohankishore/AuraText-Plugins">![Demo](https://img.shields.io/badge/AuraText-Plugins-orange)</a>
   <a href="https://opensource.org/licenses/MIT">![License](https://img.shields.io/badge/License-MIT-yellow)</a>
-  <a href="https://opensource.org/">![Language](https://img.shields.io/badge/Open-Source-blue)</a>
-  <a href="https://github.com/rohankishore/Aura-Text/releases">![Demo](https://img.shields.io/badge/Download-Now-indigo)</a>
   <a href="https://www.buymeacoffee.com/auratext">![Demo](https://img.shields.io/badge/Donate-BuyMeACoffee-red)</a>
-  <a href="https://www.fiverr.com/rohancodespy/">![Demo](https://img.shields.io/badge/Fiverr-Hire-green)</a>
-  [![Open Source Helpers](https://www.codetriage.com/rohankishore/aura-text/badges/users.svg)](https://www.codetriage.com/rohankishore/aura-text)
 </div>
 
 ![image](https://github.com/rohankishore/Aura-Text/assets/109947257/2e366de1-1ad6-4f79-90d9-f87d42a910b5)
