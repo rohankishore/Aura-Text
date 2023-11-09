@@ -8,7 +8,7 @@
   <a href="https://www.buymeacoffee.com/auratext">![Demo](https://img.shields.io/badge/Donate-BuyMeACoffee-red)</a>
 </div>
 
-![image](https://github.com/rohankishore/Aura-Text/assets/109947257/2e366de1-1ad6-4f79-90d9-f87d42a910b5)
+![image](https://github.com/rohankishore/Aura-Text/assets/109947257/6daace86-6eec-404d-ad4d-dcf9ebb71567)
 
 
 Aura Text is an exceptional text editor that offers developers a wide array of essential tools. Built with PySide6 and Python, it harnesses the power and flexibility of these technologies. One of the remarkable aspects of Aura Text is its complete commitment to the open-source philosophy.
@@ -23,6 +23,9 @@ Read the Docs (Contains some hidden tricks too ;] ): https://github.com/rohankis
 
 <br>
 
+![image](https://github.com/rohankishore/Aura-Text/assets/109947257/5bca036d-b103-4d88-a22f-6a2952faa43a)
+
+<br>
 
 ## Features
 
