@@ -1,23 +1,26 @@
 from __future__ import annotations
+
+import random
+import time
 from typing import TYPE_CHECKING
-import os
 import subprocess
 from art import text2art
 
 from PyQt6.QtCore import Qt
-from PyQt6.QtGui import QShortcut, QKeySequence
+from PyQt6.QtGui import QShortcut, QKeySequence, QFont
 from PyQt6.QtWidgets import QWidget, QLineEdit, QTextEdit, QVBoxLayout
 import sys
 from pyjokes import pyjokes
 
 from datetime import datetime
-from pyqtconsole.console import PythonConsole
 
 now = datetime.now()
 
 if TYPE_CHECKING:
     from .window import Window
 
+example_cmds = ["'ascii Hello'", "'joke' for some byte sized humour", "'pip'",
+                "'cpath' to view the current project path", "'ctheme' to view the current theme", "'ipconfig'"]
 
 class AuraTextTerminalWidget(QWidget):
     def __init__(self, window: Window):
@@ -25,7 +28,9 @@ class AuraTextTerminalWidget(QWidget):
         self._window = window
 
         self.script_edit = QLineEdit()
-        self.setStyleSheet("QWidget {background-color: #000000;}")
+        self.script_edit.setPlaceholderText(("Try " + random.choice(example_cmds)))
+        self.script_edit.setFont(QFont("Consolas"))
+        self.setStyleSheet("QWidget {background-color: #FFFFFF;}")
         self.script_edit.setStyleSheet(
             "QLineEdit {"
             "   border-radius: 5px;"
@@ -35,7 +40,9 @@ class AuraTextTerminalWidget(QWidget):
             "}"
         )
         self.script_edit.setAlignment(Qt.AlignmentFlag.AlignBottom)
+        self.script_edit.textChanged.connect(self.update_placeholders)
         self.text = QTextEdit()
+        self.text.setFont(QFont("Consolas"))
         self.text.setReadOnly(True)
         self.text.setStyleSheet("QTextEdit {background-color: #000000;color: white; border:none;}")
 
@@ -48,9 +55,17 @@ class AuraTextTerminalWidget(QWidget):
         self.quitSc = QShortcut(QKeySequence("Return"), self)
         self.quitSc.activated.connect(self.run_script)
 
+    def update_placeholders(self):
+        self.script_edit.setPlaceholderText(("Try " + random.choice(example_cmds)))
+
     def run_script(self):
+        print("hi")
         script = self.script_edit.text()
         self.script_edit.clear()
+
+        self._window._terminal_history.append(script)
+        print("hi")
+        print(self._window._terminal_history)
 
         if script == "ctheme":
             self.text.setPlainText(self._window._themes["theme"])
@@ -70,21 +85,6 @@ class AuraTextTerminalWidget(QWidget):
             a = str(script.replace("ascii", ""))
             ascii_art = text2art(a)
             self.text.setPlainText(ascii_art)
-
-        elif "iplugins" in script or "IPLUGINS" in script:
-
-            def list_files_without_extension(directory_path):
-                files_without_extension = []
-                for file_name in os.listdir(directory_path):
-                    file_path = os.path.join(directory_path, file_name)
-                    if os.path.isfile(file_path):  # Check if it's a file and not a directory
-                        name_without_extension, _ = os.path.splitext(file_name)
-                        files_without_extension.append(name_without_extension)
-                return files_without_extension
-
-            files_list = list_files_without_extension("Plugins")
-            for file_name in files_list:
-                self.text.append(file_name)
 
         elif "birthday" in script or "BIRTHDAY" in script:
             self.text.setPlainText("Aura Text's GitHub Repo was created on 2022-10-05.")
@@ -109,13 +109,3 @@ class AuraTextTerminalWidget(QWidget):
             except Exception as e:
                 print(e)
 
-
-class PythonShell(QWidget):
-    def __init__(self):
-        super().__init__()
-
-        console = PythonConsole()
-        console.eval_in_thread()
-        layout1 = QVBoxLayout()
-        layout1.addWidget(console)
-        self.setLayout(layout1)

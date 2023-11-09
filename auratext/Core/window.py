@@ -58,7 +58,7 @@ class Window(QMainWindow):
     def __init__(self):
         super().__init__()
         self.local_app_data = local_app_data
-        self._terminal_history = ""
+        #self._terminal_history = ""
 
         with open(f"{local_app_data}/data/theme.json", "r") as json_file:
             self._themes = json.load(json_file)
@@ -69,7 +69,6 @@ class Window(QMainWindow):
         with open(f"{local_app_data}/data/terminal_history.txt", "r+") as thfile:
             self._terminal_history = thfile.readlines()
             #self._terminal_history.split('\n')
-            print(self._terminal_history)
 
         # Splash Screen
         splash_pix = ""
@@ -193,8 +192,6 @@ class Window(QMainWindow):
 
     def create_editor(self):
         self.text_editor = CodeEditor(self)
-        # self.tabifyDockWidget(self.sidebar_main, self.plugin_dock)
-        # self.tabifyDockWidget(self.sidebar_main, self.terminal_dock)
         return self.text_editor
 
     def load_plugins(self):
@@ -400,7 +397,6 @@ class Window(QMainWindow):
     def markdown_new(self):
         ModuleFile.markdown_new(self)
 
-    # TREEVIEW
     def open_file(self, index):
         path = self.model.filePath(index)
         image_extensions = ["png", "jpg", "jpeg", "ico", "gif", "bmp"]
@@ -442,8 +438,6 @@ class Window(QMainWindow):
             except FileNotFoundError:
                 return
 
-    def check_for_issues(self):
-        ModuleFile.check_for_issues()
 
     def configure_menuBar(self):
         MenuConfig.configure_menuBar(self)
