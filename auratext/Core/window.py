@@ -58,12 +58,18 @@ class Window(QMainWindow):
     def __init__(self):
         super().__init__()
         self.local_app_data = local_app_data
+        self._terminal_history = ""
 
         with open(f"{local_app_data}/data/theme.json", "r") as json_file:
             self._themes = json.load(json_file)
         qdarktheme.setup_theme(
             self._themes["theme_type"], custom_colors={"primary": self._themes["theme"]}
         )
+
+        with open(f"{local_app_data}/data/terminal_history.txt", "r+") as thfile:
+            self._terminal_history = thfile.readlines()
+            #self._terminal_history.split('\n')
+            print(self._terminal_history)
 
         # Splash Screen
         splash_pix = ""
@@ -331,9 +337,6 @@ class Window(QMainWindow):
 
     def terminal_widget(self):
         self.terminal_dock = QDockWidget("Terminal", self)
-        self.terminal_dock.visibilityChanged.connect(
-            lambda visible: self.onTerminalDockVisibilityChanged(visible)
-        )
         terminal_widget = terminal.AuraTextTerminalWidget(self)
         self.sidebar_layout_Terminal = QVBoxLayout(terminal_widget)
         self.terminal_dock.setWidget(terminal_widget)
