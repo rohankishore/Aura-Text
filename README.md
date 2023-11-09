@@ -61,8 +61,7 @@ Read the Docs (Contains some hidden tricks too ;] ): https://github.com/rohankis
 ## Running Aura Text
 
 - Download / Clone this repository
-- Make a folder named `AuraText` in the 'Local' section of your 'AppData' folder. Then make another 3 subfolders. `data`, `icons` and `plugins`.
-- Then copy the items from Icons, Data folder in the repo to the corresponding folders in the AppData folder
+- Move the `AuraText` folder to the `AppData/Local` folder.
 - Run `main.py`
 
 <div align="center">
