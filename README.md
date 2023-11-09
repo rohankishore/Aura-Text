@@ -68,7 +68,7 @@ Read the Docs (Contains some hidden tricks too ;] ): https://github.com/rohankis
 
 ```pip install -r requirements.txt```
 
-```python AuraText.py```
+```python main.py```
 
 </div>
 
