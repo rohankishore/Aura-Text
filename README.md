@@ -11,9 +11,9 @@
 ![image](https://github.com/rohankishore/Aura-Text/assets/109947257/6daace86-6eec-404d-ad4d-dcf9ebb71567)
 
 
-Aura Text is an exceptional text editor that offers developers a wide array of essential tools. Built with PySide6 and Python, it harnesses the power and flexibility of these technologies. One of the remarkable aspects of Aura Text is its complete commitment to the open-source philosophy.
+Aura Text is an exceptional text/code editor that offers a wide array of essential tools. Built with PyQt6 and Python, it harnesses the power and flexibility of these technologies.
 
-With Aura Text, developers gain access to a versatile and powerful editing environment. Whether you're working on a small script or a complex project, Aura Text equips you with all the necessary features to streamline your workflow. From syntax highlighting and code completion to smart indentation and error checking, Aura Text ensures that your coding experience is both efficient and enjoyable while being extremely light on your PC.
+With Aura Text, users gain access to a versatile and powerful editing environment. Whether you're working on a small script or a complex project, Aura Text equips you with all the necessary features to streamline your workflow. From syntax highlighting and code completion to smart indentation and advanced terminal, Aura Text ensures that your coding experience is both efficient and enjoyable while being extremely light on your PC.
 
 <div align="Center">
 
