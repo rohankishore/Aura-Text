@@ -1,15 +1,18 @@
-import os
+import datetime
+import importlib
 import json
+import os
 import random
+import sys
 import time
 import webbrowser
 from tkinter import filedialog
+
 import git
 import pyjokes
-import importlib
-import sys
-from PyQt6.QtCore import Qt, QSize
-from PyQt6.QtGui import QColor, QFont, QActionGroup, QFileSystemModel, QPixmap, QIcon
+import qdarktheme
+from PyQt6.QtCore import Qt, QSize, pyqtSignal
+from PyQt6.QtGui import QColor, QFont, QActionGroup, QFileSystemModel, QPixmap, QIcon, QFontMetrics
 from PyQt6.QtWidgets import (
     QMainWindow,
     QInputDialog,
@@ -24,20 +27,19 @@ from PyQt6.QtWidgets import (
     QVBoxLayout,
     QDialog,
     QStatusBar,
+    QLabel
 )
+
 from . import Lexers
-import datetime
-import qdarktheme
-from . import PluginDownload
-from . import config_page
-from . import WelcomeScreen
-from . import terminal
 from . import MenuConfig
 from . import Modules as ModuleFile
-from .TabWidget import TabWidget
+from . import PluginDownload
+from . import WelcomeScreen
+from . import config_page
+from . import terminal
 from .AuraText import CodeEditor
+from .TabWidget import TabWidget
 from .plugin_interface import Plugin
-
 
 local_app_data = os.path.join(os.getenv("LocalAppData"), "AuraText")
 
@@ -54,11 +56,12 @@ class Sidebar(QDockWidget):
 
 
 # noinspection PyUnresolvedReferences
+# no inspection for unresolved references as pylance flags inaccurately sometimes
 class Window(QMainWindow):
     def __init__(self):
         super().__init__()
         self.local_app_data = local_app_data
-        #self._terminal_history = ""
+        # self._terminal_history = ""
 
         with open(f"{local_app_data}/data/theme.json", "r") as json_file:
             self._themes = json.load(json_file)
@@ -68,7 +71,7 @@ class Window(QMainWindow):
 
         with open(f"{local_app_data}/data/terminal_history.txt", "r+") as thfile:
             self._terminal_history = thfile.readlines()
-            #self._terminal_history.split('\n')
+            # self._terminal_history.split('\n')
 
         # Splash Screen
         splash_pix = ""
@@ -113,7 +116,7 @@ class Window(QMainWindow):
         self.addDockWidget(Qt.DockWidgetArea.LeftDockWidgetArea, self.sidebar_main)
 
         self.bottom_bar = QStatusBar()
-        self.setStatusBar(self.bottom_bar)
+        #self.setStatusBar(self.bottom_bar)
 
         self.statusbar = Sidebar("", self)
         self.statusbar.setTitleBarWidget(QWidget())
@@ -438,7 +441,6 @@ class Window(QMainWindow):
             except FileNotFoundError:
                 return
 
-
     def configure_menuBar(self):
         MenuConfig.configure_menuBar(self)
 
@@ -477,9 +479,13 @@ class Window(QMainWindow):
         self.current_editor.setMarginsBackgroundColor(QColor(self._themes["margin_theme"]))
         self.current_editor.setMarginsForegroundColor(QColor("#FFFFFF"))
 
-    def show_available_plugins(self):
-        main = QDialog()
-        main.setWindowTitle("Available Plugins")
+    def toggle_read_only(self):
+        self.current_editor.setReadOnly(True)
+        #self.read_only_button.setIcon(self.read_only_icon)
+
+    def read_only_reset(self):
+        self.current_editor.setReadOnly(False)
+        #@self.read_only_button.setIcon(self.write_button_icon)
 
     def cpp(self):
         Lexers.cpp(self)
@@ -744,13 +750,13 @@ class Window(QMainWindow):
     @staticmethod
     def version():
         text_ver = (
-            "Aura Text"
-            + "\n"
-            + "Current Version: "
-            + "4.2"
-            + "\n"
-            + "\n"
-            + "Copyright © 2023 Rohan Kishore."
+                "Aura Text"
+                + "\n"
+                + "Current Version: "
+                + "4.2"
+                + "\n"
+                + "\n"
+                + "Copyright © 2023 Rohan Kishore."
         )
         msg_box = QMessageBox()
         msg_box.setWindowTitle("About")

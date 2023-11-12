@@ -6,6 +6,7 @@ from PyQt6.QtWidgets import QMenu
 from PyQt6.QtGui import QAction
 from .plugin_interface import MenuPluginInterface
 
+
 # import Plugins.LoremIpsumGenerator
 
 
@@ -82,6 +83,17 @@ def configure_menuBar(self):
     view_menu.addAction("Project Directory", self.treeview_viewmenu).setWhatsThis(
         "Shows the files and folder in your project as treeview"
     )
+
+    def read_only():
+        if toggle_read_only_action.isChecked():
+            self.toggle_read_only()
+        else:
+            self.read_only_reset()
+
+    toggle_read_only_action = QAction("Read-Only", self)
+    toggle_read_only_action.setCheckable(True)
+    toggle_read_only_action.triggered.connect(read_only)
+    view_menu.addAction(toggle_read_only_action)
     menubar.addMenu(view_menu)
 
     code_menu = QMenu("&Code", self)
@@ -379,7 +391,6 @@ def configure_menuBar(self):
     help_menu.addAction("Submit a Bug Report", self.bug_report).setWhatsThis(
         "Submit a bug report if you've faced any bug(s)"
     )
-    help_menu.addAction("Check for missing files", self.check_for_issues)
     help_menu.addAction("A Byte of Humour!", self.code_jokes).setWhatsThis(
         "Shows a joke to cheer you up!"
     )
@@ -421,9 +432,9 @@ def configure_menuBar(self):
                     for obj_name in dir(plugin_module):
                         obj = getattr(plugin_module, obj_name)
                         if (
-                            isinstance(obj, type)
-                            and issubclass(obj, MenuPluginInterface)
-                            and obj != MenuPluginInterface
+                                isinstance(obj, type)
+                                and issubclass(obj, MenuPluginInterface)
+                                and obj != MenuPluginInterface
                         ):
                             plugin = obj(self.current_editor)
                             section = plugin.section
