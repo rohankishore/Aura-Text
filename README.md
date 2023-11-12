@@ -1,3 +1,4 @@
+
 <h1 align="center"> Aura Text</h1>
 
 <h3 align="center"> Like Any Text Editor, Unlike Any Text Editor</h3>
@@ -5,7 +6,7 @@
 <div align="center">
 
   <a href="https://opensource.org/licenses/MIT">![License](https://img.shields.io/badge/License-MIT-yellow)</a>
-  <a href="https://www.buymeacoffee.com/auratext">![Demo](https://img.shields.io/badge/Donate-BuyMeACoffee-red)</a>
+  <a href='https://ko-fi.com/V7V7QZ7GS' target='_blank'><img height='36' style='border:0px;height:20px;' src='https://storage.ko-fi.com/cdn/kofi2.png?v=3' border='0' alt='Buy Me a Coffee at ko-fi.com' /></a>
 </div>
 
 ![image](https://github.com/rohankishore/Aura-Text/assets/109947257/6daace86-6eec-404d-ad4d-dcf9ebb71567)
