@@ -10,6 +10,7 @@ from .plugin_interface import MenuPluginInterface
 # import Plugins.LoremIpsumGenerator
 
 
+# noinspection PyArgumentList
 def configure_menuBar(self):
     menubar = self.menuBar()
 
@@ -47,11 +48,15 @@ def configure_menuBar(self):
     file_menu.addSeparator()
     file_menu.addAction("New Project", self.new_project).setWhatsThis("Create a new project")
     file_menu.addAction("Open Project", self.open_project).setWhatsThis("Open an existing project")
-    file_menu.addAction("Clone Project from Git", self.gitClone)
     file_menu.addAction("Open Project as Treeview", self.open_project_as_treeview).setWhatsThis(
         "Open an existing project as a treeview dock"
     )
+
+    git_menu = QMenu("&Git", self)
+    git_menu.addAction("Clone Project from Git", self.gitClone)
+    file_menu.addMenu(git_menu)
     file_menu.addSeparator()
+
     file_menu.addAction("Save As", self.save_document).setWhatsThis("Save the document")
     file_menu.addSeparator()
     file_menu.addAction("Summary", self.summary).setWhatsThis(
