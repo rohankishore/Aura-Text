@@ -85,7 +85,7 @@ def configure_menuBar(self):
 
     view_menu = QMenu("&View", self)
     view_menu.addAction("Full Screen", self.fullscreen).setWhatsThis("Makes the window full screen")
-    view_menu.addAction("Project Directory", self.treeview_viewmenu).setWhatsThis(
+    view_menu.addAction("Project Directory", self.expandSidebar__Explorer).setWhatsThis(
         "Shows the files and folder in your project as treeview"
     )
 

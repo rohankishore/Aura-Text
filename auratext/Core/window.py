@@ -240,6 +240,13 @@ class Window(QMainWindow):
         self.model.setRootPath(path)
         self.dock.setWidget(tree_view)
         self.addDockWidget(Qt.DockWidgetArea.LeftDockWidgetArea, self.dock)
+
+        tree_view.setFont(QFont("Consolas"))
+
+        tree_view.setColumnHidden(1, True)  # File type column
+        tree_view.setColumnHidden(2, True)  # Size column
+        tree_view.setColumnHidden(3, True)  # Date modified column
+        
         tree_view.doubleClicked.connect(self.open_file)
 
     def expandSidebar__Explorer(self):
@@ -266,8 +273,6 @@ class Window(QMainWindow):
         tree_view.setColumnHidden(1, True)  # File type column
         tree_view.setColumnHidden(2, True)  # Size column
         tree_view.setColumnHidden(3, True)  # Date modified column
-
-        # self.splitDockWidget(self.sidebar_main, self.dock, Qt.Orientation.Horizontal)
 
         tree_view.doubleClicked.connect(self.open_file)
 
@@ -308,21 +313,6 @@ class Window(QMainWindow):
             self.plugin_dock.setWidget(self.plugin_widget)
             self.addDockWidget(Qt.DockWidgetArea.RightDockWidgetArea, self.plugin_dock)
 
-    def treeview_viewmenu(self):
-        self.dock = QDockWidget("Explorer", self)
-        self.dock.setAllowedAreas(Qt.DockWidgetArea.RightDockWidgetArea)
-        tree_view = QTreeView()
-        self.model = QFileSystemModel()
-        tree_view.setStyleSheet(
-            "QTreeView { background-color: #191a1b; color: white; border: none; }"
-        )
-        tree_view.setModel(self.model)
-        tree_view.setRootIndex(self.model.index(cpath))
-        self.model.setRootPath(cpath)
-        self.dock.setWidget(tree_view)
-        self.addDockWidget(Qt.DockWidgetArea.LeftDockWidgetArea, self.dock)
-
-        tree_view.doubleClicked.connect(self.open_file)
 
     def new_project(self):
         new_folder_path = filedialog.askdirectory(
