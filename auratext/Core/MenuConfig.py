@@ -386,7 +386,7 @@ def configure_menuBar(self):
     # language_menu.addMenu(z_menu)
 
     prefernces_menu.addMenu(language_menu)
-    # prefernces_menu.addAction("Autocomplete Dictionary", )
+    prefernces_menu.addAction("Additional Preferences", self.additional_prefs)
     menubar.addMenu(prefernces_menu)
 
     help_menu = QMenu("&?", self)

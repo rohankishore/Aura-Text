@@ -11,8 +11,8 @@ from tkinter import filedialog
 import git
 import pyjokes
 import qdarktheme
-from PyQt6.QtCore import Qt, QSize, pyqtSignal
-from PyQt6.QtGui import QColor, QFont, QActionGroup, QFileSystemModel, QPixmap, QIcon, QFontMetrics
+from PyQt6.QtCore import Qt, QSize
+from PyQt6.QtGui import QColor, QFont, QActionGroup, QFileSystemModel, QPixmap, QIcon
 from PyQt6.QtWidgets import (
     QMainWindow,
     QInputDialog,
@@ -25,13 +25,12 @@ from PyQt6.QtWidgets import (
     QPushButton,
     QWidget,
     QVBoxLayout,
-    QDialog,
-    QStatusBar,
-    QLabel
+    QStatusBar
 )
 
 from . import Lexers
 from . import MenuConfig
+from . import additional_prefs
 from . import Modules as ModuleFile
 from . import PluginDownload
 from . import WelcomeScreen
@@ -63,8 +62,14 @@ class Window(QMainWindow):
         self.local_app_data = local_app_data
         # self._terminal_history = ""
 
-        with open(f"{local_app_data}/data/theme.json", "r") as json_file:
-            self._themes = json.load(json_file)
+        # COMMENTED OUT CODE FOR FRAMELESS WINDOW. IN DEVELOPMENT
+        #self.setWindowFlags(Qt.WindowType.FramelessWindowHint)
+        #self.setAttribute(Qt.WidgetAttribute.WA_TranslucentBackground)
+
+        with open(f"{local_app_data}/data/theme.json", "r") as themes_file:
+            self._themes = json.load(themes_file)
+        with open(f"{local_app_data}/data/config.json", "r") as config_file:
+            self._config = json.load(config_file)
         qdarktheme.setup_theme(
             self._themes["theme_type"], custom_colors={"primary": self._themes["theme"]}
         )
@@ -73,24 +78,30 @@ class Window(QMainWindow):
             self._terminal_history = thfile.readlines()
             # self._terminal_history.split('\n')
 
-        # Splash Screen
-        splash_pix = ""
-        current_time = datetime.datetime.now().time()
-        sunrise_time = current_time.replace(hour=6, minute=0, second=0, microsecond=0)
-        sunset_time = current_time.replace(hour=18, minute=0, second=0, microsecond=0)
+        def splashScreen():
+            # Splash Screen
+            splash_pix = ""
+            current_time = datetime.datetime.now().time()
+            sunrise_time = current_time.replace(hour=6, minute=0, second=0, microsecond=0)
+            sunset_time = current_time.replace(hour=18, minute=0, second=0, microsecond=0)
 
-        # Check which time interval the current time falls into
-        if sunrise_time <= current_time < sunrise_time.replace(hour=12):
-            splash_pix = QPixmap(f"{local_app_data}/icons/splash_morning.png")
-        elif sunrise_time.replace(hour=12) <= current_time < sunset_time:
-            splash_pix = QPixmap(f"{local_app_data}/icons/splash_afternoon.png")
+            # Check which time interval the current time falls into
+            if sunrise_time <= current_time < sunrise_time.replace(hour=12):
+                splash_pix = QPixmap(f"{local_app_data}/icons/splash_morning.png")
+            elif sunrise_time.replace(hour=12) <= current_time < sunset_time:
+                splash_pix = QPixmap(f"{local_app_data}/icons/splash_afternoon.png")
+            else:
+                splash_pix = QPixmap(f"{local_app_data}/icons/splash_night.png")
+
+            splash = QSplashScreen(splash_pix)
+            splash.show()
+            time.sleep(1)
+            splash.hide()
+
+        if self._config["splash"] == "True":
+            splashScreen()
         else:
-            splash_pix = QPixmap(f"{local_app_data}/icons/splash_night.png")
-
-        splash = QSplashScreen(splash_pix)
-        splash.show()
-        time.sleep(1)
-        splash.hide()
+            pass
 
         self.tab_widget = TabWidget()
         self.current_editor = ""
@@ -193,6 +204,14 @@ class Window(QMainWindow):
         self.load_plugins()
         self.showMaximized()
 
+    #def mousePressEvent(self, event):
+     #   self.dragPos = event.globalPosition().toPoint()
+
+    #def mouseMoveEvent(self, event):
+        #self.move(self.pos() + event.globalPosition().toPoint() - self.dragPos)
+        #self.dragPos = event.globalPosition().toPoint()
+        #event.accept()
+
     def create_editor(self):
         self.text_editor = CodeEditor(self)
         return self.text_editor
@@ -246,7 +265,7 @@ class Window(QMainWindow):
         tree_view.setColumnHidden(1, True)  # File type column
         tree_view.setColumnHidden(2, True)  # Size column
         tree_view.setColumnHidden(3, True)  # Date modified column
-        
+
         tree_view.doubleClicked.connect(self.open_file)
 
     def expandSidebar__Explorer(self):
@@ -656,6 +675,10 @@ class Window(QMainWindow):
         if dialog.exec():
             project_path = dialog.selectedFiles()[0]
             self.treeview_project(project_path)
+
+    def additional_prefs(self):
+        settings = additional_prefs.SettingsWindow()
+        settings.exec()
 
     def new_document(self, checked=False, title="Scratch 1"):
         self.current_editor = self.create_editor()
