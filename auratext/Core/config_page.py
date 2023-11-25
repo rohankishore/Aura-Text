@@ -1,7 +1,9 @@
 from __future__ import annotations
-from typing import TYPE_CHECKING
+
 import json
 import winreg
+from typing import TYPE_CHECKING
+
 from PyQt6.QtWidgets import (
     QLabel,
     QLineEdit,
@@ -9,8 +11,7 @@ from PyQt6.QtWidgets import (
     QVBoxLayout,
     QWidget,
     QMessageBox,
-    QComboBox,
-)
+    QComboBox, )
 
 if TYPE_CHECKING:
     from .window import Window
@@ -27,8 +28,8 @@ class ConfigPage(QWidget):
 
     def init_ui(self):
         layout = QVBoxLayout()
-        layout.addStretch()
-        layout.addSpacing(100)
+        #layout.addStretch()
+        #layout.addSpacing(100)
 
         # Theme
         theme_label = QLabel("Theme Color:")
@@ -142,3 +143,5 @@ class ConfigPage(QWidget):
         winreg.CloseKey(font_key)
 
         return font_names
+
+

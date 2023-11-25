@@ -1,17 +1,12 @@
 import json
 import os
-import sys
 
 from PyQt6.QtWidgets import (
-    QLabel,
     QCheckBox,
     QPushButton,
     QVBoxLayout,
     QDialog,
-    QWidget,
     QMessageBox,
-    QComboBox,
-    QApplication,
 )
 
 local_app_data = os.path.join(os.getenv("LocalAppData"), "AuraText")
@@ -25,6 +20,7 @@ class SettingsWindow(QDialog):
             self._config = json.load(json_file)
 
         self.splash_status = self._config['splash']
+        self.terminaltips_status = self._config["terminal_tips"]
 
         self._config = {
             "splash": "",
@@ -41,7 +37,13 @@ class SettingsWindow(QDialog):
         self.splash_checkbox.setChecked(True) if self.splash_status == "True" else self.splash_checkbox.setChecked(
             False)
 
+        self.ttips_checkbox = QCheckBox("Show Tips in Terminal")
+        self.ttips_checkbox.setChecked(
+            True) if self.terminaltips_status == "True" else self.ttips_checkbox.setChecked(
+            False)
+
         layout.addWidget(self.splash_checkbox)
+        layout.addWidget(self.ttips_checkbox)
 
         # Save Button
         save_button = QPushButton("Apply")
@@ -57,7 +59,7 @@ class SettingsWindow(QDialog):
         layout.addWidget(save_button)
 
         self.setLayout(layout)
-        self.setWindowTitle("Settings Window")
+        self.setWindowTitle("Additional Preferences")
 
     def save_settings(self):
         if self.splash_checkbox.isChecked():
@@ -65,21 +67,20 @@ class SettingsWindow(QDialog):
         else:
             self.splash_status = "False"
 
-            # Update the splash status in the existing configuration
-        self._config["splash"] = self.splash_status
+        if self.ttips_checkbox.isChecked():
+            self.terminaltips_status = "True"
+        else:
+            self.terminaltips_status = "False"
 
-        # Save the updated configuration back to the JSON file
+
+        config_data = {
+            "splash": self.splash_status,
+            "terminal_tips": self.terminaltips_status
+        }
+
         with open(f"{local_app_data}/data/config.json", "w") as json_file:
-            json.dump(self._config, json_file, indent=4)
+            json.dump(config_data, json_file, indent=4)
 
-        print(self.splash_status)
-
-        # self._themes["editor_theme"] = self.editor_theme_input.isChecked()
-        # self._themes["margin_theme"] = self.margin_theme_input.isChecked()
-        # self._themes["lines_theme"] = self.lines_theme_input.isChecked()
-        # self._themes["lines_fg"] = self.lines_fg_input.isChecked()
-        # self._themes["font"] = self.font_theme_combobox.currentText()
-        # self._themes["theme_type"] = self.theme_combobox.currentText()
 
         QMessageBox.information(
             self,
