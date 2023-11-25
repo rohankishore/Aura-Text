@@ -61,7 +61,7 @@ Read the Docs (Contains some hidden tricks too ;] ): https://github.com/rohankis
 
 ### As an EXE
 - Download / Clone this repository
-- Move the `AuraText` folder to the `AppData/Local` folder.
+- Move the `AuraText` folder in the `LocalAppData` folder to the `AppData/Local` folder.
 - Install Nuitka (`python -m pip install nuitka`)
 - `python -m nuitka --windows-disable-console .\main.py`
 
