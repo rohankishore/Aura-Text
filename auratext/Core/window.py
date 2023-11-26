@@ -75,7 +75,7 @@ class Window(QMainWindow):
         )
 
         with open(f"{local_app_data}/data/terminal_history.txt", "r+") as thfile:
-            self._terminal_history = thfile.readlines()
+            self.terminal_history = thfile.readlines()
             # self._terminal_history.split('\n')
 
         def splashScreen():

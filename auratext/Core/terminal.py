@@ -1,13 +1,15 @@
 from __future__ import annotations
 
+import os
 import random
 from typing import TYPE_CHECKING
 import subprocess
 from art import text2art
 
-from PyQt6.QtCore import Qt
-from PyQt6.QtGui import QShortcut, QKeySequence, QFont
-from PyQt6.QtWidgets import QWidget, QLineEdit, QTextEdit, QVBoxLayout
+from PyQt6.QtCore import QSize, QModelIndex
+from PyQt6.QtGui import QShortcut, QKeySequence, QFont, QIcon, QStandardItem, QStandardItemModel
+from PyQt6.QtWidgets import QWidget, QLineEdit, QTextEdit, QVBoxLayout, QPushButton, QHBoxLayout, QListWidgetItem, \
+    QDialog, QListView
 import sys
 from pyjokes import pyjokes
 import pyautogui
@@ -23,10 +25,54 @@ example_cmds = ["'ascii Hello'", "'joke' for some byte sized humour", "'pip'",
                 "'key' and type combinations of keyboard keys to emulate them. [key Win + Shift + C]"]
 
 
+class TerminalHistoryDialog(QDialog):
+    def __init__(self, parent=None):
+        super().__init__(parent)
+
+        self.local_app_data = os.path.join(os.getenv("LocalAppData"), "AuraText")
+
+        self.setWindowTitle("Terminal History")
+        self.setMinimumSize(400, 300)
+
+        # Create a list view and set it as the main widget for the dialog
+        self.list_view = QListView()
+        self.list_model = QStandardItemModel()
+        self.list_view.setModel(self.list_model)
+
+        layout = QVBoxLayout(self)
+        layout.addWidget(self.list_view)
+
+        close_button = QPushButton("Clear All")
+        close_button.clicked.connect(self.clear_all)
+        layout.addWidget(close_button)
+
+        self.fill_data()
+
+    def fill_data(self):
+        with open(f'{self.local_app_data}/data/terminal_history.txt', 'r') as thistory_file:
+            for line in thistory_file:
+                item = QStandardItem(line.strip())
+                self.list_model.appendRow(item)
+
+    def clear_all(self):
+        with open(f'{self.local_app_data}/data/terminal_history.txt', 'r+') as thistory_file:
+            thistory_file.truncate(0)
+
+
 class AuraTextTerminalWidget(QWidget):
     def __init__(self, window: Window):
         super().__init__(window)
         self._window = window
+
+        self.dialog = QDialog()
+        self.list_view = QListView()
+        self.list_view.doubleClicked.connect(self.item_clicked)
+        self.list_model = QStandardItemModel()
+
+        with open(f'{self._window.local_app_data}/data/terminal_history.txt', 'r+') as self.thistory_file:
+            self.commands = list(self.thistory_file.readlines())
+
+        self.strcmds = str(self.commands)
 
         self.script_edit = QLineEdit()
         self.script_edit.setFont(QFont("Consolas"))
@@ -35,28 +81,42 @@ class AuraTextTerminalWidget(QWidget):
             "QLineEdit {"
             "   border-radius: 5px;"
             "   padding: 5px;"
-            "background-color: #000000;"
-            "color: #21FC0D;"  # Color name: Electric Green
+            "   background-color: #000000;"
+            "   color: #21FC0D;"  # Color name: Electric Green
             "}"
         )
-        self.script_edit.setAlignment(Qt.AlignmentFlag.AlignBottom)
 
-        if self._window._config["terminal_tips"] == "True":
-            self.script_edit.setPlaceholderText(("Try " + random.choice(example_cmds)))
-            self.script_edit.textChanged.connect(self.update_placeholders)
-        else:
-            pass
+        terminal_history_icon = QIcon(f"{self._window.local_app_data}/icons/terminal_history.png")
+        self.terminal_history_button = QPushButton()
+        self.terminal_history_button.setStyleSheet(
+            "QPushButton {"
+            "background-color: #202124;"
+            "border : 0;"
+            "}"
+        )
+        self.terminal_history_button.setIcon(terminal_history_icon)
+        self.terminal_history_button.setIconSize(QSize(21, 21))
+        self.terminal_history_button.setToolTip("Terminal History")
+        self.terminal_history_button.setFixedSize(32, 28)
+        self.terminal_history_button.clicked.connect(self.terminal_history_run)
 
         self.text = QTextEdit()
         self.text.setFont(QFont("Consolas"))
         self.text.setReadOnly(True)
         self.text.setStyleSheet("QTextEdit {background-color: #000000;color: white; border:none;}")
 
-        layout1 = QVBoxLayout()
-        layout1.addWidget(self.text)
-        layout1.addWidget(self.script_edit)
+        # Set up a layout for the script_edit and button
+        layout = QHBoxLayout()
+        layout.addWidget(self.script_edit)
+        layout.addWidget(self.terminal_history_button)  # Add the button to the layout
+        layout.setContentsMargins(0, 0, 0, 0)  # Remove any margins
 
-        self.setLayout(layout1)
+        # Set up the main layout that includes the QTextEdit and the layout with script_edit and button
+        main_layout = QVBoxLayout()
+        main_layout.addWidget(self.text)
+        main_layout.addLayout(layout)  # Add the layout with script_edit and button to the main layout
+
+        self.setLayout(main_layout)
 
         self.quitSc = QShortcut(QKeySequence("Return"), self)
         self.quitSc.activated.connect(self.run_script)
@@ -64,14 +124,50 @@ class AuraTextTerminalWidget(QWidget):
     def update_placeholders(self):
         self.script_edit.setPlaceholderText(("Try " + random.choice(example_cmds)))
 
+    def terminal_history(self):
+        self.dialog.setWindowTitle("Terminal History")
+        self.dialog.setMinimumSize(400, 300)
+
+        self.list_view.setModel(self.list_model)
+
+        layout = QVBoxLayout(self)
+
+        self.dialog.setLayout(layout)
+        layout.addWidget(self.list_view)
+
+    def clear_all(self):
+        with open(f'{self._window.local_app_data}/data/terminal_history.txt', 'r+') as thistory_file:
+            thistory_file.truncate(0)
+        self.list_model.clear()
+
+    def item_clicked(self, index):
+        item = self.list_model.itemFromIndex(index)
+        if item is not None:
+            selected_text = item.text()
+            self.script_edit.insert(selected_text)
+
+    def terminal_history_run(self):
+        self.terminal_history()
+        self.fill_data()
+        self.dialog.exec()
+
+    def fill_data(self):
+        self.list_model.clear()
+        with open(f'{self._window.local_app_data}/data/terminal_history.txt', 'r') as thistory_file:
+            for line in thistory_file:
+                item = QStandardItem(line.strip())
+                self.list_model.appendRow(item)
+
     def run_script(self):
         print("hi")
         script = self.script_edit.text()
-        #self.script_edit.clear()
 
-        self._window._terminal_history.append(script)
-        print("hi")
-        print(self._window._terminal_history)
+        self.commands.append(script)
+        with open(f'{self._window.local_app_data}/data/terminal_history.txt', 'a') as self.thistory_file:
+            self.thistory_file.write("\n")
+            self.thistory_file.write(script)
+            self.fill_data()
+
 
         if script == "ctheme":
             self.text.append(self._window._themes["theme"])
@@ -107,6 +203,10 @@ class AuraTextTerminalWidget(QWidget):
 
         elif "birthday" in script:
             self.text.append("Aura Text's GitHub Repo was created on 2022-10-05.")
+
+        elif "flush history" in script or "flush_history" in script:
+            self.clear_all()
+            self.text.append("Terminal History has been successfully cleared")
 
         elif script == "cproject" or script == "cpath":
             with open(f"{self._window.local_app_data}/data/CPath_Project.txt", "r") as file:
