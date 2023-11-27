@@ -18,8 +18,7 @@ With Aura Text, users gain access to a versatile and powerful editing environmen
 
 <div align="Center">
 
-Read the Docs (Contains some hidden tricks too ;] ): https://github.com/rohankishore/Aura-Text/wiki
-
+[Read the Docs](https://github.com/rohankishore/Aura-Text/wiki)
 </div>
 
 <br>
