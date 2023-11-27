@@ -33,6 +33,7 @@ from . import MenuConfig
 from . import additional_prefs
 from . import Modules as ModuleFile
 from . import PluginDownload
+from . import ThemeDownload
 from . import WelcomeScreen
 from . import config_page
 from . import terminal
@@ -63,8 +64,8 @@ class Window(QMainWindow):
         # self._terminal_history = ""
 
         # COMMENTED OUT CODE FOR FRAMELESS WINDOW. IN DEVELOPMENT
-        #self.setWindowFlags(Qt.WindowType.FramelessWindowHint)
-        #self.setAttribute(Qt.WidgetAttribute.WA_TranslucentBackground)
+        # self.setWindowFlags(Qt.WindowType.FramelessWindowHint)
+        # self.setAttribute(Qt.WidgetAttribute.WA_TranslucentBackground)
 
         with open(f"{local_app_data}/data/theme.json", "r") as themes_file:
             self._themes = json.load(themes_file)
@@ -127,7 +128,7 @@ class Window(QMainWindow):
         self.addDockWidget(Qt.DockWidgetArea.LeftDockWidgetArea, self.sidebar_main)
 
         self.bottom_bar = QStatusBar()
-        #self.setStatusBar(self.bottom_bar)
+        # self.setStatusBar(self.bottom_bar)
 
         self.statusbar = Sidebar("", self)
         self.statusbar.setTitleBarWidget(QWidget())
@@ -204,13 +205,13 @@ class Window(QMainWindow):
         self.load_plugins()
         self.showMaximized()
 
-    #def mousePressEvent(self, event):
-     #   self.dragPos = event.globalPosition().toPoint()
+    # def mousePressEvent(self, event):
+    #   self.dragPos = event.globalPosition().toPoint()
 
-    #def mouseMoveEvent(self, event):
-        #self.move(self.pos() + event.globalPosition().toPoint() - self.dragPos)
-        #self.dragPos = event.globalPosition().toPoint()
-        #event.accept()
+    # def mouseMoveEvent(self, event):
+    # self.move(self.pos() + event.globalPosition().toPoint() - self.dragPos)
+    # self.dragPos = event.globalPosition().toPoint()
+    # event.accept()
 
     def create_editor(self):
         self.text_editor = CodeEditor(self)
@@ -315,11 +316,13 @@ class Window(QMainWindow):
 
     def expandSidebar__Plugins(self):
         self.plugin_dock = QDockWidget("Extensions", self)
+        self.theme_dock = QDockWidget("Themes", self)
         background_color = (
             self.plugin_button.palette().color(self.plugin_button.backgroundRole()).name()
         )
         if background_color == "#3574f0":
             self.plugin_dock.destroy()
+            self.theme_dock.destroy()
         else:
             self.plugin_dock.visibilityChanged.connect(
                 lambda visible: self.onPluginDockVisibilityChanged(visible)
@@ -330,8 +333,16 @@ class Window(QMainWindow):
             self.plugin_layout.addStretch(1)
             self.plugin_layout.addWidget(self.plugin_widget)
             self.plugin_dock.setWidget(self.plugin_widget)
-            self.addDockWidget(Qt.DockWidgetArea.RightDockWidgetArea, self.plugin_dock)
 
+            self.theme_widget = ThemeDownload.ThemeDownloader(self)
+            self.theme_layout = QVBoxLayout()
+            self.theme_layout.addStretch(1)
+            self.theme_layout.addWidget(self.theme_widget)
+            self.theme_dock.setWidget(self.theme_widget)
+
+            self.addDockWidget(Qt.DockWidgetArea.RightDockWidgetArea ,self.plugin_dock)
+            self.addDockWidget(Qt.DockWidgetArea.RightDockWidgetArea ,self.theme_dock)
+            self.tabifyDockWidget(self.theme_dock, self.plugin_dock)
 
     def new_project(self):
         new_folder_path = filedialog.askdirectory(
@@ -490,11 +501,11 @@ class Window(QMainWindow):
 
     def toggle_read_only(self):
         self.current_editor.setReadOnly(True)
-        #self.read_only_button.setIcon(self.read_only_icon)
+        # self.read_only_button.setIcon(self.read_only_icon)
 
     def read_only_reset(self):
         self.current_editor.setReadOnly(False)
-        #@self.read_only_button.setIcon(self.write_button_icon)
+        # @self.read_only_button.setIcon(self.write_button_icon)
 
     def cpp(self):
         Lexers.cpp(self)
@@ -651,6 +662,16 @@ class Window(QMainWindow):
         line_number, ok = QInputDialog.getInt(self, "Goto Line", "Line:")
         if ok:
             self.setCursorPosition(line_number - 1, 0)
+
+    def import_theme(self):
+        theme_open = filedialog.askopenfilename(title="Open JSON File", defaultextension='.json',
+                                   filetypes=[('JSON file', '*.json')])
+        theme_path = os.path.abspath(theme_open)
+
+        import shutil
+
+        shutil.copyfile(theme_path, f'{local_app_data}/data/theme.json')  # copy src to dst
+
 
     def open_project(self):
         dialog = QFileDialog(self)
