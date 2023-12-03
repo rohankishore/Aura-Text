@@ -19,7 +19,12 @@ With Aura Text, users gain access to a versatile and powerful editing environmen
 <div align="Center">
 
 [Read the Docs](https://github.com/rohankishore/Aura-Text/wiki)
+
+<br>
+
 </div>
+
+View the README in [Hindi](https://github.com/rohankishore/Aura-Text/blob/main/.github/README_HN.md)
 
 <br>
 
