@@ -1,104 +1,148 @@
-
-<h1 align="center"> Aura Text</h1>
-
-<h3 align="center"> Like Any Text Editor, Unlike Any Text Editor</h3>
-
+<!-- PROJECT LOGO -->
+<br />
 <div align="center">
 
-  <a href="https://opensource.org/licenses/MIT">![License](https://img.shields.io/badge/License-MIT-yellow)</a>
-  <a href='https://ko-fi.com/V7V7QZ7GS' target='_blank'><img height='36' style='border:0px;height:20px;' src='https://storage.ko-fi.com/cdn/kofi2.png?v=3' border='0' alt='Buy Me a Coffee at ko-fi.com' /></a>
+  <h1 align="center">Aura Text</h1>
+
+  ![AURA TEXT](https://github.com/rohankishore/Aura-Text/assets/109947257/9b59cf71-e8f7-4244-be38-0ab647d8ded8)
+
+  <p align="center">
+    An IDE made entirely with Python
+    <br />
+    <a href="https://github.com/rohankishore/Aura-Text/wiki"><strong>Explore the docs »</strong></a>
+    <br />
+    <br />
+    <a href="https://github.com/rohankishore/Aura-Text/issues">Report Bug</a>
+    ·
+    <a href="https://github.com/rohankishore/Aura-Text/issues/new?assignees=&labels=&projects=&template=feature_request.md&title=">Request Feature</a>
+  </p>
 </div>
 
-![image](https://github.com/rohankishore/Aura-Text/assets/109947257/6daace86-6eec-404d-ad4d-dcf9ebb71567)
 
 
-Aura Text is an exceptional text/code editor that offers a wide array of essential tools. Built with PyQt6 and Python, it harnesses the power and flexibility of these technologies.
+<!-- TABLE OF CONTENTS -->
+<details>
+  <summary>Table of Contents</summary>
+  <ol>
+    <li>
+      <a href="#-about-the-project">About The Project</a>
+    </li>
+    <li>
+      <a href="#-getting-started">Getting Started</a>
+      <ul>
+        <li><a href="#prerequisites">Prerequisites</a></li>
+        <li><a href="#installation">Installation</a></li>
+        <ul>
+        <li><a href="#with-nuitka">With Nuitka</a></li>
+        <li><a href="#-as-a-python-file">As a Python File</a></li>
+      </ul>
+      </ul>
+    </li>
+    <li><a href="#roadmap">Roadmap</a></li>
+    <li><a href="#-contributing">Contributing</a></li>
+    <li><a href="#-license">License</a></li>
+    <li><a href="#-contact">Contact</a></li>
+  </ol>
+</details>
+
+<!-- LANGUAGE SWITCHER -->
+<details>
+  <summary>View the README In:</summary>
+  <ol>
+    <li>
+      <a href="https://github.com/rohankishore/Aura-Text/blob/main/.github/README_HN.md">Hindi 🇮🇳</a>
+    </li>
+    <li>
+      <a href="#getting-started">German</a>
+    </li>
+    <li><a href="#-roadmap">Español</a></li>
+    <li><a href="#-contributing">Russian</a></li>
+    <li><a href="#-license">Chinese</a></li>
+  </ol>
+</details>
+
+<br>
+
+<!-- ABOUT THE PROJECT -->
+## 📖 About The Project
+
+![image](https://github.com/rohankishore/Aura-Text/assets/109947257/de7346a7-f967-4035-8159-af5ed07990bf)
+
+Aura Text is an excellent text/code editor that offers a wide array of essential tools. Built with PyQt6 and Python, it harnesses the power and flexibility of these technologies.
 
 With Aura Text, users gain access to a versatile and powerful editing environment. Whether you're working on a small script or a complex project, Aura Text equips you with all the necessary features to streamline your workflow. From syntax highlighting and code completion to smart indentation and advanced terminal, Aura Text ensures that your coding experience is both efficient and enjoyable while being extremely light on your PC.
 
-<div align="Center">
-
-[Read the Docs](https://github.com/rohankishore/Aura-Text/wiki)
-
 <br>
 
-</div>
+<!-- GETTING STARTED -->
+## 🏃 Getting Started
 
-View the README in [Hindi](https://github.com/rohankishore/Aura-Text/blob/main/.github/README_HN.md)
+Let's set up Aura Text on your PC!
 
-<br>
+### Prerequisites
 
-![image](https://github.com/rohankishore/Aura-Text/assets/109947257/5bca036d-b103-4d88-a22f-6a2952faa43a)
+Run this command in your terminal to install the dependencies at once
+  ```sh
+  pip install -r requirements.txt
+  ```
 
-<br>
+### Installation
 
-## Features
+#### With Nuitka
 
-- Well, edit files (duh)
-- Line Numbers
-- Auto-Completion
-- Text Encrypt and Decrypt
-- Terminal (with Aura Text Specific Commands)
-- Git Integration
-- Material Themes
-- Custom theming
-- Code Folding
-- Code Linting
-- Go To Line
-- Read-only mode
-- Case Toggling
-- Instant Notes
-- Upload to Pastebin
-- Text to Speech (Changed to a Plugin)
-- Markdown Preview
-- Plugin Support (ALPHA STAGE)
-- Built-In Image Viewer (Supports most of the image formats)
-- Bracket Matching
-- Edit Multiple Projects at the same window
-- Syntax Highlighting (25+ Languages)
-- Auto Indent
-- Adaptive Splash Screens (UI Enhancements)
+_Below is an example of how you can build Aura Text using Nuitka_
 
-<br>
-
-## Running Aura Text
-
-### As an EXE
 - Download / Clone this repository
 - Move the `AuraText` folder in the `LocalAppData` folder to the `AppData/Local` folder.
 - Install Nuitka (`python -m pip install nuitka`)
 - `python -m nuitka --windows-disable-console .\main.py`
 
-### From the Python File
+#### 🐍 As a Python File
+
 - Download / Clone this repository
-- Move the `AuraText` folder to the `AppData/Local` folder.
-- Run `main.py`
-
-<div align="center">
-
-```pip install -r requirements.txt```
-
-```python main.py```
-
-</div>
+- Move the `AuraText` folder in the `LocalAppData` folder to the `AppData/Local` folder.
+- `python -m main.py`
 
 <br>
 
-## Contributing
-Your contributions are greatly appreciated! please have a look at our [**developer docs**](https://github.com/rohankishore/Aura-Text/blob/main/CONTRIBUTING.md) for an outline of the project and to set up the environment.
+## Roadmap
 
-For feature suggestions and bug reports, please check [**issue tracker**](https://github.com/rohankishore/Aura-Text/issues).
+- Make a status bar at the bottom with features similar to PyCharm or other IDEs (Read-only toggle, breadcrumbs, etc)
+- <strike> Custom Theming </strike>
+-  <strike> Key Emulation </strike>
+- Split Editing
+- <strike> Python Code Linting </strike>
 
-<br>
+<b> and much much more... </b>
 
 
-![Modern Graphs with PyQt6 and Matplotlib 1](https://github.com/rohankishore/Aura-Text/assets/109947257/782e8127-a8bf-489a-84b9-31db539f6f49)
+<b>
 
-### Article Links
+<!-- CONTRIBUTING -->
+## 🛂 Contributing
 
-- [Tistory](https://sansamlife.com/entry/IT-%EC%B5%9C%EC%8B%A0-%EC%A0%95%EB%B3%B4-%EC%98%A4%ED%94%88%EC%86%8C%EC%8A%A4-%EC%9B%B9-%EC%95%A0%ED%94%8C%EB%A6%AC%EC%BC%80%EC%9D%B4%EC%85%98-%EC%95%88%EB%93%9C%EB%A1%9C%EC%9D%B4%EB%93%9C%ED%8F%B0-AudioLM#idx4:~:text=github.com/rohankishore/-,Aura%2DText,-GitHub%20%2D%20rohankishore/Aura)
+Contributions are what makes the open-source community such an amazing place to learn, inspire, and create. Any contributions you make are **greatly appreciated**.
 
-- [Adafruit](https://blog.adafruit.com/2023/03/07/a-novel-text-programming-editor-aura-text-programming-software/)
+If you have a suggestion that would make this better, please fork the repo and create a pull request. You can also simply open an issue with the tag "enhancement".
+Don't forget to give the project a star! Thanks again!
 
-<h2 align="center">License</h2>
-This project is licensed under the terms of the MIT license. 
+1. Fork the Project
+2. Create your Feature Branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your Changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the Branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
+
+<b>
+
+<!-- LICENSE -->
+## 🪪 License
+
+Distributed under the MIT License. See `LICENSE.txt` for more information.
+
+
+<!-- CONTACT -->
+## 📱 Contact
+
+Your Name - [@Aura_Text](https://twitter.com/Aura_Text) - email@example.com
+
+Project Link: [https://github.com/rohankishore/Aura-Text](https://github.com/rohankishore/Aura-Text)
