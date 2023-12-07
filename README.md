@@ -53,7 +53,7 @@
       <a href="https://github.com/rohankishore/Aura-Text/blob/main/.github/README_HN.md">Hindi 🇮🇳</a>
     </li>
     <li>
-      <a href="#getting-started">German</a>
+      <a href="https://github.com/rohankishore/Aura-Text/blob/main/.github/README_DE">German</a>
     </li>
     <li><a href="#-roadmap">Español</a></li>
     <li><a href="#-contributing">Russian</a></li>
@@ -139,10 +139,3 @@ Don't forget to give the project a star! Thanks again!
 
 Distributed under the MIT License. See `LICENSE.txt` for more information.
 
-
-<!-- CONTACT -->
-## 📱 Contact
-
-Your Name - [@Aura_Text](https://twitter.com/Aura_Text) - email@example.com
-
-Project Link: [https://github.com/rohankishore/Aura-Text](https://github.com/rohankishore/Aura-Text)
