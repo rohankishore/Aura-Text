@@ -53,7 +53,7 @@
       <a href="https://github.com/rohankishore/Aura-Text/blob/main/.github/README_HN.md">Hindi 🇮🇳</a>
     </li>
     <li>
-      <a href="https://github.com/rohankishore/Aura-Text/blob/main/.github/README_DE">German</a>
+      <a href="https://github.com/rohankishore/Aura-Text/blob/main/.github/README_DE.md">German</a>
     </li>
     <li><a href="#-roadmap">Español</a></li>
     <li><a href="#-contributing">Russian</a></li>
