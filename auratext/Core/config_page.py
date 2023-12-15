@@ -51,10 +51,23 @@ class ConfigPage(QWidget):
         # Editor Theme
         editor_theme_label = QLabel("Editor Background:")
         self.editor_theme_input = QLineEdit()
-
         self.editor_theme_input.setText(self._window._themes["editor_theme"])
         layout.addWidget(editor_theme_label)
         layout.addWidget(self.editor_theme_input)
+
+        # Sidebar Theme
+        sidebar_theme_label = QLabel("Sidebar Background:")
+        self.sidebar_theme_input = QLineEdit()
+        self.sidebar_theme_input.setText(self._window._themes["sidebar_bg"])
+        layout.addWidget(sidebar_theme_label)
+        layout.addWidget(self.sidebar_theme_input)
+
+        # MenuBar Theme
+        menubar_theme_label = QLabel("MenuBar Background:")
+        self.menubar_theme_input = QLineEdit()
+        self.menubar_theme_input.setText(self._window._themes["menubar_bg"])
+        layout.addWidget(menubar_theme_label)
+        layout.addWidget(self.menubar_theme_input)
 
         # Margin Theme
         margin_theme_label = QLabel("Margin Background:")
@@ -111,6 +124,8 @@ class ConfigPage(QWidget):
         self._window._themes["theme"] = self.theme_input.text()
         self._window._themes["editor_theme"] = self.editor_theme_input.text()
         self._window._themes["margin_theme"] = self.margin_theme_input.text()
+        self._window._themes["sidebar_bg"] = self.sidebar_theme_input.text()
+        self._window._themes["menubar_bg"] = self.menubar_theme_input.text()
         self._window._themes["lines_theme"] = self.lines_theme_input.text()
         self._window._themes["lines_fg"] = self.lines_fg_input.text()
         self._window._themes["font"] = self.font_theme_combobox.currentText()

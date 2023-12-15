@@ -122,7 +122,7 @@ class Window(QMainWindow):
         self.sidebar_main = Sidebar("", self)
         self.sidebar_main.setTitleBarWidget(QWidget())
         self.sidebar_widget = QWidget(self.sidebar_main)
-        self.sidebar_widget.setStyleSheet("""QWidget{background-color : #2a2b2e;}""")
+        self.sidebar_widget.setStyleSheet(f"QWidget{{background-color: {self._themes['sidebar_bg']};}}")
         self.sidebar_layout = QVBoxLayout(self.sidebar_widget)
         self.sidebar_main.setWidget(self.sidebar_widget)
         self.addDockWidget(Qt.DockWidgetArea.LeftDockWidgetArea, self.sidebar_main)
@@ -133,7 +133,7 @@ class Window(QMainWindow):
         self.statusbar = Sidebar("", self)
         self.statusbar.setTitleBarWidget(QWidget())
         self.statusbar_widget = QWidget(self.statusbar)
-        self.statusbar_widget.setStyleSheet("""QWidget{background-color : #2a2b2e;}""")
+        self.statusbar_widget.setStyleSheet(f"QWidget{{background-color: {self._themes['sidebar_bg']};}}")
         self.statusbar_layout = QVBoxLayout(self.statusbar_widget)
         self.statusbar_layout.addStretch()
         self.statusbar_layout.setAlignment(Qt.AlignmentFlag.AlignHCenter)
@@ -252,8 +252,9 @@ class Window(QMainWindow):
         self.dock.setAllowedAreas(Qt.DockWidgetArea.RightDockWidgetArea)
         tree_view = QTreeView()
         self.model = QFileSystemModel()
+        bg = self._themes["margin_bg"]
         tree_view.setStyleSheet(
-            "QTreeView { background-color: #191a1b; color: white; border: none; }"
+            f"QTreeView { background-color: {bg}; color: white; border: none; }"
         )
         tree_view.setModel(self.model)
         tree_view.setRootIndex(self.model.index(path))

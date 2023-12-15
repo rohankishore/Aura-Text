@@ -1,4 +1,5 @@
 import importlib
+import json
 import os
 import sys
 
@@ -6,8 +7,9 @@ from PyQt6.QtWidgets import QMenu
 from PyQt6.QtGui import QAction
 from .plugin_interface import MenuPluginInterface
 
-
-# import Plugins.LoremIpsumGenerator
+local_app_data = os.path.join(os.getenv("LocalAppData"), "AuraText")
+with open(f"{local_app_data}/data/theme.json", "r") as themes_file:
+    _themes = json.load(themes_file)
 
 
 # noinspection PyArgumentList
@@ -16,26 +18,30 @@ def configure_menuBar(self):
 
     self.setMenuBar(menubar)
     self.setStyleSheet(
-        """
-            QMenuBar {
-                background-color: #1d1d1d;
-            }
-            QMenuBar::item {
-                background-color: #1d1d1d;
-                color: rgb(255,255,255);
-                
-            }
-            QMenuBar::item::selected {
-                background-color: #1b1b1b;
-            }
-            QMenu {
-                background-color: rgb(49,49,49);
-                color: rgb(255,255,255);
-                border: 0px solid #000;
-            }
-            QMenu::item::selected {
-                background-color: rgb(30,30,30);}
-        """
+        f"""
+QMenuBar {{
+    background-color: {_themes["menubar_bg"]};
+}}
+
+QMenuBar::item {{
+    background-color: {_themes["menubar_bg"]};
+    color: rgb(255, 255, 255);
+}}
+
+QMenuBar::item::selected {{
+    background-color: #1b1b1b;
+}}
+
+QMenu {{
+    background-color: rgb(49, 49, 49);
+    color: rgb(255, 255, 255);
+    border: 0px solid #000;
+}}
+
+QMenu::item::selected {{
+    background-color: rgb(30, 30, 30);
+}}
+"""
     )
 
     whats_this_action = QAction(self)
