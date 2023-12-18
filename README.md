@@ -68,6 +68,8 @@
 
 ![image](https://github.com/rohankishore/Aura-Text/assets/109947257/de7346a7-f967-4035-8159-af5ed07990bf)
 
+![image](https://github.com/rohankishore/Aura-Text/assets/109947257/bdbb4351-df63-4b14-8027-dfca036955e5)
+
 Aura Text is an excellent text/code editor that offers a wide array of essential tools. Built with PyQt6 and Python, it harnesses the power and flexibility of these technologies.
 
 With Aura Text, users gain access to a versatile and powerful editing environment. Whether you're working on a small script or a complex project, Aura Text equips you with all the necessary features to streamline your workflow. From syntax highlighting and code completion to smart indentation and advanced terminal, Aura Text ensures that your coding experience is both efficient and enjoyable while being extremely light on your PC.
