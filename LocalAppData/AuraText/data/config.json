@@ -1,4 +1,5 @@
 {
-    "splash": "True",
-    "terminal_tips": "True"
+    "splash": "False",
+    "terminal_tips": "True",
+    "explorer_default_open": "False"
 }
