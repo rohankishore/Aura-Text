@@ -37,6 +37,8 @@ emsg_zerodivision = [
     "Whoops! Looks like you divided by the imaginary number i...nfinity.",
 ]
 
+local_app_data = os.path.join(os.getenv("LocalAppData"), "AuraText")
+
 
 class CodeSnippets:
     def __init__(self):
@@ -185,14 +187,14 @@ def summary(self):
     line_count = str(doc.blockCount())
     # word_count = doc.wordCount()
     text = (
-        "Total Number of Lines: "
-        + line_count
-        + "\n"
-        + "Total Character Count: "
-        + "char_count"
-        + "\n"
-        + "Total Word Count: "
-        + "word_count"
+            "Total Number of Lines: "
+            + line_count
+            + "\n"
+            + "Total Character Count: "
+            + "char_count"
+            + "\n"
+            + "Total Word Count: "
+            + "word_count"
     )
     messagebox.showinfo("Summary", text)
 
@@ -278,7 +280,7 @@ def open_custom_document(self, file_dir):
         try:
             f = open(file_dir, "r")
             filedata = f.read()
-            self.new_document(title=os.path.basename(file_dir))
+            self.custom_new_document(title=os.path.basename(file_dir))
             self.current_editor.setPlainText(filedata)
             f.close()
         except FileNotFoundError:

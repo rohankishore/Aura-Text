@@ -2,7 +2,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 from PyQt6.Qsci import QsciScintilla, QsciAPIs
 from PyQt6.QtCore import Qt
-from PyQt6.QtGui import QColor, QFont, QFontMetrics
+from PyQt6.QtGui import QColor, QFont, QFontMetrics, QShortcut
 from PyQt6.QtWidgets import QMenu
 from .plugin_interface import ContextMenuPluginInterface
 from . import Lexers

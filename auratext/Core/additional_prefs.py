@@ -16,11 +16,15 @@ class SettingsWindow(QDialog):
     def __init__(self):
         super().__init__()
 
+        self.splash_checkbox = QCheckBox("Show Adaptive Splash Screens")
+        self.expopen_checkbox = QCheckBox("Show Tips in Terminal")
+        self.ttips_checkbox = QCheckBox("Show Explorer on Startup")
         with open(f"{local_app_data}/data/config.json", "r") as json_file:
             self._config = json.load(json_file)
 
         self.splash_status = self._config['splash']
         self.terminaltips_status = self._config["terminal_tips"]
+        self.exp_open_status = self._config["explorer_default_open"]
 
         self._config = {
             "splash": "",
@@ -33,17 +37,24 @@ class SettingsWindow(QDialog):
         layout.addStretch()
         layout.addSpacing(100)
 
-        self.splash_checkbox = QCheckBox("Show Adaptive Splash Screens")
         self.splash_checkbox.setChecked(True) if self.splash_status == "True" else self.splash_checkbox.setChecked(
             False)
 
-        self.ttips_checkbox = QCheckBox("Show Tips in Terminal")
         self.ttips_checkbox.setChecked(
             True) if self.terminaltips_status == "True" else self.ttips_checkbox.setChecked(
             False)
 
+        self.ttips_checkbox.setChecked(
+            True) if self.terminaltips_status == "True" else self.ttips_checkbox.setChecked(
+            False)
+
+        self.expopen_checkbox.setChecked(
+            True) if self.exp_open_status == "True" else self.expopen_checkbox.setChecked(
+            False)
+
         layout.addWidget(self.splash_checkbox)
         layout.addWidget(self.ttips_checkbox)
+        layout.addWidget(self.expopen_checkbox)
 
         # Save Button
         save_button = QPushButton("Apply")
@@ -72,15 +83,19 @@ class SettingsWindow(QDialog):
         else:
             self.terminaltips_status = "False"
 
+        if self.expopen_checkbox.isChecked():
+            self.exp_open_status = "True"
+        else:
+            self.exp_open_status = "False"
 
         config_data = {
             "splash": self.splash_status,
-            "terminal_tips": self.terminaltips_status
+            "terminal_tips": self.terminaltips_status,
+            "explorer_default_open": self.exp_open_status
         }
 
         with open(f"{local_app_data}/data/config.json", "w") as json_file:
             json.dump(config_data, json_file, indent=4)
-
 
         QMessageBox.information(
             self,
