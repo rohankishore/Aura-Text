@@ -11,7 +11,7 @@ from tkinter import filedialog
 import git
 import pyjokes
 import qdarktheme
-from PyQt6.QtCore import Qt, QSize, pyqtSignal
+from PyQt6.QtCore import Qt, QSize
 from PyQt6.QtGui import QColor, QFont, QActionGroup, QFileSystemModel, QPixmap, QIcon
 from PyQt6.QtWidgets import (
     QMainWindow,
@@ -139,7 +139,6 @@ class Window(QMainWindow):
             pass
 
 
-
         self.tab_widget.setTabsClosable(True)
 
         self.md_dock = QDockWidget("Markdown Preview")
@@ -217,8 +216,11 @@ class Window(QMainWindow):
         self.setCentralWidget(self.tab_widget)
         self.editors = []
 
-        if cfile != "" or cfile != " ":
-            self.open_last_file()
+        if self._config["open_last_file"] == "True":
+            if cfile != "" or cfile != " ":
+                self.open_last_file()
+            else:
+                pass
         else:
             pass
 

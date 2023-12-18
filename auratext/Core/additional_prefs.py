@@ -18,6 +18,7 @@ class SettingsWindow(QDialog):
 
         self.splash_checkbox = QCheckBox("Show Adaptive Splash Screens")
         self.expopen_checkbox = QCheckBox("Show Tips in Terminal")
+        self.open_last_file_checkbox = QCheckBox("Open the last opened file at startup")
         self.ttips_checkbox = QCheckBox("Show Explorer on Startup")
         with open(f"{local_app_data}/data/config.json", "r") as json_file:
             self._config = json.load(json_file)
@@ -25,6 +26,7 @@ class SettingsWindow(QDialog):
         self.splash_status = self._config['splash']
         self.terminaltips_status = self._config["terminal_tips"]
         self.exp_open_status = self._config["explorer_default_open"]
+        self.file_open_status = self._config["open_last_file"]
 
         self._config = {
             "splash": "",
@@ -55,6 +57,7 @@ class SettingsWindow(QDialog):
         layout.addWidget(self.splash_checkbox)
         layout.addWidget(self.ttips_checkbox)
         layout.addWidget(self.expopen_checkbox)
+        layout.addWidget(self.open_last_file_checkbox)
 
         # Save Button
         save_button = QPushButton("Apply")
@@ -88,10 +91,16 @@ class SettingsWindow(QDialog):
         else:
             self.exp_open_status = "False"
 
+        if self.open_last_file_checkbox.isChecked():
+            self.file_open_status = "True"
+        else:
+            self.file_open_status = "False"
+
         config_data = {
             "splash": self.splash_status,
             "terminal_tips": self.terminaltips_status,
-            "explorer_default_open": self.exp_open_status
+            "explorer_default_open": self.exp_open_status,
+            "open_last_file": self.file_open_status
         }
 
         with open(f"{local_app_data}/data/config.json", "w") as json_file:
