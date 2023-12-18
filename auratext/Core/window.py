@@ -489,6 +489,7 @@ class Window(QMainWindow):
                     elif ext.lower() == "png":
                         add_image_tab()
                     f.close()
+
                 except UnicodeDecodeError:
                     messagebox = QMessageBox()
                     messagebox.setWindowTitle("Wrong Filetype!"), messagebox.setText(

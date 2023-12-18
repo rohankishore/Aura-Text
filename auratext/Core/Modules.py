@@ -38,7 +38,7 @@ emsg_zerodivision = [
 ]
 
 local_app_data = os.path.join(os.getenv("LocalAppData"), "AuraText")
-
+cfile_path = f"{local_app_data}/data/Cpath_File.txt"
 
 class CodeSnippets:
     def __init__(self):
@@ -262,12 +262,15 @@ def open_document(self):
 
         try:
             f = open(file_dir, "r")
+            c = open(cfile_path, "r+")
             try:
                 filedata = f.read()
                 if ext == "md" or ext == "MD":
                     self.markdown_open(filedata)
                 self.new_document(title=os.path.basename(file_dir))
                 self.current_editor.insert(filedata)
+                c.truncate(0)
+                c.write(file_dir)
                 f.close()
             except UnicodeDecodeError:
                 messagebox.showerror("Wrong Filetype!", "This file type is not supported!")
