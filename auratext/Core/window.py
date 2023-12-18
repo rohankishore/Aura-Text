@@ -11,7 +11,7 @@ from tkinter import filedialog
 import git
 import pyjokes
 import qdarktheme
-from PyQt6.QtCore import Qt, QSize
+from PyQt6.QtCore import Qt, QSize, pyqtSignal
 from PyQt6.QtGui import QColor, QFont, QActionGroup, QFileSystemModel, QPixmap, QIcon
 from PyQt6.QtWidgets import (
     QMainWindow,
@@ -25,7 +25,7 @@ from PyQt6.QtWidgets import (
     QPushButton,
     QWidget,
     QVBoxLayout,
-    QStatusBar
+    QStatusBar,
 )
 
 from . import Lexers
@@ -43,8 +43,11 @@ from .plugin_interface import Plugin
 
 local_app_data = os.path.join(os.getenv("LocalAppData"), "AuraText")
 
-path_file = open(f"{local_app_data}/data/CPath_Project.txt", "r+")
-cpath = path_file.read()
+path_project = open(f"{local_app_data}/data/CPath_Project.txt", "r+")
+cpath = path_project.read()
+
+path_file = open(f"{local_app_data}/data/CPath_File.txt", "r+")
+cfile = path_file.read()
 
 
 class Sidebar(QDockWidget):
@@ -67,17 +70,34 @@ class Window(QMainWindow):
         # self.setWindowFlags(Qt.WindowType.FramelessWindowHint)
         # self.setAttribute(Qt.WidgetAttribute.WA_TranslucentBackground)
 
+        # theme file
         with open(f"{local_app_data}/data/theme.json", "r") as themes_file:
             self._themes = json.load(themes_file)
+
+        # config file
         with open(f"{local_app_data}/data/config.json", "r") as config_file:
             self._config = json.load(config_file)
+
+        # terminal history file
+        with open(f"{local_app_data}/data/terminal_history.txt", "r+") as thfile:
+            self.terminal_history = thfile.readlines()
+
+        # keymap file
+        with open(f"{local_app_data}/data/shortcuts.json", "r+") as kmfile:
+            self._shortcuts = json.load(kmfile)
+
         qdarktheme.setup_theme(
             self._themes["theme_type"], custom_colors={"primary": self._themes["theme"]}
         )
 
-        with open(f"{local_app_data}/data/terminal_history.txt", "r+") as thfile:
-            self.terminal_history = thfile.readlines()
-            # self._terminal_history.split('\n')
+        # Keymaps
+        settings_keymap = self._shortcuts["settings"]
+        terminal_keymap = self._shortcuts["terminal"]
+
+        #Shortcuts
+        settings_action = self.addAction("settings_trigger")
+        settings_action.setShortcut(settings_keymap)
+        settings_action.triggered.connect(self.expandSidebar__Settings)
 
         def splashScreen():
             # Splash Screen
@@ -107,11 +127,18 @@ class Window(QMainWindow):
         self.tab_widget = TabWidget()
         self.current_editor = ""
 
+        if self._config["explorer_default_open"] == "True":
+            self.expandSidebar__Explorer()
+        else:
+            pass
+
         if cpath == "" or cpath == " ":
             welcome_widget = WelcomeScreen.WelcomeWidget(self)
             self.tab_widget.addTab(welcome_widget, "Welcome")
         else:
             pass
+
+
 
         self.tab_widget.setTabsClosable(True)
 
@@ -190,6 +217,11 @@ class Window(QMainWindow):
         self.setCentralWidget(self.tab_widget)
         self.editors = []
 
+        if cfile != "" or cfile != " ":
+            self.open_last_file()
+        else:
+            pass
+
         self.action_group = QActionGroup(self)
         self.action_group.setExclusive(True)
 
@@ -197,7 +229,7 @@ class Window(QMainWindow):
 
         self.tab_widget.currentChanged.connect(self.change_text_editor)
         self.tab_widget.tabCloseRequested.connect(self.remove_editor)
-        # self.new_document()
+        #self.new_document()
         self.setWindowTitle("Aura Text")
         self.setWindowIcon(QIcon(f"{local_app_data}/icons/icon.ico"))
         self.configure_menuBar()
@@ -222,14 +254,17 @@ class Window(QMainWindow):
         plugin_files = [
             f.split(".")[0] for f in os.listdir(f"{local_app_data}/plugins") if f.endswith(".py")
         ]
+        print(plugin_files)
         for plugin_file in plugin_files:
             module = importlib.import_module(plugin_file)
             for name, obj in module.__dict__.items():
                 if isinstance(obj, type) and issubclass(obj, Plugin) and obj is not Plugin:
+                    print("hello")
                     try:
+                        print("hi")
                         self.plugins.append(obj(self))
-                    except Exception:
-                        continue
+                    except Exception as e:
+                        print(e)
 
     def onPluginDockVisibilityChanged(self, visible):
         if visible:
@@ -252,9 +287,9 @@ class Window(QMainWindow):
         self.dock.setAllowedAreas(Qt.DockWidgetArea.RightDockWidgetArea)
         tree_view = QTreeView()
         self.model = QFileSystemModel()
-        bg = self._themes["margin_bg"]
+        bg = self._themes["sidebar_bg"]
         tree_view.setStyleSheet(
-            f"QTreeView { background-color: {bg}; color: white; border: none; }"
+             f"QTreeView {{background-color: {bg}; color: white; border: none; }}"
         )
         tree_view.setModel(self.model)
         tree_view.setRootIndex(self.model.index(path))
@@ -280,8 +315,9 @@ class Window(QMainWindow):
         tree_view = QTreeView()
 
         self.model = QFileSystemModel()
+        bg = self._themes["sidebar_bg"]
         tree_view.setStyleSheet(
-            "QTreeView { background-color: #191a1b; color: white; border: none; }"
+            f"QTreeView {{background-color: {bg}; color: white; border: none; }}"
         )
         tree_view.setModel(self.model)
         tree_view.setRootIndex(self.model.index(cpath))
@@ -341,8 +377,8 @@ class Window(QMainWindow):
             self.theme_layout.addWidget(self.theme_widget)
             self.theme_dock.setWidget(self.theme_widget)
 
-            self.addDockWidget(Qt.DockWidgetArea.RightDockWidgetArea ,self.plugin_dock)
-            self.addDockWidget(Qt.DockWidgetArea.RightDockWidgetArea ,self.theme_dock)
+            self.addDockWidget(Qt.DockWidgetArea.RightDockWidgetArea, self.plugin_dock)
+            self.addDockWidget(Qt.DockWidgetArea.RightDockWidgetArea, self.theme_dock)
             self.tabifyDockWidget(self.theme_dock, self.plugin_dock)
 
     def new_project(self):
@@ -666,13 +702,12 @@ class Window(QMainWindow):
 
     def import_theme(self):
         theme_open = filedialog.askopenfilename(title="Open JSON File", defaultextension='.json',
-                                   filetypes=[('JSON file', '*.json')])
+                                                filetypes=[('JSON file', '*.json')])
         theme_path = os.path.abspath(theme_open)
 
         import shutil
 
         shutil.copyfile(theme_path, f'{local_app_data}/data/theme.json')  # copy src to dst
-
 
     def open_project(self):
         dialog = QFileDialog(self)
@@ -717,15 +752,18 @@ class Window(QMainWindow):
 
     def cs_new_document(self, checked=False):
         text, ok = QInputDialog.getText(None, "New File", "Filename:")
-        ext = text.split(".")[-1]
-        self.current_editor = self.create_editor()
-        self.editors.append(self.current_editor)
-        self.tab_widget.addTab(self.current_editor, text)
-        if os.path.isfile(f"{local_app_data}/plugins/Markdown.py"):
-            self.markdown_new()
+        if text != "":
+            ext = text.split(".")[-1]
+            self.current_editor = self.create_editor()
+            self.editors.append(self.current_editor)
+            self.tab_widget.addTab(self.current_editor, text)
+            if os.path.isfile(f"{local_app_data}/plugins/Markdown.py"):
+                self.markdown_new()
+            else:
+                pass
+            self.tab_widget.setCurrentWidget(self.current_editor)
         else:
             pass
-        self.tab_widget.setCurrentWidget(self.current_editor)
 
     def change_text_editor(self, index):
         if index < len(self.editors):
@@ -774,6 +812,18 @@ class Window(QMainWindow):
 
     def open_document(self):
         a = ModuleFile.open_document(self)
+
+    def open_last_file(self, title=os.path.basename(cfile)):
+        try:
+            file = open(cfile, "r+")
+            self.current_editor = self.create_editor()
+            text = file.read()
+            self.editors.append(self.current_editor)
+            self.current_editor.setText(text)
+            self.tab_widget.addTab(self.current_editor, title)
+            self.tab_widget.setCurrentWidget(self.current_editor)
+        except FileNotFoundError and OSError:
+            pass
 
     def save_document(self):
         ModuleFile.save_document(self)
