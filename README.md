@@ -55,7 +55,7 @@
     <li>
       <a href="https://github.com/rohankishore/Aura-Text/blob/main/.github/README_DE.md">German</a>
     </li>
-    <li><a href="https://github.com/rohankishore/Aura-Text/blob/main/.github/README_ES">Español</a></li>
+    <li><a href="https://github.com/rohankishore/Aura-Text/blob/main/.github/README_ES.md">Español</a></li>
     <li><a href="#-contributing">Russian</a></li>
     <li><a href="#-license">Chinese</a></li>
   </ol>
