@@ -2,7 +2,6 @@ import random
 from tkinter import messagebox, filedialog
 import requests
 import os
-import webbrowser
 import base64
 import pyttsx3
 import win32clipboard
@@ -220,22 +219,6 @@ def save_document(self):
         )
 
 
-def search_google(self):
-    sample_string = self.current_editor.selectedText()
-    if sample_string != "":
-        link = str(
-            "https://www.google.com/search?q="
-            + sample_string
-            + "&oq=hi&aqs=chrome..69i57j69i59j0i67l2j46i67j69i60j69i61l2.422j0j4&sourceid=chrome&ie=UTF-8"
-        )
-        webbrowser.open_new_tab(link)
-    else:
-        messagebox.showerror(
-            "No Selection!",
-            "Looks like you're taking the non-selective approach today. Select any text to search in Google.",
-        )
-
-
 def add_image_tab(self, tab, image_path, tab_name):
     label = QLabel()
     pixmap = QPixmap(image_path)
@@ -276,26 +259,6 @@ def open_document(self):
                 messagebox.showerror("Wrong Filetype!", "This file type is not supported!")
         except FileNotFoundError:
             return
-
-
-def open_custom_document(self, file_dir):
-    if file_dir:
-        try:
-            f = open(file_dir, "r")
-            filedata = f.read()
-            self.custom_new_document(title=os.path.basename(file_dir))
-            self.current_editor.setPlainText(filedata)
-            f.close()
-        except FileNotFoundError:
-            return
-
-
-def check_file_in_directory(directory_path):
-    file_path = os.path.exists(directory_path)
-    if os.path.exists(file_path):
-        return True
-    else:
-        return False
 
 
 def code_formatting(self):
