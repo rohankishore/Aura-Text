@@ -94,6 +94,9 @@ QMenu::item::selected {{
     view_menu.addAction("Project Directory", self.expandSidebar__Explorer).setWhatsThis(
         "Shows the files and folder in your project as treeview"
     )
+    view_menu.addSeparator()
+    view_menu.addAction("Terminal", self.terminal_widget)
+    view_menu.addAction("Python Console", self.python_console)
 
     def read_only():
         if toggle_read_only_action.isChecked():
@@ -114,7 +117,6 @@ QMenu::item::selected {{
     code_menu.addAction("Code Formatting", self.code_formatting).setWhatsThis(
         "Beautifies and Formats the code in your current tab with pep-8 standard"
     )
-    code_menu.addAction("Terminal", self.terminal_widget)
     code_menu.addMenu(snippet_menu)
     menubar.addMenu(code_menu)
 

@@ -78,6 +78,7 @@ class CodeEditor(QsciScintilla):
         self.context_menu.addAction("Select All").triggered.connect(self.selectAll)
         self.context_menu.addSeparator()
         self.context_menu.addAction("Calculate", self.calculate)
+        self.context_menu.addSeparator()
 
         self.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
         self.customContextMenuRequested.connect(self.show_context_menu)

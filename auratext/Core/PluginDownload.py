@@ -80,6 +80,8 @@ class FileDownloader(QWidget):
 
             self.update_install_buttons()
 
+
+
     def update_install_buttons(self):
         for i in range(self.list_widget.count()):
             item = self.list_widget.item(i)
@@ -103,6 +105,7 @@ class FileDownloader(QWidget):
                 "Plugin Downloaded",
                 f"Plugin '{selected_file}' has been downloaded successfully.",
             )
+            self._window.load_plugins()
             # Update the Install button to "Installed" and disable it
             for i in range(self.list_widget.count()):
                 item = self.list_widget.item(i)

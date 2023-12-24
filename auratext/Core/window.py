@@ -11,6 +11,7 @@ from tkinter import filedialog
 import git
 import pyjokes
 import qdarktheme
+from pyqtconsole.console import PythonConsole
 from PyQt6.QtCore import Qt, QSize
 from PyQt6.QtGui import QColor, QFont, QActionGroup, QFileSystemModel, QPixmap, QIcon
 from PyQt6.QtWidgets import (
@@ -397,9 +398,17 @@ class Window(QMainWindow):
     def terminal_widget(self):
         self.terminal_dock = QDockWidget("Terminal", self)
         terminal_widget = terminal.AuraTextTerminalWidget(self)
-        self.sidebar_layout_Terminal = QVBoxLayout(terminal_widget)
+        #self.sidebar_layout_Terminal = QVBoxLayout(terminal_widget)
         self.terminal_dock.setWidget(terminal_widget)
         self.addDockWidget(Qt.DockWidgetArea.BottomDockWidgetArea, self.terminal_dock)
+
+    def python_console(self):
+        self.console_dock = QDockWidget("Python Console", self)
+        console_widget = PythonConsole()
+        console_widget.eval_in_thread()
+        #self.sidebar_layout_Terminal = QVBoxLayout()
+        self.console_dock.setWidget(console_widget)
+        self.addDockWidget(Qt.DockWidgetArea.BottomDockWidgetArea, self.console_dock)
 
     def closeEvent(self, event):
         reply = QMessageBox.question(
@@ -742,6 +751,7 @@ class Window(QMainWindow):
 
     def new_document(self, checked=False, title="Scratch 1"):
         self.current_editor = self.create_editor()
+        self.load_plugins()
 
         self.editors.append(self.current_editor)
         self.tab_widget.addTab(self.current_editor, title)
@@ -760,6 +770,7 @@ class Window(QMainWindow):
             self.current_editor = self.create_editor()
             self.editors.append(self.current_editor)
             self.tab_widget.addTab(self.current_editor, text)
+            self.load_plugins()
             if os.path.isfile(f"{local_app_data}/plugins/Markdown.py"):
                 self.markdown_new()
             else:
@@ -815,6 +826,7 @@ class Window(QMainWindow):
 
     def open_document(self):
         a = ModuleFile.open_document(self)
+        self.load_plugins()
 
     def open_last_file(self, title=os.path.basename(cfile)):
         try:
