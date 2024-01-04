@@ -76,6 +76,18 @@ With Aura Text, users gain access to a versatile and powerful editing environmen
 
 <br>
 
+
+***The main highlights of Aura Text are:***
+- Edit files (duh)
+- Support up to 30 languages
+- Autocompletion
+- Split pane Markdown editor
+- Terminal with history
+- Python Console
+- Plugin support
+- Extensive theming
+- Extremely customisabke
+  
 <!-- GETTING STARTED -->
 ## 🏃 Getting Started
 
