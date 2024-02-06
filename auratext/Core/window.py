@@ -7,7 +7,6 @@ import sys
 import time
 import webbrowser
 from tkinter import filedialog
-
 import git
 import pyjokes
 import qdarktheme
@@ -28,8 +27,8 @@ from PyQt6.QtWidgets import (
     QVBoxLayout,
     QStatusBar,
 )
-
 from . import Lexers
+from . import get_started
 from . import MenuConfig
 from . import additional_prefs
 from . import Modules as ModuleFile
@@ -78,6 +77,9 @@ class Window(QMainWindow):
         # config file
         with open(f"{local_app_data}/data/config.json", "r") as config_file:
             self._config = json.load(config_file)
+            if self._config["show_setup_info"] == "True":
+                pass
+                # get_started.show_setup_window()
 
         # terminal history file
         with open(f"{local_app_data}/data/terminal_history.txt", "r+") as thfile:
@@ -87,15 +89,22 @@ class Window(QMainWindow):
         with open(f"{local_app_data}/data/shortcuts.json", "r+") as kmfile:
             self._shortcuts = json.load(kmfile)
 
-        qdarktheme.setup_theme(
-            self._themes["theme_type"], custom_colors={"primary": self._themes["theme"]}
-        )
+        from qt_material import apply_stylesheet
+
+        if self._themes["theming"] == "flat":
+            qdarktheme.setup_theme(
+                self._themes["theme_type"], custom_colors={"primary": self._themes["theme"]}
+            )
+        else:
+            pass
+
+        self._config["show_setup_info"] = "False"
 
         # Keymaps
         settings_keymap = self._shortcuts["settings"]
         terminal_keymap = self._shortcuts["terminal"]
 
-        #Shortcuts
+        # Shortcuts
         settings_action = self.addAction("settings_trigger")
         settings_action.setShortcut(settings_keymap)
         settings_action.triggered.connect(self.expandSidebar__Settings)
@@ -138,7 +147,6 @@ class Window(QMainWindow):
             self.tab_widget.addTab(welcome_widget, "Welcome")
         else:
             pass
-
 
         self.tab_widget.setTabsClosable(True)
 
@@ -232,7 +240,7 @@ class Window(QMainWindow):
 
         self.tab_widget.currentChanged.connect(self.change_text_editor)
         self.tab_widget.tabCloseRequested.connect(self.remove_editor)
-        #self.new_document()
+        # self.new_document()
         self.setWindowTitle("Aura Text")
         self.setWindowIcon(QIcon(f"{local_app_data}/icons/icon.ico"))
         self.configure_menuBar()
@@ -292,7 +300,7 @@ class Window(QMainWindow):
         self.model = QFileSystemModel()
         bg = self._themes["sidebar_bg"]
         tree_view.setStyleSheet(
-             f"QTreeView {{background-color: {bg}; color: white; border: none; }}"
+            f"QTreeView {{background-color: {bg}; color: white; border: none; }}"
         )
         tree_view.setModel(self.model)
         tree_view.setRootIndex(self.model.index(path))
@@ -398,7 +406,7 @@ class Window(QMainWindow):
     def terminal_widget(self):
         self.terminal_dock = QDockWidget("Terminal", self)
         terminal_widget = terminal.AuraTextTerminalWidget(self)
-        #self.sidebar_layout_Terminal = QVBoxLayout(terminal_widget)
+        # self.sidebar_layout_Terminal = QVBoxLayout(terminal_widget)
         self.terminal_dock.setWidget(terminal_widget)
         self.addDockWidget(Qt.DockWidgetArea.BottomDockWidgetArea, self.terminal_dock)
 
@@ -406,7 +414,7 @@ class Window(QMainWindow):
         self.console_dock = QDockWidget("Python Console", self)
         console_widget = PythonConsole()
         console_widget.eval_in_thread()
-        #self.sidebar_layout_Terminal = QVBoxLayout()
+        # self.sidebar_layout_Terminal = QVBoxLayout()
         self.console_dock.setWidget(console_widget)
         self.addDockWidget(Qt.DockWidgetArea.BottomDockWidgetArea, self.console_dock)
 
@@ -795,6 +803,7 @@ class Window(QMainWindow):
     def notes(self):
         note_dock = QDockWidget("Notes", self)
         terminal_widget = QPlainTextEdit(note_dock)
+        terminal_widget.setFont(QFont(self._themes["font"]))
         note_dock.setWidget(terminal_widget)
         self.addDockWidget(Qt.DockWidgetArea.RightDockWidgetArea, note_dock)
         note_dock.show()

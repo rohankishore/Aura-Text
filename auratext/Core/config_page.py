@@ -27,16 +27,30 @@ class ConfigPage(QWidget):
         self.init_ui()
 
     def init_ui(self):
-        layout = QVBoxLayout()
-        #layout.addStretch()
-        #layout.addSpacing(100)
+        self.layout = QVBoxLayout()
+        # layout.addStretch()
+        # layout.addSpacing(100)
+
+        # Theming Type
+        theming_label = QLabel("Theming Type :")
+        self.theming_combobox = QComboBox()
+        self.theming_combobox.currentTextChanged.connect(self.theming_shift)
+        if self._window._themes["theming"] == "flat":
+            self.theming_combobox.setCurrentText("Flat (Default)")
+        else:
+            self.theming_combobox.setCurrentText("Material")
+
+        theme_opt = ["Material", "Flat (Default)"]
+        self.theming_combobox.addItems(theme_opt)
+        self.layout.addWidget(theming_label)
+        self.layout.addWidget(self.theming_combobox)
 
         # Theme
         theme_label = QLabel("Theme Color:")
         self.theme_input = QLineEdit()
         self.theme_input.setText(self._window._themes["theme"])
-        layout.addWidget(theme_label)
-        layout.addWidget(self.theme_input)
+        self.layout.addWidget(theme_label)
+        self.layout.addWidget(self.theme_input)
 
         theme_label1 = QLabel("Theme :")
         self.theme_combobox = QComboBox()
@@ -45,50 +59,50 @@ class ConfigPage(QWidget):
         self.theme_combobox.addItems(theme_opt)
         current_font_theme = self._window._themes.get("font", "")
         self.theme_combobox.setCurrentText(self._window._themes["theme_type"])
-        layout.addWidget(theme_label1)
-        layout.addWidget(self.theme_combobox)
+        self.layout.addWidget(theme_label1)
+        self.layout.addWidget(self.theme_combobox)
 
         # Editor Theme
         editor_theme_label = QLabel("Editor Background:")
         self.editor_theme_input = QLineEdit()
         self.editor_theme_input.setText(self._window._themes["editor_theme"])
-        layout.addWidget(editor_theme_label)
-        layout.addWidget(self.editor_theme_input)
+        self.layout.addWidget(editor_theme_label)
+        self.layout.addWidget(self.editor_theme_input)
 
         # Sidebar Theme
         sidebar_theme_label = QLabel("Sidebar Background:")
         self.sidebar_theme_input = QLineEdit()
         self.sidebar_theme_input.setText(self._window._themes["sidebar_bg"])
-        layout.addWidget(sidebar_theme_label)
-        layout.addWidget(self.sidebar_theme_input)
+        self.layout.addWidget(sidebar_theme_label)
+        self.layout.addWidget(self.sidebar_theme_input)
 
         # MenuBar Theme
         menubar_theme_label = QLabel("MenuBar Background:")
         self.menubar_theme_input = QLineEdit()
         self.menubar_theme_input.setText(self._window._themes["menubar_bg"])
-        layout.addWidget(menubar_theme_label)
-        layout.addWidget(self.menubar_theme_input)
+        self.layout.addWidget(menubar_theme_label)
+        self.layout.addWidget(self.menubar_theme_input)
 
         # Margin Theme
         margin_theme_label = QLabel("Margin Background:")
         self.margin_theme_input = QLineEdit()
         self.margin_theme_input.setText(self._window._themes["margin_theme"])
-        layout.addWidget(margin_theme_label)
-        layout.addWidget(self.margin_theme_input)
+        self.layout.addWidget(margin_theme_label)
+        self.layout.addWidget(self.margin_theme_input)
 
         # Lines Background
         lines_theme_label = QLabel("Line Number Background:")
         self.lines_theme_input = QLineEdit()
         self.lines_theme_input.setText(self._window._themes["lines_theme"])
-        layout.addWidget(lines_theme_label)
-        layout.addWidget(self.lines_theme_input)
+        self.layout.addWidget(lines_theme_label)
+        self.layout.addWidget(self.lines_theme_input)
 
         # Lines Foreground
         lines_fg_label = QLabel("Line Number Foreground:")
         self.lines_fg_input = QLineEdit()
         self.lines_fg_input.setText(self._window._themes["lines_fg"])
-        layout.addWidget(lines_fg_label)
-        layout.addWidget(self.lines_fg_input)
+        self.layout.addWidget(lines_fg_label)
+        self.layout.addWidget(self.lines_fg_input)
 
         # Get the list of installed fonts
         font_names = self.get_installed_fonts()
@@ -101,8 +115,8 @@ class ConfigPage(QWidget):
         current_font_theme = self._window._themes.get("font", "")
         if current_font_theme in font_names:
             self.font_theme_combobox.setCurrentText(current_font_theme)
-        layout.addWidget(font_theme_label)
-        layout.addWidget(self.font_theme_combobox)
+        self.layout.addWidget(font_theme_label)
+        self.layout.addWidget(self.font_theme_combobox)
 
         # Save Button
         save_button = QPushButton("Apply")
@@ -115,9 +129,9 @@ class ConfigPage(QWidget):
             "}"
         )
         save_button.clicked.connect(self.save_json)
-        layout.addWidget(save_button)
+        self.layout.addWidget(save_button)
 
-        self.setLayout(layout)
+        self.setLayout(self.layout)
         self.setWindowTitle("Settings")
 
     def save_json(self):
@@ -130,6 +144,12 @@ class ConfigPage(QWidget):
         self._window._themes["lines_fg"] = self.lines_fg_input.text()
         self._window._themes["font"] = self.font_theme_combobox.currentText()
         self._window._themes["theme_type"] = self.theme_combobox.currentText()
+        self._window._themes["material_type"] = self.materialconfig_combobox.currentText()
+
+        if self.theming_combobox.currentText() == "Flat (Default)":
+            self._window._themes["theming"] = "flat"
+        else:
+            self._window._themes["theming"] = "material"
 
         with open(f"{self._window.local_app_data}/data/theme.json", "w") as json_file:
             json.dump(self._window._themes, json_file)
@@ -140,7 +160,42 @@ class ConfigPage(QWidget):
             "The chosen settings have been applied. Restart Aura Text to see the changes.",
         )
 
-    def get_installed_fonts(self):
+    def material_theme_settings(self):
+        self.materialconfig_label = QLabel("Material Theme Type")
+        self.materialconfig_combobox = QComboBox()
+        self.materialconfig_combobox.setCurrentText(self._window._themes["material_type"])
+        theme_opt = ['dark_amber',
+                     'dark_blue',
+                     'dark_cyan',
+                     'dark_lightgreen',
+                     'dark_pink',
+                     'dark_purple',
+                     'dark_red',
+                     'dark_teal',
+                     'dark_yellow',
+                     'light_amber',
+                     'light_blue',
+                     'light_cyan',
+                     'light_cyan_500',
+                     'light_lightgreen',
+                     'light_pink',
+                     'light_purple',
+                     'light_red',
+                     'light_teal',
+                     'light_yellow']
+        self.materialconfig_combobox.addItems(theme_opt)
+        self.layout.addWidget(self.materialconfig_label)
+        self.layout.addWidget(self.materialconfig_combobox)
+
+    def theming_shift(self):
+        if self.theming_combobox.currentText() == "Material":
+            self.material_theme_settings()
+        else:
+            self.materialconfig_label.hide()
+            self.materialconfig_combobox.hide()
+
+    @staticmethod
+    def get_installed_fonts():
         font_key_path = r"Software\Microsoft\Windows NT\CurrentVersion\Fonts"
         font_key = winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE, font_key_path)
 
@@ -158,5 +213,3 @@ class ConfigPage(QWidget):
         winreg.CloseKey(font_key)
 
         return font_names
-
-
