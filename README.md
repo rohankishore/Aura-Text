@@ -89,8 +89,8 @@ With Aura Text, users gain access to a versatile and powerful editing environmen
 - Terminal with history
 - Python Console
 - Plugin support
-- Extensive theming
-- Extremely customisabke
+- Extensive theming including Material Theming support
+- Extremely customisable
   
 <!-- GETTING STARTED -->
 ## 🏃 Getting Started
