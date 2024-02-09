@@ -1,1 +1,1 @@
-"C:\Users\rohan\OneDrive\Desktop\User\01Aw.jpg"
+C:/Users/rohan/PycharmProjects/AuraText PyQt6/main.py
