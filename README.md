@@ -123,7 +123,7 @@ _Below is an example of how you can build Aura Text using Nuitka_
 
 <br>
 
-## Roadmap
+## 🛣️ Roadmap
 
 - Make a status bar at the bottom with features similar to PyCharm or other IDEs (Read-only toggle, breadcrumbs, etc)
 - <strike> Custom Theming </strike>
