@@ -66,10 +66,6 @@ class Window(QMainWindow):
         self.local_app_data = local_app_data
         # self._terminal_history = ""
 
-        # COMMENTED OUT CODE FOR FRAMELESS WINDOW. IN DEVELOPMENT
-        # self.setWindowFlags(Qt.WindowType.FramelessWindowHint)
-        # self.setAttribute(Qt.WidgetAttribute.WA_TranslucentBackground)
-
         # theme file
         with open(f"{local_app_data}/data/theme.json", "r") as themes_file:
             self._themes = json.load(themes_file)
@@ -77,9 +73,6 @@ class Window(QMainWindow):
         # config file
         with open(f"{local_app_data}/data/config.json", "r") as config_file:
             self._config = json.load(config_file)
-            if self._config["show_setup_info"] == "True":
-                pass
-                # get_started.show_setup_window()
 
         # terminal history file
         with open(f"{local_app_data}/data/terminal_history.txt", "r+") as thfile:
@@ -270,9 +263,7 @@ class Window(QMainWindow):
             module = importlib.import_module(plugin_file)
             for name, obj in module.__dict__.items():
                 if isinstance(obj, type) and issubclass(obj, Plugin) and obj is not Plugin:
-                    print("hello")
                     try:
-                        print("hi")
                         self.plugins.append(obj(self))
                     except Exception as e:
                         print(e)
@@ -728,6 +719,9 @@ class Window(QMainWindow):
         import shutil
 
         shutil.copyfile(theme_path, f'{local_app_data}/data/theme.json')  # copy src to dst
+
+    def find_in_editor(self):
+        self.current_editor.show_search_dialog()
 
     def open_project(self):
         dialog = QFileDialog(self)

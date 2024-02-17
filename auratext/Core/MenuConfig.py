@@ -86,7 +86,7 @@ QMenu::item::selected {{
     # edit_menu.addAction("Duplicate Line", self.duplicate_line).setWhatsThis("Duplicate a line to another line")
     # edit_menu.addAction("Reverse Line",).setWhatsThis("Reverse the alphabets of a line (Eg: Hello -->  olleH")
     # edit_menu.addSeparator()
-    # edit_menu.addAction("Find & Replace", self.find_replace).setWhatsThis("Find a specific word inside the editor")
+    edit_menu.addAction("Find ", self.find_in_editor).setWhatsThis("Find a specific word inside the editor")
     menubar.addMenu(edit_menu)
 
     view_menu = QMenu("&View", self)
