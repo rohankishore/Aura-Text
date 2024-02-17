@@ -150,6 +150,12 @@ Don't forget to give the project a star! Thanks again!
 4. Push to the Branch (`git push origin feature/AmazingFeature`)
 5. Open a Pull Request
 
+### Contributors
+
+<a href="https://github.com/rohankishore/Aura-Text/graphs/contributors">
+  <img class="dark-light" src="https://contrib.rocks/image?repo=rohankishore/Aura-Text&anon=0&columns=25&max=100&r=true" />
+</a>
+
 <b>
 
 <!-- LICENSE -->
