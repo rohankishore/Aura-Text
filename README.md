@@ -70,9 +70,12 @@
 <!-- ABOUT THE PROJECT -->
 ## 📖 About The Project
 
-![image](https://github.com/rohankishore/Aura-Text/assets/109947257/de7346a7-f967-4035-8159-af5ed07990bf)
+![image](https://github.com/rohankishore/Aura-Text/assets/109947257/ff480a5e-116a-45a8-8106-c9a7ff1dbb1d)
 
-![image](https://github.com/rohankishore/Aura-Text/assets/109947257/bdbb4351-df63-4b14-8027-dfca036955e5)
+![image](https://github.com/rohankishore/Aura-Text/assets/109947257/febc6916-10a6-4919-9838-0eea2c103269)
+
+![image](https://github.com/rohankishore/Aura-Text/assets/109947257/3cbb6515-ad8f-486d-afa5-b193a5a3a605)
+
 
 Aura Text is an excellent text/code editor that offers a wide array of essential tools. Built with PyQt6 and Python, it harnesses the power and flexibility of these technologies.
 
