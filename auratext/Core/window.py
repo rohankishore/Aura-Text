@@ -86,9 +86,12 @@ class Window(QMainWindow):
         from qt_material import apply_stylesheet
 
         if self._themes["theming"] == "flat":
+            #pywinstyles.apply_style(self, "dark")
             qdarktheme.setup_theme(
                 self._themes["theme_type"], custom_colors={"primary": self._themes["theme"]}
             )
+            import pywinstyles
+            pywinstyles.apply_style(self, (self._themes["titlebar"]))
         else:
             pass
 
@@ -861,7 +864,7 @@ class Window(QMainWindow):
                 "Aura Text"
                 + "\n"
                 + "Current Version: "
-                + "4.2"
+                + "4.8"
                 + "\n"
                 + "\n"
                 + "Copyright © 2023 Rohan Kishore."
