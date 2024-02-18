@@ -398,7 +398,10 @@ QMenu::item::selected {{
     prefernces_menu.addAction("Import Theme", self.import_theme)
     menubar.addMenu(prefernces_menu)
 
-    help_menu = QMenu("&?", self)
+    help_menu = QMenu("&Help", self)
+    help_menu.addAction("Keyboard Shortcuts", self.shortcuts).setWhatsThis(
+        "List of Keyboard Shortcuts supported by Aura Text"
+    )
     help_menu.addAction("Getting Started", self.getting_started).setWhatsThis(
         "Manuals and tutorials on how to use Aura Text"
     )
