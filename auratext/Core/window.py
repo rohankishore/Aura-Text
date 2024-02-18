@@ -28,7 +28,8 @@ from PyQt6.QtWidgets import (
     QStatusBar,
 )
 from . import Lexers
-from . import get_started
+# from . import get_started
+from . import shortcuts
 from . import MenuConfig
 from . import additional_prefs
 from . import Modules as ModuleFile
@@ -719,6 +720,10 @@ class Window(QMainWindow):
         import shutil
 
         shutil.copyfile(theme_path, f'{local_app_data}/data/theme.json')  # copy src to dst
+
+    def shortcuts(self):
+        shortcut_dock = shortcuts.Shortcuts()
+        self.addDockWidget(Qt.DockWidgetArea.RightDockWidgetArea, shortcut_dock)
 
     def find_in_editor(self):
         self.current_editor.show_search_dialog()
