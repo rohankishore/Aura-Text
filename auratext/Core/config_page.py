@@ -40,6 +40,24 @@ class ConfigPage(QWidget):
         else:
             self.theming_combobox.setCurrentText("Material")
 
+        self.titlebar_label = QLabel("Titlebar Type")
+        self.titlebar = QComboBox()
+        self.titlebar.setCurrentText(self._window._themes["titlebar"])
+        theme_opt = ['Mica',
+                     'Acrylic',
+                     'Aero',
+                     'Transparent ',
+                     'Win7'
+                     'Optimised',
+                     'Inverse',
+                     'Native',
+                     'Popup',
+                     'Dark',
+                     'Normal']
+        self.titlebar.addItems(theme_opt)
+        self.layout.addWidget(self.titlebar_label)
+        self.layout.addWidget(self.titlebar)
+
         theme_opt = ["Material", "Flat (Default)"]
         self.theming_combobox.addItems(theme_opt)
         self.layout.addWidget(theming_label)
@@ -137,6 +155,7 @@ class ConfigPage(QWidget):
     def save_json(self):
         self._window._themes["theme"] = self.theme_input.text()
         self._window._themes["editor_theme"] = self.editor_theme_input.text()
+        self._window._themes["titlebar"] = (self.titlebar.currentText().lower())
         self._window._themes["margin_theme"] = self.margin_theme_input.text()
         self._window._themes["sidebar_bg"] = self.sidebar_theme_input.text()
         self._window._themes["menubar_bg"] = self.menubar_theme_input.text()
