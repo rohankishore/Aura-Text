@@ -42,12 +42,12 @@ class ConfigPage(QWidget):
 
         self.titlebar_label = QLabel("Titlebar Type")
         self.titlebar = QComboBox()
-        self.titlebar.setCurrentText(self._window._themes["titlebar"])
+        self.titlebar.setCurrentText("Flat (Default)")
         theme_opt = ['Mica',
                      'Acrylic',
                      'Aero',
                      'Transparent ',
-                     'Win7'
+                     'Win7',
                      'Optimised',
                      'Inverse',
                      'Native',
