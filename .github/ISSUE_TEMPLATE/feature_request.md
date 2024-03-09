@@ -1,8 +1,8 @@
 ---
-name: Bug report
-about: Create a report to help us improve
-title: "[Feature Request 😍]"
-labels: "bug \U0001FAB2"
+name: Feature Request
+about: Suggest a new feature
+title: "[FEATURE REQUEST]"
+labels: "Feature Request 😍 \U0001FAB2"
 assignees: ''
 
 ---
