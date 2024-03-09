@@ -70,16 +70,13 @@
 <!-- ABOUT THE PROJECT -->
 ## 📖 About The Project
 
-![image](https://github.com/rohankishore/Aura-Text/assets/109947257/ff480a5e-116a-45a8-8106-c9a7ff1dbb1d)
+![image](https://github.com/rohankishore/Aura-Text/assets/109947257/b75da351-6c2b-43a3-a72e-eb7b861fff27)
 
 ![image](https://github.com/rohankishore/Aura-Text/assets/109947257/febc6916-10a6-4919-9838-0eea2c103269)
 
-![image](https://github.com/rohankishore/Aura-Text/assets/109947257/3cbb6515-ad8f-486d-afa5-b193a5a3a605)
-
-
 Aura Text is an excellent text/code editor that offers a wide array of essential tools. Built with PyQt6 and Python, it harnesses the power and flexibility of these technologies.
 
-With Aura Text, users gain access to a versatile and powerful editing environment. Whether you're working on a small script or a complex project, Aura Text equips you with all the necessary features to streamline your workflow. From syntax highlighting and code completion to smart indentation and advanced terminal, Aura Text ensures that your coding experience is both efficient and enjoyable while being extremely light on your PC.
+With Aura Text, users can access a versatile and powerful editing environment. Whether working on a small script or a complex project, Aura Text equips you with all the necessary features to streamline your workflow. From syntax highlighting and code completion to smart indentation and advanced terminal, Aura Text ensures that your coding experience is efficient and enjoyable while being extremely light on your PC.
 
 <br>
 
@@ -88,7 +85,7 @@ With Aura Text, users gain access to a versatile and powerful editing environmen
 - Edit files (duh)
 - Support up to 30 languages
 - Autocompletion
-- Custom titlebars
+- Custom title bars
 - Split pane Markdown editor
 - Terminal with history
 - Python Console
