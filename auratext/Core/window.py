@@ -26,16 +26,15 @@ from PyQt6.QtWidgets import (
     QWidget,
     QVBoxLayout,
     QStatusBar,
-)
+    QListWidget,
+    QLabel)
 from . import Lexers
-# from . import get_started
-from . import shortcuts
+from ..Misc import shortcuts, WelcomeScreen, boilerplates, file_templates
 from . import MenuConfig
 from . import additional_prefs
 from . import Modules as ModuleFile
 from . import PluginDownload
 from . import ThemeDownload
-from . import WelcomeScreen
 from . import config_page
 from . import terminal
 from .AuraText import CodeEditor
@@ -86,7 +85,7 @@ class Window(QMainWindow):
         from qt_material import apply_stylesheet
 
         if self._themes["theming"] == "flat":
-            #pywinstyles.apply_style(self, "dark")
+            # pywinstyles.apply_style(self, "dark")
             qdarktheme.setup_theme(
                 self._themes["theme_type"], custom_colors={"primary": self._themes["theme"]}
             )
@@ -96,15 +95,6 @@ class Window(QMainWindow):
             pass
 
         self._config["show_setup_info"] = "False"
-
-        # Keymaps
-        settings_keymap = self._shortcuts["settings"]
-        terminal_keymap = self._shortcuts["terminal"]
-
-        # Shortcuts
-        settings_action = self.addAction("settings_trigger")
-        settings_action.setShortcut(settings_keymap)
-        settings_action.triggered.connect(self.expandSidebar__Settings)
 
         def splashScreen():
             # Splash Screen
@@ -132,6 +122,7 @@ class Window(QMainWindow):
             pass
 
         self.tab_widget = TabWidget()
+
         self.current_editor = ""
 
         if self._config["explorer_default_open"] == "True":
@@ -317,7 +308,7 @@ class Window(QMainWindow):
         self.dock.visibilityChanged.connect(
             lambda visible: self.onExplorerDockVisibilityChanged(visible)
         )
-        self.dock.setAllowedAreas(Qt.DockWidgetArea.RightDockWidgetArea)
+        self.dock.setAllowedAreas(Qt.DockWidgetArea.AllDockWidgetAreas)
         tree_view = QTreeView()
 
         self.model = QFileSystemModel()
@@ -329,7 +320,7 @@ class Window(QMainWindow):
         tree_view.setRootIndex(self.model.index(cpath))
         self.model.setRootPath(cpath)
         self.dock.setWidget(tree_view)
-        self.addDockWidget(Qt.DockWidgetArea.RightDockWidgetArea, self.dock)
+        self.addDockWidget(Qt.DockWidgetArea.LeftDockWidgetArea, self.dock)
 
         tree_view.setFont(QFont("Consolas"))
 
@@ -432,6 +423,7 @@ class Window(QMainWindow):
             event.ignore()
 
     def gitClone(self):
+        global path
         try:
             from git import Repo
 
@@ -771,7 +763,13 @@ class Window(QMainWindow):
         self.current_editor = self.create_editor()
         self.editors.append(self.current_editor)
         self.tab_widget.addTab(self.current_editor, title)
+        if ".html" in title:
+            self.html_temp()
         self.tab_widget.setCurrentWidget(self.current_editor)
+
+    def boilerplates(self):
+        self.boilerplate_dialog = boilerplates.BoilerPlate(current_editor=self.current_editor)
+        self.boilerplate_dialog.show()
 
     def cs_new_document(self, checked=False):
         text, ok = QInputDialog.getText(None, "New File", "Filename:")
@@ -780,6 +778,23 @@ class Window(QMainWindow):
             self.current_editor = self.create_editor()
             self.editors.append(self.current_editor)
             self.tab_widget.addTab(self.current_editor, text)
+            if ".html" in text:
+                self.html_temp()
+                self.html()
+            if ".py" in text:
+                self.py_temp()
+                self.python()
+            if ".css" in text:
+                self.css_temp()
+                self.css()
+            if ".php" in text:
+                self.php_temp()
+            if ".tex" in text:
+                self.tex_temp()
+                self.tex()
+            if ".java" in text:
+                self.java_temp()
+                self.java()
             self.load_plugins()
             if os.path.isfile(f"{local_app_data}/plugins/Markdown.py"):
                 self.markdown_new()
@@ -801,6 +816,30 @@ class Window(QMainWindow):
 
     def undo_document(self):
         self.current_editor.undo()
+
+    def html_temp(self):
+        text = file_templates.generate_html_template()
+        self.current_editor.append(text)
+
+    def py_temp(self):
+        text = file_templates.generate_python_template()
+        self.current_editor.append(text)
+
+    def php_temp(self):
+        text = file_templates.generate_php_template()
+        self.current_editor.append(text)
+
+    def tex_temp(self):
+        text = file_templates.generate_tex_template()
+        self.current_editor.append(text)
+
+    def java_temp(self):
+        text = file_templates.generate_java_template("Welcome")
+        self.current_editor.append(text)
+
+    def cpp_temp(self):
+        text = file_templates.generate_cpp_template()
+        self.current_editor.append(text)
 
     def notes(self):
         note_dock = QDockWidget("Notes", self)
@@ -880,7 +919,7 @@ class Window(QMainWindow):
 
     @staticmethod
     def buymeacoffee():
-        webbrowser.open_new_tab("https://www.buymeacoffee.com/auratext")
+        webbrowser.open_new_tab("https://ko-fi.com/rohankishore")
 
     def fullscreen(self):
         if not self.isFullScreen():
