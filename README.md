@@ -53,7 +53,7 @@
 <details>
   <summary>View the README In:</summary>
   <ol>
-    <li>
+    <li>    
       <a href="https://github.com/rohankishore/Aura-Text/blob/main/.github/README_HN.md">Hindi 🇮🇳</a>
     </li>
     <li>
