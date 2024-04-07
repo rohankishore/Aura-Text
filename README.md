@@ -13,7 +13,7 @@
   <p align="center">
     An IDE made entirely with Python
     <br />
-    <a href="https://github.com/rohankishore/Aura-Text/wiki"><strong>Explore the docs »</strong></a>
+    <a href="https://github.com/rohankishore/Aura-Text/wiki"><strong>Explore the docs »</strong></a>   
     <br />
     <br />
     <a href="https://github.com/rohankishore/Aura-Text/issues">Report Bug</a>
