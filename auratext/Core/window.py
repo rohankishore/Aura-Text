@@ -405,22 +405,25 @@ class Window(QMainWindow):
         self.addDockWidget(Qt.DockWidgetArea.BottomDockWidgetArea, self.console_dock)
 
     def closeEvent(self, event):
-        reply = QMessageBox.question(
-            self,
-            "Save File",
-            random.choice(ModuleFile.emsg_save_list),
-            QMessageBox.StandardButton.Save
-            | QMessageBox.StandardButton.Discard
-            | QMessageBox.StandardButton.Cancel,
-            QMessageBox.StandardButton.Save,
-        )
-        if reply == QMessageBox.StandardButton.Save:
-            self.save_document()
-            event.accept()
-        elif reply == QMessageBox.StandardButton.Discard:
-            event.accept()
+        if self.tab_widget.count() > 0:
+            reply = QMessageBox.question(
+                self,
+                "Save File",
+                random.choice(ModuleFile.emsg_save_list),
+                QMessageBox.StandardButton.Save
+                | QMessageBox.StandardButton.Discard
+                | QMessageBox.StandardButton.Cancel,
+                QMessageBox.StandardButton.Save,
+            )
+            if reply == QMessageBox.StandardButton.Save:
+                self.save_document()
+                event.accept()
+            elif reply == QMessageBox.StandardButton.Discard:
+                event.accept()
+            else:
+                event.ignore()
         else:
-            event.ignore()
+            event.accept()
 
     def gitClone(self):
         global path
