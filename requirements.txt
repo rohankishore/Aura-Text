@@ -2,7 +2,7 @@
 pyjokes==0.6.0
 PyQt6~=6.5.3
 pyttsx3==2.90
-requests==2.31.0
+requests==2.32.0
 GitPython==3.1.42
 PyAutoGUI~=0.9.54
 DateTime~=5.3
