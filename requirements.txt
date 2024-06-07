@@ -7,3 +7,7 @@ GitPython==3.1.42
 PyAutoGUI~=0.9.54
 DateTime~=5.3
 pyqtconsole~=1.2.3
+pyqt_find_replace_text_widget
+pywinstyles
+absresgetter
+roastedbyai
