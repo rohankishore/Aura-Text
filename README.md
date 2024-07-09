@@ -42,6 +42,7 @@
       </ul>
       </ul>
     </li>
+    <li><a href="#development">Development</a></li>
     <li><a href="#roadmap">Roadmap</a></li>
     <li><a href="#-contributing">Contributing</a></li>
     <li><a href="#-license">License</a></li>
@@ -121,6 +122,13 @@ _Below is an example of how you can build Aura Text using Nuitka_
 - Download / Clone this repository
 - Move the `AuraText` folder in the `LocalAppData` folder to the `AppData/Local` folder.
 - `python -m main.py`
+
+<br>
+
+## 🧑🏻‍💻 Development 
+
+![Alt](https://repobeats.axiom.co/api/embed/c478f91eea3690c7415f891646a2a15a62b4fb20.svg "Repobeats analytics image")
+
 
 <br>
 
