@@ -11,7 +11,7 @@ from PyQt6.QtWidgets import (
     QVBoxLayout,
     QWidget,
     QMessageBox,
-    QComboBox, QGroupBox, )
+    QComboBox, QGroupBox, QScrollArea, )
 
 if TYPE_CHECKING:
     from .window import Window
@@ -30,9 +30,19 @@ class ConfigPage(QWidget):
         # Main layout
         main_layout = QVBoxLayout(self)  # Added main layout
 
+        self.scroll_area = QScrollArea()
+        self.scroll_layout = QVBoxLayout()
+        self.scroll_area.setLayout(self.scroll_layout)
+
+        self.scroll_layout.addLayout(main_layout)
+
         self.theme_grouping = QGroupBox("Theming")
         self.theme_layout = QVBoxLayout()
         self.theme_grouping.setLayout(self.theme_layout)
+
+        self.editor_grouping = QGroupBox("Editor")
+        self.editor_layout = QVBoxLayout()
+        self.editor_grouping.setLayout(self.editor_layout)
 
         # Theming Type
         theming_label = QLabel("Theming Type :")
@@ -88,8 +98,8 @@ class ConfigPage(QWidget):
         editor_theme_label = QLabel("Editor Background:")
         self.editor_theme_input = QLineEdit()
         self.editor_theme_input.setText(self._window._themes["editor_theme"])
-        self.theme_layout.addWidget(editor_theme_label)
-        self.theme_layout.addWidget(self.editor_theme_input)
+        self.editor_layout.addWidget(editor_theme_label)
+        self.editor_layout.addWidget(self.editor_theme_input)
 
         # Sidebar Theme
         sidebar_theme_label = QLabel("Sidebar Background:")
@@ -116,15 +126,15 @@ class ConfigPage(QWidget):
         lines_theme_label = QLabel("Line Number Background:")
         self.lines_theme_input = QLineEdit()
         self.lines_theme_input.setText(self._window._themes["lines_theme"])
-        self.theme_layout.addWidget(lines_theme_label)
-        self.theme_layout.addWidget(self.lines_theme_input)
+        self.editor_layout.addWidget(lines_theme_label)
+        self.editor_layout.addWidget(self.lines_theme_input)
 
         # Lines Foreground
         lines_fg_label = QLabel("Line Number Foreground:")
         self.lines_fg_input = QLineEdit()
         self.lines_fg_input.setText(self._window._themes["lines_fg"])
-        self.theme_layout.addWidget(lines_fg_label)
-        self.theme_layout.addWidget(self.lines_fg_input)
+        self.editor_layout.addWidget(lines_fg_label)
+        self.editor_layout.addWidget(self.lines_fg_input)
 
         # Get the list of installed fonts
         font_names = self.get_installed_fonts()
@@ -137,8 +147,8 @@ class ConfigPage(QWidget):
         current_font_theme = self._window._themes.get("font", "")
         if current_font_theme in font_names:
             self.font_theme_combobox.setCurrentText(current_font_theme)
-        self.theme_layout.addWidget(font_theme_label)
-        self.theme_layout.addWidget(self.font_theme_combobox)
+        self.editor_layout.addWidget(font_theme_label)
+        self.editor_layout.addWidget(self.font_theme_combobox)
 
         # Save Button
         save_button = QPushButton("Apply")
@@ -154,6 +164,7 @@ class ConfigPage(QWidget):
 
         # Add theme_grouping to the main layout
         main_layout.addWidget(self.theme_grouping)
+        main_layout.addWidget(self.editor_grouping)
         main_layout.addWidget(save_button)
 
 
