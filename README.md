@@ -20,7 +20,7 @@
     ·   
     <a href="https://github.com/rohankishore/Aura-Text/issues/new?assignees=&labels=&projects=&template=feature_request.md&title=">Request Feature</a>
   </p>
-</div>
+</div>    
 
 
 
