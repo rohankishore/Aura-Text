@@ -55,14 +55,14 @@
   <summary>View the README In:</summary>
   <ol>
     <li>    
-      <a href="https://github.com/rohankishore/Aura-Text/blob/main/.github/README_HN.md">Hindi 🇮🇳</a>
+      <a href="translate/README_HN.md">Hindi 🇮🇳</a>
     </li>
     <li>
-      <a href="https://github.com/rohankishore/Aura-Text/blob/main/.github/README_DE.md">German</a>
+      <a href="translate/README_DE.md">German</a>
     </li>
-    <li><a href="https://github.com/rohankishore/Aura-Text/blob/main/.github/README_ES.md">Español</a></li>
+    <li><a href="translate/README_ES.md">Español</a></li>
     <li><a href="#-contributing">Russian</a></li>
-    <li><a href="#-license">Chinese</a></li>
+    <li><a href="translate/README_ZH_CN.md">简体中文</a></li>
   </ol>
 </details>
 
