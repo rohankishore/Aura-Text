@@ -49,15 +49,15 @@
 <details>
   <summary>Sehen Sie sich die README-Datei an:</summary>
   <ol>
-    <li>
-      <a href="https://github.com/rohankishore/Aura-Text/blob/main/.github/README_HN.md">Hindi 🇮🇳</a>
+    <li>    
+      <a href="README_HN.md">Hindi 🇮🇳</a>
     </li>
     <li>
-      <a href="#getting-started">German</a>
+      <a href="README_DE.md">German</a>
     </li>
-    <li><a href="#-roadmap">Español</a></li>
+    <li><a href="README_ES.md">Español</a></li>
     <li><a href="#-contributing">Russian</a></li>
-    <li><a href="#-license">Chinese</a></li>
+    <li><a href="ZH-CN/README_ZH-CN.md">简体中文</a></li>
   </ol>
 </details>
 
