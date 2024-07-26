@@ -62,7 +62,7 @@
     </li>
     <li><a href="translate/README_ES.md">Español</a></li>
     <li><a href="#-contributing">Russian</a></li>
-    <li><a href="translate/README_ZH_CN.md">简体中文</a></li>
+    <li><a href="translate/README_ZH-CN.md">简体中文</a></li>
   </ol>
 </details>
 
