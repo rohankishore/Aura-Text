@@ -53,12 +53,12 @@
   <summary>查看其他语言的README：</summary>
   <ol>
     <li>    
-      <a href="https://github.com/rohankishore/Aura-Text/blob/main/.github/README_HN.md">Hindi 🇮🇳</a>
+      <a href="README_HN.md">Hindi 🇮🇳</a>
     </li>
     <li>
-      <a href="https://github.com/rohankishore/Aura-Text/blob/main/.github/README_DE.md">German</a>
+      <a href="README_DE.md">German</a>
     </li>
-    <li><a href="https://github.com/rohankishore/Aura-Text/blob/main/.github/README_ES.md">Español</a></li>
+    <li><a href="README_ES.md">Español</a></li>
     <li><a href="#-contributing">Russian</a></li>
     <li><a><strong>简体中文</strong></a></li>
   </ol>
@@ -80,21 +80,21 @@ Aura Text 是一个优秀的文本/代码编辑器，提供了各种必备工具
 <br>
 
 ***Aura Text 的主要亮点是：***
-- 编辑文件（显然）
+- 编辑文件
 - 支持多达30种语言
 - 自动补全
 - 自定义标题栏
-- 拆分窗格Markdown编辑器
+- 拆分窗格 Markdown 编辑器
 - 带历史记录的终端
-- Python控制台
+- Python 控制台
 - 插件支持
-- 广泛的主题支持，包括Material主题支持
+- 广泛的主题支持，包括 Material 主题支持
 - 极高的可定制性
 
 <!-- GETTING STARTED -->
 ## 🏃 快速开始
 
-让我们在您的PC上设置Aura Text！
+让我们在您的 PC 上安装 Aura Text！
 
 ### 先决条件
 
@@ -130,11 +130,11 @@ _以下是使用 Nuitka 构建 Aura Text 的示例_
 
 ## 🛣️ 路线图
 
-- 在底部制作一个具有类似PyCharm或其他IDE功能的状态栏（只读切换，面包屑等）
+- 在底部制作一个具有类似 PyCharm 或其他 IDE 功能的状态栏（只读切换，面包屑等）
 - <strike>自定义主题</strike>
 - <strike>键盘模拟</strike>
 - 拆分编辑
-- <strike>Python代码静态分析</strike>
+- <strike>Python 代码静态分析</strike>
 
 <b> 以及更多...... </b>
 
@@ -143,7 +143,7 @@ _以下是使用 Nuitka 构建 Aura Text 的示例_
 
 贡献是使开源社区成为一个令人惊叹的学习、启发和创造的地方。您所做的任何贡献都是**非常感谢**的。
 
-如果您有建议可以改进此项目，请复刻 (fork) 此仓库并创建一个拉取请求(pull request)。您也可以直接打开一个带有“enhancement”标签的问题。
+如果您有建议可以改进此项目，请复刻 (fork) 此仓库并创建一个拉取请求(pull request)。您也可以直接打开一个带有“增强”(enhancement)标签的议题。
 别忘了给项目加星！再次感谢！
 
 1. 复刻(Fork)此仓库
