@@ -19,10 +19,13 @@
     <a href="https://github.com/rohankishore/Aura-Text/issues">Report Bug</a>
     ·   
     <a href="https://github.com/rohankishore/Aura-Text/issues/new?assignees=&labels=&projects=&template=feature_request.md&title=">Request Feature</a>
+
+  *Aura Text is also being ported to macOS by [matthewyang204](https://github.com/matthewyang204). Take a look at the repository [here](https://github.com/matthewyang204/Aura-Text-Mac)*
   </p>
 </div>    
 
-
+<br>
+<hr>
 
 <!-- TABLE OF CONTENTS -->
 <details>
@@ -67,6 +70,7 @@
 </details>
 
 <br>
+<hr>
 
 <!-- ABOUT THE PROJECT -->
 ## 📖 About The Project
