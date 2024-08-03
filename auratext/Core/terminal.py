@@ -2,18 +2,17 @@ from __future__ import annotations
 
 import os
 import random
-from typing import TYPE_CHECKING
 import subprocess
-from art import text2art
-
-from PyQt6.QtCore import QSize, QModelIndex
-from PyQt6.QtGui import QShortcut, QKeySequence, QFont, QIcon, QStandardItem, QStandardItemModel
-from PyQt6.QtWidgets import QWidget, QLineEdit, QTextEdit, QVBoxLayout, QPushButton, QHBoxLayout, QListWidgetItem, \
-    QDialog, QListView
 import sys
-from pyjokes import pyjokes
-import pyautogui
 from datetime import datetime
+from typing import TYPE_CHECKING
+
+import pyautogui
+from PyQt6.QtCore import QSize
+from PyQt6.QtGui import QShortcut, QKeySequence, QFont, QIcon, QStandardItem, QStandardItemModel
+from PyQt6.QtWidgets import QWidget, QLineEdit, QTextEdit, QVBoxLayout, QPushButton, QHBoxLayout, QDialog, QListView
+from art import text2art
+from pyjokes import pyjokes
 
 now = datetime.now()
 

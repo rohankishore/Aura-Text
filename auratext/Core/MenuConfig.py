@@ -4,7 +4,7 @@ import os
 import sys
 
 from PyQt6.QtWidgets import QMenu
-from PyQt6.QtGui import QAction
+from PyQt6.QtGui import QAction, QIcon
 from .plugin_interface import MenuPluginInterface
 
 local_app_data = os.path.join(os.getenv("LocalAppData"), "AuraText")
@@ -47,9 +47,17 @@ QMenu::item::selected {{
     whats_this_action = QAction(self)
     whats_this_action.setShortcut("Shift+F1")
     menubar.addAction(whats_this_action)
-
     file_menu = QMenu("&File", self)
     file_menu.addAction("New", self.cs_new_document).setWhatsThis("Create a New File")
+
+    new_menu = QMenu("New(With Template)")
+    new_menu.addAction(".html", self.html_temp)
+    new_menu.addAction(".py", self.py_temp)
+    new_menu.addAction(".cpp", self.cpp_temp)
+    new_menu.addAction(".php", self.php_temp)
+    new_menu.addAction(".tex", self.tex_temp)
+    new_menu.addAction(".java", self.java_temp)
+
     file_menu.addAction("Open", self.open_document).setWhatsThis("Open an existing file")
     file_menu.addSeparator()
     file_menu.addAction("New Project", self.new_project).setWhatsThis("Create a new project")
@@ -60,6 +68,9 @@ QMenu::item::selected {{
 
     git_menu = QMenu("&Git", self)
     git_menu.addAction("Clone Project from Git", self.gitClone)
+
+    # Fix indentation here
+    file_menu.addMenu(new_menu)
     file_menu.addMenu(git_menu)
     file_menu.addSeparator()
 
@@ -95,14 +106,40 @@ QMenu::item::selected {{
         "Shows the files and folder in your project as treeview"
     )
     view_menu.addSeparator()
-    view_menu.addAction("Terminal", self.terminal_widget)
-    view_menu.addAction("Python Console", self.python_console)
+    #view_menu.addAction("AT Terminal", self.terminal_widget)
+    #view_menu.addAction("Python Console", self.python_console)
+
+    def toggle_terminal():
+        if toggle_terminal_action.isChecked():
+            self.terminal_widget()
+        else:
+            self.hideTerminal()
+
+
+    def toggle_pyconsole():
+        if toggle_pyconsole_action.isChecked():
+            self.python_console()
+        else:
+            self.hide_pyconsole()
+
+    toggle_terminal_action = QAction("AT Terminal", self)
+    toggle_terminal_action.setCheckable(True)
+    toggle_terminal_action.triggered.connect(toggle_terminal)
+    view_menu.addAction(toggle_terminal_action)
+
+    view_menu.addAction("Powershell", self.setupPowershell)
+
+    toggle_pyconsole_action = QAction("Python Console", self)
+    toggle_pyconsole_action.setCheckable(True)
+    toggle_pyconsole_action.triggered.connect(toggle_pyconsole)
+    view_menu.addAction(toggle_pyconsole_action)
 
     def read_only():
         if toggle_read_only_action.isChecked():
             self.toggle_read_only()
         else:
             self.read_only_reset()
+
 
     toggle_read_only_action = QAction("Read-Only", self)
     toggle_read_only_action.setCheckable(True)
@@ -117,6 +154,7 @@ QMenu::item::selected {{
     code_menu.addAction("Code Formatting", self.code_formatting).setWhatsThis(
         "Beautifies and Formats the code in your current tab with pep-8 standard"
     )
+    code_menu.addAction("Boilerplates", self.boilerplates)
     code_menu.addMenu(snippet_menu)
     menubar.addMenu(code_menu)
 
@@ -243,6 +281,7 @@ QMenu::item::selected {{
     self.action_group.addAction(action_cmake)
 
     action_postscript = QAction("PostScript", self, checkable=True)
+    action_postscript.setIcon(QIcon("Resources/language_icons/logo_postscript.png"))
     action_css.triggered.connect(self.postscript)
     self.action_group.addAction(action_postscript)
 

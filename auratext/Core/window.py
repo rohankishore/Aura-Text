@@ -37,6 +37,7 @@ from . import PluginDownload
 from . import ThemeDownload
 from . import config_page
 from . import terminal
+from . import powershell
 from .AuraText import CodeEditor
 from .TabWidget import TabWidget
 from .plugin_interface import Plugin
@@ -140,6 +141,7 @@ class Window(QMainWindow):
 
         self.md_dock = QDockWidget("Markdown Preview")
         self.mdnew = QDockWidget("Markdown Preview")
+        self.ps_dock = QDockWidget("Powershell")
 
         # Sidebar
         self.sidebar_main = Sidebar("", self)
@@ -320,7 +322,7 @@ class Window(QMainWindow):
         tree_view.setRootIndex(self.model.index(cpath))
         self.model.setRootPath(cpath)
         self.dock.setWidget(tree_view)
-        self.addDockWidget(Qt.DockWidgetArea.LeftDockWidgetArea, self.dock)
+        self.addDockWidget(Qt.DockWidgetArea.RightDockWidgetArea, self.dock)
 
         tree_view.setFont(QFont("Consolas"))
 
@@ -390,11 +392,20 @@ class Window(QMainWindow):
         QMessageBox.information(self, "A Byte of Humour!", a)
 
     def terminal_widget(self):
-        self.terminal_dock = QDockWidget("Terminal", self)
+        self.terminal_dock = QDockWidget("AT Terminal", self)
         terminal_widget = terminal.AuraTextTerminalWidget(self)
-        # self.sidebar_layout_Terminal = QVBoxLayout(terminal_widget)
         self.terminal_dock.setWidget(terminal_widget)
         self.addDockWidget(Qt.DockWidgetArea.BottomDockWidgetArea, self.terminal_dock)
+
+    def hideTerminal(self):
+        self.terminal_dock.hide()
+
+    def setupPowershell(self):
+        self.ps_dock = QDockWidget("Powershell")
+        self.terminal = powershell.TerminalEmulator()
+        self.terminal.setMinimumHeight(100)
+        self.ps_dock.setWidget(self.terminal)
+        self.addDockWidget(Qt.DockWidgetArea.BottomDockWidgetArea, self.ps_dock)
 
     def python_console(self):
         self.console_dock = QDockWidget("Python Console", self)
@@ -403,6 +414,9 @@ class Window(QMainWindow):
         # self.sidebar_layout_Terminal = QVBoxLayout()
         self.console_dock.setWidget(console_widget)
         self.addDockWidget(Qt.DockWidgetArea.BottomDockWidgetArea, self.console_dock)
+
+    def hide_pyconsole(self):
+        self.console_dock.hide()
 
     def closeEvent(self, event):
         if self.tab_widget.count() > 0:
@@ -846,9 +860,9 @@ class Window(QMainWindow):
 
     def notes(self):
         note_dock = QDockWidget("Notes", self)
-        terminal_widget = QPlainTextEdit(note_dock)
-        terminal_widget.setFont(QFont(self._themes["font"]))
-        note_dock.setWidget(terminal_widget)
+        note_widget = QPlainTextEdit(note_dock)
+        note_widget.setFont(QFont(self._themes["font"]))
+        note_dock.setWidget(note_widget)
         self.addDockWidget(Qt.DockWidgetArea.RightDockWidgetArea, note_dock)
         note_dock.show()
 
