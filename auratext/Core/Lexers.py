@@ -1,3 +1,8 @@
+"""
+his file includes lexer functions for all the languages supported by Aura Text. The lexer functionalities are implemented using QSciScintilla.
+"""
+import re
+
 from PyQt6.Qsci import (
     QsciLexerCPP,
     QsciLexerVerilog,
@@ -5,7 +10,7 @@ from PyQt6.Qsci import (
     QsciLexerAsm,
     QsciLexerBash,
     QsciLexerBatch,
-    QsciLexerJavaScript,
+    QsciLexerJavaScript, QsciLexerCustom,
 )
 from PyQt6.Qsci import QsciLexerCSharp, QsciLexerFortran77, QsciLexerOctave, QsciLexerVHDL
 from PyQt6.Qsci import (
@@ -39,6 +44,30 @@ from PyQt6.Qsci import (
 from PyQt6.QtGui import QColor, QFont
 
 
+class ColorCodeLexer(QsciLexerCustom):
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.setColor(QColor("#000000"), 0)  # Default color
+        self.setFont(QFont("Courier", 10))
+
+    def language(self):
+        return "ColorCode"
+
+    def styleText(self, start, end):
+        editor = self.editor()
+        if not editor:
+            return
+
+        text = editor.text()[start:end]
+        color_pattern = r'#[0-9a-fA-F]{6}\b'  # Regular expression to match hex color codes
+
+        for match in re.finditer(color_pattern, text):
+            start_index = match.start()
+            end_index = match.end()
+            self.startStyling(start + start_index, 0x11)  # Using style 17
+            self.setStyling(end_index - start_index, 0)
+
+
 def python(self):
     lexer = QsciLexerPython(self)
     lexer.setDefaultColor(QColor("#FFFFFF"))
@@ -61,7 +90,6 @@ class PythonLexer(QsciLexerPython):
         self.setPaper(QColor(window._themes["editor_theme"]))
         self.setColor(QColor("#ffffff"), self.ClassName)
         self.setFont(QFont(window._themes["font"]))
-
 
 def csharp(self):
     lexer = QsciLexerCSharp()

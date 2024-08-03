@@ -13,10 +13,12 @@ import qdarktheme
 from pyqtconsole.console import PythonConsole
 from PyQt6.QtCore import Qt, QSize
 from PyQt6.QtGui import QColor, QFont, QActionGroup, QFileSystemModel, QPixmap, QIcon
+from PyQt6.Qsci import QsciScintilla
 from PyQt6.QtWidgets import (
     QMainWindow,
     QInputDialog,
     QDockWidget,
+    QTextEdit,
     QTreeView,
     QFileDialog,
     QSplashScreen,
@@ -25,9 +27,7 @@ from PyQt6.QtWidgets import (
     QPushButton,
     QWidget,
     QVBoxLayout,
-    QStatusBar,
-    QListWidget,
-    QLabel)
+    QStatusBar)
 from . import Lexers
 from ..Misc import shortcuts, WelcomeScreen, boilerplates, file_templates
 from . import MenuConfig
@@ -36,10 +36,9 @@ from . import Modules as ModuleFile
 from . import PluginDownload
 from . import ThemeDownload
 from . import config_page
-from . import terminal
-from . import powershell
+from ..Components import powershell, terminal, statusBar#, titleBar
 from .AuraText import CodeEditor
-from .TabWidget import TabWidget
+from auratext.Components.TabWidget import TabWidget
 from .plugin_interface import Plugin
 
 local_app_data = os.path.join(os.getenv("LocalAppData"), "AuraText")
@@ -155,15 +154,18 @@ class Window(QMainWindow):
         self.bottom_bar = QStatusBar()
         # self.setStatusBar(self.bottom_bar)
 
-        self.statusbar = Sidebar("", self)
-        self.statusbar.setTitleBarWidget(QWidget())
-        self.statusbar_widget = QWidget(self.statusbar)
-        self.statusbar_widget.setStyleSheet(f"QWidget{{background-color: {self._themes['sidebar_bg']};}}")
-        self.statusbar_layout = QVBoxLayout(self.statusbar_widget)
-        self.statusbar_layout.addStretch()
-        self.statusbar_layout.setAlignment(Qt.AlignmentFlag.AlignHCenter)
-        self.statusbar.setWidget(self.statusbar_widget)
-        self.addDockWidget(Qt.DockWidgetArea.LeftDockWidgetArea, self.statusbar)
+        self.leftBar = Sidebar("", self)
+        self.leftBar.setTitleBarWidget(QWidget())
+        self.leftBar_widget = QWidget(self.leftBar)
+        self.leftBar_widget.setStyleSheet(f"QWidget{{background-color: {self._themes['sidebar_bg']};}}")
+        self.leftBar_layout = QVBoxLayout(self.leftBar_widget)
+        self.leftBar_layout.addStretch()
+        self.leftBar_layout.setAlignment(Qt.AlignmentFlag.AlignHCenter)
+        self.leftBar.setWidget(self.leftBar_widget)
+        self.addDockWidget(Qt.DockWidgetArea.LeftDockWidgetArea, self.leftBar)
+
+        self.statusBar = statusBar.StatusBar(self)
+        self.setStatusBar(self.statusBar)
 
         explorer_icon = QIcon(f"{local_app_data}/icons/explorer_unfilled.png")
         self.explorer_button = QPushButton(self)
@@ -205,8 +207,8 @@ class Window(QMainWindow):
         self.sidebar_layout.insertWidget(1, self.plugin_button)
 
         self.sidebar_layout.addStretch()
-        self.statusbar_layout.addStretch()
-        self.statusbar_layout.addSpacing(45)
+        self.leftBar_layout.addStretch()
+        self.leftBar_layout.addSpacing(45)
 
         # Connect the button's clicked signal to the slot
         self.explorer_button.clicked.connect(self.expandSidebar__Explorer)
@@ -249,6 +251,37 @@ class Window(QMainWindow):
     def create_editor(self):
         self.text_editor = CodeEditor(self)
         return self.text_editor
+
+    def getTextStats(self, widget):
+        if isinstance(widget, QTextEdit):
+            cursor = widget.textCursor()
+            text = widget.toPlainText()
+            return (
+                cursor.blockNumber() + 1,
+                cursor.columnNumber() + 1,
+                widget.document().blockCount(),
+                len(text.split()),
+            )
+        elif isinstance(widget, QsciScintilla):
+            lineNumber, columnNumber = widget.getCursorPosition()
+            text = widget.text()
+            return (
+                lineNumber + 1,
+                columnNumber + 1,
+                widget.lines(),
+                len(text.split()),
+            )
+
+    def updateStatusBar(self):
+        currentWidget = self.tab_widget.currentWidget()
+        if isinstance(currentWidget, (QTextEdit, QsciScintilla)):
+            lineNumber, columnNumber, totalLines, words = self.getTextStats(
+                currentWidget
+            )
+            self.statusBar.updateStats(lineNumber, columnNumber, totalLines, words)
+
+            editMode = "Edit" if not currentWidget.isReadOnly() else "ReadOnly"
+            self.statusBar.updateEditMode(editMode)
 
     def load_plugins(self):
         self.plugins = []
@@ -770,6 +803,8 @@ class Window(QMainWindow):
 
     def new_document(self, checked=False, title="Scratch 1"):
         self.current_editor = self.create_editor()
+        self.current_editor.textChanged.connect(self.updateStatusBar)
+        self.current_editor.cursorPositionChanged.connect(self.updateStatusBar)
         self.load_plugins()
 
         self.editors.append(self.current_editor)
@@ -778,6 +813,8 @@ class Window(QMainWindow):
 
     def custom_new_document(self, title, checked=False):
         self.current_editor = self.create_editor()
+        self.current_editor.textChanged.connect(self.updateStatusBar)
+        self.current_editor.cursorPositionChanged.connect(self.updateStatusBar)
         self.editors.append(self.current_editor)
         self.tab_widget.addTab(self.current_editor, title)
         if ".html" in title:
@@ -793,6 +830,8 @@ class Window(QMainWindow):
         if text != "":
             ext = text.split(".")[-1]
             self.current_editor = self.create_editor()
+            self.current_editor.cursorPositionChanged.connect(self.updateStatusBar)
+            self.current_editor.textChanged.connect(self.updateStatusBar)
             self.editors.append(self.current_editor)
             self.tab_widget.addTab(self.current_editor, text)
             if ".html" in text:
@@ -899,6 +938,8 @@ class Window(QMainWindow):
         try:
             file = open(cfile, "r+")
             self.current_editor = self.create_editor()
+            self.current_editor.textChanged.connect(self.updateStatusBar)
+            self.current_editor.cursorPositionChanged.connect(self.updateStatusBar)
             text = file.read()
             self.editors.append(self.current_editor)
             self.current_editor.setText(text)

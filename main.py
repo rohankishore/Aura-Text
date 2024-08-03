@@ -7,7 +7,7 @@ import sys
 from qt_material import apply_stylesheet
 
 from auratext.Core.window import Window
-from auratext.Core import get_started
+# from auratext.Core import get_started
 
 """ 
 This file includes the code to run the app. It also scans if the app is being opened for the first time in order to show the

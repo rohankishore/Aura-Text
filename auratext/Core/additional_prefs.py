@@ -27,6 +27,7 @@ class SettingsWindow(QDialog):
         self.terminaltips_status = self._config["terminal_tips"]
         self.exp_open_status = self._config["explorer_default_open"]
         self.file_open_status = self._config["open_last_file"]
+        print(self.exp_open_status)
 
         self._config = {
             "splash": "",
@@ -88,13 +89,15 @@ class SettingsWindow(QDialog):
 
         if self.expopen_checkbox.isChecked():
             self.exp_open_status = "True"
-        else:
+        elif not self.expopen_checkbox.isChecked():
             self.exp_open_status = "False"
 
         if self.open_last_file_checkbox.isChecked():
             self.file_open_status = "True"
         else:
             self.file_open_status = "False"
+
+        print(self.exp_open_status)
 
         config_data = {
             "splash": self.splash_status,

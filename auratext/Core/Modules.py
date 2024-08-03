@@ -6,8 +6,8 @@ import base64
 import pyttsx3
 import win32clipboard
 from PyQt6.QtCore import Qt
-from PyQt6.QtGui import QPixmap
-from PyQt6.QtWidgets import QLabel, QDockWidget, QVBoxLayout, QTextEdit
+from PyQt6.QtGui import QPixmap, QIcon
+from PyQt6.QtWidgets import QLabel, QDockWidget, QVBoxLayout, QTextEdit, QTextBrowser
 
 api_key_pastebin = "_L_ZkBp7K3aZMY7z4ombPIztLxITOOpD"
 
@@ -128,24 +128,27 @@ def markdown_new(self):
 
 
 def markdown_open(self, path_data):
-    self.md_dock = QDockWidget("Markdown Preview")
-    self.md_dock.setStyleSheet("QDockWidget {background-color : #1b1b1b; color : white;}")
-    self.md_dock.setMinimumWidth(400)
-    self.md_widget = QTextEdit()
-    self.md_widget.setMarkdown(path_data)
-    text = self.current_editor.text()
-    self.md_widget.setMarkdown(text)
-    self.md_widget.setReadOnly(True)
-    self.md_layout = QVBoxLayout(self.md_widget)
-    self.md_layout.addWidget(self.md_widget)
-    self.md_dock.setWidget(self.md_widget)
-    self.addDockWidget(Qt.DockWidgetArea.RightDockWidgetArea, self.md_dock)
+    try:
+        self.md_dock = QDockWidget("Markdown Preview")
+        self.md_dock.setStyleSheet("QDockWidget {background-color : #1b1b1b; color : white;}")
+        self.md_dock.setMinimumWidth(400)
+        self.md_widget = QTextBrowser()
+        self.md_widget.setMarkdown(path_data)
+        #text = self.current_editor.text()
+        #self.md_widget.setMarkdown(text)
+        self.md_widget.setReadOnly(True)
+        self.md_layout = QVBoxLayout(self.md_widget)
+        self.md_layout.addWidget(self.md_widget)
+        self.md_dock.setWidget(self.md_widget)
+        self.addDockWidget(Qt.DockWidgetArea.RightDockWidgetArea, self.md_dock)
 
-    def update():
-        a = self.current_editor.text()
-        self.md_widget.setMarkdown(a)
+        def update():
+            a = self.current_editor.text()
+            self.md_widget.setMarkdown(a)
 
-    self.current_editor.textChanged.connect(update)
+        self.current_editor.textChanged.connect(update)
+    except AttributeError:
+        messagebox.showerror("Uh Oh!", "An unknown error is stopping Aura Text from rendering this file. Please try again later. If it's still not fixed, then please open an Issue in the repo")
 
 
 def calculate(self):
