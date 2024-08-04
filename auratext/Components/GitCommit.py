@@ -1,8 +1,9 @@
 import subprocess
 import os
 from PyQt6.QtCore import Qt
+from PyQt6.QtGui import QPixmap
 from PyQt6.QtWidgets import QListWidget, QVBoxLayout, QWidget, QDockWidget, QPushButton, QListWidgetItem, QCheckBox, \
-    QMessageBox, QLineEdit
+    QMessageBox, QLineEdit, QLabel
 
 local_app_data = os.path.join(os.getenv("LocalAppData"), "AuraText")
 cpath = open(f"{local_app_data}/data/CPath_Project.txt", "r+").read()
@@ -16,22 +17,31 @@ class GitCommitDock(QDockWidget):
         self.main_widget = QWidget()
         self.layout = QVBoxLayout(self.main_widget)
 
+        changed_files = self.list_changed_files()
+
         self.visibilityChanged.connect(
             lambda visible: parent.onCommitDockVisibilityChanged(visible)
         )
 
-        self.file_list_widget = QListWidget()
-        self.populate_file_list()
-        self.layout.addWidget(self.file_list_widget)
+        if changed_files != []:
+            self.file_list_widget = QListWidget()
+            self.populate_file_list()
+            self.layout.addWidget(self.file_list_widget)
 
-        self.commit_entry = QLineEdit()
-        self.commit_entry.setPlaceholderText("Commit message")
+            self.commit_entry = QLineEdit()
+            self.commit_entry.setPlaceholderText("Commit message")
 
-        self.commit_button = QPushButton('Commit')
-        self.commit_button.clicked.connect(self.commit_changes)
+            self.commit_button = QPushButton('Commit')
+            self.commit_button.clicked.connect(self.commit_changes)
 
-        self.layout.addWidget(self.commit_entry)
-        self.layout.addWidget(self.commit_button)
+            self.layout.addWidget(self.commit_entry)
+            self.layout.addWidget(self.commit_button)
+        else:
+            self.pic_label = QLabel()
+            photo = QPixmap(f"{local_app_data}/icons/no_commits.png")
+            self.pic_label.setPixmap(photo)
+            self.pic_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+            self.layout.addWidget(self.pic_label)
 
         self.setWidget(self.main_widget)
 
