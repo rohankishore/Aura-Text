@@ -2,7 +2,7 @@ import subprocess
 import os
 from PyQt6.QtCore import Qt
 from PyQt6.QtWidgets import QListWidget, QVBoxLayout, QWidget, QDockWidget, QPushButton, QListWidgetItem, QCheckBox, \
-    QMessageBox
+    QMessageBox, QLineEdit
 
 local_app_data = os.path.join(os.getenv("LocalAppData"), "AuraText")
 cpath = open(f"{local_app_data}/data/CPath_Project.txt", "r+").read()
@@ -19,8 +19,13 @@ class GitCommitDock(QDockWidget):
         self.populate_file_list()
         self.layout.addWidget(self.file_list_widget)
 
+        self.commit_entry = QLineEdit()
+        self.commit_entry.setPlaceholderText("Commit message")
+
         self.commit_button = QPushButton('Commit')
         self.commit_button.clicked.connect(self.commit_changes)
+
+        self.layout.addWidget(self.commit_entry)
         self.layout.addWidget(self.commit_button)
 
         self.setWidget(self.main_widget)
@@ -73,8 +78,11 @@ class GitCommitDock(QDockWidget):
                 # Stage selected files for commit
                 subprocess.run(['git', 'add'] + selected_files, cwd=cpath, check=True)
 
+                # get commit msg
+                commit_msg = self.commit_entry.text()
+
                 # Commit the changes
-                result = subprocess.run(['git', 'commit', '-m', 'Fixes a bug.'], cwd=cpath, stdout=subprocess.PIPE,
+                result = subprocess.run(['git', 'commit', '-m', commit_msg], cwd=cpath, stdout=subprocess.PIPE,
                                         stderr=subprocess.PIPE, text=True)
 
                 if result.returncode == 0:
