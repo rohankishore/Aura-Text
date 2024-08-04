@@ -74,9 +74,9 @@
 <!-- ABOUT THE PROJECT -->
 ## 📖 About The Project
 
-![image](https://github.com/rohankishore/Aura-Text/assets/109947257/b75da351-6c2b-43a3-a72e-eb7b861fff27)
+![image](https://github.com/user-attachments/assets/360d1ce8-5047-4534-8b84-b01ecc670725)
 
-![image](https://github.com/rohankishore/Aura-Text/assets/109947257/febc6916-10a6-4919-9838-0eea2c103269)
+![image](https://github.com/user-attachments/assets/fca92d3e-4218-4550-96ca-dfa85dbc27dc)
 
 Aura Text is an excellent text/code editor that offers a wide array of essential tools. Built with PyQt6 and Python, it harnesses the power and flexibility of these technologies.
 
@@ -89,6 +89,8 @@ With Aura Text, users can access a versatile and powerful editing environment. W
 - Edit files (duh)
 - Support up to 30 languages
 - Autocompletion
+- Git clone
+- Git Commit and Push
 - Custom title bars
 - Split pane Markdown editor
 - Terminal with history
