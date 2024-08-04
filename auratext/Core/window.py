@@ -420,6 +420,7 @@ class Window(QMainWindow):
         with open(f"{self.local_app_data}/data/CPath_Project.txt", "w") as file:
             file.write(new_folder_path)
 
+
     def code_jokes(self):
         a = pyjokes.get_joke(language="en", category="neutral")
         QMessageBox.information(self, "A Byte of Humour!", a)

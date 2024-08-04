@@ -124,7 +124,11 @@ class TerminalEmulator(QWidget):
         process.readyReadStandardError.connect(self.handle_stderr)
         self.processes.append(process)
         self.terminal_selector.setCurrentIndex(index)
-        self.start_powershell(index)
+
+        local_app_data = os.path.join(os.getenv("LocalAppData"), "AuraText")
+        cpath = open(f"{local_app_data}/data/CPath_Project.txt", "r+").read()
+
+        self.start_powershell(index, project_path=cpath)
 
     def killCurrentTerminal(self):
         if self.current_process_index >= 0:
@@ -149,19 +153,25 @@ class TerminalEmulator(QWidget):
             if index == self.current_process_index:
                 self.current_process_index = self.tabBar.currentIndex()
 
-    def start_powershell(self, index):
+    def start_powershell(self, index, project_path=None):
         powershell_path = self.find_powershell_core()
+        if project_path == "":
+            project_path = os.getcwd()  # Default to current working directory
+
+        self.processes[index].setWorkingDirectory(project_path)
+
         if powershell_path:
             self.processes[index].start(powershell_path)
             self.terminal.appendPlainText(
-                f"PowerShell Core started at {powershell_path}.\n"
+                f"PowerShell Core started at {powershell_path} in directory {project_path}.\n"
                 "Type your commands below.\n"
             )
         else:
-            self.terminal.appendPlainText(
-                "PowerShell Core not found. Using default PowerShell.\n"
-            )
             self.processes[index].start("powershell.exe")
+            self.terminal.appendPlainText(
+                f"PowerShell started in directory {project_path}.\n"
+                "Type your commands below.\n"
+            )
 
         self.display_prompt()
 
