@@ -7,6 +7,7 @@ from PyQt6.QtWidgets import QListWidget, QVBoxLayout, QWidget, QDockWidget, QPus
 local_app_data = os.path.join(os.getenv("LocalAppData"), "AuraText")
 cpath = open(f"{local_app_data}/data/CPath_Project.txt", "r+").read()
 
+
 class GitCommitDock(QDockWidget):
     def __init__(self, parent=None):
         super().__init__('Git Commit', parent)
@@ -14,6 +15,10 @@ class GitCommitDock(QDockWidget):
 
         self.main_widget = QWidget()
         self.layout = QVBoxLayout(self.main_widget)
+
+        self.visibilityChanged.connect(
+            lambda visible: parent.onCommitDockVisibilityChanged(visible)
+        )
 
         self.file_list_widget = QListWidget()
         self.populate_file_list()

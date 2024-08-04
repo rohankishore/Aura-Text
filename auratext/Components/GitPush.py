@@ -1,8 +1,7 @@
-import subprocess
 import os
-from PyQt6.QtCore import Qt
-from PyQt6.QtWidgets import QListWidget, QVBoxLayout, QWidget, QDockWidget, QPushButton, QListWidgetItem, QCheckBox, \
-    QMessageBox, QLineEdit, QDialog, QLabel, QComboBox, QSpacerItem
+import subprocess
+
+from PyQt6.QtWidgets import QVBoxLayout, QPushButton, QMessageBox, QLineEdit, QDialog, QLabel, QComboBox, QSpacerItem
 
 local_app_data = os.path.join(os.getenv("LocalAppData"), "AuraText")
 cpath = open(f"{local_app_data}/data/CPath_Project.txt", "r+").read()
