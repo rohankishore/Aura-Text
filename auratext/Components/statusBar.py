@@ -1,5 +1,6 @@
 import json
 import os
+import time
 
 from PyQt6.QtGui import QFont
 from PyQt6.QtWidgets import QFrame, QHBoxLayout, QLabel, QStatusBar, QWidget
@@ -20,6 +21,8 @@ class Separator(QFrame):
 class StatusBar(QStatusBar):
     def __init__(self, parent=None):
         super().__init__(parent)
+        #self.current_editor = parent.current_editor
+        self.current_widget = parent.tab_widget.currentWidget()
         self.setStyleSheet(
             f"""
             QStatusBar {{
@@ -110,13 +113,7 @@ class StatusBar(QStatusBar):
 
     def updateEditMode(self, mode):
         self.editModeLabel.setText(mode)
-        if mode == "ReadOnly":
-            pass
-            #self.editModeLabel.setStyleSheet(
-             #   f"color: {color_schemes['editmode_readonly']};"
-            #)
-        else:
-            pass
-            #self.editModeLabel.setStyleSheet(
-            #    f"color: {color_schemes['editmode_edit']};"
-            #)
+        #if mode == "ReadOnly":
+        #    self.current_widget.setReadOnly(True)
+        #else:
+        #    self.current_widget.setReadOnly(False)

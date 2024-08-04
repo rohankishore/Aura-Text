@@ -36,19 +36,14 @@ from . import Modules as ModuleFile
 from . import PluginDownload
 from . import ThemeDownload
 from . import config_page
-from ..Components import powershell, terminal, statusBar#, titleBar
+from ..Components import powershell, terminal, statusBar, GitCommit, GitPush
 from .AuraText import CodeEditor
 from auratext.Components.TabWidget import TabWidget
 from .plugin_interface import Plugin
 
 local_app_data = os.path.join(os.getenv("LocalAppData"), "AuraText")
-
-
-path_project = open(f"{local_app_data}/data/CPath_Project.txt", "r+")
-cpath = path_project.read()
-
-path_file = open(f"{local_app_data}/data/CPath_File.txt", "r+")
-cfile = path_file.read()
+cpath = open(f"{local_app_data}/data/CPath_Project.txt", "r+").read()
+cfile = open(f"{local_app_data}/data/CPath_File.txt", "r+").read()
 
 
 class Sidebar(QDockWidget):
@@ -151,6 +146,7 @@ class Window(QMainWindow):
         self.sidebar_layout = QVBoxLayout(self.sidebar_widget)
         self.sidebar_main.setWidget(self.sidebar_widget)
         self.addDockWidget(Qt.DockWidgetArea.LeftDockWidgetArea, self.sidebar_main)
+
 
         self.bottom_bar = QStatusBar()
         # self.setStatusBar(self.bottom_bar)
@@ -281,8 +277,18 @@ class Window(QMainWindow):
             )
             self.statusBar.updateStats(lineNumber, columnNumber, totalLines, words)
 
-            editMode = "Edit" if not currentWidget.isReadOnly() else "ReadOnly"
-            self.statusBar.updateEditMode(editMode)
+            if self.current_editor == "":
+                editMode = "Edit" if not currentWidget.isReadOnly() else "ReadOnly"
+                if self.current_editor != "":
+                    self.statusBar.updateEditMode(editMode)
+                else:
+                    pass
+            else:
+                editMode = "Edit" if not self.current_editor.isReadOnly() else "ReadOnly"
+                if self.current_editor != "":
+                    self.statusBar.updateEditMode(editMode)
+                else:
+                    pass
 
     def load_plugins(self):
         self.plugins = []
@@ -475,6 +481,7 @@ class Window(QMainWindow):
             event.accept()
 
     def gitClone(self):
+        messagebox = QMessageBox()
         global path
         try:
             from git import Repo
@@ -483,7 +490,6 @@ class Window(QMainWindow):
             try:
                 path = filedialog.askdirectory(title="Repo Path", initialdir="./", mustexist=False)
             except:
-                messagebox = QMessageBox()
                 messagebox.setWindowTitle("Path Error"), messagebox.setText(
                     "The folder should be EMPTY! Please try again with an EMPTY folder"
                 )
@@ -493,7 +499,6 @@ class Window(QMainWindow):
                 Repo.clone_from(repo_url, path)
                 with open(f"{self.local_app_data}/data/CPath_Project.txt", "w") as file:
                     file.write(path)
-                messagebox = QMessageBox()
                 messagebox.setWindowTitle("Success!"), messagebox.setText(
                     "The repository has been cloned successfully!"
                 )
@@ -514,6 +519,15 @@ class Window(QMainWindow):
 
     def markdown_new(self):
         ModuleFile.markdown_new(self)
+
+    def gitCommit(self):
+        self.gitCommitDock = GitCommit.GitCommitDock(self)
+        self.addDockWidget(Qt.DockWidgetArea.RightDockWidgetArea, self.gitCommitDock)
+
+    def gitPush(self):
+        self.gitPushDialog = GitPush.GitPushDialog(self)
+        self.gitPushDialog.exec()
+
 
     def open_file(self, index):
         path = self.model.filePath(index)
@@ -597,11 +611,11 @@ class Window(QMainWindow):
 
     def toggle_read_only(self):
         self.current_editor.setReadOnly(True)
-        # self.read_only_button.setIcon(self.read_only_icon)
+        self.statusBar.editModeLabel.setText("ReadOnly")
 
     def read_only_reset(self):
         self.current_editor.setReadOnly(False)
-        # @self.read_only_button.setIcon(self.write_button_icon)
+        self.statusBar.editModeLabel.setText("Edit")
 
     def cpp(self):
         Lexers.cpp(self)

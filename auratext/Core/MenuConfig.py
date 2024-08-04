@@ -8,6 +8,8 @@ from PyQt6.QtGui import QAction, QIcon
 from .plugin_interface import MenuPluginInterface
 
 local_app_data = os.path.join(os.getenv("LocalAppData"), "AuraText")
+cpath = open(f"{local_app_data}/data/CPath_Project.txt", "r+").read()
+
 with open(f"{local_app_data}/data/theme.json", "r") as themes_file:
     _themes = json.load(themes_file)
 
@@ -61,17 +63,24 @@ QMenu::item::selected {{
     file_menu.addAction("Open", self.open_document).setWhatsThis("Open an existing file")
     file_menu.addSeparator()
     file_menu.addAction("New Project", self.new_project).setWhatsThis("Create a new project")
+    file_menu.addAction("New Project from VCS", self.gitClone).setWhatsThis("Clone GIT repo")
     file_menu.addAction("Open Project", self.open_project).setWhatsThis("Open an existing project")
     file_menu.addAction("Open Project as Treeview", self.open_project_as_treeview).setWhatsThis(
         "Open an existing project as a treeview dock"
     )
 
     git_menu = QMenu("&Git", self)
-    git_menu.addAction("Clone Project from Git", self.gitClone)
+    git_menu.addAction("Commit", self.gitCommit)
+    git_menu.addAction("Push", self.gitPush)
 
-    # Fix indentation here
+    def is_git_repo(path):
+        return os.path.isdir(os.path.join(path, '.git'))
+
     file_menu.addMenu(new_menu)
-    file_menu.addMenu(git_menu)
+    if is_git_repo(cpath):
+        file_menu.addMenu(git_menu)
+    else:
+        pass
     file_menu.addSeparator()
 
     file_menu.addAction("Save As", self.save_document).setWhatsThis("Save the document")
