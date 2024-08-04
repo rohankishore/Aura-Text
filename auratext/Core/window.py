@@ -43,6 +43,7 @@ from .plugin_interface import Plugin
 
 local_app_data = os.path.join(os.getenv("LocalAppData"), "AuraText")
 
+
 path_project = open(f"{local_app_data}/data/CPath_Project.txt", "r+")
 cpath = path_project.read()
 
