@@ -77,10 +77,6 @@ QMenu::item::selected {{
         return os.path.isdir(os.path.join(path, '.git'))
 
     file_menu.addMenu(new_menu)
-    if is_git_repo(cpath):
-        file_menu.addMenu(git_menu)
-    else:
-        pass
     file_menu.addSeparator()
 
     file_menu.addAction("Save As", self.save_document).setWhatsThis("Save the document")
@@ -441,6 +437,11 @@ QMenu::item::selected {{
     language_menu.addMenu(y_menu)
     # language_menu.addMenu(z_menu)
 
+    if is_git_repo(cpath):
+        menubar.addMenu(git_menu)
+    else:
+        pass
+
     prefernces_menu.addMenu(language_menu)
     prefernces_menu.addAction("Additional Preferences", self.additional_prefs)
     prefernces_menu.addAction("Import Theme", self.import_theme)
@@ -480,9 +481,13 @@ QMenu::item::selected {{
         "View": view_menu,
         "Code": code_menu,
         "Tools": tools_menu,
+        "Git": None,
         "Preferences": prefernces_menu,
         "?": help_menu,
     }
+
+    if is_git_repo(cpath):
+        sections["Git"] = git_menu
 
     # Load and categorize plugins
     plugin_dir = os.path.abspath(f"{self.local_app_data}/plugins")  # Path to your plugins directory

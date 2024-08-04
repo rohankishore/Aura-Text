@@ -200,8 +200,32 @@ class Window(QMainWindow):
             """
         )
 
+        commit_icon = QIcon(f"{local_app_data}/icons/commit_unselected.png")
+        self.commit_button = QPushButton(self)
+        self.commit_button.setIcon(commit_icon)
+        self.commit_button.clicked.connect(self.gitCommit)
+        self.commit_button.setIconSize(QSize(25, 25))
+        self.commit_button.setFixedSize(30, 30)
+        self.commit_button.setStyleSheet(
+            """
+            QPushButton {
+                border: none;
+                border-radius:10;
+                align: botton;
+            }
+            QPushButton:hover {
+                background-color: #4e5157;
+            }
+            """
+        )
+
         self.sidebar_layout.insertWidget(0, self.explorer_button)
         self.sidebar_layout.insertWidget(1, self.plugin_button)
+
+        if self.is_git_repo():
+            self.sidebar_layout.insertWidget(2, self.commit_button)
+        else:
+            pass
 
         self.sidebar_layout.addStretch()
         self.leftBar_layout.addStretch()
@@ -316,6 +340,12 @@ class Window(QMainWindow):
             self.explorer_button.setIcon(QIcon(f"{local_app_data}/icons/explorer_filled.png"))
         else:
             self.explorer_button.setIcon(QIcon(f"{local_app_data}/icons/explorer_unfilled.png"))
+
+    def onCommitDockVisibilityChanged(self, visible):
+        if visible:
+            self.commit_button.setIcon(QIcon(f"{local_app_data}/icons/commit_selected.png"))
+        else:
+            self.commit_button.setIcon(QIcon(f"{local_app_data}/icons/commit_unselected.png"))
 
     def treeview_project(self, path):
         self.dock = QDockWidget("Explorer", self)
@@ -528,6 +558,8 @@ class Window(QMainWindow):
         self.gitPushDialog = GitPush.GitPushDialog(self)
         self.gitPushDialog.exec()
 
+    def is_git_repo(self):
+        return os.path.isdir(os.path.join(cpath, '.git'))
 
     def open_file(self, index):
         path = self.model.filePath(index)
