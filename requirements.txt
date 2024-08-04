@@ -11,6 +11,6 @@ pyttsx3==2.90
 pywin32==306
 pywinstyles==1.3
 qt_material==2.14
-Requests==2.31.0
+Requests==2.32.2
 roastedbyai==1.2.0
 pyqtdarktheme
