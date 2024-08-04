@@ -61,7 +61,6 @@ class GitCommitDock(QDockWidget):
             QMessageBox.critical(self, "Unexpected Error", str(e))
             return []
 
-
     def commit_changes(self):
         selected_files = []
         for index in range(self.file_list_widget.count()):
@@ -71,26 +70,30 @@ class GitCommitDock(QDockWidget):
                 selected_files.append(checkbox.text())
 
         if selected_files:
-            # Join selected files into a single string to pass to git
-            file_list_str = ' '.join(selected_files)
+            # Remove leading path from file paths to make them relative to repo
+            relative_files = [os.path.relpath(file, cpath) for file in selected_files]
 
             try:
                 # Stage selected files for commit
-                subprocess.run(['git', 'add'] + selected_files, cwd=cpath, check=True)
+                if relative_files:
+                    subprocess.run(['git', 'add'] + relative_files, cwd=cpath, check=True)
 
-                # get commit msg
-                commit_msg = self.commit_entry.text()
+                    # Get commit message
+                    commit_msg = self.commit_entry.text() or "No message"
 
-                # Commit the changes
-                result = subprocess.run(['git', 'commit', '-m', commit_msg], cwd=cpath, stdout=subprocess.PIPE,
-                                        stderr=subprocess.PIPE, text=True)
+                    # Commit the changes
+                    result = subprocess.run(['git', 'commit', '-m', commit_msg], cwd=cpath, stdout=subprocess.PIPE,
+                                            stderr=subprocess.PIPE, text=True)
 
-                if result.returncode == 0:
-                    QMessageBox.information(self, 'Commit Successful', 'Changes have been committed.')
-                    print(f"Committing changes for: {selected_files}")
+                    if result.returncode == 0:
+                        QMessageBox.information(self, 'Commit Successful', 'Changes have been committed.')
+                        print(f"Committing changes for: {relative_files}")
+                    else:
+                        QMessageBox.warning(self, 'Commit Failed', f"Error: {result.stderr}")
+                        print(f"Commit failed: {result.stderr}")
+
                 else:
-                    QMessageBox.warning(self, 'Commit Failed', f"Error: {result.stderr}")
-                    print(f"Commit failed: {result.stderr}")
+                    QMessageBox.warning(self, 'No Files Selected', 'Please select files to commit.')
 
             except subprocess.CalledProcessError as e:
                 QMessageBox.warning(self, 'Error', f"Command failed: {e}")
