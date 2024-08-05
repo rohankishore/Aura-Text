@@ -2,14 +2,13 @@
 <br />
 <div align="center">
 
-  <h1 align="center"> Aura Text ⌨️ </h1>
+  ![aura text](https://github.com/user-attachments/assets/ebc56c38-c7c3-499a-b68b-28cfcdd4ab6d)
+
 
   <a style="text-decoration:none">
     <img src="https://img.shields.io/github/downloads/rohankishore/Aura-Text/total.svg"/>
   </a>  <a href='https://ko-fi.com/V7V7QZ7GS' target='_blank'><img height='10' style='border:0px;height:22px;' src='https://storage.ko-fi.com/cdn/kofi5.png?v=3' border='1' alt='Buy Me a Coffee at ko-fi.com' /></a>
-  
-  ![AURA TEXT](https://github.com/rohankishore/Aura-Text/assets/109947257/9b59cf71-e8f7-4244-be38-0ab647d8ded8)
-    
+      
   <p align="center">
     An IDE made entirely with Python
     <br />
@@ -75,9 +74,9 @@
 <!-- ABOUT THE PROJECT -->
 ## 📖 About The Project
 
-![image](https://github.com/rohankishore/Aura-Text/assets/109947257/b75da351-6c2b-43a3-a72e-eb7b861fff27)
+![image](https://github.com/user-attachments/assets/360d1ce8-5047-4534-8b84-b01ecc670725)
 
-![image](https://github.com/rohankishore/Aura-Text/assets/109947257/febc6916-10a6-4919-9838-0eea2c103269)
+![image](https://github.com/user-attachments/assets/fca92d3e-4218-4550-96ca-dfa85dbc27dc)
 
 Aura Text is an excellent text/code editor that offers a wide array of essential tools. Built with PyQt6 and Python, it harnesses the power and flexibility of these technologies.
 
@@ -90,6 +89,8 @@ With Aura Text, users can access a versatile and powerful editing environment. W
 - Edit files (duh)
 - Support up to 30 languages
 - Autocompletion
+- Git clone
+- Git Commit and Push
 - Custom title bars
 - Split pane Markdown editor
 - Terminal with history
