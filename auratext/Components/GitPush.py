@@ -32,11 +32,13 @@ class GitPushDialog(QDialog):
 
         self.command = QLineEdit()
         branch = self.branch_list.currentText()
+        if branch == "":
+            branch = "main"
         if self.remote_list.currentText() == "":
             remote = "origin"
         else:
             remote = self.remote_list.currentText()
-        cmd = "git push " + remote + "" + branch
+        cmd = "git push " + remote + " " + branch
         self.command.setText(cmd)
 
         self.main_layout.addSpacerItem(spacer_item)
