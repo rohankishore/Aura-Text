@@ -805,6 +805,9 @@ class Window(QMainWindow):
         if ok:
             self.setCursorPosition(line_number - 1, 0)
 
+    def toHTML(self):
+        pass
+
     def import_theme(self):
         theme_open = filedialog.askopenfilename(title="Open JSON File", defaultextension='.json',
                                                 filetypes=[('JSON file', '*.json')])
