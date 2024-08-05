@@ -172,6 +172,8 @@ QMenu::item::selected {{
         "Creates a new dock to write down ideas and temporary stuffs. The contents will be erased if you close the dock or the app"
     )
 
+    tools_menu.addAction("Convert to HTML", self.toHTML).setWhatsThis("Converts the current MD file to HTML")
+
     menubar.addMenu(tools_menu)
 
     prefernces_menu = QMenu("&Preferences", self)
