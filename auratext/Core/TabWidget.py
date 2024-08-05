@@ -2,6 +2,7 @@ from PyQt6.QtCore import QMimeData, QPoint, Qt
 from PyQt6.QtGui import QCursor, QDrag, QPixmap, QRegion, QAction
 from PyQt6.QtWidgets import QTabWidget, QMenu
 
+
 class TabWidget(QTabWidget):
     def __init__(self, parent=None, new=None):
         super().__init__(parent)
