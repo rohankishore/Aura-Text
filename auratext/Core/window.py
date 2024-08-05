@@ -10,6 +10,7 @@ from tkinter import filedialog
 import git
 import pyjokes
 import qdarktheme
+import markdown
 from pyqtconsole.console import PythonConsole
 from PyQt6.QtCore import Qt, QSize
 from PyQt6.QtGui import QColor, QFont, QActionGroup, QFileSystemModel, QPixmap, QIcon
@@ -806,7 +807,23 @@ class Window(QMainWindow):
             self.setCursorPosition(line_number - 1, 0)
 
     def toHTML(self):
-        pass
+        index = self.tab_widget.currentIndex()
+        tabText = str(self.tab_widget.tabText(index))
+        print(tabText)
+        if ".md" in tabText:
+            mdText = self.current_editor.text()
+            HTMLText = markdown.markdown(mdText)
+            fileName, _ = QFileDialog.getSaveFileName(self,
+                                                                "Save File", "", "All Files(*);;HTML Files(*.html)")
+            if fileName:
+                with open(fileName, 'w') as f:
+                    f.write(HTMLText)
+                    QMessageBox.information(self, 'Success!', 'File successfully converted to HTML')
+
+            else:
+                pass
+        else:
+            QMessageBox.warning(self, 'Filetype Error!', 'Please select a Markdown file to convert.')
 
     def import_theme(self):
         theme_open = filedialog.askopenfilename(title="Open JSON File", defaultextension='.json',
