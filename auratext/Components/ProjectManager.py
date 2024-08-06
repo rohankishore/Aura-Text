@@ -90,7 +90,7 @@ class ProjectManager(QDialog):
 
 
     def addCard_V(self, icon=None, title=None, content=None):
-        card = Modules.AppCard(icon, title, content, self)
+        card = AppCard(icon, title, content, self)
         self.scroll_layout.addWidget(card, alignment=Qt.AlignmentFlag.AlignTop)
 
 c = ProjectManager()
