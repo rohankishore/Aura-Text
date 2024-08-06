@@ -4,6 +4,7 @@ import json
 import os
 import random
 import sys
+import sqlite3
 import time
 import webbrowser
 from tkinter import filedialog
@@ -62,6 +63,18 @@ class Window(QMainWindow):
         super().__init__()
         self.local_app_data = local_app_data
         # self._terminal_history = ""
+
+        # project manager db init
+        self.conn = sqlite3.connect(f"{self.localappdata}/data/ProjectManager.db")
+        self.dbcursor = self.conn.cursor()
+
+        self.dbcursor.execute('''
+            CREATE TABLE IF NOT EXISTS projects (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                name TEXT,
+                path TEXT,
+            )
+        ''')
 
         # theme file
         with open(f"{local_app_data}/data/theme.json", "r") as themes_file:
