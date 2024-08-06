@@ -77,6 +77,13 @@ class ProjectManager(QDialog):
         self.conn = sqlite3.connect(f"{self.localappdata}/data/ProjectManager.db")
         self.dbcursor = self.conn.cursor()
 
+        self.dbcursor.execute('''
+            CREATE TABLE IF NOT EXISTS projects (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                name TEXT,
+                path TEXT,
+            )
+        ''')
 
         self.main_layout = QVBoxLayout()
         self.setLayout(self.main_layout)
