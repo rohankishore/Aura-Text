@@ -1,3 +1,5 @@
+import sqlite3
+
 from PyQt6.QtCore import Qt, QPoint
 from PyQt6.QtGui import QIcon
 from PyQt6.QtWidgets import (
@@ -9,8 +11,6 @@ from qfluentwidgets import (CardWidget, IconWidget, BodyLabel, CaptionLabel, Tra
                             RoundMenu, Action, ImageLabel, SimpleCardWidget,
                             HeaderCardWidget, HyperlinkLabel, PrimaryPushButton, TitleLabel, PillPushButton, setFont,
                             VerticalSeparator)
-
-
 
 class AppointmentsCard(CardWidget):
     def __init__(self, icon, title, content, parent=None):
@@ -73,6 +73,8 @@ class ProjectManager(QDialog):
 
         self.localappdata = parent.local_app_data
         self._themes = parent._themes
+
+        conn = sqlite3.Connection(f"{self.localappdata}/data/ProjectManager.db")
 
         self.main_layout = QVBoxLayout()
         self.setLayout(self.main_layout)
