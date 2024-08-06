@@ -37,7 +37,7 @@ from . import Modules as ModuleFile
 from . import PluginDownload
 from . import ThemeDownload
 from . import config_page
-from ..Components import powershell, terminal, statusBar, GitCommit, GitPush
+from ..Components import powershell, terminal, statusBar, GitCommit, GitPush, ProjectManager
 from .AuraText import CodeEditor
 from auratext.Components.TabWidget import TabWidget
 from .plugin_interface import Plugin
@@ -805,6 +805,10 @@ class Window(QMainWindow):
         line_number, ok = QInputDialog.getInt(self, "Goto Line", "Line:")
         if ok:
             self.setCursorPosition(line_number - 1, 0)
+
+    def manageProjects(self):
+        dialog = ProjectManager.ProjectManager(self)
+        dialog.exec()
 
     def toHTML(self):
         index = self.tab_widget.currentIndex()

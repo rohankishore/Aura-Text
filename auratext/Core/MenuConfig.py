@@ -68,6 +68,7 @@ QMenu::item::selected {{
     file_menu.addAction("Open Project as Treeview", self.open_project_as_treeview).setWhatsThis(
         "Open an existing project as a treeview dock"
     )
+    file_menu.addAction("Manage Projects", self.manageProjects)
 
     git_menu = QMenu("&Git", self)
     git_menu.addAction("Commit", self.gitCommit)
