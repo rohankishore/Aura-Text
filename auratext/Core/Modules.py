@@ -1,12 +1,13 @@
+import base64
+import os
 import random
 from tkinter import messagebox, filedialog
-import requests
-import os
-import base64
+
 import pyttsx3
+import requests
 import win32clipboard
 from PyQt6.QtCore import Qt
-from PyQt6.QtGui import QPixmap, QIcon
+from PyQt6.QtGui import QPixmap
 from PyQt6.QtWidgets import QLabel, QDockWidget, QVBoxLayout, QTextEdit, QTextBrowser
 
 api_key_pastebin = "_L_ZkBp7K3aZMY7z4ombPIztLxITOOpD"
@@ -38,6 +39,7 @@ emsg_zerodivision = [
 
 local_app_data = os.path.join(os.getenv("LocalAppData"), "AuraText")
 cfile_path = f"{local_app_data}/data/Cpath_File.txt"
+
 
 class CodeSnippets:
     def __init__(self):
@@ -228,6 +230,7 @@ def add_image_tab(self, tab, image_path, tab_name):
     label.setPixmap(pixmap)
     label.setAlignment(Qt.AlignmentFlag.AlignCenter)
     tab.addTab(label, tab_name)
+
 
 
 def open_document(self):
