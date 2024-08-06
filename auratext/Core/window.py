@@ -65,14 +65,14 @@ class Window(QMainWindow):
         # self._terminal_history = ""
 
         # project manager db init
-        self.conn = sqlite3.connect(f"{self.localappdata}/data/ProjectManager.db")
+        self.conn = sqlite3.connect(f"{self.local_app_data}/data/ProjectManager.db")
         self.dbcursor = self.conn.cursor()
 
         self.dbcursor.execute('''
-            CREATE TABLE IF NOT EXISTS projects (
+            CREATE TABLE IF NOT EXISTS projects(
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 name TEXT,
-                path TEXT,
+                path TEXT
             )
         ''')
 

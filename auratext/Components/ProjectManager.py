@@ -94,7 +94,10 @@ class ProjectManager(QDialog):
 
         self.main_layout.addWidget(self.scroll_area)
 
+        self.load_todos()
+
         days_rem_till_bday = 5
+
 
         self.addCard_V(QIcon(f"{self.localappdata}/icons/explorer_filled.png"),
                        f"{days_rem_till_bday}", "days remaining till birthday")
@@ -106,3 +109,9 @@ class ProjectManager(QDialog):
 
     def remove_project_from_recent(self):
         pass
+
+    def load_todos(self):
+        self.cursor.execute('SELECT id, time, description, status FROM todos WHERE date = ?', (self.date,))
+        todos = self.cursor.fetchall()
+        for name, path in todos:
+            self.addCard_V(QIcon(f"{self.localappdata}/icons/explorer_filled.png"), name, path)
