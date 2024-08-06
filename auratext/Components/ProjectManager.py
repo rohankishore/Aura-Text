@@ -69,7 +69,7 @@ class ProjectManager(QDialog):
         super().__init__(parent)
 
         self.setWindowTitle("Manage Projects")
-        self.setMinimumWidth(700)
+        self.setMinimumWidth(600)
 
         self.localappdata = parent.local_app_data
         self._themes = parent._themes
