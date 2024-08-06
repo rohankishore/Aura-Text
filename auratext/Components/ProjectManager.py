@@ -74,7 +74,9 @@ class ProjectManager(QDialog):
         self.localappdata = parent.local_app_data
         self._themes = parent._themes
 
-        conn = sqlite3.Connection(f"{self.localappdata}/data/ProjectManager.db")
+        self.conn = sqlite3.connect(f"{self.localappdata}/data/ProjectManager.db")
+        self.dbcursor = self.conn.cursor()
+
 
         self.main_layout = QVBoxLayout()
         self.setLayout(self.main_layout)
