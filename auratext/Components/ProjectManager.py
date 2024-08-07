@@ -1,16 +1,12 @@
+import os
 import sqlite3
-
 from PyQt6.QtCore import Qt, QPoint
 from PyQt6.QtGui import QIcon
-from PyQt6.QtWidgets import (
-    QHBoxLayout)
-from PyQt6.QtWidgets import QVBoxLayout, QDialog, QScrollArea
-from qfluentwidgets import (CardWidget, IconWidget, BodyLabel, CaptionLabel)
-from qfluentwidgets import (RoundMenu, Action, FluentIcon)
-from qfluentwidgets import (CardWidget, IconWidget, BodyLabel, CaptionLabel, TransparentToolButton, FluentIcon,
-                            RoundMenu, Action, ImageLabel, SimpleCardWidget,
-                            HeaderCardWidget, HyperlinkLabel, PrimaryPushButton, TitleLabel, PillPushButton, setFont,
-                            VerticalSeparator)
+from PyQt6.QtWidgets import QHBoxLayout, QVBoxLayout, QDialog, QScrollArea, QMessageBox
+from qfluentwidgets import (
+    CardWidget, IconWidget, BodyLabel, CaptionLabel, TransparentToolButton, FluentIcon,
+    RoundMenu, Action
+)
 
 class AppointmentsCard(CardWidget):
     def __init__(self, icon, title, content, parent=None):
@@ -18,8 +14,6 @@ class AppointmentsCard(CardWidget):
         self.iconWidget = IconWidget(icon)
         self.titleLabel = BodyLabel(title, self)
         self.contentLabel = CaptionLabel(content, self)
-        # self.openButton = PushButton('', self)
-        # self.openButton.setIcon(FluentIcon.RIGHT_ARROW)
         self.moreButton = TransparentToolButton(FluentIcon.RIGHT_ARROW, self)
 
         self.parent = parent
@@ -30,7 +24,6 @@ class AppointmentsCard(CardWidget):
         self.setFixedHeight(73)
         self.iconWidget.setFixedSize(48, 48)
         self.contentLabel.setTextColor("#606060", "#d2d2d2")
-        # self.openButton.setFixedWidth(120)
 
         self.hBoxLayout.setContentsMargins(20, 11, 11, 11)
         self.hBoxLayout.setSpacing(15)
@@ -44,7 +37,6 @@ class AppointmentsCard(CardWidget):
         self.hBoxLayout.addLayout(self.vBoxLayout)
 
         self.hBoxLayout.addStretch(1)
-        # self.hBoxLayout.addWidget(self.openButton, 0, Qt.AlignmentFlag.AlignRight)
         self.hBoxLayout.addWidget(self.moreButton, 0, Qt.AlignmentFlag.AlignRight)
 
         self.moreButton.setFixedSize(32, 32)
@@ -52,17 +44,17 @@ class AppointmentsCard(CardWidget):
 
     def onMoreButtonClicked(self):
         menu = RoundMenu(parent=self)
-        view_todays_todo = Action(FluentIcon.VIEW, "Remove from Recent", self)
-        view_todays_todo.triggered.connect(self.parent.remove_project_from_recent)
-        menu.addAction(view_todays_todo)
+        remove_action = Action(FluentIcon.VIEW, "Remove from Recent", self)
+        remove_action.triggered.connect(self.onRemoveClicked)
+        menu.addAction(remove_action)
 
         x = (self.moreButton.width() - menu.width()) // 2 + 10
         pos = self.moreButton.mapToGlobal(QPoint(x, self.moreButton.height()))
         menu.exec(pos)
 
-        #def onMoreButtonClicked(self):
-         #   self.parent.today_todo()
-
+    def onRemoveClicked(self):
+        if self.parent:
+            self.parent.remove_project_from_recent(self.titleLabel.text(), self.contentLabel.text())
 
 class ProjectManager(QDialog):
     def __init__(self, parent=None):
@@ -81,7 +73,7 @@ class ProjectManager(QDialog):
             CREATE TABLE IF NOT EXISTS projects (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 name TEXT,
-                path TEXT,
+                path TEXT
             )
         ''')
 
@@ -96,22 +88,38 @@ class ProjectManager(QDialog):
 
         self.load_todos()
 
-        days_rem_till_bday = 5
-
-
-        self.addCard_V(QIcon(f"{self.localappdata}/icons/explorer_filled.png"),
-                       f"{days_rem_till_bday}", "days remaining till birthday")
-
-
     def addCard_V(self, icon=None, title=None, content=None):
         card = AppointmentsCard(icon, title, content, self)
         self.scroll_layout.addWidget(card, alignment=Qt.AlignmentFlag.AlignTop)
 
-    def remove_project_from_recent(self):
-        pass
+    def remove_project_from_recent(self, name, path):
+        try:
+            self.dbcursor.execute('DELETE FROM projects WHERE name = ? AND path = ?', (name, path))
+            self.conn.commit()
+            QMessageBox.information(self, "Success", f"Removed {name} from recent projects.")
+            try:
+                self.refresh_projects()
+            except Exception as e:
+                print(e)
+        except Exception as e:
+            QMessageBox.warning(self, "Error", f"Failed to remove project: {str(e)}")
 
     def load_todos(self):
-        self.cursor.execute('SELECT id, time, description, status FROM todos WHERE date = ?', (self.date,))
-        todos = self.cursor.fetchall()
-        for name, path in todos:
-            self.addCard_V(QIcon(f"{self.localappdata}/icons/explorer_filled.png"), name, path)
+        self.dbcursor.execute('SELECT name, path FROM projects')
+        todos = self.dbcursor.fetchall()
+        try:
+            for name, path in todos:
+                self.addCard_V(QIcon(f"{self.localappdata}/icons/explorer_filled.png"), name, path)
+        except:
+            pass
+
+    def refresh_projects(self):
+        try:
+            for i in reversed(range(self.scroll_layout.count())):
+                widget = self.scroll_layout.itemAt(i).widget()
+                if widget is not None:
+                    widget.setParent(None)
+
+            self.load_todos()
+        except:
+            pass

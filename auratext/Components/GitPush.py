@@ -1,11 +1,9 @@
 import os
 import subprocess
-
 from PyQt6.QtWidgets import QVBoxLayout, QPushButton, QMessageBox, QLineEdit, QDialog, QLabel, QComboBox, QSpacerItem
 
 local_app_data = os.path.join(os.getenv("LocalAppData"), "AuraText")
-cpath = open(f"{local_app_data}/data/CPath_Project.txt", "r+").read()
-
+cpath = open(f"{local_app_data}/data/CPath_Project.txt", "r+").read().strip()
 
 class GitPushDialog(QDialog):
     def __init__(self, parent=None):
@@ -31,15 +29,7 @@ class GitPushDialog(QDialog):
         self.main_layout.addWidget(self.remote_list)
 
         self.command = QLineEdit()
-        branch = self.branch_list.currentText()
-        if branch == "":
-            branch = "main"
-        if self.remote_list.currentText() == "":
-            remote = "origin"
-        else:
-            remote = self.remote_list.currentText()
-        cmd = "git push " + remote + " " + branch
-        self.command.setText(cmd)
+        self.command.setPlaceholderText("git push origin main")
 
         self.main_layout.addSpacerItem(spacer_item)
 
@@ -51,6 +41,11 @@ class GitPushDialog(QDialog):
         self.main_layout.addWidget(push_button)
         push_button.clicked.connect(self.push)
 
+        if not self.is_git_repo():
+            print(self, "Error", "Not a Git repository. Please initialize a Git repository.")
+            self.reject()
+            return
+
         try:
             result = subprocess.run(['git', '--version'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
             if result.returncode != 0:
@@ -59,66 +54,96 @@ class GitPushDialog(QDialog):
             self.branches = self.get_all_branches()
             self.c_branch = self.get_current_branch()
             self.remotes = self.get_all_remotes()
-            self.remotes[0] = "origin"
+
+            if not self.remotes:
+                self.remotes = ["origin"]
 
             self.branch_list.addItems(self.branches)
             self.remote_list.addItems(self.remotes)
 
-            print(self.branches)
+            print("Branches:", self.branches)
+            print("Current Branch:", self.c_branch)
+            print("Remotes:", self.remotes)
 
         except Exception as e:
-            print(e)
+            print("Error initializing GitPushDialog:", e)
+            QMessageBox.critical(self, "Initialization Error", str(e))
+
+    def is_git_repo(self):
+        return os.path.isdir(os.path.join(cpath, '.git'))
 
     def get_current_branch(self):
-        result = subprocess.run(['git', 'branch'], stdout=subprocess.PIPE, stderr=subprocess.PIPE, cwd=cpath, text=True)
-        if result.returncode == 0:
-            for line in result.stdout.split('\n'):
-                if line.startswith('*'):
-                    return line[2:].strip()
-        else:
-            raise Exception(f"Failed to get current branch: {result.stderr}")
+        try:
+            result = subprocess.run(['git', 'branch'], stdout=subprocess.PIPE, stderr=subprocess.PIPE, cwd=cpath, text=True)
+            if result.returncode == 0:
+                for line in result.stdout.split('\n'):
+                    if line.startswith('*'):
+                        return line[2:].strip()
+            else:
+                raise Exception(f"Failed to get current branch: {result.stderr}")
+        except Exception as e:
+            print("Error getting current branch:", e)
+            return ""
 
     def get_all_branches(self):
-        result = subprocess.run(['git', 'branch'], stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
-        if result.returncode != 0:
-            raise Exception(f"Error getting branches: {result.stderr}")
+        try:
+            result = subprocess.run(['git', 'branch'], stdout=subprocess.PIPE, stderr=subprocess.PIPE, cwd=cpath, text=True)
+            if result.returncode != 0:
+                raise Exception(f"Error getting branches: {result.stderr}")
 
-        branches = result.stdout.split('\n')
-        # Strip whitespace, remove empty lines, and remove the '*' from the current branch
-        branches = [branch[2:] if branch.startswith('*') else branch.strip() for branch in branches if branch.strip()]
-        return branches
+            branches = result.stdout.split('\n')
+            branches = [branch[2:] if branch.startswith('*') else branch.strip() for branch in branches if branch.strip()]
+            return branches
+        except Exception as e:
+            print("Error getting branches:", e)
+            return []
 
     def get_all_remotes(self):
-        result = subprocess.run(['git', 'remote', '-v'], stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
-        if result.returncode != 0:
-            raise Exception(f"Error getting remotes: {result.stderr}")
+        try:
+            result = subprocess.run(['git', 'remote', '-v'], stdout=subprocess.PIPE, stderr=subprocess.PIPE, cwd=cpath, text=True)
+            if result.returncode != 0:
+                raise Exception(f"Error getting remotes: {result.stderr}")
 
-        remotes = result.stdout.strip().split('\n')
+            remotes = result.stdout.strip().split('\n')
 
-        remote_list = []
-        for line in remotes:
-            parts = line.split()
-            if len(parts) >= 2:  # Ensure there are enough parts in the line
-                remote_name = parts[0]
-                remote_url = parts[1]
-                remote_list.append((remote_name, remote_url))
+            remote_list = []
+            for line in remotes:
+                parts = line.split()
+                if len(parts) >= 2:
+                    remote_name = parts[0]
+                    remote_url = parts[1]
+                    remote_list.append((remote_name, remote_url))
 
-        # Remove duplicate remotes keeping only one instance
-        seen = set()
-        unique_remotes = []
-        for remote in remote_list:
-            if remote[0] not in seen:
-                unique_remotes.append(remote)
-                seen.add(remote[0])
+            seen = set()
+            unique_remotes = []
+            for remote in remote_list:
+                if remote[0] not in seen:
+                    unique_remotes.append(remote[0])
+                    seen.add(remote[0])
 
-        return unique_remotes
+            return unique_remotes
+        except Exception as e:
+            print("Error getting remotes:", e)
+            return []
 
     def push(self):
-        result = subprocess.run((self.command.text()), cwd=cpath, stdout=subprocess.PIPE,
-                                stderr=subprocess.PIPE, text=True)
+        try:
+            if not self.is_git_repo():
+                print(self, "Error", "Not a Git repository. Please initialize a Git repository.")
+                return
 
-        if result.returncode == 0:
-            QMessageBox.information(self, 'Push Successful', 'Changes have been pushed.')
-        else:
-            QMessageBox.warning(self, 'Push Failed', f"Error: {result.stderr}")
-            print(f"Push failed: {result.stderr}")
+            command_text = self.command.text().strip()
+            if not command_text:
+                QMessageBox.warning(self, 'Error', 'Command is empty')
+                return
+
+            result = subprocess.run(command_text.split(), cwd=cpath, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+
+            if result.returncode == 0:
+                QMessageBox.information(self, 'Push Successful', 'Changes have been pushed.')
+            else:
+                QMessageBox.warning(self, 'Push Failed', f"Error: {result.stderr}")
+                print(f"Push failed: {result.stderr}")
+        except Exception as e:
+            print("Error executing push command:", e)
+            QMessageBox.critical(self, 'Error', f"Failed to execute push command: {e}")

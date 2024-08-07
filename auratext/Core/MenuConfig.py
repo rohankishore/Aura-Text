@@ -74,8 +74,8 @@ QMenu::item::selected {{
     git_menu.addAction("Commit", self.gitCommit)
     git_menu.addAction("Push", self.gitPush)
 
-    def is_git_repo(path):
-        return os.path.isdir(os.path.join(path, '.git'))
+    def is_git_repo():
+        return os.path.isdir(os.path.join(cpath, '.git'))
 
     file_menu.addMenu(new_menu)
     file_menu.addSeparator()
@@ -440,7 +440,7 @@ QMenu::item::selected {{
     language_menu.addMenu(y_menu)
     # language_menu.addMenu(z_menu)
 
-    if is_git_repo(cpath):
+    if is_git_repo():
         menubar.addMenu(git_menu)
     else:
         pass
@@ -489,7 +489,7 @@ QMenu::item::selected {{
         "?": help_menu,
     }
 
-    if is_git_repo(cpath):
+    if is_git_repo():
         sections["Git"] = git_menu
 
     # Load and categorize plugins

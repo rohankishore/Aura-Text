@@ -38,7 +38,8 @@ from . import Modules as ModuleFile
 from . import PluginDownload
 from . import ThemeDownload
 from . import config_page
-from ..Components import powershell, terminal, statusBar, GitCommit, GitPush, ProjectManager
+from ..Components import powershell, terminal, statusBar, ProjectManager
+
 from .AuraText import CodeEditor
 from auratext.Components.TabWidget import TabWidget
 from .plugin_interface import Plugin
@@ -46,6 +47,16 @@ from .plugin_interface import Plugin
 local_app_data = os.path.join(os.getenv("LocalAppData"), "AuraText")
 cpath = open(f"{local_app_data}/data/CPath_Project.txt", "r+").read()
 cfile = open(f"{local_app_data}/data/CPath_File.txt", "r+").read()
+
+
+def is_git_repo():
+    return os.path.isdir(os.path.join(cpath, '.git'))
+
+
+if is_git_repo():
+    from ..Components import GitCommit, GitPush
+else:
+    pass
 
 
 class Sidebar(QDockWidget):
@@ -64,6 +75,8 @@ class Window(QMainWindow):
         self.local_app_data = local_app_data
         # self._terminal_history = ""
 
+        print("window init")
+
         # project manager db init
         self.conn = sqlite3.connect(f"{self.local_app_data}/data/ProjectManager.db")
         self.dbcursor = self.conn.cursor()
@@ -76,23 +89,31 @@ class Window(QMainWindow):
             )
         ''')
 
+        print("db init")
+
         # theme file
         with open(f"{local_app_data}/data/theme.json", "r") as themes_file:
             self._themes = json.load(themes_file)
+            print("theme")
 
         # config file
         with open(f"{local_app_data}/data/config.json", "r") as config_file:
             self._config = json.load(config_file)
+        print("config")
 
         # terminal history file
         with open(f"{local_app_data}/data/terminal_history.txt", "r+") as thfile:
             self.terminal_history = thfile.readlines()
+        print("term his")
 
         # keymap file
         with open(f"{local_app_data}/data/shortcuts.json", "r+") as kmfile:
             self._shortcuts = json.load(kmfile)
+        print("shortcut")
 
         from qt_material import apply_stylesheet
+
+        print("import qtmaterial")
 
         if self._themes["theming"] == "flat":
             # pywinstyles.apply_style(self, "dark")
@@ -105,6 +126,8 @@ class Window(QMainWindow):
             pass
 
         self._config["show_setup_info"] = "False"
+
+        print("check showsetupinfo line 117 complete")
 
         def splashScreen():
             # Splash Screen
@@ -140,10 +163,15 @@ class Window(QMainWindow):
         else:
             pass
 
+        print("reached till cpath check. line 150 till done")
+
         if cpath == "" or cpath == " ":
+            print("welcome screen need to be shown")
             welcome_widget = WelcomeScreen.WelcomeWidget(self)
             self.tab_widget.addTab(welcome_widget, "Welcome")
+            print("success welcome screen")
         else:
+            print("welcome screen no need.")
             pass
 
         self.tab_widget.setTabsClosable(True)
@@ -160,7 +188,6 @@ class Window(QMainWindow):
         self.sidebar_layout = QVBoxLayout(self.sidebar_widget)
         self.sidebar_main.setWidget(self.sidebar_widget)
         self.addDockWidget(Qt.DockWidgetArea.LeftDockWidgetArea, self.sidebar_main)
-
 
         self.bottom_bar = QStatusBar()
         # self.setStatusBar(self.bottom_bar)
@@ -236,10 +263,13 @@ class Window(QMainWindow):
         self.sidebar_layout.insertWidget(0, self.explorer_button)
         self.sidebar_layout.insertWidget(1, self.plugin_button)
 
+        print("check git repo")
         if self.is_git_repo():
+            print("git folder present")
             self.sidebar_layout.insertWidget(2, self.commit_button)
+            print("added icon")
         else:
-            pass
+            print("git not present")
 
         self.sidebar_layout.addStretch()
         self.leftBar_layout.addStretch()
@@ -274,14 +304,6 @@ class Window(QMainWindow):
         sys.path.append(f"{local_app_data}/plugins")
         self.load_plugins()
         self.showMaximized()
-
-    # def mousePressEvent(self, event):
-    #   self.dragPos = event.globalPosition().toPoint()
-
-    # def mouseMoveEvent(self, event):
-    # self.move(self.pos() + event.globalPosition().toPoint() - self.dragPos)
-    # self.dragPos = event.globalPosition().toPoint()
-    # event.accept()
 
     def create_editor(self):
         self.text_editor = CodeEditor(self)
@@ -471,7 +493,6 @@ class Window(QMainWindow):
         with open(f"{self.local_app_data}/data/CPath_Project.txt", "w") as file:
             file.write(new_folder_path)
 
-
     def code_jokes(self):
         a = pyjokes.get_joke(language="en", category="neutral")
         QMessageBox.information(self, "A Byte of Humour!", a)
@@ -619,6 +640,11 @@ class Window(QMainWindow):
 
     def configure_menuBar(self):
         MenuConfig.configure_menuBar(self)
+
+    def addProjectsToDB(self, name, project_path):
+        self.dbcursor.execute('INSERT INTO projects (name, path) VALUES (?, ?)',
+                              (name, project_path))
+        self.conn.commit()
 
     def python(self):
         Lexers.python(self)
@@ -831,7 +857,7 @@ class Window(QMainWindow):
             mdText = self.current_editor.text()
             HTMLText = markdown.markdown(mdText)
             fileName, _ = QFileDialog.getSaveFileName(self,
-                                                                "Save File", "", "All Files(*);;HTML Files(*.html)")
+                                                      "Save File", "", "All Files(*);;HTML Files(*.html)")
             if fileName:
                 with open(fileName, 'w') as f:
                     f.write(HTMLText)
@@ -873,6 +899,7 @@ class Window(QMainWindow):
             )
             messagebox.exec()
             self.treeview_project(project_path)
+            self.addProjectsToDB(name=(os.path.basename(project_path)), project_path=pathh)
 
     def open_project_as_treeview(self):
         dialog = QFileDialog(self)
