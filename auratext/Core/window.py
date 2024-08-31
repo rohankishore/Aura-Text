@@ -87,7 +87,6 @@ class Window(QMainWindow):
             )
         ''')
 
-
         # theme file
         with open(f"{local_app_data}/data/theme.json", "r") as themes_file:
             self._themes = json.load(themes_file)
@@ -104,7 +103,6 @@ class Window(QMainWindow):
         with open(f"{local_app_data}/data/shortcuts.json", "r+") as kmfile:
             self._shortcuts = json.load(kmfile)
 
-
         if self._themes["theming"] == "flat":
             # pywinstyles.apply_style(self, "dark")
             qdarktheme.setup_theme(
@@ -116,7 +114,6 @@ class Window(QMainWindow):
             pass
 
         self._config["show_setup_info"] = "False"
-
 
         def splashScreen():
             # Splash Screen
@@ -462,9 +459,9 @@ class Window(QMainWindow):
 
     def new_project(self):
         new_folder_path = QFileDialog.getExistingDirectory(self,
-    "Create New Folder",
-    "./",
-    QFileDialog.Option.ShowDirsOnly)
+                                                           "Create New Folder",
+                                                           "./",
+                                                           QFileDialog.Option.ShowDirsOnly)
 
         with open(f"{self.local_app_data}/data/CPath_Project.txt", "w") as file:
             file.write(new_folder_path)
