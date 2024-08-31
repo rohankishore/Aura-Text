@@ -1,6 +1,7 @@
 import json
 import os
 
+from PyQt6.QtGui import QIcon
 from PyQt6.QtWidgets import (
     QCheckBox,
     QPushButton,
@@ -15,6 +16,9 @@ local_app_data = os.path.join(os.getenv("LocalAppData"), "AuraText")
 class SettingsWindow(QDialog):
     def __init__(self):
         super().__init__()
+
+        self.setWindowIcon(QIcon(f"{local_app_data}/icons/icon.ico"))
+
 
         self.splash_checkbox = QCheckBox("Show Adaptive Splash Screens")
         self.expopen_checkbox = QCheckBox("Show Tips in Terminal")
