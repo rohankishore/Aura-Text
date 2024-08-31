@@ -7,7 +7,6 @@ import sys
 import sqlite3
 import time
 import webbrowser
-from tkinter import filedialog
 import git
 import pyjokes
 import qdarktheme
