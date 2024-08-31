@@ -75,8 +75,6 @@ class Window(QMainWindow):
         self.local_app_data = local_app_data
         # self._terminal_history = ""
 
-        print("window init")
-
         # project manager db init
         self.conn = sqlite3.connect(f"{self.local_app_data}/data/ProjectManager.db")
         self.dbcursor = self.conn.cursor()
@@ -89,27 +87,22 @@ class Window(QMainWindow):
             )
         ''')
 
-        print("db init")
 
         # theme file
         with open(f"{local_app_data}/data/theme.json", "r") as themes_file:
             self._themes = json.load(themes_file)
-            print("theme")
 
         # config file
         with open(f"{local_app_data}/data/config.json", "r") as config_file:
             self._config = json.load(config_file)
-        print("config")
 
         # terminal history file
         with open(f"{local_app_data}/data/terminal_history.txt", "r+") as thfile:
             self.terminal_history = thfile.readlines()
-        print("term his")
 
         # keymap file
         with open(f"{local_app_data}/data/shortcuts.json", "r+") as kmfile:
             self._shortcuts = json.load(kmfile)
-        print("shortcut")
 
 
         if self._themes["theming"] == "flat":
@@ -124,7 +117,6 @@ class Window(QMainWindow):
 
         self._config["show_setup_info"] = "False"
 
-        print("check showsetupinfo line 117 complete")
 
         def splashScreen():
             # Splash Screen
@@ -160,10 +152,7 @@ class Window(QMainWindow):
         else:
             pass
 
-        print("reached till cpath check. line 150 till done")
-
         if cpath == "" or cpath == " ":
-            print("welcome screen need to be shown")
             welcome_widget = WelcomeScreen.WelcomeWidget(self)
             self.tab_widget.addTab(welcome_widget, "Welcome")
         else:
@@ -472,9 +461,11 @@ class Window(QMainWindow):
             self.tabifyDockWidget(self.theme_dock, self.plugin_dock)
 
     def new_project(self):
-        new_folder_path = filedialog.askdirectory(
-            title="Create New Folder", initialdir="./", mustexist=False
-        )
+        new_folder_path = QFileDialog.getExistingDirectory(self,
+    "Create New Folder",
+    "./",
+    QFileDialog.Option.ShowDirsOnly)
+
         with open(f"{self.local_app_data}/data/CPath_Project.txt", "w") as file:
             file.write(new_folder_path)
 
