@@ -844,6 +844,12 @@ class Window(QMainWindow):
     def import_theme(self):
         theme_open = filedialog.askopenfilename(title="Open JSON File", defaultextension='.json',
                                                 filetypes=[('JSON file', '*.json')])
+        theme_open, _ = QFileDialog.getOpenFileName(self,
+                                                    "Open JSON File",
+                                                    "",
+                                                    "JSON Files (*.json);;All Files (*)",
+                                                    "JSON Files (*.json)"
+                                                    )
         theme_path = os.path.abspath(theme_open)
 
         import shutil
