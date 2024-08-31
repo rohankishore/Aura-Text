@@ -4,6 +4,7 @@ import json
 import winreg
 from typing import TYPE_CHECKING
 
+from PyQt6.QtGui import QIcon
 from PyQt6.QtWidgets import (
     QLabel,
     QLineEdit,
@@ -21,6 +22,8 @@ class ConfigPage(QDialog):
     def __init__(self, window: Window):
         super().__init__()
         self._window = window
+
+        self.setWindowIcon(QIcon(f"{self._window.local_app_data}/icons/icon.ico"))
 
         self.json_data = {"editor_theme": "", "margin_theme": "", "lines_theme": ""}
 
