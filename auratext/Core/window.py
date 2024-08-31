@@ -166,9 +166,7 @@ class Window(QMainWindow):
             print("welcome screen need to be shown")
             welcome_widget = WelcomeScreen.WelcomeWidget(self)
             self.tab_widget.addTab(welcome_widget, "Welcome")
-            print("success welcome screen")
         else:
-            print("welcome screen no need.")
             pass
 
         self.tab_widget.setTabsClosable(True)
@@ -260,13 +258,10 @@ class Window(QMainWindow):
         self.sidebar_layout.insertWidget(0, self.explorer_button)
         self.sidebar_layout.insertWidget(1, self.plugin_button)
 
-        print("check git repo")
         if self.is_git_repo():
-            print("git folder present")
             self.sidebar_layout.insertWidget(2, self.commit_button)
-            print("added icon")
         else:
-            print("git not present")
+            pass
 
         self.sidebar_layout.addStretch()
         self.leftBar_layout.addStretch()

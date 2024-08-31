@@ -75,7 +75,10 @@ QMenu::item::selected {{
     git_menu.addAction("Push", self.gitPush)
 
     def is_git_repo():
-        return os.path.isdir(os.path.join(cpath, '.git'))
+        if os.path.isdir(os.path.join(cpath, '.git')):
+            return "true"
+        else:
+            return "false"
 
     file_menu.addMenu(new_menu)
     file_menu.addSeparator()
@@ -440,7 +443,7 @@ QMenu::item::selected {{
     language_menu.addMenu(y_menu)
     # language_menu.addMenu(z_menu)
 
-    if is_git_repo():
+    if is_git_repo() == "true":
         menubar.addMenu(git_menu)
     else:
         pass
@@ -478,19 +481,8 @@ QMenu::item::selected {{
     menubar.addMenu(help_menu)
 
     # Define a dictionary to map section names to corresponding QMenu instances
-    sections = {
-        "File": file_menu,
-        "Edit": edit_menu,
-        "View": view_menu,
-        "Code": code_menu,
-        "Tools": tools_menu,
-        "Git": None,
-        "Preferences": prefernces_menu,
-        "?": help_menu,
-    }
-
-    if is_git_repo():
-        sections["Git"] = git_menu
+    sections = {"File": file_menu, "Edit": edit_menu, "View": view_menu, "Code": code_menu, "Tools": tools_menu,
+                "Git": git_menu, "Preferences": prefernces_menu, "?": help_menu}
 
     # Load and categorize plugins
     plugin_dir = os.path.abspath(f"{self.local_app_data}/plugins")  # Path to your plugins directory
