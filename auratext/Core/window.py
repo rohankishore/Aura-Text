@@ -842,8 +842,6 @@ class Window(QMainWindow):
             QMessageBox.warning(self, 'Filetype Error!', 'Please select a Markdown file to convert.')
 
     def import_theme(self):
-        theme_open = filedialog.askopenfilename(title="Open JSON File", defaultextension='.json',
-                                                filetypes=[('JSON file', '*.json')])
         theme_open, _ = QFileDialog.getOpenFileName(self,
                                                     "Open JSON File",
                                                     "",
