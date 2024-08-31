@@ -526,7 +526,7 @@ class Window(QMainWindow):
 
             repo_url, ok = QInputDialog.getText(self, "Git Repo", "URL of the Repository")
             try:
-                path = filedialog.askdirectory(title="Repo Path", initialdir="./", mustexist=False)
+                path = QFileDialog.getExistingDirectory(self, caption="Repo Path")
             except:
                 messagebox.setWindowTitle("Path Error"), messagebox.setText(
                     "The folder should be EMPTY! Please try again with an EMPTY folder"
