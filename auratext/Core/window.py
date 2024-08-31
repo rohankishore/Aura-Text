@@ -111,9 +111,6 @@ class Window(QMainWindow):
             self._shortcuts = json.load(kmfile)
         print("shortcut")
 
-        from qt_material import apply_stylesheet
-
-        print("import qtmaterial")
 
         if self._themes["theming"] == "flat":
             # pywinstyles.apply_style(self, "dark")
@@ -293,7 +290,7 @@ class Window(QMainWindow):
         self.action_group = QActionGroup(self)
         self.action_group.setExclusive(True)
 
-        self.tab_widget.setStyleSheet("QTabWidget {border: none;}")
+        self.tab_widget.setStyleSheet("QTabWidget {border: 10px;}")
 
         self.tab_widget.currentChanged.connect(self.change_text_editor)
         self.tab_widget.tabCloseRequested.connect(self.remove_editor)
@@ -445,16 +442,9 @@ class Window(QMainWindow):
         ModuleFile.CodeSnippets.snippets_open(self.current_editor)
 
     def expandSidebar__Settings(self):
-        self.settings_dock = QDockWidget("Settings", self)
 
-        self.settings_dock.setStyleSheet("QDockWidget {background-color : #1b1b1b; color : white;}")
-        self.settings_dock.setFixedWidth(200)
         self.settings_widget = config_page.ConfigPage(self)
-        self.settings_layout = QVBoxLayout(self.settings_widget)
-        self.settings_layout.addWidget(self.settings_widget)
-        self.settings_dock.setWidget(self.settings_widget)
-        self.addDockWidget(Qt.DockWidgetArea.RightDockWidgetArea, self.settings_dock)
-        self.splitDockWidget(self.sidebar_main, self.settings_dock, Qt.Orientation.Horizontal)
+        self.settings_widget.exec()
 
     def expandSidebar__Plugins(self):
         self.plugin_dock = QDockWidget("Extensions", self)

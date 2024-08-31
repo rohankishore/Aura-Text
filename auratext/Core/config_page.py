@@ -11,13 +11,13 @@ from PyQt6.QtWidgets import (
     QVBoxLayout,
     QWidget,
     QMessageBox,
-    QComboBox, QGroupBox, QScrollArea, )
+    QComboBox, QGroupBox, QScrollArea, QDialog, )
 
 if TYPE_CHECKING:
     from .window import Window
 
 
-class ConfigPage(QWidget):
+class ConfigPage(QDialog):
     def __init__(self, window: Window):
         super().__init__()
         self._window = window
