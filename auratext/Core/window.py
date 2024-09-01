@@ -873,6 +873,12 @@ class Window(QMainWindow):
             messagebox.setWindowTitle("New Project"), messagebox.setText(
                 f"New project created at {project_path}"
             )
+            if is_git_repo():
+                self.commit_button.hide()
+                self.sidebar_layout.insertWidget(2, self.commit_button)
+                self.commit_button.show()
+            else:
+                self.commit_button.hide()
             messagebox.exec()
             self.treeview_project(project_path)
             self.addProjectsToDB(name=(os.path.basename(project_path)), project_path=pathh)
