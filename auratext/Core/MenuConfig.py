@@ -471,9 +471,6 @@ QMenu::item::selected {{
     help_menu.addAction(
         "Contribute to Aura Text",
     ).setWhatsThis("For developers who are looking forward to make Aura Text even better")
-    help_menu.addAction("Join Discord Server", self.discord).setWhatsThis(
-        "Join Aura Text's Discord server"
-    )
     help_menu.addAction("Buy Me A Coffee", self.buymeacoffee).setWhatsThis(
         "Donate to Aura Text developer"
     )

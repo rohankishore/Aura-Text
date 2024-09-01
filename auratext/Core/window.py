@@ -1084,7 +1084,3 @@ class Window(QMainWindow):
     @staticmethod
     def bug_report():
         webbrowser.open_new_tab("https://github.com/rohankishore/Aura-Text/issues/new/choose")
-
-    @staticmethod
-    def discord():
-        webbrowser.open_new_tab("https://discord.gg/4PJfTugn")
