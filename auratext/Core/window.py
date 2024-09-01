@@ -876,6 +876,8 @@ class Window(QMainWindow):
             messagebox.exec()
             self.treeview_project(project_path)
             self.addProjectsToDB(name=(os.path.basename(project_path)), project_path=pathh)
+        else:
+            pass
 
     def open_project_as_treeview(self):
         dialog = QFileDialog(self)
