@@ -847,11 +847,14 @@ class Window(QMainWindow):
                                                     "JSON Files (*.json);;All Files (*)",
                                                     "JSON Files (*.json)"
                                                     )
-        theme_path = os.path.abspath(theme_open)
+        if theme_open:
+            theme_path = os.path.abspath(theme_open)
 
-        import shutil
+            import shutil
 
-        shutil.copyfile(theme_path, f'{local_app_data}/data/theme.json')  # copy src to dst
+            shutil.copyfile(theme_path, f'{local_app_data}/data/theme.json')
+        else:
+            pass
 
     def shortcuts(self):
         shortcut_dock = shortcuts.Shortcuts()
