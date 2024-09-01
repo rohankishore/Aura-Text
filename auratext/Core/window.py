@@ -377,7 +377,7 @@ class Window(QMainWindow):
         tree_view.setRootIndex(self.model.index(path))
         self.model.setRootPath(path)
         self.dock.setWidget(tree_view)
-        self.addDockWidget(Qt.DockWidgetArea.LeftDockWidgetArea, self.dock)
+        self.addDockWidget(Qt.DockWidgetArea.RightDockWidgetArea, self.dock)
 
         tree_view.setFont(QFont("Consolas"))
 
