@@ -3,7 +3,8 @@ from typing import TYPE_CHECKING
 from PyQt6.Qsci import QsciScintilla, QsciAPIs
 from PyQt6.QtCore import Qt, QRect
 from PyQt6.QtGui import QColor, QFont, QFontMetrics, QShortcut, QKeySequence, QAction
-from PyQt6.QtWidgets import QMenu, QLineEdit, QCheckBox, QPushButton, QLabel, QMessageBox, QDialog
+from PyQt6.QtWidgets import QMenu, QLineEdit, QCheckBox, QPushButton, QLabel, QMessageBox, QDialog, QVBoxLayout, \
+    QHBoxLayout
 from . import Lexers
 from . import Modules as ModuleFile
 
@@ -16,16 +17,22 @@ class Search(QDialog):
         super().__init__()
         self.setObjectName("Search")
         self.editor = editor
+        self.setMaximumSize(500, 120)
+
+        self.main_layout = QVBoxLayout()
+        self.setLayout(self.main_layout)
 
         self.textBox = QLineEdit(self)
         self.textBox.setObjectName("Textbox")
         self.textBox.setGeometry(QRect(10, 30, 251, 21))
         self.textBox.setPlaceholderText("Enter text to find")
+        self.main_layout.addWidget(self.textBox)
 
         self.cs = QCheckBox(self)
         self.cs.setObjectName("Case")
         self.cs.setGeometry(QRect(10, 70, 41, 17))
         self.cs.setText("Case sensitive")
+        self.main_layout.addWidget(self.cs)
 
         self.next = QPushButton(self)
         self.next.setObjectName("Next")
@@ -33,16 +40,19 @@ class Search(QDialog):
         self.next.setText("Next")
         self.next.clicked.connect(self.find_next)
 
+        self.bottom_layout = QHBoxLayout()
+        self.main_layout.addLayout(self.bottom_layout)
+
+        self.bottom_layout.addWidget(self.next)
+
         self.previous = QPushButton(self)
         self.previous.setObjectName("Previous")
         self.previous.setText("Previous")
         self.previous.setGeometry(QRect(110, 70, 75, 23))
         self.previous.clicked.connect(self.find_previous)
+        self.bottom_layout.addWidget(self.previous)
 
-        self.label = QLabel(self)
-        self.label.setObjectName("Label")
-        self.label.setGeometry(QRect(10, 10, 91, 16))
-        self.label.setText("Enter Text to Find")
+        self.main_layout.addStretch()
 
         self.setWindowTitle("Find")
 
