@@ -137,6 +137,8 @@ class Window(QMainWindow):
 
         self._config["show_setup_info"] = "False"
 
+        self.plugin_actions_dock = PluginActions("Plugin Actions", self)
+
         def splashScreen():
             # Splash Screen
             splash_pix = ""
@@ -482,6 +484,9 @@ class Window(QMainWindow):
             )
 
             self.addDockWidget(Qt.DockWidgetArea.RightDockWidgetArea, self.plugin_actions_dock)
+
+    def addWidget_toPlugin(self, widget):
+        self.plugin_layout.addWidget(widget)
 
     def new_project(self):
         new_folder_path = QFileDialog.getExistingDirectory(self,
