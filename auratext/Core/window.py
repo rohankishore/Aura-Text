@@ -447,46 +447,36 @@ class Window(QMainWindow):
     def expandSidebar__Plugins(self):
         self.plugin_dock = QDockWidget("Extensions", self)
         self.theme_dock = QDockWidget("Themes", self)
-        background_color = (
-            self.plugin_button.palette().color(self.plugin_button.backgroundRole()).name()
-        )
-        if background_color == "#3574f0":
-            self.plugin_dock.destroy()
-            self.theme_dock.destroy()
-        else:
-            self.plugin_dock.visibilityChanged.connect(
-                lambda visible: self.onPluginDockVisibilityChanged(visible)
-            )
-            self.plugin_dock.setMinimumWidth(300)
-            self.plugin_widget = PluginDownload.FileDownloader(self)
-            self.plugin_layout = QVBoxLayout()
-            self.plugin_layout.addStretch(1)
-            self.plugin_layout.addWidget(self.plugin_widget)
-            self.plugin_dock.setWidget(self.plugin_widget)
+        self.plugin_dock.setMinimumWidth(300)
+        self.plugin_widget = PluginDownload.FileDownloader(self)
+        self.plugin_layout = QVBoxLayout()
+        self.plugin_layout.addStretch(1)
+        self.plugin_layout.addWidget(self.plugin_widget)
+        self.plugin_dock.setWidget(self.plugin_widget)
 
-            self.theme_widget = ThemeDownload.ThemeDownloader(self)
-            self.theme_layout = QVBoxLayout()
-            self.theme_layout.addStretch(1)
-            self.theme_layout.addWidget(self.theme_widget)
-            self.theme_dock.setWidget(self.theme_widget)
+        self.theme_widget = ThemeDownload.ThemeDownloader(self)
+        self.theme_layout = QVBoxLayout()
+        self.theme_layout.addStretch(1)
+        self.theme_layout.addWidget(self.theme_widget)
+        self.theme_dock.setWidget(self.theme_widget)
 
-            self.addDockWidget(Qt.DockWidgetArea.RightDockWidgetArea, self.plugin_dock)
-            self.addDockWidget(Qt.DockWidgetArea.RightDockWidgetArea, self.theme_dock)
-            self.tabifyDockWidget(self.theme_dock, self.plugin_dock)
+        self.addDockWidget(Qt.DockWidgetArea.RightDockWidgetArea, self.plugin_dock)
+        self.addDockWidget(Qt.DockWidgetArea.RightDockWidgetArea, self.theme_dock)
+        self.tabifyDockWidget(self.theme_dock, self.plugin_dock)
 
     def expandSidebar__PluginActions(self):
-        self.plugin_dock = PluginActions("Plugin Actions")
+        self.plugin_actions_dock = PluginActions("Plugin Actions")
         background_color = (
             self.plugin_button.palette().color(self.plugin_button.backgroundRole()).name()
         )
         if background_color == "#3574f0":
-            self.plugin_dock.destroy()
+            self.plugin_actions_dock.destroy()
         else:
-            self.plugin_dock.visibilityChanged.connect(
+            self.plugin_actions_dock.visibilityChanged.connect(
                 lambda visible: self.onPluginDockVisibilityChanged(visible)
             )
 
-            self.addDockWidget(Qt.DockWidgetArea.RightDockWidgetArea, self.plugin_dock)
+            self.addDockWidget(Qt.DockWidgetArea.RightDockWidgetArea, self.plugin_actions_dock)
 
     def new_project(self):
         new_folder_path = QFileDialog.getExistingDirectory(self,
