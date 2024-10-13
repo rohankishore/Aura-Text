@@ -69,8 +69,13 @@ class PluginActions(QDockWidget):
     def __init__(self, title, parent=None):
         super().__init__(title, parent)
 
-        self.plugin_layout = QVBoxLayout()
+        self.plugin_widget = QWidget()
+
+        self.plugin_layout = QVBoxLayout(self.plugin_widget)
         self.plugin_layout.addStretch(1)
+
+        # Set the widget with the layout as the dock's central widget
+        self.setWidget(self.plugin_widget)
 
     def addPluginAction(self, widget):
         """
