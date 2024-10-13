@@ -82,9 +82,7 @@ class PluginActions(QDockWidget):
         :return:
         """
 
-
-
-
+        self.plugin_layout.addWidget(widget)
 
 # noinspection PyUnresolvedReferences
 # no inspection for unresolved references as pylance flags inaccurately sometimes
