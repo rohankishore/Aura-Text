@@ -65,6 +65,26 @@ class Sidebar(QDockWidget):
         self.setAllowedAreas(Qt.DockWidgetArea.LeftDockWidgetArea)
         self.setFeatures(QDockWidget.DockWidgetFeature.NoDockWidgetFeatures)
 
+class PluginActions(QDockWidget):
+    def __init__(self, title, parent=None):
+        super().__init__(title, parent)
+
+        self.plugin_layout = QVBoxLayout()
+        self.plugin_layout.addStretch(1)
+
+    def addPluginAction(self, widget):
+        """
+        Add a plugin action to the sidebar.
+
+        :param widget: The Widget object to add.
+        :return: None
+        :param widget:
+        :return:
+        """
+
+
+
+
 
 # noinspection PyUnresolvedReferences
 # no inspection for unresolved references as pylance flags inaccurately sometimes
@@ -254,7 +274,7 @@ class Window(QMainWindow):
 
         # Connect the button's clicked signal to the slot
         self.explorer_button.clicked.connect(self.expandSidebar__Explorer)
-        self.plugin_button.clicked.connect(self.expandSidebar__Plugins)
+        self.plugin_button.clicked.connect(self.expandSidebar__PluginActions)
 
         self.setCentralWidget(self.tab_widget)
         self.editors = []
@@ -455,6 +475,23 @@ class Window(QMainWindow):
             self.addDockWidget(Qt.DockWidgetArea.RightDockWidgetArea, self.plugin_dock)
             self.addDockWidget(Qt.DockWidgetArea.RightDockWidgetArea, self.theme_dock)
             self.tabifyDockWidget(self.theme_dock, self.plugin_dock)
+
+    def expandSidebar__PluginActions(self):
+        self.plugin_dock = QDockWidget("Plugin Actions", self)
+        background_color = (
+            self.plugin_button.palette().color(self.plugin_button.backgroundRole()).name()
+        )
+        if background_color == "#3574f0":
+            self.plugin_dock.destroy()
+        else:
+            self.plugin_dock.visibilityChanged.connect(
+                lambda visible: self.onPluginDockVisibilityChanged(visible)
+            )
+            self.plugin_dock.setMinimumWidth(300)
+            self.plugin_layout = QVBoxLayout()
+            self.plugin_layout.addStretch(1)
+
+            self.addDockWidget(Qt.DockWidgetArea.RightDockWidgetArea, self.plugin_dock)
 
     def new_project(self):
         new_folder_path = QFileDialog.getExistingDirectory(self,
