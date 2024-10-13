@@ -475,7 +475,7 @@ class Window(QMainWindow):
             self.tabifyDockWidget(self.theme_dock, self.plugin_dock)
 
     def expandSidebar__PluginActions(self):
-        self.plugin_dock = QDockWidget("Plugin Actions", self)
+        self.plugin_dock = PluginActions("Plugin Actions")
         background_color = (
             self.plugin_button.palette().color(self.plugin_button.backgroundRole()).name()
         )
@@ -485,9 +485,6 @@ class Window(QMainWindow):
             self.plugin_dock.visibilityChanged.connect(
                 lambda visible: self.onPluginDockVisibilityChanged(visible)
             )
-            self.plugin_dock.setMinimumWidth(300)
-            self.plugin_layout = QVBoxLayout()
-            self.plugin_layout.addStretch(1)
 
             self.addDockWidget(Qt.DockWidgetArea.RightDockWidgetArea, self.plugin_dock)
 
