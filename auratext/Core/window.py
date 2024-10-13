@@ -357,7 +357,7 @@ class Window(QMainWindow):
         plugin_files = [
             f.split(".")[0] for f in os.listdir(f"{local_app_data}/plugins") if f.endswith(".py")
         ]
-        print(plugin_files)
+        print("Plugins Found: ", plugin_files)
         for plugin_file in plugin_files:
             module = importlib.import_module(plugin_file)
             for name, obj in module.__dict__.items():
