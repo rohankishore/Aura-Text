@@ -24,7 +24,7 @@ jobs:
 
     - name: Build
       run:
-        nuitka --onefile --windows-console-mode='disable' --windows-icon-from-ico=icon.ico main.py
+        nuitka --onefile --windows-console-mode='disable' --enable-plugin=pyqt5 --enable-plugin=pyqt6 --windows-icon-from-ico=icon.ico main.py
     - name: Upload ZIP
       uses: actions/upload-artifact@v4.3.1
       with:
