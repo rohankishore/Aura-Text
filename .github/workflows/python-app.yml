@@ -29,4 +29,4 @@ jobs:
       uses: actions/upload-artifact@v4.3.1
       with:
         name: Aura-Text
-        path: \main.dist
+        path: main.dist
