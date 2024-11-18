@@ -28,7 +28,7 @@ jobs:
         nuitka-version: main
         script-name: main.py
         mode: standalone
-        enable-plugins: pyqt6
+        enable-plugins: pyside6
     - name: Upload ZIP
       uses: actions/upload-artifact@v4.3.1
       with:
