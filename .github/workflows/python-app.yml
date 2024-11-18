@@ -17,21 +17,21 @@ jobs:
       uses: actions/setup-python@v3
       with:
         python-version: "3.11"
-    - name: Set up MinGW
-      uses: egor-tensin/setup-mingw@v2.2.0
-      with:
-        platform: x64
-        cc: 1
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
         pip install -r requirements.txt -U nuitka ordered-set zstandard
-
-    - name: Build
-      run:
-        python -m nuitka --mingw64 --standalone --output-dir=out --show-progress --onefile --enable-plugin=pyqt6 --windows-disable-console main.py
+    
+    - name: Build Exe
+      uses: Nuitka/Nuitka-Action@main
+      with:
+        nuitka-version: main
+        script-name: main.py
+        mode: standalone
+        enable-plugins: pyqt6
     - name: Upload ZIP
       uses: actions/upload-artifact@v4.3.1
       with:
         name: Aura-Text
-        path: out
+        path: build
+        include-hidden-files: true
