@@ -24,7 +24,7 @@ jobs:
 
     - name: Build
       run:
-        python -m nuitka --mingw64 --standalone --output-dir=out --show-progress --onefile --plugin-enable=pyqt5 --enable-plugin=pyqt6 --windows-disable-console main.py
+        python -m nuitka --mingw64 --standalone --output-dir=out --show-progress --onefile --enable-plugin=pyqt6 --windows-disable-console main.py
     - name: Upload ZIP
       uses: actions/upload-artifact@v4.3.1
       with:
