@@ -27,8 +27,9 @@ jobs:
       with:
         nuitka-version: main
         script-name: main.py
-        mode: standalone
-        enable-plugins: pyside6
+        mode: onefile
+        enable-plugins: pyqt6
+        windows-icon-from-ico: icon.ico
     - name: Upload ZIP
       uses: actions/upload-artifact@v4.3.1
       with:
