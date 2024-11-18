@@ -20,13 +20,13 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install -r requirements.txt -U nuitka
+        pip install -r requirements.txt -U nuitka ordered-set zstandard
 
     - name: Build
       run:
-        nuitka --windows-console-mode='disable' --enable-plugin=pyqt6 --windows-icon-from-ico=icon.ico main.py
+        python -m nuitka --mingw64 --standalone --output-dir=out --show-progress --onefile --plugin-enable=pyqt5 --enable-plugin=pyqt6 --windows-disable-console main.py
     - name: Upload ZIP
       uses: actions/upload-artifact@v4.3.1
       with:
         name: Aura-Text
-        path: main.dist/
+        path: out
