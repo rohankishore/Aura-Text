@@ -24,10 +24,9 @@ jobs:
     
     - name: Build Exe
       run:
-        python -m nuitka --mingw64 --assume-yes-for-downloads --standalone --windows-console-mode=disable --jobs=8 --windows-icon-from-ico=icon.ico main.py
+        python -m nuitka --mingw64 --assume-yes-for-downloads --standalone --windows-console-mode=disable --jobs=8 --output-dir="build" --windows-icon-from-ico=icon.ico main.py
     - name: Upload ZIP
       uses: actions/upload-artifact@v4.3.1
       with:
         name: Aura-Text
         path: build
-        include-hidden-files: true
