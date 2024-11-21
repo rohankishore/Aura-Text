@@ -23,13 +23,7 @@ jobs:
         pip install -r requirements.txt -U nuitka ordered-set zstandard
     
     - name: Build Exe
-      uses: Nuitka/Nuitka-Action@main
-      with:
-        nuitka-version: main
-        script-name: main.py
-        mode: onefile
-        enable-plugins: pyqt6
-        windows-icon-from-ico: icon.ico
+      run: python
     - name: Upload ZIP
       uses: actions/upload-artifact@v4.3.1
       with:
