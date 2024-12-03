@@ -14,3 +14,5 @@ qt_material==2.14
 Requests==2.32.2
 roastedbyai==1.2.0
 pyqtdarktheme
+PyQt6-Fluent-Widgets==1.6.0
+PyQt6-QScintilla==2.14.1
