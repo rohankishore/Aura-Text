@@ -194,9 +194,6 @@ class Window(QMainWindow):
         self.sidebar_main.setWidget(self.sidebar_widget)
         self.addDockWidget(Qt.DockWidgetArea.LeftDockWidgetArea, self.sidebar_main)
 
-        self.bottom_bar = QStatusBar()
-        # self.setStatusBar(self.bottom_bar)
-
         self.leftBar = Sidebar("", self)
         self.leftBar.setTitleBarWidget(QWidget())
         self.leftBar_widget = QWidget(self.leftBar)
