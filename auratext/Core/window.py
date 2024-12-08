@@ -990,6 +990,7 @@ class Window(QMainWindow):
 
     def change_text_editor(self, index):
         if index < len(self.editors):
+            self.statusBar.show()
             # Set the previous editor as read-only
             if self.current_editor:
                 self.current_editor.setReadOnly(True)
@@ -997,6 +998,9 @@ class Window(QMainWindow):
             self.current_editor = self.editors[index]
 
             self.current_editor.setReadOnly(False)
+
+        if self.tab_widget.count() == 0:
+            self.statusBar.hide()
 
     def undo_document(self):
         self.current_editor.undo()
@@ -1057,6 +1061,10 @@ class Window(QMainWindow):
         self.tab_widget.removeTab(index)
         if index < len(self.editors):
             del self.editors[index]
+            self.statusBar.hide()
+
+        if self.tab_widget.count() == 0:
+            self.statusBar.hide()
 
     def open_document(self):
         a = ModuleFile.open_document(self)
