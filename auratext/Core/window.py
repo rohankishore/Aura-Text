@@ -279,11 +279,13 @@ class Window(QMainWindow):
         self.plugin_button.clicked.connect(self.expandSidebar__PluginActions)
 
         self.setCentralWidget(self.tab_widget)
+        self.statusBar.hide()
         self.editors = []
 
         if self._config["open_last_file"] == "True":
             if cfile != "" or cfile != " ":
                 self.open_last_file()
+                self.statusBar.show()
             else:
                 pass
         else:
