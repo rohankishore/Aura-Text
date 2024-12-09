@@ -1,4 +1,5 @@
 import os
+import webbrowser
 
 from PyQt6.QtCore import Qt
 from PyQt6.QtGui import QPixmap
@@ -61,5 +62,5 @@ class AboutAppDialog(QDialog):
         self.setLayout(layout)
 
     def learn_more(self):
-        print("Learn More button clicked!")
+        webbrowser.open_new_tab("https://github.com/rohankishore/Aura-Text")
 
