@@ -1,9 +1,13 @@
+import os
+
 from PyQt6.QtCore import Qt
 from PyQt6.QtGui import QPixmap
 from PyQt6.QtWidgets import (
     QPushButton,
     QVBoxLayout,
     QSpacerItem, QHBoxLayout, QLabel, QSizePolicy, QDialog)
+
+local_app_data = os.path.join(os.getenv("LocalAppData"), "AuraText")
 
 class AboutAppDialog(QDialog):
     def __init__(self):
@@ -18,7 +22,7 @@ class AboutAppDialog(QDialog):
 
         # Image at the top
         image_label = QLabel()
-        pixmap = QPixmap("path_to_your_image.png")
+        pixmap = QPixmap(f"{local_app_data}/icons/banner.png")
         pixmap = pixmap.scaled(200, 200, aspectRatioMode=Qt.AspectRatioMode.KeepAspectRatioByExpanding)
         image_label.setPixmap(pixmap)
         image_label.setAlignment(Qt.AlignmentFlag.AlignCenter)

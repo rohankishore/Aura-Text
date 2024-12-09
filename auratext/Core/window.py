@@ -1095,19 +1095,7 @@ class Window(QMainWindow):
 
     @staticmethod
     def version():
-        text_ver = (
-                "Aura Text"
-                + "\n"
-                + "Current Version: "
-                + "4.8"
-                + "\n"
-                + "\n"
-                + "Copyright © 2023 Rohan Kishore."
-        )
-        msg_box = QMessageBox()
-        msg_box.setWindowTitle("About")
-        msg_box.setText(text_ver)
-        msg_box.exec()
+        dialog =
 
     @staticmethod
     def getting_started():
