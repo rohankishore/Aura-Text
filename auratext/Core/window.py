@@ -282,6 +282,8 @@ class Window(QMainWindow):
         self.statusBar.hide()
         self.editors = []
 
+        self.about_dialog = None
+
         if self._config["open_last_file"] == "True":
             if cfile != "" or cfile != " ":
                 self.open_last_file()
@@ -1093,9 +1095,14 @@ class Window(QMainWindow):
     def about_github():
         webbrowser.open_new_tab("https://github.com/rohankishore/Aura-Notes")
 
-    @staticmethod
-    def version():
-        dialog =
+    def version(self):
+        try:
+            if not self.about_dialog:
+                self.about_dialog = About.AboutAppDialog()
+            self.about_dialog.exec()
+            self.about_dialog.raise_()
+        except Exception as e:
+            print(e)
 
     @staticmethod
     def getting_started():

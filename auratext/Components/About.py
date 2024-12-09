@@ -15,6 +15,7 @@ class AboutAppDialog(QDialog):
 
         self.setWindowTitle("About App")
         self.setMinimumSize(400, 300)
+        self.setWindowFlags(Qt.WindowType.FramelessWindowHint | Qt.WindowType.Window)
         self.init_ui()
 
     def init_ui(self):
@@ -28,9 +29,9 @@ class AboutAppDialog(QDialog):
         image_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
         # App description
-        description = QLabel("This is a cool app designed to do awesome things. "
-                             "Built with PyQt6 for an amazing user experience. "
-                             "Feel free to explore and enjoy!")
+        description = QLabel("Aura Text is a versatile and powerful text editor powered by QScintilla that provides all the necessary tools for developers. It is build using PyQt6 and Python."
+                             "\n" + "\n" 
+                             "Version: v5.1.0" + "\n" + "\n" + "\n" + "Made with ❣️ by Rohan Kishore")
         description.setWordWrap(True)
         description.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
