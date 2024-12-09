@@ -37,7 +37,7 @@ from . import Modules as ModuleFile
 from . import PluginDownload
 from . import ThemeDownload
 from . import config_page
-from ..Components import powershell, terminal, statusBar, ProjectManager
+from ..Components import powershell, terminal, statusBar, ProjectManager, About
 
 from .AuraText import CodeEditor
 from auratext.Components.TabWidget import TabWidget
