@@ -7,9 +7,9 @@ from PyQt6.QtWidgets import (
 )
 from PyQt6.QtCore import Qt
 
-
 local_app_data = os.path.join(os.getenv("LocalAppData"), "AuraText")
 cpath = open(f"{local_app_data}/data/CPath_Project.txt", "r+").read()
+
 
 def check_folder_exists(folder_path):
     """Check if a folder exists in the specified directory."""
@@ -21,6 +21,19 @@ def check_folder_exists(folder_path):
         return False
 
 
+def create_folder(folder_path):
+    """Create a folder inside a directory if it doesn't already exist."""
+    try:
+        os.makedirs(folder_path, exist_ok=True)
+        print(f"The folder '{folder_path}' was created (or already exists).")
+    except Exception as e:
+        print(f"Failed to create folder '{folder_path}': {e}")
+
+
+if check_folder_exists(f"{cpath}/AuraText/"):
+    pass
+else:
+    create_folder(f"{cpath}/AuraText")
 # Path to the CSV file
 CSV_FILE = "tasks.csv"
 
