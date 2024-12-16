@@ -30,12 +30,12 @@ def create_folder(folder_path):
         print(f"Failed to create folder '{folder_path}': {e}")
 
 
-if check_folder_exists(f"{cpath}/AuraText/"):
+if check_folder_exists(f"{cpath}/Aura Text/"):
     pass
 else:
-    create_folder(f"{cpath}/AuraText")
+    create_folder(f"{cpath}/Aura Text")
 # Path to the CSV file
-CSV_FILE = "tasks.csv"
+CSV_FILE = f"{cpath}/Aura Text/todo.csv"
 
 
 class ToDoApp(QDialog):
@@ -74,14 +74,21 @@ class ToDoApp(QDialog):
         """Load tasks from the CSV file into the list widget."""
         self.list_widget.clear()
         try:
-            with open(CSV_FILE, "r", newline="") as file:
+            with open(f"{cpath}/Aura Text/todo.csv", "r", newline="") as file:
                 reader = csv.reader(file)
                 for row in reader:
                     task, status = row
                     display_text = f"{task} [{status}]"
                     self.list_widget.addItem(display_text)
         except FileNotFoundError:
-            QMessageBox.warning(self, "Error", f"The file '{CSV_FILE}' does not exist.")
+            create_folder(f"{cpath}/Aura Text/")
+            with open(f"{cpath}/Aura Text/todo.csv", "w", newline="") as file:
+                writer = csv.writer(file)
+                # Add default rows or leave empty
+                writer.writerow(["Task", "Status"])
+                writer.writerow(["Sample Task 1", "Incomplete"])
+                writer.writerow(["Sample Task 2", "Incomplete"])
+            print(f"File created successfully.")
 
     def mark_as_complete(self):
         """Mark the selected task as complete and update the CSV file."""
@@ -114,7 +121,13 @@ class ToDoApp(QDialog):
             self.load_tasks()
 
         except FileNotFoundError:
-            QMessageBox.warning(self, "Error", f"The file '{CSV_FILE}' does not exist.")
+            with open(f"{cpath}/Aura Text/todo.csv", "w", newline="") as file:
+                writer = csv.writer(file)
+                # Add default rows or leave empty
+                writer.writerow(["Task", "Status"])
+                writer.writerow(["Sample Task 1", "Incomplete"])
+                writer.writerow(["Sample Task 2", "Incomplete"])
+            print(f"File created successfully.")
 
 
 if __name__ == "__main__":
