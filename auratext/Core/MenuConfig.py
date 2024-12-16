@@ -176,7 +176,9 @@ QMenu::item::selected {{
     tools_menu.addAction("Notes", self.notes).setWhatsThis(
         "Creates a new dock to write down ideas and temporary stuffs. The contents will be erased if you close the dock or the app"
     )
-    tools_menu.addAction("ToDo", self.todo)
+    tools_menu.addAction("To-Do", self.todo).setWhatsThis(
+        "Creates a new list to write down ideas. You can mark tasks as completed. The contents will not be erased if you close the app."
+    )
 
     tools_menu.addAction("Convert to HTML", self.toHTML).setWhatsThis("Converts the current MD file to HTML")
 
