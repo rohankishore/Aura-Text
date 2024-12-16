@@ -1,16 +1,31 @@
+import os
 import sys
 import csv
 from PyQt6.QtWidgets import (
     QApplication, QMainWindow, QVBoxLayout, QWidget,
-    QListWidget, QPushButton, QHBoxLayout, QMessageBox
+    QListWidget, QPushButton, QHBoxLayout, QMessageBox, QDialog
 )
 from PyQt6.QtCore import Qt
+
+
+local_app_data = os.path.join(os.getenv("LocalAppData"), "AuraText")
+cpath = open(f"{local_app_data}/data/CPath_Project.txt", "r+").read()
+
+def check_folder_exists(folder_path):
+    """Check if a folder exists in the specified directory."""
+    if os.path.isdir(folder_path):
+        print(f"The folder '{folder_path}' exists.")
+        return True
+    else:
+        print(f"The folder '{folder_path}' does not exist.")
+        return False
+
 
 # Path to the CSV file
 CSV_FILE = "tasks.csv"
 
 
-class ToDoApp(QMainWindow):
+class ToDoApp(QDialog):
     def __init__(self):
         super().__init__()
 
@@ -18,12 +33,10 @@ class ToDoApp(QMainWindow):
         self.resize(400, 300)
 
         # Central widget setup
-        self.central_widget = QWidget()
-        self.setCentralWidget(self.central_widget)
 
         # Layouts
         self.layout = QVBoxLayout()
-        self.central_widget.setLayout(self.layout)
+        self.setLayout(self.layout)
 
         # List widget to display tasks
         self.list_widget = QListWidget()

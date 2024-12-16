@@ -37,7 +37,7 @@ from . import Modules as ModuleFile
 from . import PluginDownload
 from . import ThemeDownload
 from . import config_page
-from ..Components import powershell, terminal, statusBar, ProjectManager, About
+from ..Components import powershell, terminal, statusBar, ProjectManager, About, ToDo
 
 from .AuraText import CodeEditor
 from auratext.Components.TabWidget import TabWidget
@@ -1040,6 +1040,9 @@ class Window(QMainWindow):
         note_dock.setWidget(note_widget)
         self.addDockWidget(Qt.DockWidgetArea.RightDockWidgetArea, note_dock)
         note_dock.show()
+
+    def todo(self):
+        todo_widget = ToDo.ToDoApp()
 
     def redo_document(self):
         self.current_editor.redo()
