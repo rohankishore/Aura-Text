@@ -276,7 +276,7 @@ class Window(QMainWindow):
 
         # Connect the button's clicked signal to the slot
         self.explorer_button.clicked.connect(self.expandSidebar__Explorer)
-        self.plugin_button.clicked.connect(self.expandSidebar__PluginActions)
+        self.plugin_button.clicked.connect(self.expandSidebar__Plugins)
 
         self.setCentralWidget(self.tab_widget)
         self.statusBar.hide()
