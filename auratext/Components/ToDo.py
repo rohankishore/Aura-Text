@@ -3,7 +3,7 @@ import sys
 import csv
 from PyQt6.QtWidgets import (
     QApplication, QMainWindow, QVBoxLayout, QWidget,
-    QListWidget, QPushButton, QHBoxLayout, QMessageBox, QDialog
+    QListWidget, QPushButton, QHBoxLayout, QMessageBox, QDialog, QLineEdit
 )
 from PyQt6.QtCore import Qt
 
@@ -43,7 +43,7 @@ class ToDoApp(QDialog):
         super().__init__()
 
         self.setWindowTitle("To-Do List")
-        self.resize(400, 300)
+        self.resize(400, 400)
 
         # Central widget setup
 
@@ -67,6 +67,18 @@ class ToDoApp(QDialog):
         self.refresh_button.clicked.connect(self.load_tasks)
         self.button_layout.addWidget(self.refresh_button)
 
+        # Input field for adding tasks
+        self.add_task_layout = QHBoxLayout()
+        self.layout.addLayout(self.add_task_layout)
+
+        self.task_input = QLineEdit()
+        self.task_input.setPlaceholderText("Enter a new task")
+        self.add_task_layout.addWidget(self.task_input)
+
+        self.add_task_button = QPushButton("Add Task")
+        self.add_task_button.clicked.connect(self.add_task)
+        self.add_task_layout.addWidget(self.add_task_button)
+
         # Load tasks from the CSV file
         self.load_tasks()
 
@@ -74,15 +86,17 @@ class ToDoApp(QDialog):
         """Load tasks from the CSV file into the list widget."""
         self.list_widget.clear()
         try:
-            with open(f"{cpath}/Aura Text/todo.csv", "r", newline="") as file:
+            with open(CSV_FILE, "r", newline="") as file:
                 reader = csv.reader(file)
                 for row in reader:
+                    if len(row) != 2:
+                        continue
                     task, status = row
                     display_text = f"{task} [{status}]"
                     self.list_widget.addItem(display_text)
         except FileNotFoundError:
             create_folder(f"{cpath}/Aura Text/")
-            with open(f"{cpath}/Aura Text/todo.csv", "w", newline="") as file:
+            with open(CSV_FILE, "w", newline="") as file:
                 writer = csv.writer(file)
                 # Add default rows or leave empty
                 writer.writerow(["Task", "Status"])
@@ -105,6 +119,8 @@ class ToDoApp(QDialog):
             with open(CSV_FILE, "r", newline="") as file:
                 reader = csv.reader(file)
                 for row in reader:
+                    if len(row) != 2:
+                        continue
                     task, status = row
                     if task == task_name:
                         updated_rows.append([task, "Complete"])
@@ -121,7 +137,7 @@ class ToDoApp(QDialog):
             self.load_tasks()
 
         except FileNotFoundError:
-            with open(f"{cpath}/Aura Text/todo.csv", "w", newline="") as file:
+            with open(CSV_FILE, "w", newline="") as file:
                 writer = csv.writer(file)
                 # Add default rows or leave empty
                 writer.writerow(["Task", "Status"])
@@ -129,21 +145,25 @@ class ToDoApp(QDialog):
                 writer.writerow(["Sample Task 2", "Incomplete"])
             print(f"File created successfully.")
 
+    def add_task(self):
+        """Add a new task to the to-do list and update the CSV file."""
+        task_name = self.task_input.text().strip()
+        if not task_name:
+            QMessageBox.warning(self, "Warning", "Task name cannot be empty.")
+            return
 
-if __name__ == "__main__":
-    app = QApplication(sys.argv)
+        try:
+            with open(CSV_FILE, "a", newline="") as file:
+                writer = csv.writer(file)
+                writer.writerow([task_name, "Incomplete"])
 
-    # Create the CSV file with some default tasks if it doesn't exist
-    try:
-        with open(CSV_FILE, "x", newline="") as file:
-            writer = csv.writer(file)
-            writer.writerow(["Buy groceries", "Incomplete"])
-            writer.writerow(["Complete Python project", "Incomplete"])
-            writer.writerow(["Call mom", "Incomplete"])
-    except FileExistsError:
-        pass
+            QMessageBox.information(self, "Success", f"Task '{task_name}' added successfully.")
 
-    window = ToDoApp()
-    window.show()
+            # Clear the input field
+            self.task_input.clear()
 
-    sys.exit(app.exec())
+            # Refresh the list
+            self.load_tasks()
+
+        except Exception as e:
+            QMessageBox.critical(self, "Error", f"Failed to add task: {e}")

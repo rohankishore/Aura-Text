@@ -1042,7 +1042,8 @@ class Window(QMainWindow):
         note_dock.show()
 
     def todo(self):
-        todo_widget = ToDo.ToDoApp()
+        todo_dialog = ToDo.ToDoApp()
+        todo_dialog.exec()
 
     def redo_document(self):
         self.current_editor.redo()
