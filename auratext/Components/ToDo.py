@@ -1,11 +1,9 @@
-import os
-import sys
 import csv
+import os
+
 from PyQt6.QtWidgets import (
-    QApplication, QMainWindow, QVBoxLayout, QWidget,
-    QListWidget, QPushButton, QHBoxLayout, QMessageBox, QDialog, QLineEdit
+    QVBoxLayout, QListWidget, QPushButton, QHBoxLayout, QMessageBox, QDialog, QLineEdit
 )
-from PyQt6.QtCore import Qt
 
 local_app_data = os.path.join(os.getenv("LocalAppData"), "AuraText")
 cpath = open(f"{local_app_data}/data/CPath_Project.txt", "r+").read()
