@@ -24,7 +24,16 @@ if exit_code != 0:
 
 print("Creating shortcuts...")
 import winshell
+print("Desktop")
 desktop = winshell.desktop()
+shortcut_path = winshell.shortcut(os.path.join(os.path.join(desktop, "Aura Text.lnk")))
+shortcut_path.path = os.path.join(programs, "auratext.bat")
+shortcut_path.working_directory = programs
+shortcut_path.description = "Aura Text is a versatile and powerful text editor powered by QScintilla that provides all the necessary tools for developers. It is build using PyQt6 and Python."
+shortcut_path.icon_location = (os.path.join(programs, "icon.ico"), 0)
+shortcut_path.write()
+print("Start Menu")
+desktop = winshell.start_menu()
 shortcut_path = winshell.shortcut(os.path.join(os.path.join(desktop, "Aura Text.lnk")))
 shortcut_path.path = os.path.join(programs, "auratext.bat")
 shortcut_path.working_directory = programs
