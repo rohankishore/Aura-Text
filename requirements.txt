@@ -16,3 +16,4 @@ roastedbyai==1.2.0
 pyqtdarktheme
 PyQt6-Fluent-Widgets==1.6.0
 PyQt6-QScintilla==2.14.1
+winshell
