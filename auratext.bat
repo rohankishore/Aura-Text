@@ -6,7 +6,7 @@ set SCRIPT_DIR=%~dp0
 
 : Start Aura Text
 echo Starting Aura Text...
-python %SCRIPT_DIR%main.py
+python "%SCRIPT_DIR%main.py"
 echo Exiting...
 
 endlocal
