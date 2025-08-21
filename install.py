@@ -21,6 +21,10 @@ exit_code = os.system(f'"{sys.executable}" -m pip install -r requirements.txt')
 if exit_code != 0:
     print(f"Installation failed with exit code {exit_code} while installing dependencies.")
     sys.exit(exit_code)
+exit_code2 = os.system(f'"{sys.executable}" -m pip install wheels\pyqtdarktheme-2.1.0-py3-none-any.whl')
+if exit_code2 != 0:
+    print(f"Installation failed with exit code {exit_code2} while installing pyqtdarktheme.")
+    sys.exit(exit_code2)
 
 print("Creating shortcuts...")
 import winshell
