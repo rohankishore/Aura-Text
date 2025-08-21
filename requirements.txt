@@ -6,7 +6,7 @@ pyjokes==0.6.0
 PyQt6==6.6.1
 PyQt6_sip==13.6.0
 pyqt_find_replace_text_widget==0.0.14
-pyqtconsole==1.2.2
+pyqtconsole==1.2.3
 pyttsx3==2.90
 pywin32==311
 pywinstyles==1.3
