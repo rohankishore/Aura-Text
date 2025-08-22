@@ -2,3 +2,4 @@
 
 cd "$(dirname "$0")"
 $(which python3) main.py
+cd -
