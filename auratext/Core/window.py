@@ -29,14 +29,14 @@ from PyQt6.QtWidgets import (
     QWidget,
     QVBoxLayout,
     QStatusBar)
-from . import Lexers
+from . import Lexers, MenuConfig, additional_prefs, Modules as ModuleFile, PluginDownload, ThemeDownload, config_page
 from ..Misc import shortcuts, WelcomeScreen, boilerplates, file_templates
-from . import MenuConfig
-from . import additional_prefs
-from . import Modules as ModuleFile
-from . import PluginDownload
-from . import ThemeDownload
-from . import config_page
+# from . import MenuConfig
+# from . import additional_prefs
+# from . import Modules as ModuleFile
+# from . import PluginDownload
+# from . import ThemeDownload
+# from . import config_page
 from ..Components import powershell, terminal, statusBar, ProjectManager, About, ToDo
 
 from .AuraText import CodeEditor
