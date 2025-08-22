@@ -25,6 +25,10 @@ shutil.copytree("LocalAppData/AuraText", os.path.join(localappdata, "AuraText"),
 print("Aura-Text")
 shutil.copytree(os.getcwd(), programs, dirs_exist_ok=True, ignore=shutil.ignore_patterns(".git"))
 
+if platform.system() != "Windows":
+    print("Making executable...")
+    os.system(f"chmod +x {os.path.join(programs, 'aura-text')}")
+
 print("Installing dependencies...")
 exit_code = os.system(f'"{sys.executable}" -m pip install -r requirements.txt')
 if exit_code == 256:
