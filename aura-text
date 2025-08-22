@@ -1,2 +1,4 @@
 #!/usr/bin/env bash
 
+cd "$(dirname "$0")"
+$(which python3) main.py
