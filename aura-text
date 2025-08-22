@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
 
-cd "$(dirname "$0")"
+cd ~/.config/Programs/Aura-Text
 $(which python3) main.py
 cd -
