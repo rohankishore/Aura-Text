@@ -38,7 +38,16 @@ from auratext.Components.TabWidget import TabWidget
 from .plugin_interface import Plugin
 import platform
 
-local_app_data = os.path.join(os.getenv("LocalAppData"), "AuraText")
+if platform.system() == "Windows":
+    local_app_data = os.getenv('LOCALAPPDATA')
+elif platform.system() == "Linux":
+    local_app_data = os.path.expanduser("~/.config")
+elif platform.system() == "Darwin":
+    local_app_data = os.path.expanduser("~/Library/Application Support")
+else:
+    print("Unsupported operating system")
+    sys.exit(1)
+local_app_data = os.path.join(local_app_data, "AuraText")
 cpath = open(f"{local_app_data}/data/CPath_Project.txt", "r+").read()
 cfile = open(f"{local_app_data}/data/CPath_File.txt", "r+").read()
 

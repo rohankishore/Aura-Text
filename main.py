@@ -1,5 +1,6 @@
 import json
 import os
+import platform
 
 from PyQt6.QtWidgets import QApplication
 import sys
@@ -14,7 +15,15 @@ This file includes the code to run the app. It also scans if the app is being op
 setup instructions.
 """
 
-local_app_data = os.path.join(os.getenv("LocalAppData"), "AuraText")
+if platform.system() == "Windows":
+    local_app_data = os.getenv('LOCALAPPDATA')
+elif platform.system() == "Linux":
+    local_app_data = os.path.expanduser("~/.config")
+elif platform.system() == "Darwin":
+    local_app_data = os.path.expanduser("~/Library/Application Support")
+else:
+    print("Unsupported operating system")
+    sys.exit(1)
 with open(f"{local_app_data}/data/config.json", "r") as config_file:
     _config = json.load(config_file)
 with open(f"{local_app_data}/data/theme.json", "r") as config_file:

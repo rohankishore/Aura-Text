@@ -1,5 +1,7 @@
 import os
 import webbrowser
+import sys
+import platform
 
 from PyQt6.QtCore import Qt
 from PyQt6.QtGui import QPixmap
@@ -8,7 +10,16 @@ from PyQt6.QtWidgets import (
     QVBoxLayout,
     QSpacerItem, QHBoxLayout, QLabel, QSizePolicy, QDialog)
 
-local_app_data = os.path.join(os.getenv("LocalAppData"), "AuraText")
+if platform.system() == "Windows":
+    local_app_data = os.getenv('LOCALAPPDATA')
+elif platform.system() == "Linux":
+    local_app_data = os.path.expanduser("~/.config")
+elif platform.system() == "Darwin":
+    local_app_data = os.path.expanduser("~/Library/Application Support")
+else:
+    print("Unsupported operating system")
+    sys.exit(1)
+local_app_data = os.path.join(local_app_data, "AuraText")
 
 class AboutAppDialog(QDialog):
     def __init__(self):

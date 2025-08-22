@@ -9,6 +9,7 @@ import win32clipboard
 from PyQt6.QtCore import Qt
 from PyQt6.QtGui import QPixmap
 from PyQt6.QtWidgets import QLabel, QDockWidget, QVBoxLayout, QTextEdit, QTextBrowser
+import platform
 
 api_key_pastebin = "_L_ZkBp7K3aZMY7z4ombPIztLxITOOpD"
 
@@ -37,7 +38,16 @@ emsg_zerodivision = [
     "Whoops! Looks like you divided by the imaginary number i...nfinity.",
 ]
 
-local_app_data = os.path.join(os.getenv("LocalAppData"), "AuraText")
+if platform.system() == "Windows":
+    local_app_data = os.getenv('LOCALAPPDATA')
+elif platform.system() == "Linux":
+    local_app_data = os.path.expanduser("~/.config")
+elif platform.system() == "Darwin":
+    local_app_data = os.path.expanduser("~/Library/Application Support")
+else:
+    print("Unsupported operating system")
+    sys.exit(1)
+local_app_data = os.path.join(local_app_data, "AuraText")
 cfile_path = f"{local_app_data}/data/Cpath_File.txt"
 
 
