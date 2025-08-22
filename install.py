@@ -73,6 +73,6 @@ if platform.system() == "Windows":
 else:
     print("bin")
     os.system("rm -f ~/.local/bin/auratext")
-    os.system("ln -s Programs/aura-text ~/.local/bin/auratext")
+    os.system(f"ln -s {programs}/aura-text ~/.local/bin/auratext")
 
 print("Installation complete.")
