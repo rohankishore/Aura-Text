@@ -5,7 +5,7 @@ from tkinter import messagebox, filedialog
 
 import pyttsx3
 import requests
-import win32clipboard
+import pyperclip
 from PyQt6.QtCore import Qt
 from PyQt6.QtGui import QPixmap
 from PyQt6.QtWidgets import QLabel, QDockWidget, QVBoxLayout, QTextEdit, QTextBrowser
@@ -187,10 +187,7 @@ def pastebin(self):
         response = (requests.post("https://pastebin.com/api/api_post.php", data=data)).text
         text = "Your Pastebin link has been copied to the clipboard!"
         messagebox.showinfo("Success!", text)
-        win32clipboard.OpenClipboard()
-        win32clipboard.EmptyClipboard()
-        win32clipboard.SetClipboardText(response)
-        win32clipboard.CloseClipboard()
+        pyperclip.copy(response)
     else:
         messagebox.showerror("No Code Found!", random.choice(emsg_nocode_list))
 
