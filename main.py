@@ -24,6 +24,7 @@ elif platform.system() == "Darwin":
 else:
     print("Unsupported operating system")
     sys.exit(1)
+local_app_data = os.path.join(local_app_data, "AuraText")
 with open(f"{local_app_data}/data/config.json", "r") as config_file:
     _config = json.load(config_file)
 with open(f"{local_app_data}/data/theme.json", "r") as config_file:
