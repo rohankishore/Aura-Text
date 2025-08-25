@@ -128,6 +128,12 @@ _Below is an example of how you can build Aura Text using Nuitka_
 - Move the `AuraText` folder in the `LocalAppData` folder to the `AppData/Local` folder.
 - `python -m main.py`
 
+#### With Installer
+
+- Download / Clone this repository
+- Run the installer with `python -m install.py`
+- Aura Text will now appear on your Desktop and in your Start Menu.
+
 <br>
 
 ## 🧑🏻‍💻 Development 
