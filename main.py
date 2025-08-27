@@ -1,9 +1,6 @@
 import json
 import os
-<<<<<<< HEAD
 import shutil
-=======
->>>>>>> crossplatform
 import platform
 
 from PyQt6.QtWidgets import QApplication
