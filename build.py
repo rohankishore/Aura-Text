@@ -12,7 +12,7 @@ def run_pyinstaller():
             main_script,
             '--onedir',  # Create a single folder
             '-w',  # Makes it windowed
-            '--name "Aura Text"',
+            '--name', '"Aura Text"',
             '--icon=icon.ico'
         ]
 
