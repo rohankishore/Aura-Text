@@ -1,4 +1,5 @@
 import os
+import platform
 
 from PyQt6.QtWidgets import (
     QMainWindow,
@@ -17,7 +18,16 @@ from PyQt6.QtWidgets import (
     QLabel,
     QDialog)
 
-local_app_data = os.path.join(os.getenv("LocalAppData"), "AuraText")
+if platform.system() == "Windows":
+    local_app_data = os.getenv('LOCALAPPDATA')
+elif platform.system() == "Linux":
+    local_app_data = os.path.expanduser("~/.config")
+elif platform.system() == "Darwin":
+    local_app_data = os.path.expanduser("~/Library/Application Support")
+else:
+    print("Unsupported operating system")
+    sys.exit(1)
+local_app_data = os.path.join(local_app_data, "AuraText")
 
 class BoilerPlate(QDialog):
     def __init__(self, current_editor):

@@ -1,13 +1,22 @@
 import json
 import os
+import platform
 
 from PyQt6.QtWidgets import QApplication, QMainWindow, QWidget, QDialog, QVBoxLayout, QPushButton, QLabel, \
     QStackedWidget
 from PyQt6.QtGui import QMovie
 import sys
 
-
-local_app_data = os.path.join(os.getenv("LocalAppData"), "AuraText")
+if platform.system() == "Windows":
+    local_app_data = os.getenv('LOCALAPPDATA')
+elif platform.system() == "Linux":
+    local_app_data = os.path.expanduser("~/.config")
+elif platform.system() == "Darwin":
+    local_app_data = os.path.expanduser("~/Library/Application Support")
+else:
+    print("Unsupported operating system")
+    sys.exit(1)
+local_app_data = os.path.join(local_app_data, "AuraText")
 with open(f"{local_app_data}/data/config.json", "r") as config_file:
     _config = json.load(config_file)
 

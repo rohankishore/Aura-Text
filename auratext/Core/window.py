@@ -29,21 +29,25 @@ from PyQt6.QtWidgets import (
     QWidget,
     QVBoxLayout,
     QStatusBar)
-from . import Lexers
+from . import Lexers, MenuConfig, additional_prefs, Modules as ModuleFile, PluginDownload, ThemeDownload, config_page
 from ..Misc import shortcuts, WelcomeScreen, boilerplates, file_templates
-from . import MenuConfig
-from . import additional_prefs
-from . import Modules as ModuleFile
-from . import PluginDownload
-from . import ThemeDownload
-from . import config_page
 from ..Components import powershell, terminal, statusBar, ProjectManager, About, ToDo
 
 from .AuraText import CodeEditor
 from auratext.Components.TabWidget import TabWidget
 from .plugin_interface import Plugin
+import platform
 
-local_app_data = os.path.join(os.getenv("LocalAppData"), "AuraText")
+if platform.system() == "Windows":
+    local_app_data = os.getenv('LOCALAPPDATA')
+elif platform.system() == "Linux":
+    local_app_data = os.path.expanduser("~/.config")
+elif platform.system() == "Darwin":
+    local_app_data = os.path.expanduser("~/Library/Application Support")
+else:
+    print("Unsupported operating system")
+    sys.exit(1)
+local_app_data = os.path.join(local_app_data, "AuraText")
 cpath = open(f"{local_app_data}/data/CPath_Project.txt", "r+").read()
 cfile = open(f"{local_app_data}/data/CPath_File.txt", "r+").read()
 
@@ -130,8 +134,11 @@ class Window(QMainWindow):
             qdarktheme.setup_theme(
                 self._themes["theme_type"], custom_colors={"primary": self._themes["theme"]}
             )
-            import pywinstyles
-            pywinstyles.apply_style(self, (self._themes["titlebar"]))
+            if platform.system() == "Windows":
+                import pywinstyles
+                pywinstyles.apply_style(self, (self._themes["titlebar"]))
+            else:
+                print("This style is only available for Windows.")
         else:
             pass
 

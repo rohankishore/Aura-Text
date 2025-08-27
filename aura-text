@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+
+cd ~/.config/Programs/Aura-Text
+$(which python3) main.py
+cd -
