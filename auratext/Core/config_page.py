@@ -1,7 +1,9 @@
 from __future__ import annotations
 
 import json
-import winreg
+import platform
+if platform.system() == "Windows":
+    import winreg
 from typing import TYPE_CHECKING
 
 from PyQt6.QtGui import QIcon
@@ -235,22 +237,27 @@ class ConfigPage(QDialog):
             self.materialconfig_label.hide()
             self.materialconfig_combobox.hide()
 
-    @staticmethod
-    def get_installed_fonts():
-        font_key_path = r"Software\Microsoft\Windows NT\CurrentVersion\Fonts"
-        font_key = winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE, font_key_path)
+    # @staticmethod
+    if platform.system() == "Windows":
+        def get_installed_fonts():
+            font_key_path = r"Software\Microsoft\Windows NT\CurrentVersion\Fonts"
+            font_key = winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE, font_key_path)
 
-        font_names = []
-        try:
-            index = 0
-            while True:
-                font_name, _, _ = winreg.EnumValue(font_key, index)
-                font_name = font_name.replace("(TrueType)", "")
-                font_names.append(font_name)
-                index += 1
-        except WindowsError:
-            pass
+            font_names = []
+            try:
+                index = 0
+                while True:
+                    font_name, _, _ = winreg.EnumValue(font_key, index)
+                    font_name = font_name.replace("(TrueType)", "")
+                    font_names.append(font_name)
+                    index += 1
+            except WindowsError:
+                pass
 
-        winreg.CloseKey(font_key)
+            winreg.CloseKey(font_key)
 
-        return font_names
+            return font_names
+    else:
+        def get_installed_fonts():
+            font_names = []
+            return font_names

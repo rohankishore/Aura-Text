@@ -2,12 +2,22 @@ import importlib
 import json
 import os
 import sys
+import platform
 
 from PyQt6.QtWidgets import QMenu
 from PyQt6.QtGui import QAction, QIcon
 from .plugin_interface import MenuPluginInterface
 
-local_app_data = os.path.join(os.getenv("LocalAppData"), "AuraText")
+if platform.system() == "Windows":
+    local_app_data = os.getenv('LOCALAPPDATA')
+elif platform.system() == "Linux":
+    local_app_data = os.path.expanduser("~/.config")
+elif platform.system() == "Darwin":
+    local_app_data = os.path.expanduser("~/Library/Application Support")
+else:
+    print("Unsupported operating system")
+    sys.exit(1)
+local_app_data = os.path.join(local_app_data, "AuraText")
 cpath = open(f"{local_app_data}/data/CPath_Project.txt", "r+").read()
 
 with open(f"{local_app_data}/data/theme.json", "r") as themes_file:

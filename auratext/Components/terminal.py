@@ -6,6 +6,7 @@ import subprocess
 import sys
 from datetime import datetime
 from typing import TYPE_CHECKING
+import platform
 
 import pyautogui
 from PyQt6.QtCore import QSize
@@ -28,7 +29,16 @@ class TerminalHistoryDialog(QDialog):
     def __init__(self, parent=None):
         super().__init__(parent)
 
-        self.local_app_data = os.path.join(os.getenv("LocalAppData"), "AuraText")
+        if platform.system() == "Windows":
+            local_app_data = os.getenv('LOCALAPPDATA')
+        elif platform.system() == "Linux":
+            local_app_data = os.path.expanduser("~/.config")
+        elif platform.system() == "Darwin":
+            local_app_data = os.path.expanduser("~/Library/Application Support")
+        else:
+            print("Unsupported operating system")
+            sys.exit(1)
+        self.local_app_data = os.path.join(local_app_data, "AuraText")
 
         self.setWindowTitle("Terminal History")
         self.setMinimumSize(400, 300)

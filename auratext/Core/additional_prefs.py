@@ -1,5 +1,6 @@
 import json
 import os
+import platform
 
 from PyQt6.QtGui import QIcon
 from PyQt6.QtWidgets import (
@@ -10,7 +11,16 @@ from PyQt6.QtWidgets import (
     QMessageBox,
 )
 
-local_app_data = os.path.join(os.getenv("LocalAppData"), "AuraText")
+if platform.system() == "Windows":
+    local_app_data = os.getenv('LOCALAPPDATA')
+elif platform.system() == "Linux":
+    local_app_data = os.path.expanduser("~/.config")
+elif platform.system() == "Darwin":
+    local_app_data = os.path.expanduser("~/Library/Application Support")
+else:
+    print("Unsupported operating system")
+    sys.exit(1)
+local_app_data = os.path.join(local_app_data, "AuraText")
 
 
 class SettingsWindow(QDialog):
