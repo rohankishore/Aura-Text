@@ -105,11 +105,12 @@ With Aura Text, users can access a versatile and powerful editing environment. W
 Let's set up Aura Text on your PC!
 
 ### Prerequisites
-
-Run this command in your terminal to install the dependencies at once
-  ```sh
-  pip install -r requirements.txt
-  ```
+- Windows 10 x64 or later
+- Python 3.9 or later
+- Python installation is bootstrapped with pip
+- (Recommended) A fresh venv created with `python -m venv venv` and activated with `venv\Scripts\activate`
+- The contents of `requirements.txt` installed via `pip install -r requirements.txt`
+- (If building an installer) Inno Setup 6.4.3 or later
 
 ### Installation
 
