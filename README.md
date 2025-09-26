@@ -118,14 +118,12 @@ Run this command in your terminal to install the dependencies at once
 _Below is an example of how you can build Aura Text using Nuitka_
 
 - Download / Clone this repository
-- Move the `AuraText` folder in the `LocalAppData` folder to the `AppData/Local` folder.
 - Install Nuitka (`python -m pip install nuitka`)
 - `python -m nuitka --windows-disable-console .\main.py`
 
 #### 🐍 As a Python File
 
 - Download / Clone this repository
-- Move the `AuraText` folder in the `LocalAppData` folder to the `AppData/Local` folder.
 - `python -m main.py`
 
 #### With Installer
