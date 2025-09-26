@@ -122,6 +122,10 @@ Let's set up Aura Text on your PC!
 ##### Using the installer
 Just run the `.exe` file, duh.
 
+### Testing
+This is for people who solely just want to run without installation for mostly testing purposes.
+
+We need the prerequisites above. After getting them, you can run the program with `pythonw main.py` to run it without flooding your terminal with logging, or you can just run with `python main.py` to troubleshoot errors and debug it.
 
 <br>
 
