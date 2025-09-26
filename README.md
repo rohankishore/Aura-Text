@@ -113,9 +113,15 @@ Let's set up Aura Text on your PC!
 - (If building an installer) Inno Setup 6.4.3 or later
 
 ### Installation
-
 #### Building the installer
 1. Clone the repo or download a tarball
+2. Install all prerequisites
+3. `python build.py` to compile the program first
+4. Open up the `.iss` Inno Setup script and compile it via Ctrl+F9 or `Build > Compile` - installer can be found in `Output` folder
+
+##### Using the installer
+Just run the `.exe` file, duh.
+
 
 <br>
 
