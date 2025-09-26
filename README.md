@@ -113,24 +113,8 @@ Run this command in your terminal to install the dependencies at once
 
 ### Installation
 
-#### With Nuitka
-
-_Below is an example of how you can build Aura Text using Nuitka_
-
-- Download / Clone this repository
-- Install Nuitka (`python -m pip install nuitka`)
-- `python -m nuitka --windows-disable-console .\main.py`
-
-#### 🐍 As a Python File
-
-- Download / Clone this repository
-- `python -m main.py`
-
-#### With Installer
-
-- Download / Clone this repository
-- Run the installer with `python -m install.py`
-- Aura Text will now appear on your Desktop and in your Start Menu.
+#### Building the installer
+1. Clone the repo or download a tarball
 
 <br>
 
