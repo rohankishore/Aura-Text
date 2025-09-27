@@ -113,6 +113,8 @@ Let's set up Aura Text on your PC!
 - (If building an installer) Inno Setup 6.4.3 or later
 
 ### Installation
+You can download a prebuilt installer from the Releases or build one yourself. If using prebuilt installers, just skip to the use section.
+
 #### Building the installer
 1. Clone the repo or download a tarball
 2. Install all prerequisites
