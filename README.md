@@ -105,28 +105,29 @@ With Aura Text, users can access a versatile and powerful editing environment. W
 Let's set up Aura Text on your PC!
 
 ### Prerequisites
-
-Run this command in your terminal to install the dependencies at once
-  ```sh
-  pip install -r requirements.txt
-  ```
+- Windows 10 x64 or later
+- Python 3.9 or later
+- Python installation is bootstrapped with pip
+- (Recommended) A fresh venv created with `python -m venv venv` and activated with `venv\Scripts\activate`
+- The contents of `requirements.txt` installed via `pip install -r requirements.txt`
+- (If building an installer) Inno Setup 6.4.3 or later
 
 ### Installation
+You can download a prebuilt installer from the Releases or build one yourself. If using prebuilt installers, just skip to the use section.
 
-#### With Nuitka
+#### Building the installer
+1. Clone the repo or download a tarball
+2. Install all prerequisites
+3. `python build.py` to compile the program first
+4. Open up the `.iss` Inno Setup script and compile it via Ctrl+F9 or `Build > Compile` - installer can be found in `Output` folder
 
-_Below is an example of how you can build Aura Text using Nuitka_
+##### Using the installer
+Just run the `.exe` file, duh.
 
-- Download / Clone this repository
-- Move the `AuraText` folder in the `LocalAppData` folder to the `AppData/Local` folder.
-- Install Nuitka (`python -m pip install nuitka`)
-- `python -m nuitka --windows-disable-console .\main.py`
+### Testing
+This is for people who solely just want to run without installation for mostly testing purposes.
 
-#### 🐍 As a Python File
-
-- Download / Clone this repository
-- Move the `AuraText` folder in the `LocalAppData` folder to the `AppData/Local` folder.
-- `python -m main.py`
+We need the prerequisites above. After getting them, you can run the program with `pythonw main.py` to run it without flooding your terminal with logging, or you can just run with `python main.py` to troubleshoot errors and debug it.
 
 <br>
 

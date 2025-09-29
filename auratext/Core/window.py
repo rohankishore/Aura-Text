@@ -48,156 +48,6 @@ cpath = open(f"{local_app_data}/data/CPath_Project.txt", "r+").read()
 cfile = open(f"{local_app_data}/data/CPath_File.txt", "r+").read()
 
 
-MODERN_STYLE = """
-* {
-    font-family: 'Inter', 'Segoe UI', sans-serif;
-    font-size: 14px;
-    color: #e6e6e6;
-    border: none;
-    outline: none;
-}
-
-/* Main background */
-QMainWindow, QWidget {
-    background-color: #1a1b26;
-    color: #e6e6e6;
-    border-radius: 12px;
-}
-
-/* Title Bar */
-#customTitleBar {
-    background-color: rgba(24, 25, 38, 0.9);
-    border-bottom: 1px solid #2d2f3f;
-}
-
-/* Buttons */
-QPushButton {
-    background-color: #292a36;
-    padding: 8px 14px;
-    border-radius: 10px;
-    color: #eaeaea;
-    transition: all 0.3s ease;
-}
-QPushButton:hover {
-    background-color: #414254;
-}
-QPushButton:pressed {
-    background-color: #5a5b73;
-}
-QPushButton:disabled {
-    background-color: #2a2a2a;
-    color: #777;
-}
-
-/* Sidebar Icon Buttons */
-QPushButton#sidebar {
-    background: transparent;
-    padding: 10px;
-    margin: 6px 0;
-    border-radius: 12px;
-}
-QPushButton#sidebar:hover {
-    background-color: #333347;
-}
-QPushButton#sidebar:checked {
-    background-color: #5a5ac5;
-    color: white;
-}
-
-/* Inputs */
-QLineEdit, QTextEdit, QPlainTextEdit {
-    background-color: #23242e;
-    border-radius: 8px;
-    padding: 8px 12px;
-    color: #ffffff;
-    selection-background-color: #5a5ac5;
-}
-QLineEdit:focus, QTextEdit:focus, QPlainTextEdit:focus {
-    border: 1px solid #5a5ac5;
-    background-color: #2c2d3d;
-}
-
-/* Tabs */
-QTabWidget::pane {
-    background-color: #1a1b26;
-    border: none;
-}
-QTabBar::tab {
-    background: #2a2b3a;
-    border-radius: 10px 10px 0 0;
-    padding: 10px 18px;
-    margin-right: 4px;
-}
-QTabBar::tab:selected {
-    background: #3e4060;
-    color: white;
-}
-QTabBar::tab:hover {
-    background: #4a4d6d;
-}
-
-/* ComboBox */
-QComboBox {
-    background-color: #292b3d;
-    border-radius: 8px;
-    padding: 8px 12px;
-}
-QComboBox:hover {
-    background-color: #3c3e58;
-}
-QComboBox QAbstractItemView {
-    background-color: #292b3d;
-    border-radius: 6px;
-    selection-background-color: #5a5ac5;
-}
-
-/* Scrollbars */
-QScrollBar:vertical, QScrollBar:horizontal {
-    background: transparent;
-    width: 8px;
-    height: 8px;
-}
-QScrollBar::handle:vertical, QScrollBar::handle:horizontal {
-    background: #5a5ac5;
-    border-radius: 4px;
-}
-QScrollBar::add-line, QScrollBar::sub-line {
-    background: none;
-}
-
-/* Dock Widgets */
-QDockWidget {
-    background-color: #1e1f2d;
-    border: 1px solid #2c2d3f;
-}
-QDockWidget::title {
-    background-color: #27283a;
-    padding-left: 10px;
-    font-weight: 600;
-    height: 24px;
-    color: #e6e6e6;
-}
-
-/* Status Bar */
-QStatusBar {
-    background-color: #1c1d29;
-    border-top: 1px solid #353646;
-    padding-left: 10px;
-    color: #c0c0c0;
-}
-
-/* Tooltips */
-QToolTip {
-    background-color: #2a2a3a;
-    color: white;
-    border: 1px solid #444;
-    padding: 6px 10px;
-    border-radius: 6px;
-    font-size: 13px;
-}
-"""
-
-
 def is_git_repo():
     return os.path.isdir(os.path.join(cpath, '.git'))
 
@@ -206,7 +56,6 @@ if is_git_repo():
     from ..Components import GitCommit, GitPush
 else:
     pass
-
 
 
 class Sidebar(QDockWidget):
@@ -281,9 +130,6 @@ class Window(QMainWindow):
             qdarktheme.setup_theme(
                 self._themes["theme_type"], custom_colors={"primary": self._themes["theme"]}
             )
-
-            self.setStyleSheet(MODERN_STYLE)
-
             import pywinstyles
             pywinstyles.apply_style(self, (self._themes["titlebar"]))
         else:
@@ -457,9 +303,6 @@ class Window(QMainWindow):
         # self.new_document()
         self.setWindowTitle("Aura Text")
         self.setWindowIcon(QIcon(f"{local_app_data}/icons/icon.ico"))
-        #self.setWindowFlags(Qt.FramelessWindowHint | Qt.Window)
-        #self.setAttribute(Qt.WidgetAttribute.WA_TranslucentBackground)
-
         self.configure_menuBar()
         sys.path.append(f"{local_app_data}/plugins")
         self.load_plugins()
