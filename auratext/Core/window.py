@@ -278,7 +278,18 @@ class Window(QMainWindow):
         self.explorer_button.clicked.connect(self.expandSidebar__Explorer)
         self.plugin_button.clicked.connect(self.expandSidebar__Plugins)
 
-        self.setCentralWidget(self.tab_widget)
+    # MiniMap integration
+        from .MiniMapWidget import MiniMapWidget
+        self.mini_map = MiniMapWidget(self.create_editor())
+        # Layout for editor + minimap
+        central_widget = QWidget()
+        central_layout = QVBoxLayout(central_widget)
+        editor_layout = QHBoxLayout()
+        editor_layout.addWidget(self.tab_widget)
+        editor_layout.addWidget(self.mini_map)
+        central_layout.addLayout(editor_layout)
+        central_widget.setLayout(central_layout)
+        self.setCentralWidget(central_widget)
         self.statusBar.hide()
         self.editors = []
 
