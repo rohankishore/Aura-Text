@@ -1005,6 +1005,14 @@ class Window(QMainWindow):
             pass
 
     def change_text_editor(self, index):
+        # Show/hide minimap depending on editor type
+        from .MiniMapWidget import MiniMapWidget
+        widget = self.tab_widget.widget(index)
+        if isinstance(widget, CodeEditor):
+            self.mini_map.setVisible(True)
+            self.mini_map.set_editor(widget)
+        else:
+            self.mini_map.setVisible(False)
         if index < len(self.editors):
             self.statusBar.show()
             # Set the previous editor as read-only
