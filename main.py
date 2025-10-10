@@ -19,14 +19,6 @@ else:
     sys.exit(1)
 local_app_data = os.path.join(local_app_data, "AuraText")
 print(local_app_data)
-script_dir = os.path.dirname(os.path.abspath(__file__))
-print(script_dir)
-copytolocalappdata = os.path.join(script_dir, "LocalAppData", "AuraText")
-if not os.path.exists(copytolocalappdata):
-    import sys
-    exedir = os.path.dirname(sys.executable)
-    copytolocalappdata = os.path.join(exedir, "LocalAppData", "AuraText")
-shutil.copytree(copytolocalappdata, local_app_data, dirs_exist_ok=True)
 
 from auratext.Core.window import Window
 # from auratext.Core import get_started

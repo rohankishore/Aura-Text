@@ -3,6 +3,7 @@ import importlib
 import json
 import os
 import random
+import shutil
 import sys
 import sqlite3
 import time
@@ -11,6 +12,7 @@ import git
 import pyjokes
 import qdarktheme
 import markdown
+import platform
 from pyqtconsole.console import PythonConsole
 from PyQt6.QtCore import Qt, QSize
 from PyQt6.QtGui import QColor, QFont, QActionGroup, QFileSystemModel, QPixmap, QIcon
@@ -28,6 +30,7 @@ from PyQt6.QtWidgets import (
     QPushButton,
     QWidget,
     QVBoxLayout,
+    QHBoxLayout,
     QStatusBar)
 from . import Lexers
 from ..Misc import shortcuts, WelcomeScreen, boilerplates, file_templates
@@ -43,10 +46,30 @@ from .AuraText import CodeEditor
 from auratext.Components.TabWidget import TabWidget
 from .plugin_interface import Plugin
 
-local_app_data = os.path.join(os.getenv("LocalAppData"), "AuraText")
+if platform.system() == "Windows":
+    local_app_data = os.getenv('LOCALAPPDATA')
+elif platform.system() == "Linux":
+    local_app_data = os.path.expanduser("~/.config")
+elif platform.system() == "Darwin":
+    local_app_data = os.path.expanduser("~/Library/Application Support")
+else:
+    print("Unsupported operating system")
+    sys.exit(1)
+script_dir = os.path.dirname(os.path.abspath(__file__))
+print(script_dir)
+copytolocalappdata = os.path.join(script_dir, "LocalAppData", "AuraText")
+if not os.path.exists(copytolocalappdata):
+    import sys
+    exedir = os.path.dirname(sys.executable)
+    copytolocalappdata = os.path.join(exedir, "LocalAppData", "AuraText")
+shutil.copytree(copytolocalappdata, local_app_data, dirs_exist_ok=True)
+
 cpath = open(f"{local_app_data}/data/CPath_Project.txt", "r+").read()
 cfile = open(f"{local_app_data}/data/CPath_File.txt", "r+").read()
-
+if not cpath:
+    cpath = ""
+if not cfile:
+    cfile = ""
 
 def is_git_repo():
     return os.path.isdir(os.path.join(cpath, '.git'))
@@ -130,8 +153,9 @@ class Window(QMainWindow):
             qdarktheme.setup_theme(
                 self._themes["theme_type"], custom_colors={"primary": self._themes["theme"]}
             )
-            import pywinstyles
-            pywinstyles.apply_style(self, (self._themes["titlebar"]))
+            if platform.system() == "Windows":
+                import pywinstyles
+                pywinstyles.apply_style(self, (self._themes["titlebar"]))
         else:
             pass
 
