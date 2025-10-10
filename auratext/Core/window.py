@@ -152,8 +152,9 @@ class Window(QMainWindow):
             qdarktheme.setup_theme(
                 self._themes["theme_type"], custom_colors={"primary": self._themes["theme"]}
             )
-            import pywinstyles
-            pywinstyles.apply_style(self, (self._themes["titlebar"]))
+            if platform.system() == "Windows":
+                import pywinstyles
+                pywinstyles.apply_style(self, (self._themes["titlebar"]))
         else:
             pass
 
