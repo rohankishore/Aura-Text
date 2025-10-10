@@ -29,25 +29,21 @@ from PyQt6.QtWidgets import (
     QWidget,
     QVBoxLayout,
     QStatusBar)
-from . import Lexers, MenuConfig, additional_prefs, Modules as ModuleFile, PluginDownload, ThemeDownload, config_page
+from . import Lexers
 from ..Misc import shortcuts, WelcomeScreen, boilerplates, file_templates
+from . import MenuConfig
+from . import additional_prefs
+from . import Modules as ModuleFile
+from . import PluginDownload
+from . import ThemeDownload
+from . import config_page
 from ..Components import powershell, terminal, statusBar, ProjectManager, About, ToDo
 
 from .AuraText import CodeEditor
 from auratext.Components.TabWidget import TabWidget
 from .plugin_interface import Plugin
-import platform
 
-if platform.system() == "Windows":
-    local_app_data = os.getenv('LOCALAPPDATA')
-elif platform.system() == "Linux":
-    local_app_data = os.path.expanduser("~/.config")
-elif platform.system() == "Darwin":
-    local_app_data = os.path.expanduser("~/Library/Application Support")
-else:
-    print("Unsupported operating system")
-    sys.exit(1)
-local_app_data = os.path.join(local_app_data, "AuraText")
+local_app_data = os.path.join(os.getenv("LocalAppData"), "AuraText")
 cpath = open(f"{local_app_data}/data/CPath_Project.txt", "r+").read()
 cfile = open(f"{local_app_data}/data/CPath_File.txt", "r+").read()
 
@@ -134,11 +130,8 @@ class Window(QMainWindow):
             qdarktheme.setup_theme(
                 self._themes["theme_type"], custom_colors={"primary": self._themes["theme"]}
             )
-            if platform.system() == "Windows":
-                import pywinstyles
-                pywinstyles.apply_style(self, (self._themes["titlebar"]))
-            else:
-                print("This style is only available for Windows.")
+            import pywinstyles
+            pywinstyles.apply_style(self, (self._themes["titlebar"]))
         else:
             pass
 
@@ -285,7 +278,18 @@ class Window(QMainWindow):
         self.explorer_button.clicked.connect(self.expandSidebar__Explorer)
         self.plugin_button.clicked.connect(self.expandSidebar__Plugins)
 
-        self.setCentralWidget(self.tab_widget)
+    # MiniMap integration
+        from .MiniMapWidget import MiniMapWidget
+        self.mini_map = MiniMapWidget(self.create_editor())
+        # Layout for editor + minimap
+        central_widget = QWidget()
+        central_layout = QVBoxLayout(central_widget)
+        editor_layout = QHBoxLayout()
+        editor_layout.addWidget(self.tab_widget)
+        editor_layout.addWidget(self.mini_map)
+        central_layout.addLayout(editor_layout)
+        central_widget.setLayout(central_layout)
+        self.setCentralWidget(central_widget)
         self.statusBar.hide()
         self.editors = []
 
