@@ -43,9 +43,8 @@ with open(f"{local_app_data}/data/theme.json", "r") as config_file:
 
 def main():
     app = QApplication(sys.argv)
-    if _theme["theming"] == "material":
-        theme = _theme["material_type"] + ".xml"
-        apply_stylesheet(app, theme=theme)
+    with open("auratext/Core/modern_theme.qss", "r") as f:
+        app.setStyleSheet(f.read())
     ex = Window()
     sys.exit(app.exec())
 
