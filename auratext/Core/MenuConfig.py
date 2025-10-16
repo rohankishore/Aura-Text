@@ -83,6 +83,8 @@ QMenu::item::selected {{
     git_menu = QMenu("&Git", self)
     git_menu.addAction("Commit", self.gitCommit)
     git_menu.addAction("Push", self.gitPush)
+    git_menu.addAction("Git Graph", self.gitGraph)
+    git_menu.addAction("Interactive Rebase", self.gitRebase)
 
     def is_git_repo():
         if os.path.isdir(os.path.join(cpath, '.git')):

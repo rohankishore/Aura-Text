@@ -38,7 +38,7 @@ from . import Modules as ModuleFile
 from . import PluginDownload
 from . import ThemeDownload
 from . import config_page
-from ..Components import powershell, terminal, statusBar, ProjectManager, About, ToDo
+from ..Components import powershell, terminal, statusBar, ProjectManager, About, ToDo, GitGraph, GitRebase
 from ..Components.NewProjectDialog import NewProjectDialog
 
 from .AuraText import CodeEditor
@@ -252,6 +252,25 @@ class Window(QMainWindow):
         self.commit_button.setIconSize(QSize(25, 25))
         self.commit_button.setFixedSize(30, 30)
         self.commit_button.setStyleSheet(
+            """
+            QPushButton {
+                border: none;
+                border-radius:10;
+                align: botton;
+            }
+            QPushButton:hover {
+                background-color: #4e5157;
+            }
+            """
+        )
+
+        git_graph_icon = QIcon(f"{local_app_data}/icons/search.png")
+        self.git_graph_button = QPushButton(self)
+        self.git_graph_button.setIcon(git_graph_icon)
+        self.git_graph_button.clicked.connect(self.gitGraph)
+        self.git_graph_button.setIconSize(QSize(25, 25))
+        self.git_graph_button.setFixedSize(30, 30)
+        self.git_graph_button.setStyleSheet(
             """
             QPushButton {
                 border: none;
@@ -616,6 +635,14 @@ class Window(QMainWindow):
     def gitPush(self):
         self.gitPushDialog = GitPush.GitPushDialog(self)
         self.gitPushDialog.exec()
+
+    def gitGraph(self):
+        self.git_graph_widget = GitGraph(cpath)
+        self.git_graph_widget.show()
+
+    def gitRebase(self):
+        self.git_rebase_dialog = GitRebase.GitRebaseDialog(cpath)
+        self.git_rebase_dialog.exec()
 
     def is_git_repo(self):
         return os.path.isdir(os.path.join(cpath, '.git'))
