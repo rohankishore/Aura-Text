@@ -279,18 +279,7 @@ class Window(QMainWindow):
         self.explorer_button.clicked.connect(self.expandSidebar__Explorer)
         self.plugin_button.clicked.connect(self.expandSidebar__Plugins)
 
-    # MiniMap integration
-        from .MiniMapWidget import MiniMapWidget
-        self.mini_map = MiniMapWidget(self.create_editor())
-        # Layout for editor + minimap
-        central_widget = QWidget()
-        central_layout = QVBoxLayout(central_widget)
-        editor_layout = QHBoxLayout()
-        editor_layout.addWidget(self.tab_widget)
-        editor_layout.addWidget(self.mini_map)
-        central_layout.addLayout(editor_layout)
-        central_widget.setLayout(central_layout)
-        self.setCentralWidget(central_widget)
+        self.setCentralWidget(self.tab_widget)
         self.statusBar.hide()
         self.editors = []
 
@@ -1005,14 +994,7 @@ class Window(QMainWindow):
             pass
 
     def change_text_editor(self, index):
-        # Show/hide minimap depending on editor type
-        from .MiniMapWidget import MiniMapWidget
         widget = self.tab_widget.widget(index)
-        if isinstance(widget, CodeEditor):
-            self.mini_map.setVisible(True)
-            self.mini_map.set_editor(widget)
-        else:
-            self.mini_map.setVisible(False)
         if index < len(self.editors):
             self.statusBar.show()
             # Set the previous editor as read-only
