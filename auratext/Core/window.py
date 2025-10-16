@@ -39,6 +39,7 @@ from . import PluginDownload
 from . import ThemeDownload
 from . import config_page
 from ..Components import powershell, terminal, statusBar, ProjectManager, About, ToDo
+from ..Components.NewProjectDialog import NewProjectDialog
 
 from .AuraText import CodeEditor
 from auratext.Components.TabWidget import TabWidget
@@ -491,13 +492,30 @@ class Window(QMainWindow):
         self.plugin_layout.addWidget(widget)
 
     def new_project(self):
-        new_folder_path = QFileDialog.getExistingDirectory(self,
-                                                           "Create New Folder",
-                                                           "./",
-                                                           QFileDialog.Option.ShowDirsOnly)
+        dialog = NewProjectDialog(self)
+        if dialog.exec():
+            project_details = dialog.get_project_details()
+            project_name = project_details["name"]
+            project_path = os.path.join(project_details["path"], project_name)
 
-        with open(f"{self.local_app_data}/data/CPath_Project.txt", "w") as file:
-            file.write(new_folder_path)
+            if not os.path.exists(project_path):
+                os.makedirs(project_path)
+
+            if project_details["create_readme"]:
+                with open(os.path.join(project_path, "README.md"), "w") as f:
+                    f.write(f"# {project_name}")
+
+            with open(f"{self.local_app_data}/data/CPath_Project.txt", "w") as file:
+                file.write(project_path)
+
+            messagebox = QMessageBox()
+            messagebox.setWindowTitle("New Project"), messagebox.setText(
+                f"New project created at {project_path}"
+            )
+            messagebox.exec()
+
+            self.treeview_project(project_path)
+            self.addProjectsToDB(name=project_name, project_path=project_path)
 
     def code_jokes(self):
         a = pyjokes.get_joke(language="en", category="neutral")
