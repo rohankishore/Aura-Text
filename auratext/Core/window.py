@@ -1101,7 +1101,8 @@ class Window(QMainWindow):
         self.current_editor.textChanged.connect(self.updateStatusBar)
         self.current_editor.cursorPositionChanged.connect(self.updateStatusBar)
         self.editors.append(self.current_editor)
-        self.tab_widget.addTab(self.current_editor, title)
+        icon = self.get_icon(title)
+        self.tab_widget.addTab(self.current_editor, icon, title)
         if ".html" in title:
             self.html_temp()
         self.tab_widget.setCurrentWidget(self.current_editor)
