@@ -40,7 +40,7 @@ from . import Modules as ModuleFile
 from . import PluginDownload
 from . import ThemeDownload
 from . import config_page
-from ..Components import powershell, terminal, statusBar, ProjectManager, About, ToDo, GitGraph, GitRebase
+from ..Components import powershell, terminal, statusBar, ProjectManager, About, ToDo, GitGraph, GitRebase, Performance
 from ..Components.NewProjectDialog import NewProjectDialog
 
 from .AuraText import CodeEditor
@@ -1195,3 +1195,10 @@ class Window(QMainWindow):
     @staticmethod
     def bug_report():
         webbrowser.open_new_tab("https://github.com/rohankishore/Aura-Text/issues/new/choose")
+
+    def show_performance(self):
+        self.performance_dock = QDockWidget("Performance", self)
+        self.performance_widget = Performance.PerformanceWidget(self)
+        self.performance_dock.setWidget(self.performance_widget)
+        self.addDockWidget(Qt.DockWidgetArea.RightDockWidgetArea, self.performance_dock)
+        self.performance_dock.show()
