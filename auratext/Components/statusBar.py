@@ -2,6 +2,7 @@ import json
 import os
 import time
 import platform
+import sys
 
 from PyQt6.QtGui import QFont
 from PyQt6.QtWidgets import QFrame, QHBoxLayout, QLabel, QStatusBar, QWidget
@@ -29,7 +30,7 @@ class Separator(QFrame):
 
 
 class StatusBar(QStatusBar):
-    def __init__(self, parent=None):
+    def __init__(self, parent=None, greeting=None):
         super().__init__(parent)
         #self.current_editor = parent.current_editor
         self.current_widget = parent.tab_widget.currentWidget()
@@ -51,6 +52,15 @@ class StatusBar(QStatusBar):
             """
         )
 
+        
+        smallFont = QFont()
+        smallFont.setPointSize(8)
+
+        if greeting:
+            self.greetingLabel = QLabel(greeting)
+            self.greetingLabel.setFont(smallFont)
+            self.addWidget(self.greetingLabel)
+
         self.lineLabel = QLabel("▼ Line:")
         self.lineValueLabel = QLabel("0")
         self.columnLabel = QLabel("▲ Column:")
@@ -60,8 +70,6 @@ class StatusBar(QStatusBar):
         self.wordsLabel = QLabel("⌁ Words:")
         self.wordsValueLabel = QLabel("0")
 
-        smallFont = QFont()
-        smallFont.setPointSize(8)
 
         for label in [
             self.lineLabel,

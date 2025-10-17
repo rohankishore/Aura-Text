@@ -3,6 +3,7 @@ import importlib
 import json
 import os
 import random
+import shutil
 import sys
 import sqlite3
 import time
@@ -11,9 +12,10 @@ import git
 import pyjokes
 import qdarktheme
 import markdown
+import platform
 from pyqtconsole.console import PythonConsole
 from PyQt6.QtCore import Qt, QSize
-from PyQt6.QtGui import QColor, QFont, QActionGroup, QFileSystemModel, QPixmap, QIcon, QShortcut, QKeySequence
+from PyQt6.QtGui import QColor, QFont, QActionGroup, QFileSystemModel, QPixmap, QIcon
 from PyQt6.Qsci import QsciScintilla
 from PyQt6.QtWidgets import (
     QMainWindow,
@@ -38,18 +40,37 @@ from . import Modules as ModuleFile
 from . import PluginDownload
 from . import ThemeDownload
 from . import config_page
-from ..Components import powershell, terminal, statusBar, ProjectManager, About, ToDo, GitGraph, GitRebase, Performance, DBViewer
-from ..Components.CommandPalette import CommandPalette
+from ..Components import powershell, terminal, statusBar, ProjectManager, About, ToDo, GitGraph, GitRebase, Performance
 from ..Components.NewProjectDialog import NewProjectDialog
 
 from .AuraText import CodeEditor
 from auratext.Components.TabWidget import TabWidget
 from .plugin_interface import Plugin
 
-local_app_data = os.path.join(os.getenv("LocalAppData"), "AuraText")
+if platform.system() == "Windows":
+    local_app_data = os.getenv('LOCALAPPDATA')
+elif platform.system() == "Linux":
+    local_app_data = os.path.expanduser("~/.config")
+elif platform.system() == "Darwin":
+    local_app_data = os.path.expanduser("~/Library/Application Support")
+else:
+    print("Unsupported operating system")
+    sys.exit(1)
+script_dir = os.path.dirname(os.path.abspath(__file__))
+print(script_dir)
+copytolocalappdata = os.path.join(script_dir, "LocalAppData", "AuraText")
+if not os.path.exists(copytolocalappdata):
+    import sys
+    exedir = os.path.dirname(sys.executable)
+    copytolocalappdata = os.path.join(exedir, "LocalAppData", "AuraText")
+shutil.copytree(copytolocalappdata, local_app_data, dirs_exist_ok=True)
+
 cpath = open(f"{local_app_data}/data/CPath_Project.txt", "r+").read()
 cfile = open(f"{local_app_data}/data/CPath_File.txt", "r+").read()
-
+if not cpath:
+    cpath = ""
+if not cfile:
+    cfile = ""
 
 def is_git_repo():
     return os.path.isdir(os.path.join(cpath, '.git'))
@@ -133,8 +154,9 @@ class Window(QMainWindow):
             qdarktheme.setup_theme(
                 self._themes["theme_type"], custom_colors={"primary": self._themes["theme"]}
             )
-            import pywinstyles
-            pywinstyles.apply_style(self, (self._themes["titlebar"]))
+            if platform.system() == "Windows":
+                import pywinstyles
+                pywinstyles.apply_style(self, (self._themes["titlebar"]))
         else:
             pass
 
@@ -168,11 +190,6 @@ class Window(QMainWindow):
             pass
 
         self.tab_widget = TabWidget()
-        self.tab_widget.setStyleSheet("""
-            QTabBar::tab {
-                padding: 8px;
-            }
-        """)
 
         self.current_editor = ""
 
@@ -333,101 +350,7 @@ class Window(QMainWindow):
         self.configure_menuBar()
         sys.path.append(f"{local_app_data}/plugins")
         self.load_plugins()
-
-        self.file_icons = {
-            "py": "logo_python.png",
-            "js": "logo_javascript.png",
-            "html": "logo_html.png",
-            "css": "logo_css.png",
-            "c": "logo_c.png",
-            "cpp": "logo_cpp.png",
-            "h": "logo_c_cpp.png",
-            "hpp": "logo_c_cpp.png",
-            "java": "logo_java.png",
-            "json": "logo_json.png",
-            "md": "logo_markdown.png",
-            "xml": "logo_xml.png",
-            "yml": "logo_yaml.png",
-            "yaml": "logo_yaml.png",
-            "sh": "logo_bash.png",
-            "bat": "logo_batch.png",
-            "php": "logo_php.png",
-            "rb": "logo_ruby.png",
-            "sql": "logo_sql.png",
-            "tex": "logo_tex.png",
-            "db": "logo_python.png", # Placeholder
-        }
-
-        self.commands = [
-            {"name": "File: New", "action": self.cs_new_document},
-            {"name": "File: New from Template - HTML", "action": self.html_temp},
-            {"name": "File: New from Template - Python", "action": self.py_temp},
-            {"name": "File: New from Template - C++", "action": self.cpp_temp},
-            {"name": "File: New from Template - PHP", "action": self.php_temp},
-            {"name": "File: New from Template - TeX", "action": self.tex_temp},
-            {"name": "File: New from Template - Java", "action": self.java_temp},
-            {"name": "File: Open", "action": self.open_document},
-            {"name": "File: New Project", "action": self.new_project},
-            {"name": "File: New Project from VCS", "action": self.gitClone},
-            {"name": "File: Open Project", "action": self.open_project},
-            {"name": "File: Open Project as Treeview", "action": self.open_project_as_treeview},
-            {"name": "File: Manage Projects", "action": self.manageProjects},
-            {"name": "File: Save As", "action": self.save_document},
-            {"name": "File: Summary", "action": self.summary},
-            {"name": "File: Extensions", "action": self.expandSidebar__Plugins},
-            {"name": "File: Settings", "action": self.expandSidebar__Settings},
-            {"name": "File: Exit", "action": sys.exit},
-            {"name": "File: Performance", "action": self.show_performance},
-            {"name": "Edit: Cut", "action": self.cut_document},
-            {"name": "Edit: Copy", "action": self.copy_document},
-            {"name": "Edit: Paste", "action": self.paste_document},
-            {"name": "Edit: Undo", "action": self.undo_document},
-            {"name": "Edit: Redo", "action": self.redo_document},
-            {"name": "Edit: Find", "action": self.find_in_editor},
-            {"name": "View: Full Screen", "action": self.fullscreen},
-            {"name": "View: Project Directory", "action": self.expandSidebar__Explorer},
-            {"name": "View: AT Terminal", "action": self.terminal_widget},
-            {"name": "View: Powershell", "action": self.setupPowershell},
-            {"name": "View: Python Console", "action": self.python_console},
-            {"name": "View: Read-Only", "action": self.toggle_read_only},
-            {"name": "Code: Code Formatting", "action": self.code_formatting},
-            {"name": "Code: Boilerplates", "action": self.boilerplates},
-            {"name": "Code: Create Snippet", "action": self.create_snippet},
-            {"name": "Code: Import Snippet", "action": self.import_snippet},
-            {"name": "Tools: Upload to Pastebin", "action": self.pastebin},
-            {"name": "Tools: Notes", "action": self.notes},
-            {"name": "Tools: To-Do", "action": self.todo},
-            {"name": "Tools: Convert to HTML", "action": self.toHTML},
-            {"name": "Git: Commit", "action": self.gitCommit},
-            {"name": "Git: Push", "action": self.gitPush},
-            {"name": "Git: Graph", "action": self.gitGraph},
-            {"name": "Git: Interactive Rebase", "action": self.gitRebase},
-            {"name": "Preferences: Additional Preferences", "action": self.additional_prefs},
-            {"name": "Preferences: Import Theme", "action": self.import_theme},
-            {"name": "Help: Keyboard Shortcuts", "action": self.shortcuts},
-            {"name": "Help: Getting Started", "action": self.getting_started},
-            {"name": "Help: Submit a Bug Report", "action": self.bug_report},
-            {"name": "Help: A Byte of Humour!", "action": self.code_jokes},
-            {"name": "Help: GitHub", "action": self.about_github},
-            {"name": "Help: About", "action": self.version},
-        ]
-
-        self.command_palette = CommandPalette(self.commands)
-        self.command_palette.hide()
-        shortcut = QShortcut(QKeySequence("Ctrl+Shift+P"), self)
-        shortcut.activated.connect(self.show_command_palette)
-
         self.showMaximized()
-
-    def get_icon(self, file_path):
-        ext = file_path.split('.')[-1]
-        if ext in self.file_icons:
-            return QIcon(os.path.join(os.path.dirname(__file__), "Resources", "language_icons", self.file_icons[ext]))
-        else:
-            return QIcon(f"{self.local_app_data}/icons/icon.ico")
-
-    def show_command_palette(self):
-        self.command_palette.exec()
 
     def create_editor(self):
         self.text_editor = CodeEditor(self)
@@ -481,20 +404,13 @@ class Window(QMainWindow):
         ]
         print("Plugins Found: ", plugin_files)
         for plugin_file in plugin_files:
-            print(f"Loading plugin: {plugin_file}")
-            if not plugin_file.isidentifier():
-                print(f"Skipping plugin with invalid name: {plugin_file}")
-                continue
-            try:
-                module = importlib.import_module(plugin_file)
-                for name, obj in module.__dict__.items():
-                    if isinstance(obj, type) and issubclass(obj, Plugin) and obj is not Plugin:
-                        try:
-                            self.plugins.append(obj(self))
-                        except Exception as e:
-                            print(f"Error initializing plugin {plugin_file}: {e}")
-            except Exception as e:
-                print(f"Error loading plugin {plugin_file}: {e}")
+            module = importlib.import_module(plugin_file)
+            for name, obj in module.__dict__.items():
+                if isinstance(obj, type) and issubclass(obj, Plugin) and obj is not Plugin:
+                    try:
+                        self.plugins.append(obj(self))
+                    except Exception as e:
+                        print(e)
 
     def onPluginDockVisibilityChanged(self, visible):
         if visible:
@@ -759,41 +675,42 @@ class Window(QMainWindow):
         image_extensions = ["png", "jpg", "jpeg", "ico", "gif", "bmp"]
         ext = path.split(".")[-1]
 
-        if ext.lower() == "db":
-            self.db_viewer = DBViewer(path)
-            icon = self.get_icon(path)
-            self.tab_widget.addTab(self.db_viewer, icon, os.path.basename(path))
-            self.tab_widget.setCurrentWidget(self.db_viewer)
-            return
-
-        if ext.lower() in image_extensions:
-            icon = self.get_icon(path)
+        def add_image_tab():
             ModuleFile.add_image_tab(self, self.tab_widget, path, os.path.basename(path))
-            return
 
-        try:
-            with open(path, "r", encoding="utf-8") as f:
-                filedata = f.read()
-            self.new_document(title=os.path.basename(path))
-            self.current_editor.insert(filedata)
-            if ext.lower() == "md":
-                self.markdown_open(filedata)
+        if path:
+            try:
+                if ext in image_extensions:
+                    add_image_tab()
+                    return
 
-        except UnicodeDecodeError:
-            messagebox = QMessageBox()
-            messagebox.setWindowTitle("Wrong Filetype!"), messagebox.setText(
-                "This file type is not supported!"
-            )
-            messagebox.exec()
-        except FileNotFoundError:
-            return
-        except Exception as e:
-            print(e)
-            messagebox = QMessageBox()
-            messagebox.setWindowTitle("Error"), messagebox.setText(
-                f"An error occurred while opening the file: {e}"
-            )
-            messagebox.exec()
+            except UnicodeDecodeError:
+                messagebox = QMessageBox()
+                messagebox.setWindowTitle("Wrong Filetype!"), messagebox.setText(
+                    "This file type is not supported!"
+                )
+                messagebox.exec()
+
+            try:
+                f = open(path, "r")
+                try:
+                    filedata = f.read()
+                    self.new_document(title=os.path.basename(path))
+                    self.current_editor.insert(filedata)
+                    if ext.lower() == "md":
+                        self.markdown_open(filedata)
+                    elif ext.lower() == "png":
+                        add_image_tab()
+                    f.close()
+
+                except UnicodeDecodeError:
+                    messagebox = QMessageBox()
+                    messagebox.setWindowTitle("Wrong Filetype!"), messagebox.setText(
+                        "This file type is not supported!"
+                    )
+                    messagebox.exec()
+            except FileNotFoundError:
+                return
 
     def configure_menuBar(self):
         MenuConfig.configure_menuBar(self)
@@ -1092,8 +1009,7 @@ class Window(QMainWindow):
         self.load_plugins()
 
         self.editors.append(self.current_editor)
-        icon = self.get_icon(title)
-        self.tab_widget.addTab(self.current_editor, icon, title)
+        self.tab_widget.addTab(self.current_editor, title)
         self.tab_widget.setCurrentWidget(self.current_editor)
 
     def custom_new_document(self, title, checked=False):
@@ -1101,8 +1017,7 @@ class Window(QMainWindow):
         self.current_editor.textChanged.connect(self.updateStatusBar)
         self.current_editor.cursorPositionChanged.connect(self.updateStatusBar)
         self.editors.append(self.current_editor)
-        icon = self.get_icon(title)
-        self.tab_widget.addTab(self.current_editor, icon, title)
+        self.tab_widget.addTab(self.current_editor, title)
         if ".html" in title:
             self.html_temp()
         self.tab_widget.setCurrentWidget(self.current_editor)
@@ -1119,8 +1034,7 @@ class Window(QMainWindow):
             self.current_editor.cursorPositionChanged.connect(self.updateStatusBar)
             self.current_editor.textChanged.connect(self.updateStatusBar)
             self.editors.append(self.current_editor)
-            icon = self.get_icon(text)
-            self.tab_widget.addTab(self.current_editor, icon, text)
+            self.tab_widget.addTab(self.current_editor, text)
             if ".html" in text:
                 self.html_temp()
                 self.html()

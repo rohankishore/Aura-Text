@@ -19,7 +19,6 @@ else:
 local_app_data = os.path.join(local_app_data, "AuraText")
 cpath = open(f"{local_app_data}/data/CPath_Project.txt", "r+").read()
 
-
 class GitCommitDock(QDockWidget):
     def __init__(self, parent=None):
         super().__init__('Git Commit', parent)
