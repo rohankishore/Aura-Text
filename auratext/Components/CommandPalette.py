@@ -6,6 +6,7 @@ class CommandPalette(QDialog):
         super().__init__(parent)
         self.setWindowTitle("Command Palette")
         self.setWindowFlags(Qt.WindowType.FramelessWindowHint | Qt.WindowType.WindowStaysOnTopHint)
+        self.setFixedSize(600, 300)
 
         self.layout = QVBoxLayout(self)
         self.layout.setContentsMargins(0, 0, 0, 0)
@@ -21,7 +22,6 @@ class CommandPalette(QDialog):
         self.layout.addWidget(self.command_list)
 
         self.commands = commands
-        self.populate_commands()
 
     def populate_commands(self, filter_text=""):
         self.command_list.clear()
@@ -39,3 +39,17 @@ class CommandPalette(QDialog):
         if action:
             action()
         self.close()
+
+    def showEvent(self, event):
+        super().showEvent(event)
+        self.center_on_parent()
+        self.command_input.setText("")
+        self.populate_commands()
+
+    def center_on_parent(self):
+        if self.parent():
+            parent_rect = self.parent().geometry()
+            self_rect = self.geometry()
+            x = parent_rect.x() + (parent_rect.width() - self_rect.width()) / 2
+            y = parent_rect.y() + 50  # A bit of offset from the top
+            self.move(int(x), int(y))
