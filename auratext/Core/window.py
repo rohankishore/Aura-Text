@@ -206,7 +206,7 @@ class Window(QMainWindow):
         self.leftBar.setWidget(self.leftBar_widget)
         self.addDockWidget(Qt.DockWidgetArea.LeftDockWidgetArea, self.leftBar)
 
-        self.statusBar = statusBar.StatusBar(self)
+        self.statusBar = statusBar.StatusBar(self, greeting=greeting)
         self.setStatusBar(self.statusBar)
 
         explorer_icon = QIcon(f"{local_app_data}/icons/explorer_unfilled.png")
