@@ -721,17 +721,19 @@ class Window(QMainWindow):
     def open_file(self, index):
         path = self.model.filePath(index)
         image_extensions = ["png", "jpg", "jpeg", "ico", "gif", "bmp"]
+        non_text_extensions = ["db"]
         ext = path.split(".")[-1]
 
         def add_image_tab():
             ModuleFile.add_image_tab(self, self.tab_widget, path, os.path.basename(path))
 
         if path:
-            if ext.lower() == "db":
-                self.db_viewer = DBViewer(path)
-                self.tab_widget.addTab(self.db_viewer, os.path.basename(path))
-                self.tab_widget.setCurrentWidget(self.db_viewer)
-                return
+            if ext.lower() in non_text_extensions:
+                if ext.lower() == "db":
+                    self.db_viewer = DBViewer(path)
+                    self.tab_widget.addTab(self.db_viewer, os.path.basename(path))
+                    self.tab_widget.setCurrentWidget(self.db_viewer)
+                    return
             try:
                 if ext in image_extensions:
                     add_image_tab()

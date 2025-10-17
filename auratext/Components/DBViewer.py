@@ -1,4 +1,3 @@
-
 import sqlite3
 from PyQt6.QtWidgets import QWidget, QVBoxLayout, QTableView, QTabWidget, QHeaderView
 from PyQt6.QtSql import QSqlDatabase, QSqlTableModel
@@ -6,6 +5,7 @@ from PyQt6.QtSql import QSqlDatabase, QSqlTableModel
 class DBViewer(QWidget):
     def __init__(self, db_path):
         super().__init__()
+        print("DBViewer initialized")
         self.db_path = db_path
         self.layout = QVBoxLayout(self)
         self.tabs = QTabWidget()
