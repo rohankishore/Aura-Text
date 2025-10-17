@@ -41,11 +41,25 @@ with open(f"{local_app_data}/data/config.json", "r") as config_file:
 with open(f"{local_app_data}/data/theme.json", "r") as config_file:
     _theme = json.load(config_file)
 
+import random
+
 def main():
     app = QApplication(sys.argv)
     with open("auratext/Core/modern_theme.qss", "r") as f:
         app.setStyleSheet(f.read())
-    ex = Window()
+
+    greetings = [
+        "Hello there, Coder!",
+        "Ready to write some beautiful code?",
+        "Welcome back! What shall we create today?",
+        "Let the coding commence!",
+        "Happy coding!",
+        "May your code be bug-free.",
+        "Greetings, fellow developer!",
+    ]
+    greeting = random.choice(greetings)
+
+    ex = Window(greeting=greeting)
     sys.exit(app.exec())
 
 if __name__ == "__main__":

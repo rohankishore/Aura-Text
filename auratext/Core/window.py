@@ -94,7 +94,7 @@ class PluginActions(QDockWidget):
 # noinspection PyUnresolvedReferences
 # no inspection for unresolved references as pylance flags inaccurately sometimes
 class Window(QMainWindow):
-    def __init__(self):
+    def __init__(self, greeting=None):
         super().__init__()
         self.local_app_data = local_app_data
         # self._terminal_history = ""
