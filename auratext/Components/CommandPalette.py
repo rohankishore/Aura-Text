@@ -1,4 +1,4 @@
-from PyQt6.QtWidgets import QDialog, QVBoxLayout, QLineEdit, QListWidget, QListWidgetItem
+from PyQt6.QtWidgets import QDialog, QVBoxLayout, QLineEdit, QListWidget, QListWidgetItem, QApplication
 from PyQt6.QtCore import Qt
 
 class CommandPalette(QDialog):
@@ -42,14 +42,28 @@ class CommandPalette(QDialog):
 
     def showEvent(self, event):
         super().showEvent(event)
-        self.center_on_parent()
+        self.center_on_active_window()
         self.command_input.setText("")
         self.populate_commands()
 
-    def center_on_parent(self):
+    def center_on_active_window(self):
         if self.parent():
             parent_rect = self.parent().geometry()
             self_rect = self.geometry()
             x = parent_rect.x() + (parent_rect.width() - self_rect.width()) / 2
             y = parent_rect.y() + 50  # A bit of offset from the top
             self.move(int(x), int(y))
+        else:
+            active_window = QApplication.activeWindow()
+            if active_window:
+                parent_rect = active_window.geometry()
+                self_rect = self.geometry()
+                x = parent_rect.x() + (parent_rect.width() - self_rect.width()) / 2
+                y = parent_rect.y() + 50  # A bit of offset from the top
+                self.move(int(x), int(y))
+
+    def keyPressEvent(self, event):
+        if event.key() == Qt.Key.Key_Escape:
+            self.close()
+        else:
+            super().keyPressEvent(event)

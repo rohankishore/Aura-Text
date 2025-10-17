@@ -383,7 +383,8 @@ class Window(QMainWindow):
             {"name": "Help: About", "action": self.version},
         ]
 
-        self.command_palette = CommandPalette(self.commands, self)
+        self.command_palette = CommandPalette(self.commands)
+        self.command_palette.hide()
         shortcut = QShortcut(QKeySequence("Ctrl+Shift+P"), self)
         shortcut.activated.connect(self.show_command_palette)
 
@@ -741,7 +742,20 @@ class Window(QMainWindow):
             try:
                 f = open(path, "r")
                 try:
-                    filedata = f.read()
+                    try:
+                        filedata = f.read()
+                    except UnicodeDecodeError:
+                        try:
+                            f.seek(0)
+                            filedata = f.read()
+                        except UnicodeDecodeError:
+                            messagebox = QMessageBox()
+                            messagebox.setWindowTitle("Wrong Filetype!"), messagebox.setText(
+                                "This file type is not supported!"
+                            )
+                            messagebox.exec()
+                            return
+
                     self.new_document(title=os.path.basename(path))
                     self.current_editor.insert(filedata)
                     if ext.lower() == "md":
@@ -750,10 +764,11 @@ class Window(QMainWindow):
                         add_image_tab()
                     f.close()
 
-                except UnicodeDecodeError:
+                except Exception as e:
+                    print(e)
                     messagebox = QMessageBox()
-                    messagebox.setWindowTitle("Wrong Filetype!"), messagebox.setText(
-                        "This file type is not supported!"
+                    messagebox.setWindowTitle("Error"), messagebox.setText(
+                        f"An error occurred while opening the file: {e}"
                     )
                     messagebox.exec()
             except FileNotFoundError:
