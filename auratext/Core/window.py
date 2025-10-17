@@ -40,7 +40,7 @@ from . import Modules as ModuleFile
 from . import PluginDownload
 from . import ThemeDownload
 from . import config_page
-from ..Components import powershell, terminal, statusBar, ProjectManager, About, ToDo, GitGraph, GitRebase, Performance
+from ..Components import powershell, terminal, statusBar, ProjectManager, About, ToDo, GitGraph, GitRebase, Performance, DBViewer
 from ..Components.CommandPalette import CommandPalette
 from ..Components.NewProjectDialog import NewProjectDialog
 
@@ -746,56 +746,40 @@ class Window(QMainWindow):
         image_extensions = ["png", "jpg", "jpeg", "ico", "gif", "bmp"]
         ext = path.split(".")[-1]
 
-        def add_image_tab():
+        if ext.lower() == "db":
+            self.db_viewer = DBViewer(path)
+            self.tab_widget.addTab(self.db_viewer, os.path.basename(path))
+            self.tab_widget.setCurrentWidget(self.db_viewer)
+            return
+
+        if ext.lower() in image_extensions:
             ModuleFile.add_image_tab(self, self.tab_widget, path, os.path.basename(path))
+            return
 
-        if path:
-            try:
-                if ext in image_extensions:
-                    add_image_tab()
-                    return
+        try:
+            f = open(path, "r")
+            filedata = f.read()
+            f.close()
+            self.new_document(title=os.path.basename(path))
+            self.current_editor.insert(filedata)
+            if ext.lower() == "md":
+                self.markdown_open(filedata)
 
-            except UnicodeDecodeError:
-                messagebox = QMessageBox()
-                messagebox.setWindowTitle("Wrong Filetype!"), messagebox.setText(
-                    "This file type is not supported!"
-                )
-                messagebox.exec()
-
-            try:
-                f = open(path, "r")
-                try:
-                    try:
-                        filedata = f.read()
-                    except UnicodeDecodeError:
-                        try:
-                            f.seek(0)
-                            filedata = f.read()
-                        except UnicodeDecodeError:
-                            messagebox = QMessageBox()
-                            messagebox.setWindowTitle("Wrong Filetype!"), messagebox.setText(
-                                "This file type is not supported!"
-                            )
-                            messagebox.exec()
-                            return
-
-                    self.new_document(title=os.path.basename(path))
-                    self.current_editor.insert(filedata)
-                    if ext.lower() == "md":
-                        self.markdown_open(filedata)
-                    elif ext.lower() == "png":
-                        add_image_tab()
-                    f.close()
-
-                except Exception as e:
-                    print(e)
-                    messagebox = QMessageBox()
-                    messagebox.setWindowTitle("Error"), messagebox.setText(
-                        f"An error occurred while opening the file: {e}"
-                    )
-                    messagebox.exec()
-            except FileNotFoundError:
-                return
+        except UnicodeDecodeError:
+            messagebox = QMessageBox()
+            messagebox.setWindowTitle("Wrong Filetype!"), messagebox.setText(
+                "This file type is not supported!"
+            )
+            messagebox.exec()
+        except FileNotFoundError:
+            return
+        except Exception as e:
+            print(e)
+            messagebox = QMessageBox()
+            messagebox.setWindowTitle("Error"), messagebox.setText(
+                f"An error occurred while opening the file: {e}"
+            )
+            messagebox.exec()
 
     def configure_menuBar(self):
         MenuConfig.configure_menuBar(self)
