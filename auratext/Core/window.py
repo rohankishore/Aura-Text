@@ -727,7 +727,7 @@ class Window(QMainWindow):
             ModuleFile.add_image_tab(self, self.tab_widget, path, os.path.basename(path))
 
         if path:
-            if ext == "db":
+            if ext.lower() == "db":
                 self.db_viewer = DBViewer(path)
                 self.tab_widget.addTab(self.db_viewer, os.path.basename(path))
                 self.tab_widget.setCurrentWidget(self.db_viewer)
