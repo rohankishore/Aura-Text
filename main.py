@@ -8,6 +8,10 @@ import sys
 
 from qt_material import apply_stylesheet
 
+"""
+Check the system platform to get the appropriate local app data folder.
+"""
+
 if platform.system() == "Windows":
     local_app_data = os.getenv('LOCALAPPDATA')
 elif platform.system() == "Linux":
