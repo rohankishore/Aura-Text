@@ -38,7 +38,8 @@ from . import Modules as ModuleFile
 from . import PluginDownload
 from . import ThemeDownload
 from . import config_page
-from ..Components import powershell, terminal, statusBar, ProjectManager, About, ToDo, GitGraph, GitRebase, Performance, CommandPalette
+from ..Components import powershell, terminal, statusBar, ProjectManager, About, ToDo, GitGraph, GitRebase, Performance
+from ..Components.CommandPalette import CommandPalette
 from ..Components.NewProjectDialog import NewProjectDialog
 
 from .AuraText import CodeEditor
@@ -382,16 +383,14 @@ class Window(QMainWindow):
             {"name": "Help: About", "action": self.version},
         ]
 
-        self.command_palette = CommandPalette.CommandPalette(self.commands, self)
+        self.command_palette = CommandPalette(self.commands, self)
         shortcut = QShortcut(QKeySequence("Ctrl+Shift+P"), self)
         shortcut.activated.connect(self.show_command_palette)
 
         self.showMaximized()
 
     def show_command_palette(self):
-        self.command_palette.populate_commands()
-        self.command_palette.show()
-        self.command_palette.command_input.setFocus()
+        self.command_palette.exec()
 
     def create_editor(self):
         self.text_editor = CodeEditor(self)
