@@ -13,7 +13,7 @@ import qdarktheme
 import markdown
 from pyqtconsole.console import PythonConsole
 from PyQt6.QtCore import Qt, QSize
-from PyQt6.QtGui import QColor, QFont, QActionGroup, QFileSystemModel, QPixmap, QIcon
+from PyQt6.QtGui import QColor, QFont, QActionGroup, QFileSystemModel, QPixmap, QIcon, QShortcut, QKeySequence
 from PyQt6.Qsci import QsciScintilla
 from PyQt6.QtWidgets import (
     QMainWindow,
@@ -28,6 +28,7 @@ from PyQt6.QtWidgets import (
     QPushButton,
     QWidget,
     QVBoxLayout,
+    QHBoxLayout,
     QStatusBar)
 from . import Lexers
 from ..Misc import shortcuts, WelcomeScreen, boilerplates, file_templates
@@ -37,7 +38,9 @@ from . import Modules as ModuleFile
 from . import PluginDownload
 from . import ThemeDownload
 from . import config_page
-from ..Components import powershell, terminal, statusBar, ProjectManager, About, ToDo
+from ..Components import powershell, terminal, statusBar, ProjectManager, About, ToDo, GitGraph, GitRebase, Performance, DBViewer
+from ..Components.CommandPalette import CommandPalette
+from ..Components.NewProjectDialog import NewProjectDialog
 
 from .AuraText import CodeEditor
 from auratext.Components.TabWidget import TabWidget
@@ -92,7 +95,7 @@ class PluginActions(QDockWidget):
 # noinspection PyUnresolvedReferences
 # no inspection for unresolved references as pylance flags inaccurately sometimes
 class Window(QMainWindow):
-    def __init__(self):
+    def __init__(self, greeting=None):
         super().__init__()
         self.local_app_data = local_app_data
         # self._terminal_history = ""
@@ -209,7 +212,7 @@ class Window(QMainWindow):
         self.leftBar.setWidget(self.leftBar_widget)
         self.addDockWidget(Qt.DockWidgetArea.LeftDockWidgetArea, self.leftBar)
 
-        self.statusBar = statusBar.StatusBar(self)
+        self.statusBar = statusBar.StatusBar(self, greeting=greeting)
         self.setStatusBar(self.statusBar)
 
         explorer_icon = QIcon(f"{local_app_data}/icons/explorer_unfilled.png")
@@ -267,6 +270,25 @@ class Window(QMainWindow):
             """
         )
 
+        git_graph_icon = QIcon(f"{local_app_data}/icons/search.png")
+        self.git_graph_button = QPushButton(self)
+        self.git_graph_button.setIcon(git_graph_icon)
+        self.git_graph_button.clicked.connect(self.gitGraph)
+        self.git_graph_button.setIconSize(QSize(25, 25))
+        self.git_graph_button.setFixedSize(30, 30)
+        self.git_graph_button.setStyleSheet(
+            """
+            QPushButton {
+                border: none;
+                border-radius:10;
+                align: botton;
+            }
+            QPushButton:hover {
+                background-color: #4e5157;
+            }
+            """
+        )
+
         self.sidebar_layout.insertWidget(0, self.explorer_button)
         self.sidebar_layout.insertWidget(1, self.plugin_button)
 
@@ -311,8 +333,6 @@ class Window(QMainWindow):
         self.configure_menuBar()
         sys.path.append(f"{local_app_data}/plugins")
         self.load_plugins()
-<<<<<<< Updated upstream
-=======
 
         self.file_icons = {
             "py": "logo_python.png",
@@ -397,8 +417,17 @@ class Window(QMainWindow):
         shortcut = QShortcut(QKeySequence("Ctrl+Shift+P"), self)
         shortcut.activated.connect(self.show_command_palette)
 
->>>>>>> Stashed changes
         self.showMaximized()
+
+    def get_icon(self, file_path):
+        ext = file_path.split('.')[-1]
+        if ext in self.file_icons:
+            return QIcon(os.path.join(os.path.dirname(__file__), "Resources", "language_icons", self.file_icons[ext]))
+        else:
+            return QIcon(f"{self.local_app_data}/icons/icon.ico")
+
+    def show_command_palette(self):
+        self.command_palette.exec()
 
     def create_editor(self):
         self.text_editor = CodeEditor(self)
@@ -452,13 +481,20 @@ class Window(QMainWindow):
         ]
         print("Plugins Found: ", plugin_files)
         for plugin_file in plugin_files:
-            module = importlib.import_module(plugin_file)
-            for name, obj in module.__dict__.items():
-                if isinstance(obj, type) and issubclass(obj, Plugin) and obj is not Plugin:
-                    try:
-                        self.plugins.append(obj(self))
-                    except Exception as e:
-                        print(e)
+            print(f"Loading plugin: {plugin_file}")
+            if not plugin_file.isidentifier():
+                print(f"Skipping plugin with invalid name: {plugin_file}")
+                continue
+            try:
+                module = importlib.import_module(plugin_file)
+                for name, obj in module.__dict__.items():
+                    if isinstance(obj, type) and issubclass(obj, Plugin) and obj is not Plugin:
+                        try:
+                            self.plugins.append(obj(self))
+                        except Exception as e:
+                            print(f"Error initializing plugin {plugin_file}: {e}")
+            except Exception as e:
+                print(f"Error loading plugin {plugin_file}: {e}")
 
     def onPluginDockVisibilityChanged(self, visible):
         if visible:
@@ -582,13 +618,30 @@ class Window(QMainWindow):
         self.plugin_layout.addWidget(widget)
 
     def new_project(self):
-        new_folder_path = QFileDialog.getExistingDirectory(self,
-                                                           "Create New Folder",
-                                                           "./",
-                                                           QFileDialog.Option.ShowDirsOnly)
+        dialog = NewProjectDialog(self)
+        if dialog.exec():
+            project_details = dialog.get_project_details()
+            project_name = project_details["name"]
+            project_path = os.path.join(project_details["path"], project_name)
 
-        with open(f"{self.local_app_data}/data/CPath_Project.txt", "w") as file:
-            file.write(new_folder_path)
+            if not os.path.exists(project_path):
+                os.makedirs(project_path)
+
+            if project_details["create_readme"]:
+                with open(os.path.join(project_path, "README.md"), "w") as f:
+                    f.write(f"# {project_name}")
+
+            with open(f"{self.local_app_data}/data/CPath_Project.txt", "w") as file:
+                file.write(project_path)
+
+            messagebox = QMessageBox()
+            messagebox.setWindowTitle("New Project"), messagebox.setText(
+                f"New project created at {project_path}"
+            )
+            messagebox.exec()
+
+            self.treeview_project(project_path)
+            self.addProjectsToDB(name=project_name, project_path=project_path)
 
     def code_jokes(self):
         a = pyjokes.get_joke(language="en", category="neutral")
@@ -690,6 +743,14 @@ class Window(QMainWindow):
         self.gitPushDialog = GitPush.GitPushDialog(self)
         self.gitPushDialog.exec()
 
+    def gitGraph(self):
+        self.git_graph_widget = GitGraph(cpath)
+        self.git_graph_widget.show()
+
+    def gitRebase(self):
+        self.git_rebase_dialog = GitRebase.GitRebaseDialog(cpath)
+        self.git_rebase_dialog.exec()
+
     def is_git_repo(self):
         return os.path.isdir(os.path.join(cpath, '.git'))
 
@@ -698,9 +759,6 @@ class Window(QMainWindow):
         image_extensions = ["png", "jpg", "jpeg", "ico", "gif", "bmp"]
         ext = path.split(".")[-1]
 
-<<<<<<< Updated upstream
-        def add_image_tab():
-=======
         if ext.lower() == "db":
             self.db_viewer = DBViewer(path)
             icon = self.get_icon(path)
@@ -710,16 +768,9 @@ class Window(QMainWindow):
 
         if ext.lower() in image_extensions:
             icon = self.get_icon(path)
->>>>>>> Stashed changes
             ModuleFile.add_image_tab(self, self.tab_widget, path, os.path.basename(path))
+            return
 
-<<<<<<< Updated upstream
-        if path:
-            try:
-                if ext in image_extensions:
-                    add_image_tab()
-                    return
-=======
         try:
             with open(path, "r", encoding="utf-8") as f:
                 filedata = f.read()
@@ -727,35 +778,22 @@ class Window(QMainWindow):
             self.current_editor.insert(filedata)
             if ext.lower() == "md":
                 self.markdown_open(filedata)
->>>>>>> Stashed changes
 
-            except UnicodeDecodeError:
-                messagebox = QMessageBox()
-                messagebox.setWindowTitle("Wrong Filetype!"), messagebox.setText(
-                    "This file type is not supported!"
-                )
-                messagebox.exec()
-
-            try:
-                f = open(path, "r")
-                try:
-                    filedata = f.read()
-                    self.new_document(title=os.path.basename(path))
-                    self.current_editor.insert(filedata)
-                    if ext.lower() == "md":
-                        self.markdown_open(filedata)
-                    elif ext.lower() == "png":
-                        add_image_tab()
-                    f.close()
-
-                except UnicodeDecodeError:
-                    messagebox = QMessageBox()
-                    messagebox.setWindowTitle("Wrong Filetype!"), messagebox.setText(
-                        "This file type is not supported!"
-                    )
-                    messagebox.exec()
-            except FileNotFoundError:
-                return
+        except UnicodeDecodeError:
+            messagebox = QMessageBox()
+            messagebox.setWindowTitle("Wrong Filetype!"), messagebox.setText(
+                "This file type is not supported!"
+            )
+            messagebox.exec()
+        except FileNotFoundError:
+            return
+        except Exception as e:
+            print(e)
+            messagebox = QMessageBox()
+            messagebox.setWindowTitle("Error"), messagebox.setText(
+                f"An error occurred while opening the file: {e}"
+            )
+            messagebox.exec()
 
     def configure_menuBar(self):
         MenuConfig.configure_menuBar(self)
@@ -1108,6 +1146,7 @@ class Window(QMainWindow):
             pass
 
     def change_text_editor(self, index):
+        widget = self.tab_widget.widget(index)
         if index < len(self.editors):
             self.statusBar.show()
             # Set the previous editor as read-only
@@ -1240,3 +1279,10 @@ class Window(QMainWindow):
     @staticmethod
     def bug_report():
         webbrowser.open_new_tab("https://github.com/rohankishore/Aura-Text/issues/new/choose")
+
+    def show_performance(self):
+        self.performance_dock = QDockWidget("Performance", self)
+        self.performance_widget = Performance.PerformanceWidget(self)
+        self.performance_dock.setWidget(self.performance_widget)
+        self.addDockWidget(Qt.DockWidgetArea.RightDockWidgetArea, self.performance_dock)
+        self.performance_dock.show()
