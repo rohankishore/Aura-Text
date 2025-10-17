@@ -445,13 +445,19 @@ class Window(QMainWindow):
         ]
         print("Plugins Found: ", plugin_files)
         for plugin_file in plugin_files:
-            module = importlib.import_module(plugin_file)
-            for name, obj in module.__dict__.items():
-                if isinstance(obj, type) and issubclass(obj, Plugin) and obj is not Plugin:
-                    try:
-                        self.plugins.append(obj(self))
-                    except Exception as e:
-                        print(e)
+            if not plugin_file.isidentifier():
+                print(f"Skipping plugin with invalid name: {plugin_file}")
+                continue
+            try:
+                module = importlib.import_module(plugin_file)
+                for name, obj in module.__dict__.items():
+                    if isinstance(obj, type) and issubclass(obj, Plugin) and obj is not Plugin:
+                        try:
+                            self.plugins.append(obj(self))
+                        except Exception as e:
+                            print(f"Error initializing plugin {plugin_file}: {e}")
+            except Exception as e:
+                print(f"Error loading plugin {plugin_file}: {e}")
 
     def onPluginDockVisibilityChanged(self, visible):
         if visible:
