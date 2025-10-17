@@ -89,8 +89,7 @@ With Aura Text, users can access a versatile and powerful editing environment. W
 - Edit files (duh)
 - Support up to 30 languages
 - Autocompletion
-- Git clone
-- Git Commit and Push
+- Git Clone, Commit and Push with interactive rebase and graphs
 - Custom title bars
 - Split pane Markdown editor
 - Terminal with history
