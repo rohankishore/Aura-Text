@@ -104,6 +104,8 @@ QMenu::item::selected {{
     file_menu.addAction("Extensions", self.expandSidebar__Plugins)
     file_menu.addAction("Settings", self.expandSidebar__Settings)
     file_menu.addAction("Exit", sys.exit).setWhatsThis("Exit Aura Text")
+    file_menu.addSeparator()
+    file_menu.addAction("Performance", self.show_performance).setWhatsThis("Show Performance Monitor")
     menubar.addMenu(file_menu)
 
     whats_this_action.setWhatsThis("Click on a menu item to see its help text")
