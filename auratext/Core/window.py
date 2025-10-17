@@ -13,7 +13,7 @@ import qdarktheme
 import markdown
 from pyqtconsole.console import PythonConsole
 from PyQt6.QtCore import Qt, QSize
-from PyQt6.QtGui import QColor, QFont, QActionGroup, QFileSystemModel, QPixmap, QIcon
+from PyQt6.QtGui import QColor, QFont, QActionGroup, QFileSystemModel, QPixmap, QIcon, QShortcut, QKeySequence
 from PyQt6.Qsci import QsciScintilla
 from PyQt6.QtWidgets import (
     QMainWindow,
@@ -327,7 +327,71 @@ class Window(QMainWindow):
         self.configure_menuBar()
         sys.path.append(f"{local_app_data}/plugins")
         self.load_plugins()
+
+        self.commands = [
+            {"name": "File: New", "action": self.cs_new_document},
+            {"name": "File: New from Template - HTML", "action": self.html_temp},
+            {"name": "File: New from Template - Python", "action": self.py_temp},
+            {"name": "File: New from Template - C++", "action": self.cpp_temp},
+            {"name": "File: New from Template - PHP", "action": self.php_temp},
+            {"name": "File: New from Template - TeX", "action": self.tex_temp},
+            {"name": "File: New from Template - Java", "action": self.java_temp},
+            {"name": "File: Open", "action": self.open_document},
+            {"name": "File: New Project", "action": self.new_project},
+            {"name": "File: New Project from VCS", "action": self.gitClone},
+            {"name": "File: Open Project", "action": self.open_project},
+            {"name": "File: Open Project as Treeview", "action": self.open_project_as_treeview},
+            {"name": "File: Manage Projects", "action": self.manageProjects},
+            {"name": "File: Save As", "action": self.save_document},
+            {"name": "File: Summary", "action": self.summary},
+            {"name": "File: Extensions", "action": self.expandSidebar__Plugins},
+            {"name": "File: Settings", "action": self.expandSidebar__Settings},
+            {"name": "File: Exit", "action": sys.exit},
+            {"name": "File: Performance", "action": self.show_performance},
+            {"name": "Edit: Cut", "action": self.cut_document},
+            {"name": "Edit: Copy", "action": self.copy_document},
+            {"name": "Edit: Paste", "action": self.paste_document},
+            {"name": "Edit: Undo", "action": self.undo_document},
+            {"name": "Edit: Redo", "action": self.redo_document},
+            {"name": "Edit: Find", "action": self.find_in_editor},
+            {"name": "View: Full Screen", "action": self.fullscreen},
+            {"name": "View: Project Directory", "action": self.expandSidebar__Explorer},
+            {"name": "View: AT Terminal", "action": self.terminal_widget},
+            {"name": "View: Powershell", "action": self.setupPowershell},
+            {"name": "View: Python Console", "action": self.python_console},
+            {"name": "View: Read-Only", "action": self.toggle_read_only},
+            {"name": "Code: Code Formatting", "action": self.code_formatting},
+            {"name": "Code: Boilerplates", "action": self.boilerplates},
+            {"name": "Code: Create Snippet", "action": self.create_snippet},
+            {"name": "Code: Import Snippet", "action": self.import_snippet},
+            {"name": "Tools: Upload to Pastebin", "action": self.pastebin},
+            {"name": "Tools: Notes", "action": self.notes},
+            {"name": "Tools: To-Do", "action": self.todo},
+            {"name": "Tools: Convert to HTML", "action": self.toHTML},
+            {"name": "Git: Commit", "action": self.gitCommit},
+            {"name": "Git: Push", "action": self.gitPush},
+            {"name": "Git: Graph", "action": self.gitGraph},
+            {"name": "Git: Interactive Rebase", "action": self.gitRebase},
+            {"name": "Preferences: Additional Preferences", "action": self.additional_prefs},
+            {"name": "Preferences: Import Theme", "action": self.import_theme},
+            {"name": "Help: Keyboard Shortcuts", "action": self.shortcuts},
+            {"name": "Help: Getting Started", "action": self.getting_started},
+            {"name": "Help: Submit a Bug Report", "action": self.bug_report},
+            {"name": "Help: A Byte of Humour!", "action": self.code_jokes},
+            {"name": "Help: GitHub", "action": self.about_github},
+            {"name": "Help: About", "action": self.version},
+        ]
+
+        self.command_palette = CommandPalette.CommandPalette(self.commands, self)
+        shortcut = QShortcut(QKeySequence("Ctrl+Shift+P"), self)
+        shortcut.activated.connect(self.show_command_palette)
+
         self.showMaximized()
+
+    def show_command_palette(self):
+        self.command_palette.populate_commands()
+        self.command_palette.show()
+        self.command_palette.command_input.setFocus()
 
     def create_editor(self):
         self.text_editor = CodeEditor(self)
