@@ -116,7 +116,7 @@ class PluginActions(QDockWidget):
 # noinspection PyUnresolvedReferences
 # no inspection for unresolved references as pylance flags inaccurately sometimes
 class Window(QMainWindow):
-    def __init__(self):
+    def __init__(self, greeting=None):
         super().__init__()
         self.local_app_data = local_app_data
         # self._terminal_history = ""
@@ -229,7 +229,7 @@ class Window(QMainWindow):
         self.leftBar.setWidget(self.leftBar_widget)
         self.addDockWidget(Qt.DockWidgetArea.LeftDockWidgetArea, self.leftBar)
 
-        self.statusBar = statusBar.StatusBar(self)
+        self.statusBar = statusBar.StatusBar(self, greeting=greeting)
         self.setStatusBar(self.statusBar)
 
         explorer_icon = QIcon(f"{local_app_data}/icons/explorer_unfilled.png")
