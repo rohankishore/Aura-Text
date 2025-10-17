@@ -445,6 +445,7 @@ class Window(QMainWindow):
         ]
         print("Plugins Found: ", plugin_files)
         for plugin_file in plugin_files:
+            print(f"Loading plugin: {plugin_file}")
             if not plugin_file.isidentifier():
                 print(f"Skipping plugin with invalid name: {plugin_file}")
                 continue
