@@ -20,3 +20,4 @@ winshell==0.6
 markdown==3.8.2
 pyinstaller
 pyperclip
+psutil
