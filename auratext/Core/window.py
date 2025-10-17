@@ -1118,7 +1118,8 @@ class Window(QMainWindow):
             self.current_editor.cursorPositionChanged.connect(self.updateStatusBar)
             self.current_editor.textChanged.connect(self.updateStatusBar)
             self.editors.append(self.current_editor)
-            self.tab_widget.addTab(self.current_editor, text)
+            icon = self.get_icon(text)
+            self.tab_widget.addTab(self.current_editor, icon, text)
             if ".html" in text:
                 self.html_temp()
                 self.html()

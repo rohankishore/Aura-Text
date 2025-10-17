@@ -8,7 +8,6 @@ def run_pyinstaller():
     try:
         main_script = 'main.py'
 
-
         cmd = [
             'pyinstaller',
             main_script,
