@@ -74,7 +74,7 @@
 <!-- ABOUT THE PROJECT -->
 ## 📖 About The Project
 
-![image](https://github.com/user-attachments/assets/360d1ce8-5047-4534-8b84-b01ecc670725)
+<img width="1920" height="1140" alt="image" src="https://github.com/user-attachments/assets/62ba55aa-3add-4f71-bb42-2ecb0f1a0bea" />
 
 ![image](https://github.com/user-attachments/assets/fca92d3e-4218-4550-96ca-dfa85dbc27dc)
 
