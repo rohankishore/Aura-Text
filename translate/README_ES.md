@@ -83,7 +83,8 @@ Con Aura Text, los usuarios obtienen acceso a un entorno de edición versátil y
 
 Ejecuta este comando en tu terminal para instalar las dependencias de una vez:
   ```sh
-  pip install -r requirements.txt```
+  pip install -r requirements.txt
+```
 
 ### Instalación
 
