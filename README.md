@@ -173,6 +173,8 @@ Don't forget to give the project a star! Thanks again!
 
 <b>
 
+<!-- GitAds-Verify: WQAFQASC2KGFLIXDWYMOWLYFQMBXX9GJ -->
+
 <!-- LICENSE -->
 ## 🪪 License
 
