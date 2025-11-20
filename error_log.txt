@@ -1,0 +1,8 @@
+Traceback (most recent call last):
+  File "c:\Users\rohan\PycharmProjects\Aura-Text\main.py", line 50, in main
+    ex = Window()
+         ^^^^^^^^
+  File "c:\Users\rohan\PycharmProjects\Aura-Text\auratext\Core\window.py", line 382, in __init__
+    {"name": "Git: Interactive Rebase", "action": self.gitRebase},
+                                                  ^^^^^^^^^^^^^^
+AttributeError: 'Window' object has no attribute 'gitRebase'

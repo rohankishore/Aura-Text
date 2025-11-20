@@ -101,6 +101,8 @@ QMenu::item::selected {{
     file_menu.addSeparator()
     file_menu.addAction("Extensions", self.expandSidebar__Plugins)
     file_menu.addAction("Settings", self.expandSidebar__Settings)
+    file_menu.addSeparator()
+    file_menu.addAction("Close Project", self.close_project).setWhatsThis("Close the current project")
     file_menu.addAction("Exit", sys.exit).setWhatsThis("Exit Aura Text")
     menubar.addMenu(file_menu)
 
