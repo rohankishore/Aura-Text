@@ -1322,3 +1322,65 @@ class Window(QMainWindow):
         self.performance_dock.setWidget(self.performance_widget)
         self.addDockWidget(Qt.DockWidgetArea.RightDockWidgetArea, self.performance_dock)
         self.performance_dock.show()
+
+    def get_icon(self, title):
+        extension = os.path.splitext(title)[1].lower()
+        icon_name = None
+
+        mapping = {
+            ".ada": "logo_ada.png",
+            ".awk": "logo_awk.png",
+            ".sh": "logo_bash.png",
+            ".bash": "logo_bash.png",
+            ".bat": "logo_batch.png",
+            ".c": "logo_c.png",
+            ".h": "logo_c.png",
+            ".cmake": "logo_cmake.png",
+            ".coffee": "logo_coffeescript.png",
+            ".cpp": "logo_cpp.png",
+            ".hpp": "logo_cpp.png",
+            ".cs": "logo_csharp.png",
+            ".css": "logo_css.png",
+            ".pyx": "logo_cython.png",
+            ".d": "logo_d.png",
+            ".f": "logo_fortran.png",
+            ".f90": "logo_fortran.png",
+            ".f77": "logo_fortran77.png",
+            ".html": "logo_html.png",
+            ".htm": "logo_html.png",
+            ".idl": "logo_idl.png",
+            ".java": "logo_java.png",
+            ".js": "logo_javascript.png",
+            ".json": "logo_json.png",
+            ".lua": "logo_lua.png",
+            "makefile": "logo_makefile.png",
+            ".m": "logo_matlab.png",
+            ".nim": "logo_nim.png",
+            ".pas": "logo_pascal.png",
+            ".pl": "logo_perl.png",
+            ".php": "logo_php.png",
+            ".ps": "logo_postscript.png",
+            ".py": "logo_python.png",
+            ".pyw": "logo_python.png",
+            ".rb": "logo_ruby.png",
+            ".sql": "logo_sql.png",
+            ".tcl": "logo_tcl.png",
+            ".tex": "logo_tex.png",
+            ".v": "logo_verilog.png",
+            ".vhdl": "logo_vhdl.png",
+            ".xml": "logo_xml.png",
+            ".yaml": "logo_yaml.png",
+            ".yml": "logo_yaml.png",
+        }
+
+        if title.lower() == "makefile":
+            icon_name = mapping["makefile"]
+        elif extension in mapping:
+            icon_name = mapping[extension]
+
+        if icon_name:
+            icon_path = os.path.join(os.path.dirname(__file__), "Resources", "language_icons", icon_name)
+            if os.path.exists(icon_path):
+                return QIcon(icon_path)
+
+        return QIcon()
