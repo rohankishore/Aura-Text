@@ -2,6 +2,7 @@ import base64
 import os
 import random
 from tkinter import messagebox, filedialog
+import markdown
 
 import pyttsx3
 import requests
@@ -10,6 +11,106 @@ from PyQt6.QtCore import Qt
 from PyQt6.QtGui import QPixmap
 from PyQt6.QtWidgets import QLabel, QDockWidget, QVBoxLayout, QTextEdit, QTextBrowser
 import platform
+
+GITHUB_CSS = """
+<style>
+body {
+    font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif,"Apple Color Emoji","Segoe UI Emoji";
+    font-size: 16px;
+    line-height: 1.5;
+    word-wrap: break-word;
+    color: #c9d1d9;
+    background-color: #0d1117;
+    padding: 20px;
+}
+h1, h2, h3, h4, h5, h6 {
+    margin-top: 24px;
+    margin-bottom: 16px;
+    font-weight: 600;
+    line-height: 1.25;
+    color: #e6edf3;
+}
+h1 { font-size: 2em; border-bottom: 1px solid #21262d; padding-bottom: 0.3em; }
+h2 { font-size: 1.5em; border-bottom: 1px solid #21262d; padding-bottom: 0.3em; }
+h3 { font-size: 1.25em; }
+h4 { font-size: 1em; }
+h5 { font-size: 0.875em; }
+h6 { font-size: 0.85em; color: #8b949e; }
+p { margin-top: 0; margin-bottom: 16px; }
+code {
+    font-family: ui-monospace,SFMono-Regular,SF Mono,Menlo,Consolas,Liberation Mono,monospace;
+    font-size: 85%;
+    padding: 0.2em 0.4em;
+    margin: 0;
+    background-color: rgba(110,118,129,0.4);
+    border-radius: 6px;
+}
+pre {
+    padding: 16px;
+    overflow: auto;
+    font-size: 85%;
+    line-height: 1.45;
+    background-color: #161b22;
+    border-radius: 6px;
+}
+pre code {
+    background-color: transparent;
+    padding: 0;
+}
+blockquote {
+    padding: 0 1em;
+    color: #8b949e;
+    border-left: 0.25em solid #30363d;
+    margin: 0 0 16px 0;
+}
+ul, ol {
+    padding-left: 2em;
+    margin-top: 0;
+    margin-bottom: 16px;
+}
+table {
+    border-spacing: 0;
+    border-collapse: collapse;
+    margin-top: 0;
+    margin-bottom: 16px;
+    width: 100%;
+}
+table th, table td {
+    padding: 6px 13px;
+    border: 1px solid #30363d;
+}
+table th {
+    font-weight: 600;
+    background-color: #161b22;
+}
+table tr {
+    background-color: #0d1117;
+    border-top: 1px solid #21262d;
+}
+table tr:nth-child(2n) {
+    background-color: #161b22;
+}
+img {
+    max-width: 100%;
+    box-sizing: content-box;
+    background-color: #0d1117;
+}
+hr {
+    height: 0.25em;
+    padding: 0;
+    margin: 24px 0;
+    background-color: #30363d;
+    border: 0;
+}
+a {
+    color: #58a6ff;
+    text-decoration: none;
+}
+a:hover {
+    text-decoration: underline;
+}
+</style>
+"""
 
 api_key_pastebin = "_L_ZkBp7K3aZMY7z4ombPIztLxITOOpD"
 

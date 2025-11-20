@@ -20,6 +20,7 @@ else:
 local_app_data = os.path.join(local_app_data, "AuraText")
 print(local_app_data)
 
+
 from auratext.Core.window import Window
 # from auratext.Core import get_started
 
