@@ -59,14 +59,23 @@ elif platform.system() == "Darwin":
 else:
     print("Unsupported operating system")
     sys.exit(1)
+
+local_app_data = os.path.join(local_app_data, "AuraText")
+
 script_dir = os.path.dirname(os.path.abspath(__file__))
-print(script_dir)
-copytolocalappdata = os.path.join(script_dir, "LocalAppData", "AuraText")
+# Check dev path first: ../../LocalAppData/AuraText
+project_root = os.path.abspath(os.path.join(script_dir, "..", ".."))
+copytolocalappdata = os.path.join(project_root, "LocalAppData", "AuraText")
+
 if not os.path.exists(copytolocalappdata):
     import sys
     exedir = os.path.dirname(sys.executable)
     copytolocalappdata = os.path.join(exedir, "LocalAppData", "AuraText")
-shutil.copytree(copytolocalappdata, local_app_data, dirs_exist_ok=True)
+
+if os.path.exists(copytolocalappdata):
+    shutil.copytree(copytolocalappdata, local_app_data, dirs_exist_ok=True)
+else:
+    print(f"Warning: Could not find LocalAppData/AuraText to copy. Checked: {copytolocalappdata}")
 
 cpath = open(f"{local_app_data}/data/CPath_Project.txt", "r+").read()
 cfile = open(f"{local_app_data}/data/CPath_File.txt", "r+").read()
