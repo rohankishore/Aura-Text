@@ -771,7 +771,7 @@ class Window(QMainWindow):
             self.new_document(title=os.path.basename(path))
             self.current_editor.insert(filedata)
             if ext.lower() == "md":
-                self.markdown_open(filedata)
+                self.markdown_open(filedata, path)
 
         except UnicodeDecodeError:
             messagebox = QMessageBox()
