@@ -3,6 +3,7 @@ import importlib
 import json
 import os
 import random
+import shutil
 import sys
 import sqlite3
 import time
@@ -11,6 +12,7 @@ import git
 import pyjokes
 import qdarktheme
 import markdown
+import platform
 from pyqtconsole.console import PythonConsole
 from PyQt6.QtCore import Qt, QSize
 from PyQt6.QtGui import QColor, QFont, QActionGroup, QFileSystemModel, QPixmap, QIcon, QShortcut, QKeySequence
@@ -28,6 +30,7 @@ from PyQt6.QtWidgets import (
     QPushButton,
     QWidget,
     QVBoxLayout,
+    QHBoxLayout,
     QStatusBar)
 from . import Lexers
 from ..Misc import shortcuts, WelcomeScreen, boilerplates, file_templates
@@ -39,15 +42,38 @@ from . import ThemeDownload
 from . import config_page
 from .CommandPalette import CommandPalette
 from ..Components import powershell, terminal, statusBar, ProjectManager, About, ToDo, GitGraph
+from ..Components import powershell, terminal, statusBar, ProjectManager, About, ToDo, GitGraph, GitRebase, Performance, DBViewer
+from ..Components.CommandPalette import CommandPalette
+from ..Components.NewProjectDialog import NewProjectDialog
 
 from .AuraText import CodeEditor
 from auratext.Components.TabWidget import TabWidget
 from .plugin_interface import Plugin
 
-local_app_data = os.path.join(os.getenv("LocalAppData"), "AuraText")
+if platform.system() == "Windows":
+    local_app_data = os.getenv('LOCALAPPDATA')
+elif platform.system() == "Linux":
+    local_app_data = os.path.expanduser("~/.config")
+elif platform.system() == "Darwin":
+    local_app_data = os.path.expanduser("~/Library/Application Support")
+else:
+    print("Unsupported operating system")
+    sys.exit(1)
+script_dir = os.path.dirname(os.path.abspath(__file__))
+print(script_dir)
+copytolocalappdata = os.path.join(script_dir, "LocalAppData", "AuraText")
+if not os.path.exists(copytolocalappdata):
+    import sys
+    exedir = os.path.dirname(sys.executable)
+    copytolocalappdata = os.path.join(exedir, "LocalAppData", "AuraText")
+shutil.copytree(copytolocalappdata, local_app_data, dirs_exist_ok=True)
+
 cpath = open(f"{local_app_data}/data/CPath_Project.txt", "r+").read()
 cfile = open(f"{local_app_data}/data/CPath_File.txt", "r+").read()
-
+if not cpath:
+    cpath = ""
+if not cfile:
+    cfile = ""
 
 def is_git_repo():
     return os.path.isdir(os.path.join(cpath, '.git'))
@@ -93,7 +119,7 @@ class PluginActions(QDockWidget):
 # noinspection PyUnresolvedReferences
 # no inspection for unresolved references as pylance flags inaccurately sometimes
 class Window(QMainWindow):
-    def __init__(self):
+    def __init__(self, greeting=None):
         super().__init__()
         self.local_app_data = local_app_data
         # self._terminal_history = ""
@@ -131,8 +157,9 @@ class Window(QMainWindow):
             qdarktheme.setup_theme(
                 self._themes["theme_type"], custom_colors={"primary": self._themes["theme"]}
             )
-            import pywinstyles
-            pywinstyles.apply_style(self, (self._themes["titlebar"]))
+            if platform.system() == "Windows":
+                import pywinstyles
+                pywinstyles.apply_style(self, (self._themes["titlebar"]))
         else:
             pass
 
@@ -210,7 +237,7 @@ class Window(QMainWindow):
         self.leftBar.setWidget(self.leftBar_widget)
         self.addDockWidget(Qt.DockWidgetArea.LeftDockWidgetArea, self.leftBar)
 
-        self.statusBar = statusBar.StatusBar(self)
+        self.statusBar = statusBar.StatusBar(self, greeting=greeting)
         self.setStatusBar(self.statusBar)
 
         explorer_icon = QIcon(f"{local_app_data}/icons/explorer_unfilled.png")
@@ -268,6 +295,25 @@ class Window(QMainWindow):
             """
         )
 
+        git_graph_icon = QIcon(f"{local_app_data}/icons/search.png")
+        self.git_graph_button = QPushButton(self)
+        self.git_graph_button.setIcon(git_graph_icon)
+        self.git_graph_button.clicked.connect(self.gitGraph)
+        self.git_graph_button.setIconSize(QSize(25, 25))
+        self.git_graph_button.setFixedSize(30, 30)
+        self.git_graph_button.setStyleSheet(
+            """
+            QPushButton {
+                border: none;
+                border-radius:10;
+                align: botton;
+            }
+            QPushButton:hover {
+                background-color: #4e5157;
+            }
+            """
+        )
+
         self.sidebar_layout.insertWidget(0, self.explorer_button)
         self.sidebar_layout.insertWidget(1, self.plugin_button)
 
@@ -313,30 +359,6 @@ class Window(QMainWindow):
         sys.path.append(f"{local_app_data}/plugins")
         self.load_plugins()
 
-        self.file_icons = {
-            "py": "logo_python.png",
-            "js": "logo_javascript.png",
-            "html": "logo_html.png",
-            "css": "logo_css.png",
-            "c": "logo_c.png",
-            "cpp": "logo_cpp.png",
-            "h": "logo_c_cpp.png",
-            "hpp": "logo_c_cpp.png",
-            "java": "logo_java.png",
-            "json": "logo_json.png",
-            "md": "logo_markdown.png",
-            "xml": "logo_xml.png",
-            "yml": "logo_yaml.png",
-            "yaml": "logo_yaml.png",
-            "sh": "logo_bash.png",
-            "bat": "logo_batch.png",
-            "php": "logo_php.png",
-            "rb": "logo_ruby.png",
-            "sql": "logo_sql.png",
-            "tex": "logo_tex.png",
-            "db": "logo_python.png", # Placeholder
-        }
-
         self.commands = [
             {"name": "File: New", "action": self.cs_new_document},
             {"name": "File: New from Template - HTML", "action": self.html_temp},
@@ -356,6 +378,7 @@ class Window(QMainWindow):
             {"name": "File: Extensions", "action": self.expandSidebar__Plugins},
             {"name": "File: Settings", "action": self.expandSidebar__Settings},
             {"name": "File: Exit", "action": sys.exit},
+            {"name": "File: Performance", "action": self.show_performance},
             {"name": "Edit: Cut", "action": self.cut_document},
             {"name": "Edit: Copy", "action": self.copy_document},
             {"name": "Edit: Paste", "action": self.paste_document},
@@ -379,6 +402,7 @@ class Window(QMainWindow):
             {"name": "Git: Commit", "action": self.gitCommit},
             {"name": "Git: Push", "action": self.gitPush},
             {"name": "Git: Graph", "action": self.gitGraph},
+            {"name": "Git: Interactive Rebase", "action": self.gitRebase},
             {"name": "Preferences: Additional Preferences", "action": self.additional_prefs},
             {"name": "Preferences: Import Theme", "action": self.import_theme},
             {"name": "Help: Keyboard Shortcuts", "action": self.shortcuts},
@@ -395,6 +419,9 @@ class Window(QMainWindow):
         shortcut.activated.connect(self.show_command_palette)
 
         self.showMaximized()
+
+    def show_command_palette(self):
+        self.command_palette.exec()
 
     def create_editor(self):
         self.text_editor = CodeEditor(self)
@@ -449,6 +476,10 @@ class Window(QMainWindow):
         print("Plugins Found: ", plugin_files)
         sys.path.append(f"{local_app_data}/plugins")
         for plugin_file in plugin_files:
+            print(f"Loading plugin: {plugin_file}")
+            if not plugin_file.isidentifier():
+                print(f"Skipping plugin with invalid name: {plugin_file}")
+                continue
             try:
                 module = importlib.import_module(plugin_file)
                 for name, obj in module.__dict__.items():
@@ -582,13 +613,30 @@ class Window(QMainWindow):
         self.plugin_layout.addWidget(widget)
 
     def new_project(self):
-        new_folder_path = QFileDialog.getExistingDirectory(self,
-                                                           "Create New Folder",
-                                                           "./",
-                                                           QFileDialog.Option.ShowDirsOnly)
+        dialog = NewProjectDialog(self)
+        if dialog.exec():
+            project_details = dialog.get_project_details()
+            project_name = project_details["name"]
+            project_path = os.path.join(project_details["path"], project_name)
 
-        with open(f"{self.local_app_data}/data/CPath_Project.txt", "w") as file:
-            file.write(new_folder_path)
+            if not os.path.exists(project_path):
+                os.makedirs(project_path)
+
+            if project_details["create_readme"]:
+                with open(os.path.join(project_path, "README.md"), "w") as f:
+                    f.write(f"# {project_name}")
+
+            with open(f"{self.local_app_data}/data/CPath_Project.txt", "w") as file:
+                file.write(project_path)
+
+            messagebox = QMessageBox()
+            messagebox.setWindowTitle("New Project"), messagebox.setText(
+                f"New project created at {project_path}"
+            )
+            messagebox.exec()
+
+            self.treeview_project(project_path)
+            self.addProjectsToDB(name=project_name, project_path=project_path)
 
     def code_jokes(self):
         a = pyjokes.get_joke(language="en", category="neutral")
@@ -691,8 +739,12 @@ class Window(QMainWindow):
         self.gitPushDialog.exec()
 
     def gitGraph(self):
-        self.git_graph_widget = GitGraph.GitGraph(cpath)
+        self.git_graph_widget = GitGraph(cpath)
         self.git_graph_widget.show()
+
+    def gitRebase(self):
+        self.git_rebase_dialog = GitRebase.GitRebaseDialog(cpath)
+        self.git_rebase_dialog.exec()
 
     def is_git_repo(self):
         return os.path.isdir(os.path.join(cpath, '.git'))
@@ -702,43 +754,38 @@ class Window(QMainWindow):
         image_extensions = ["png", "jpg", "jpeg", "ico", "gif", "bmp"]
         ext = path.split(".")[-1]
 
-        def add_image_tab():
-            ModuleFile.add_image_tab(self, self.tab_widget, path, os.path.basename(path))
-
-        if not path:
+        if ext.lower() == "db":
+            self.db_viewer = DBViewer(path)
+            self.tab_widget.addTab(self.db_viewer, os.path.basename(path))
+            self.tab_widget.setCurrentWidget(self.db_viewer)
             return
 
         if ext.lower() in image_extensions:
-            add_image_tab()
+            ModuleFile.add_image_tab(self, self.tab_widget, path, os.path.basename(path))
             return
 
-        # Try reading with UTF-8 encoding first
         try:
-            try:
-                f = open(path, "r", encoding="utf-8")
-                filedata = f.read()
-            except UnicodeDecodeError:
-                # Fallback to default system encoding
-                f = open(path, "r")
-                filedata = f.read()
-            finally:
-                if 'f' in locals() and not f.closed:
-                    f.close()
-
+            f = open(path, "r")
+            filedata = f.read()
+            f.close()
             self.new_document(title=os.path.basename(path))
             self.current_editor.insert(filedata)
-            
             if ext.lower() == "md":
-                try:
-                    self.markdown_open(filedata)
-                except Exception as e:
-                    print(f"Failed to open markdown preview: {e}")
+                self.markdown_open(filedata)
 
+        except UnicodeDecodeError:
+            messagebox = QMessageBox()
+            messagebox.setWindowTitle("Wrong Filetype!"), messagebox.setText(
+                "This file type is not supported!"
+            )
+            messagebox.exec()
+        except FileNotFoundError:
+            return
         except Exception as e:
-            print(f"Error opening file: {e}")
+            print(e)
             messagebox = QMessageBox()
             messagebox.setWindowTitle("Error"), messagebox.setText(
-                f"Could not open file: {str(e)}"
+                f"An error occurred while opening the file: {e}"
             )
             messagebox.exec()
 
@@ -1116,6 +1163,7 @@ class Window(QMainWindow):
             pass
 
     def change_text_editor(self, index):
+        widget = self.tab_widget.widget(index)
         if index < len(self.editors):
             self.statusBar.show()
             # Set the previous editor as read-only
@@ -1259,64 +1307,9 @@ class Window(QMainWindow):
     def bug_report():
         webbrowser.open_new_tab("https://github.com/rohankishore/Aura-Text/issues/new/choose")
 
-    def get_icon(self, title):
-        extension = os.path.splitext(title)[1].lower()
-        icon_name = None
-
-        mapping = {
-            ".ada": "logo_ada.png",
-            ".awk": "logo_awk.png",
-            ".sh": "logo_bash.png",
-            ".bash": "logo_bash.png",
-            ".bat": "logo_batch.png",
-            ".c": "logo_c.png",
-            ".h": "logo_c.png",
-            ".cmake": "logo_cmake.png",
-            ".coffee": "logo_coffeescript.png",
-            ".cpp": "logo_cpp.png",
-            ".hpp": "logo_cpp.png",
-            ".cs": "logo_csharp.png",
-            ".css": "logo_css.png",
-            ".pyx": "logo_cython.png",
-            ".d": "logo_d.png",
-            ".f": "logo_fortran.png",
-            ".f90": "logo_fortran.png",
-            ".f77": "logo_fortran77.png",
-            ".html": "logo_html.png",
-            ".htm": "logo_html.png",
-            ".idl": "logo_idl.png",
-            ".java": "logo_java.png",
-            ".js": "logo_javascript.png",
-            ".json": "logo_json.png",
-            ".lua": "logo_lua.png",
-            "makefile": "logo_makefile.png",
-            ".m": "logo_matlab.png",
-            ".nim": "logo_nim.png",
-            ".pas": "logo_pascal.png",
-            ".pl": "logo_perl.png",
-            ".php": "logo_php.png",
-            ".ps": "logo_postscript.png",
-            ".py": "logo_python.png",
-            ".pyw": "logo_python.png",
-            ".rb": "logo_ruby.png",
-            ".sql": "logo_sql.png",
-            ".tcl": "logo_tcl.png",
-            ".tex": "logo_tex.png",
-            ".v": "logo_verilog.png",
-            ".vhdl": "logo_vhdl.png",
-            ".xml": "logo_xml.png",
-            ".yaml": "logo_yaml.png",
-            ".yml": "logo_yaml.png",
-        }
-
-        if title.lower() == "makefile":
-            icon_name = mapping["makefile"]
-        elif extension in mapping:
-            icon_name = mapping[extension]
-
-        if icon_name:
-            icon_path = os.path.join(os.path.dirname(__file__), "Resources", "language_icons", icon_name)
-            if os.path.exists(icon_path):
-                return QIcon(icon_path)
-
-        return QIcon()
+    def show_performance(self):
+        self.performance_dock = QDockWidget("Performance", self)
+        self.performance_widget = Performance.PerformanceWidget(self)
+        self.performance_dock.setWidget(self.performance_widget)
+        self.addDockWidget(Qt.DockWidgetArea.RightDockWidgetArea, self.performance_dock)
+        self.performance_dock.show()

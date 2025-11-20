@@ -74,7 +74,7 @@
 <!-- ABOUT THE PROJECT -->
 ## 📖 About The Project
 
-![image](https://github.com/user-attachments/assets/360d1ce8-5047-4534-8b84-b01ecc670725)
+<img width="1920" height="1140" alt="image" src="https://github.com/user-attachments/assets/62ba55aa-3add-4f71-bb42-2ecb0f1a0bea" />
 
 ![image](https://github.com/user-attachments/assets/fca92d3e-4218-4550-96ca-dfa85dbc27dc)
 
@@ -89,8 +89,7 @@ With Aura Text, users can access a versatile and powerful editing environment. W
 - Edit files (duh)
 - Support up to 30 languages
 - Autocompletion
-- Git clone
-- Git Commit and Push
+- Git Clone, Commit and Push with interactive rebase and graphs
 - Custom title bars
 - Split pane Markdown editor
 - Terminal with history
@@ -174,8 +173,16 @@ Don't forget to give the project a star! Thanks again!
 
 <b>
 
+<!-- GitAds-Verify: WQAFQASC2KGFLIXDWYMOWLYFQMBXX9GJ -->
+
 <!-- LICENSE -->
 ## 🪪 License
 
 Distributed under the MIT License. See `LICENSE.txt` for more information.
+
+## GitAds Sponsorship
+## GitAds Sponsored
+[![Sponsored by GitAds](https://gitads.dev/v1/ad-serve?source=rohankishore/aura-text@github)](https://gitads.dev/v1/ad-track?source=rohankishore/aura-text@github)
+
+
 

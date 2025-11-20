@@ -83,6 +83,8 @@ QMenu::item::selected {{
     git_menu = QMenu("&Git", self)
     git_menu.addAction("Commit", self.gitCommit)
     git_menu.addAction("Push", self.gitPush)
+    git_menu.addAction("Git Graph", self.gitGraph)
+    git_menu.addAction("Interactive Rebase", self.gitRebase)
 
     def is_git_repo():
         if os.path.isdir(os.path.join(cpath, '.git')):
@@ -104,6 +106,8 @@ QMenu::item::selected {{
     file_menu.addSeparator()
     file_menu.addAction("Close Project", self.close_project).setWhatsThis("Close the current project")
     file_menu.addAction("Exit", sys.exit).setWhatsThis("Exit Aura Text")
+    file_menu.addSeparator()
+    file_menu.addAction("Performance", self.show_performance).setWhatsThis("Show Performance Monitor")
     menubar.addMenu(file_menu)
 
     whats_this_action.setWhatsThis("Click on a menu item to see its help text")

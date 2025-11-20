@@ -57,7 +57,10 @@ class StringManipulation(Plugin):
         button = QPushButton("Pomodoro Timer")
         button.clicked.connect(self.run_rm)
 
-        self.window.current_editor.context_menu.addMenu(self.sm_menu)
+        try:
+            self.window.current_editor.context_menu.addMenu(self.sm_menu)
+        except AttributeError:
+            pass
 
     def toUpper(self):
         try:
