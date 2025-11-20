@@ -244,26 +244,31 @@ def markdown_new(self):
     update()
 
 
-def markdown_open(self, path_data):
+def markdown_open(self, path_data, file_path=None):
     try:
         self.md_dock = QDockWidget("Markdown Preview")
         self.md_dock.setStyleSheet("QDockWidget {background-color : #1b1b1b; color : white;}")
         self.md_dock.setMinimumWidth(400)
         self.md_widget = QTextBrowser()
-        self.md_widget.setMarkdown(path_data)
-        #text = self.current_editor.text()
-        #self.md_widget.setMarkdown(text)
-        self.md_widget.setReadOnly(True)
+        self.md_widget.setOpenExternalLinks(True)
+        self.md_widget.setStyleSheet("background-color: #0d1117;")
+
+        if file_path:
+            self.md_widget.setSearchPaths([os.path.dirname(file_path)])
+
         self.md_layout = QVBoxLayout(self.md_widget)
         self.md_layout.addWidget(self.md_widget)
         self.md_dock.setWidget(self.md_widget)
         self.addDockWidget(Qt.DockWidgetArea.RightDockWidgetArea, self.md_dock)
 
         def update():
-            a = self.current_editor.text()
-            self.md_widget.setMarkdown(a)
+            text = self.current_editor.text()
+            html = markdown.markdown(text, extensions=['extra', 'codehilite'])
+            full_html = GITHUB_CSS + html
+            self.md_widget.setHtml(full_html)
 
         self.current_editor.textChanged.connect(update)
+        update()
     except AttributeError:
         messagebox.showerror("Uh Oh!", "An unknown error is stopping Aura Text from rendering this file. Please try again later. If it's still not fixed, then please open an Issue in the repo")
 
@@ -367,7 +372,7 @@ def open_document(self):
             try:
                 filedata = f.read()
                 if ext == "md" or ext == "MD":
-                    self.markdown_open(filedata)
+                    self.markdown_open(filedata, file_dir)
                 self.new_document(title=os.path.basename(file_dir))
                 self.current_editor.insert(filedata)
                 c.truncate(0)
