@@ -58,7 +58,14 @@ else:
     sys.exit(1)
 script_dir = os.path.dirname(os.path.abspath(__file__))
 print(script_dir)
-copytolocalappdata = os.path.join(script_dir, "LocalAppData", "AuraText")
+
+# Try to find LocalAppData in project root (development mode)
+project_root = os.path.dirname(os.path.dirname(script_dir))
+copytolocalappdata = os.path.join(project_root, "LocalAppData", "AuraText")
+
+if not os.path.exists(copytolocalappdata):
+    copytolocalappdata = os.path.join(script_dir, "LocalAppData", "AuraText")
+
 if not os.path.exists(copytolocalappdata):
     import sys
     exedir = os.path.dirname(sys.executable)
@@ -431,6 +438,10 @@ class Window(QMainWindow):
             self.commit_button.setIcon(QIcon(f"{local_app_data}/icons/commit_unselected.png"))
 
     def treeview_project(self, path):
+        if hasattr(self, 'dock') and self.dock:
+            self.removeDockWidget(self.dock)
+            self.dock.close()
+
         self.dock = QDockWidget("Explorer", self)
         self.dock.visibilityChanged.connect(
             lambda visible: self.onExplorerDockVisibilityChanged(visible)
@@ -692,21 +703,32 @@ class Window(QMainWindow):
                 messagebox.exec()
 
             try:
-                f = open(path, "r")
+                # Try reading with UTF-8 encoding first (standard for most code/markdown)
                 try:
+                    f = open(path, "r", encoding="utf-8")
                     filedata = f.read()
+                except UnicodeDecodeError:
+                    # Fallback to default system encoding if UTF-8 fails
+                    f = open(path, "r")
+                    filedata = f.read()
+
+                try:
                     self.new_document(title=os.path.basename(path))
                     self.current_editor.insert(filedata)
                     if ext.lower() == "md":
-                        self.markdown_open(filedata)
+                        try:
+                            self.markdown_open(filedata)
+                        except Exception as e:
+                            print(f"Failed to open markdown preview: {e}")
                     elif ext.lower() == "png":
                         add_image_tab()
                     f.close()
 
-                except UnicodeDecodeError:
+                except Exception as e:
+                    print(f"Error processing file: {e}")
                     messagebox = QMessageBox()
-                    messagebox.setWindowTitle("Wrong Filetype!"), messagebox.setText(
-                        "This file type is not supported!"
+                    messagebox.setWindowTitle("Error"), messagebox.setText(
+                        f"Could not open file: {str(e)}"
                     )
                     messagebox.exec()
             except FileNotFoundError:
@@ -972,6 +994,12 @@ class Window(QMainWindow):
         if dialog.exec():
             project_path = dialog.selectedFiles()[0]
             pathh = str(project_path)
+            
+            # Close all existing tabs and clear editors
+            self.tab_widget.clear()
+            self.editors = []
+            self.current_editor = None
+            
             with open(f"{self.local_app_data}/data/CPath_Project.txt", "w") as file:
                 file.write(pathh)
             messagebox = QMessageBox()
@@ -1062,17 +1090,29 @@ class Window(QMainWindow):
             pass
 
     def change_text_editor(self, index):
+        if index < 0:
+            return
+
         widget = self.tab_widget.widget(index)
-        if index < len(self.editors):
+        
+        # MiniMap integration
+        from .MiniMapWidget import MiniMapWidget
+        if hasattr(self, 'mini_map'):
+             if isinstance(widget, CodeEditor):
+                self.mini_map.setVisible(True)
+                self.mini_map.set_editor(widget)
+             else:
+                self.mini_map.setVisible(False)
+
+        if isinstance(widget, CodeEditor):
             self.statusBar.show()
             # Set the previous editor as read-only
-            if self.current_editor:
+            if self.current_editor and isinstance(self.current_editor, CodeEditor) and self.current_editor != widget:
                 self.current_editor.setReadOnly(True)
 
-            self.current_editor = self.editors[index]
-
+            self.current_editor = widget
             self.current_editor.setReadOnly(False)
-
+        
         if self.tab_widget.count() == 0:
             self.statusBar.hide()
 

@@ -140,6 +140,10 @@ def markdown_new(self):
 
 
 def markdown_open(self, path_data):
+    if hasattr(self, 'md_dock') and self.md_dock:
+        self.removeDockWidget(self.md_dock)
+        self.md_dock.close()
+        
     try:
         self.md_dock = QDockWidget("Markdown Preview")
         self.md_dock.setStyleSheet("QDockWidget {background-color : #1b1b1b; color : white;}")
