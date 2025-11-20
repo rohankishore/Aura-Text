@@ -73,12 +73,34 @@ if not os.path.exists(copytolocalappdata):
     copytolocalappdata = os.path.join(exedir, "LocalAppData", "AuraText")
 
 if os.path.exists(copytolocalappdata):
-    shutil.copytree(copytolocalappdata, local_app_data, dirs_exist_ok=True)
+    if not os.path.exists(local_app_data):
+        os.makedirs(local_app_data)
+
+    for item in os.listdir(copytolocalappdata):
+        s = os.path.join(copytolocalappdata, item)
+        d = os.path.join(local_app_data, item)
+
+        if item == "data":
+            if not os.path.exists(d):
+                os.makedirs(d)
+            for data_item in os.listdir(s):
+                ds = os.path.join(s, data_item)
+                dd = os.path.join(d, data_item)
+                if not os.path.exists(dd):
+                    if os.path.isdir(ds):
+                        shutil.copytree(ds, dd)
+                    else:
+                        shutil.copy2(ds, dd)
+        else:
+            if os.path.isdir(s):
+                shutil.copytree(s, d, dirs_exist_ok=True)
+            else:
+                shutil.copy2(s, d)
 else:
     print(f"Warning: Could not find LocalAppData/AuraText to copy. Checked: {copytolocalappdata}")
 
-cpath = open(f"{local_app_data}/data/CPath_Project.txt", "r+").read()
-cfile = open(f"{local_app_data}/data/CPath_File.txt", "r+").read()
+cpath = open(f"{local_app_data}/data/CPath_Project.txt", "r+").read().strip()
+cfile = open(f"{local_app_data}/data/CPath_File.txt", "r+").read().strip()
 if not cpath:
     cpath = ""
 if not cfile:
@@ -219,7 +241,7 @@ class Window(QMainWindow):
             welcome_widget = WelcomeScreen.WelcomeWidget(self)
             self.tab_widget.addTab(welcome_widget, "Welcome")
         else:
-            pass
+            self.treeview_project(cpath)
 
         self.tab_widget.setTabsClosable(True)
 
@@ -1105,6 +1127,9 @@ class Window(QMainWindow):
         dialog.setOption(QFileDialog.Option.ShowDirsOnly, True)
         if dialog.exec():
             project_path = dialog.selectedFiles()[0]
+            pathh = str(project_path)
+            with open(f"{self.local_app_data}/data/CPath_Project.txt", "w") as file:
+                file.write(pathh)
             self.treeview_project(project_path)
 
     def additional_prefs(self):
