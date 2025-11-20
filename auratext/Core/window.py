@@ -724,8 +724,8 @@ class Window(QMainWindow):
             )
             messagebox.exec()
 
-    def markdown_open(self, path_data):
-        ModuleFile.markdown_open(self, path_data)
+    def markdown_open(self, path_data, file_path=None):
+        ModuleFile.markdown_open(self, path_data, file_path)
 
     def markdown_new(self):
         ModuleFile.markdown_new(self)
