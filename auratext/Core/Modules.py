@@ -226,18 +226,22 @@ def decode(self):
 def markdown_new(self):
     self.mdnew.setStyleSheet("QDockWidget {background-color : #1b1b1b; color : white;}")
     self.mdnew.setMinimumWidth(400)
-    self.md_widget = QTextEdit()
-    self.md_widget.setReadOnly(True)
+    self.md_widget = QTextBrowser()
+    self.md_widget.setOpenExternalLinks(True)
+    self.md_widget.setStyleSheet("background-color: #0d1117;")
     self.md_layout = QVBoxLayout(self.md_widget)
     self.md_layout.addWidget(self.md_widget)
     self.mdnew.setWidget(self.md_widget)
     self.addDockWidget(Qt.DockWidgetArea.RightDockWidgetArea, self.mdnew)
 
     def update():
-        a = self.current_editor.text()
-        self.md_widget.setMarkdown(a)
+        text = self.current_editor.text()
+        html = markdown.markdown(text, extensions=['extra', 'codehilite'])
+        full_html = GITHUB_CSS + html
+        self.md_widget.setHtml(full_html)
 
     self.current_editor.textChanged.connect(update)
+    update()
 
 
 def markdown_open(self, path_data):
