@@ -1175,7 +1175,7 @@ class Window(QMainWindow):
         text, ok = QInputDialog.getText(None, "New File", "Filename:")
         if text != "":
             ext = text.split(".")[-1]
-            self.current_editor = self.create_editor()
+            self.current_editor = self.create_editor(text)
             self.current_editor.cursorPositionChanged.connect(self.updateStatusBar)
             self.current_editor.textChanged.connect(self.updateStatusBar)
             self.editors.append(self.current_editor)
@@ -1296,7 +1296,7 @@ class Window(QMainWindow):
     def open_last_file(self, title=os.path.basename(cfile)):
         try:
             file = open(cfile, "r+")
-            self.current_editor = self.create_editor()
+            self.current_editor = self.create_editor(cfile)
             self.current_editor.textChanged.connect(self.updateStatusBar)
             self.current_editor.cursorPositionChanged.connect(self.updateStatusBar)
             text = file.read()
