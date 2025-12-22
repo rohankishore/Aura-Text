@@ -10,6 +10,7 @@ import platform
 from typing import List, Dict, Tuple, Optional
 
 from PyQt6.QtCore import QObject, pyqtSignal, QTimer
+from PyQt6.QtGui import QColor
 from PyQt6.Qsci import QsciScintilla
 
 if platform.system() == "Windows":
@@ -247,18 +248,18 @@ class CodeLinter(QObject):
         """Setup visual markers for errors and warnings"""
         # Error marker (red circle with X)
         self.editor.markerDefine(QsciScintilla.MarkerSymbol.Circle, self.ERROR_MARKER)
-        self.editor.setMarkerBackgroundColor("#FF0000", self.ERROR_MARKER)
-        self.editor.setMarkerForegroundColor("#FFFFFF", self.ERROR_MARKER)
+        self.editor.setMarkerBackgroundColor(QColor("#FF0000"), self.ERROR_MARKER)
+        self.editor.setMarkerForegroundColor(QColor("#FFFFFF"), self.ERROR_MARKER)
         
         # Warning marker (yellow triangle)
         self.editor.markerDefine(QsciScintilla.MarkerSymbol.RightTriangle, self.WARNING_MARKER)
-        self.editor.setMarkerBackgroundColor("#FFA500", self.WARNING_MARKER)
-        self.editor.setMarkerForegroundColor("#000000", self.WARNING_MARKER)
+        self.editor.setMarkerBackgroundColor(QColor("#FFA500"), self.WARNING_MARKER)
+        self.editor.setMarkerForegroundColor(QColor("#000000"), self.WARNING_MARKER)
         
         # Info marker (blue circle)
         self.editor.markerDefine(QsciScintilla.MarkerSymbol.Circle, self.INFO_MARKER)
-        self.editor.setMarkerBackgroundColor("#0080FF", self.INFO_MARKER)
-        self.editor.setMarkerForegroundColor("#FFFFFF", self.INFO_MARKER)
+        self.editor.setMarkerBackgroundColor(QColor("#0080FF"), self.INFO_MARKER)
+        self.editor.setMarkerForegroundColor(QColor("#FFFFFF"), self.INFO_MARKER)
         
         # Enable annotations
         self.editor.setAnnotationDisplay(QsciScintilla.AnnotationDisplay.AnnotationBoxed)
