@@ -239,7 +239,7 @@ class ConfigPage(QDialog):
 
     # @staticmethod
     if platform.system() == "Windows":
-        def get_installed_fonts():
+        def get_installed_fonts(self):
             font_key_path = r"Software\Microsoft\Windows NT\CurrentVersion\Fonts"
             font_key = winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE, font_key_path)
 
@@ -258,6 +258,6 @@ class ConfigPage(QDialog):
 
             return font_names
     else:
-        def get_installed_fonts():
+        def get_installed_fonts(self):
             font_names = []
             return font_names
