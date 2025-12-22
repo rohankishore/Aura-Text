@@ -373,7 +373,7 @@ def open_document(self):
                 filedata = f.read()
                 if ext == "md":
                     self.markdown_open(filedata, file_dir)
-                self.new_document(title=os.path.basename(file_dir))
+                self.new_document(title=os.path.basename(file_dir), file_path=file_dir)
                 self.current_editor.insert(filedata)
                 c.truncate(0)
                 c.write(file_dir)
