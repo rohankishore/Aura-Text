@@ -809,7 +809,7 @@ class Window(QMainWindow):
             f = open(path, "r")
             filedata = f.read()
             f.close()
-            self.new_document(title=os.path.basename(path))
+            self.new_document(title=os.path.basename(path), file_path=path)
             self.current_editor.insert(filedata)
             if ext.lower() == "md":
                 self.markdown_open(filedata, path)
@@ -1169,8 +1169,8 @@ class Window(QMainWindow):
         settings = additional_prefs.SettingsWindow()
         settings.exec()
 
-    def new_document(self, checked=False, title="Scratch 1"):
-        self.current_editor = self.create_editor()
+    def new_document(self, checked=False, title="Scratch 1", file_path=""):
+        self.current_editor = self.create_editor(file_path)
         self.current_editor.textChanged.connect(self.updateStatusBar)
         self.current_editor.cursorPositionChanged.connect(self.updateStatusBar)
         self.load_plugins()
