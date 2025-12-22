@@ -89,6 +89,7 @@ With Aura Text, users can access a versatile and powerful editing environment. W
 - Edit files (duh)
 - Support up to 30 languages
 - Autocompletion
+- Code Linting for Python (BETA) (More langs coming soon)
 - Git Clone, Commit and Push with interactive rebase and graphs
 - Custom title bars
 - Split pane Markdown editor
