@@ -45,6 +45,7 @@ from ..Components import powershell, terminal, statusBar, ProjectManager, About,
 from ..Components import powershell, terminal, statusBar, ProjectManager, About, ToDo, GitGraph, GitRebase, Performance, DBViewer
 from ..Components.CommandPalette import CommandPalette
 from ..Components.NewProjectDialog import NewProjectDialog
+from ..Components.Linter import CodeLinter
 
 from .AuraText import CodeEditor
 from auratext.Components.TabWidget import TabWidget
@@ -364,6 +365,7 @@ class Window(QMainWindow):
         self.setCentralWidget(self.tab_widget)
         self.statusBar.hide()
         self.editors = []
+        self.linters = {}  # Dictionary to store linters for each editor
 
         self.about_dialog = None
 
@@ -454,8 +456,16 @@ class Window(QMainWindow):
     def show_command_palette(self):
         self.command_palette.exec()
 
-    def create_editor(self):
+    def create_editor(self, file_path=""):
         self.text_editor = CodeEditor(self)
+        
+        # Initialize linter for Python files if enabled
+        if self._config.get("enable_linter", "True") == "True":
+            if file_path.endswith('.py') or not file_path:
+                linter_types = self._config.get("linter_types", "flake8").split(",")
+                linter = CodeLinter(self.text_editor, file_path, linter_types)
+                self.linters[id(self.text_editor)] = linter
+        
         return self.text_editor
 
     def getTextStats(self, widget):
