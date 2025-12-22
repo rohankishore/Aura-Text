@@ -27,8 +27,8 @@ class MiniMapWidget(QWidget):
         
         # Cache
         self.cached_lines = []
-        self.line_height = 2
-        self.char_width = 1
+        self.line_height = 3
+        self.char_width = 2
         
         if self.editor:
             self._connect_editor_signals()
@@ -115,8 +115,8 @@ class MiniMapWidget(QWidget):
     def paintEvent(self, event):
         """Paint the minimap with syntax highlighting"""
         painter = QPainter(self)
-        painter.setRenderHint(QPainter.RenderHint.Antialiasing, True)
-        painter.setRenderHint(QPainter.RenderHint.TextAntialiasing, True)
+        painter.setRenderHint(QPainter.RenderHint.Antialiasing, False)
+        painter.setRenderHint(QPainter.RenderHint.TextAntialiasing, False)
         
         # Fill background
         painter.fillRect(self.rect(), self.bg_color)
@@ -125,33 +125,38 @@ class MiniMapWidget(QWidget):
             painter.end()
             return
         
-        # Setup minimap font
-        font = QFont(self.editor.font().family())
-        font.setPointSizeF(1.5)
-        painter.setFont(font)
-        
         # Calculate dimensions
         total_lines = len(self.cached_lines)
         available_height = self.height()
-        self.line_height = max(2, available_height / max(total_lines, 1))
+        self.line_height = max(1.5, min(3, available_height / max(total_lines, 1)))
         
-        # Draw code lines with basic syntax highlighting
+        # Setup minimap font - very small monospace
+        font = QFont("Consolas", 1)
+        font.setStyleHint(QFont.StyleHint.Monospace)
+        font.setPixelSize(int(self.line_height * 0.8))
+        painter.setFont(font)
+        
+        metrics = QFontMetrics(font)
+        self.char_width = metrics.horizontalAdvance('X') * 0.5
+        
+        # Draw code lines with actual text
         y_offset = 0
         for i, line in enumerate(self.cached_lines):
             if y_offset > self.height():
                 break
-                
-            line_rect = QRectF(5, y_offset, self.width() - 10, self.line_height)
             
-            # Draw line based on content
-            if line.strip():
-                color = self._get_line_color(line)
-                painter.setPen(Qt.PenStyle.NoPen)
-                painter.setBrush(QBrush(color))
+            # Draw actual text content
+            if line:
+                # Trim line to fit width
+                max_chars = int((self.width() - 10) / max(self.char_width, 0.5))
+                display_line = line[:max_chars] if len(line) > max_chars else line
                 
-                # Draw as a thin bar representing code
-                bar_width = min(len(line.strip()) * 0.5, self.width() - 15)
-                painter.drawRect(QRectF(8, y_offset + 0.2, bar_width, self.line_height - 0.4))
+                # Get color based on line type
+                color = self._get_line_color(line)
+                painter.setPen(color)
+                
+                # Draw the text
+                painter.drawText(4, int(y_offset + self.line_height * 0.85), display_line)
             
             y_offset += self.line_height
         
