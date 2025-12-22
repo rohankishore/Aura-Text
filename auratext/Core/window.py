@@ -1367,8 +1367,8 @@ class Window(QMainWindow):
         x = geo.x() + (geo.width() - self.command_palette.width()) // 2
         y = geo.y() + 50  # Show near top
         self.command_palette.move(x, y)
-        self.command_palette.search_input.setFocus()
-        self.command_palette.search_input.clear()
+        self.command_palette.command_input.setFocus()
+        self.command_palette.command_input.clear()
 
     @staticmethod
     def bug_report():
