@@ -1188,25 +1188,27 @@ class Window(QMainWindow):
         settings.exec()
 
     def new_document(self, checked=False, title="Scratch 1", file_path=""):
-        self.current_editor = self.create_editor(file_path)
+        container = self.create_editor(file_path)
+        self.current_editor = self.text_editor  # text_editor is set in create_editor
         self.current_editor.textChanged.connect(self.updateStatusBar)
         self.current_editor.cursorPositionChanged.connect(self.updateStatusBar)
         self.load_plugins()
 
         self.editors.append(self.current_editor)
         icon = self.get_icon(title)
-        self.tab_widget.addTab(self.current_editor, icon, title)
-        self.tab_widget.setCurrentWidget(self.current_editor)
+        self.tab_widget.addTab(container, icon, title)
+        self.tab_widget.setCurrentWidget(container)
 
     def custom_new_document(self, title, checked=False):
-        self.current_editor = self.create_editor()
+        container = self.create_editor()
+        self.current_editor = self.text_editor
         self.current_editor.textChanged.connect(self.updateStatusBar)
         self.current_editor.cursorPositionChanged.connect(self.updateStatusBar)
         self.editors.append(self.current_editor)
-        self.tab_widget.addTab(self.current_editor, title)
+        self.tab_widget.addTab(container, title)
         if ".html" in title:
             self.html_temp()
-        self.tab_widget.setCurrentWidget(self.current_editor)
+        self.tab_widget.setCurrentWidget(container)
 
     def boilerplates(self):
         self.boilerplate_dialog = boilerplates.BoilerPlate(current_editor=self.current_editor)
@@ -1216,11 +1218,12 @@ class Window(QMainWindow):
         text, ok = QInputDialog.getText(None, "New File", "Filename:")
         if text != "":
             ext = text.split(".")[-1]
-            self.current_editor = self.create_editor(text)
+            container = self.create_editor(text)
+            self.current_editor = self.text_editor
             self.current_editor.cursorPositionChanged.connect(self.updateStatusBar)
             self.current_editor.textChanged.connect(self.updateStatusBar)
             self.editors.append(self.current_editor)
-            self.tab_widget.addTab(self.current_editor, text)
+            self.tab_widget.addTab(container, text)
             if ".html" in text:
                 self.html_temp()
                 self.html()
@@ -1337,14 +1340,15 @@ class Window(QMainWindow):
     def open_last_file(self, title=os.path.basename(cfile)):
         try:
             file = open(cfile, "r+")
-            self.current_editor = self.create_editor(cfile)
+            container = self.create_editor(cfile)
+            self.current_editor = self.text_editor
             self.current_editor.textChanged.connect(self.updateStatusBar)
             self.current_editor.cursorPositionChanged.connect(self.updateStatusBar)
             text = file.read()
             self.editors.append(self.current_editor)
             self.current_editor.setText(text)
-            self.tab_widget.addTab(self.current_editor, title)
-            self.tab_widget.setCurrentWidget(self.current_editor)
+            self.tab_widget.addTab(container, title)
+            self.tab_widget.setCurrentWidget(container)
         except FileNotFoundError and OSError:
             pass
 
