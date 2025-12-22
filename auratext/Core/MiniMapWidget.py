@@ -128,12 +128,12 @@ class MiniMapWidget(QWidget):
         # Calculate dimensions
         total_lines = len(self.cached_lines)
         available_height = self.height()
-        self.line_height = max(1.5, min(3, available_height / max(total_lines, 1)))
+        self.line_height = max(2, min(4, available_height / max(total_lines, 1)))
         
-        # Setup minimap font - very small monospace
-        font = QFont("Consolas", 1)
+        # Setup minimap font - small but readable monospace
+        font = QFont("Consolas", 2)
         font.setStyleHint(QFont.StyleHint.Monospace)
-        font.setPixelSize(int(self.line_height * 0.8))
+        font.setPixelSize(max(2, int(self.line_height * 0.9)))
         painter.setFont(font)
         
         metrics = QFontMetrics(font)
@@ -203,17 +203,22 @@ class MiniMapWidget(QWidget):
             viewport_top = (first_visible / total_lines) * self.height()
             viewport_height = (visible_lines / total_lines) * self.height()
             
-            # Draw semi-transparent viewport background
+            # Make sure viewport is visible
+            viewport_height = max(viewport_height, 20)
+            
+            # Draw semi-transparent overlay on viewport
             painter.setPen(Qt.PenStyle.NoPen)
-            painter.setBrush(QBrush(QColor(self.viewport_color.red(), 
-                                          self.viewport_color.green(), 
-                                          self.viewport_color.blue(), 60)))
+            painter.setBrush(QBrush(QColor(255, 255, 255, 25)))
             painter.drawRect(QRectF(0, viewport_top, self.width(), viewport_height))
             
-            # Draw viewport border
-            painter.setPen(QPen(self.viewport_border_color, 1.5))
+            # Draw thick white border (VSCode style)
+            pen = QPen(QColor("#FFFFFF"))
+            pen.setWidth(2)
+            pen.setStyle(Qt.PenStyle.SolidLine)
+            painter.setPen(pen)
             painter.setBrush(Qt.BrushStyle.NoBrush)
-            painter.drawRect(QRectF(1, viewport_top, self.width() - 2, viewport_height))
+            # Draw with inset to ensure border is fully visible
+            painter.drawRect(QRectF(1, viewport_top + 1, self.width() - 2, viewport_height - 2))
             
         except Exception as e:
             pass  # Silently handle any edge cases
