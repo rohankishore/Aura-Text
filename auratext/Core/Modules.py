@@ -354,7 +354,7 @@ def open_document(self):
     file_dir = filedialog.askopenfilename(
         title="Select file",
     )
-    ext = file_dir.split(".")[-1]
+    ext = file_dir.split(".")[-1].lower()
     image_extensions = ["png", "jpg", "jpeg", "ico", "gif", "bmp"]
 
     if file_dir:
@@ -371,7 +371,7 @@ def open_document(self):
             c = open(cfile_path, "r+")
             try:
                 filedata = f.read()
-                if ext == "md" or ext == "MD":
+                if ext == "md":
                     self.markdown_open(filedata, file_dir)
                 self.new_document(title=os.path.basename(file_dir))
                 self.current_editor.insert(filedata)
