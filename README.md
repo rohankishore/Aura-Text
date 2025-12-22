@@ -91,6 +91,7 @@ With Aura Text, users can access a versatile and powerful editing environment. W
 - Autocompletion
 - Code Linting for Python (BETA) (More langs coming soon)
 - Git Clone, Commit and Push with interactive rebase and graphs
+- Command Palette for quick execution of tasks
 - Custom title bars
 - Split pane Markdown editor
 - Terminal with history
