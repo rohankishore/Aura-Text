@@ -182,6 +182,16 @@ QMenu::item::selected {{
     )
     code_menu.addAction("Boilerplates", self.boilerplates)
     code_menu.addMenu(snippet_menu)
+    code_menu.addSeparator()
+    
+    # Linter toggle
+    toggle_linter_action = QAction("Enable Linter", self)
+    toggle_linter_action.setCheckable(True)
+    toggle_linter_action.setChecked(self._config.get("enable_linter", "True") == "True")
+    toggle_linter_action.triggered.connect(self.toggle_linter)
+    toggle_linter_action.setWhatsThis("Toggle real-time code linting (errors and warnings)")
+    code_menu.addAction(toggle_linter_action)
+    
     menubar.addMenu(code_menu)
 
     tools_menu = QMenu("&Tools", self)

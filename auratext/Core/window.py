@@ -1049,6 +1049,29 @@ class Window(QMainWindow):
         self.current_editor.setMarginsBackgroundColor(QColor(self._themes["margin_theme"]))
         self.current_editor.setMarginsForegroundColor(QColor("#FFFFFF"))
 
+    def toggle_linter(self, checked):
+        """Toggle linter on/off for all editors"""
+        self._config["enable_linter"] = "True" if checked else "False"
+        
+        # Save to config file
+        with open(f"{local_app_data}/data/config.json", "w") as config_file:
+            json.dump(self._config, config_file, indent=4)
+        
+        # Apply to all existing linters
+        if checked:
+            # Enable linters for existing editors
+            for editor_id, linter in self.linters.items():
+                linter.run_lint()
+            QMessageBox.information(self, "Linter Enabled", 
+                "Linter is now enabled. Error and warning indicators will appear in Python files.")
+        else:
+            # Clear markers from all editors
+            for editor_id, linter in self.linters.items():
+                linter.clear_markers()
+            QMessageBox.information(self, "Linter Disabled", 
+                "Linter is now disabled. No error/warning indicators will be shown.")
+
+
     def pastebin(self):
         ModuleFile.pastebin(self)
 

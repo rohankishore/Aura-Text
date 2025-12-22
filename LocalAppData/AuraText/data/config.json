@@ -3,5 +3,7 @@
     "terminal_tips": "False",
     "explorer_default_open": "False",
     "open_last_file": "False",
-    "show_setup_info" : "True"
+    "show_setup_info" : "True",
+    "enable_linter": "True",
+    "linter_types": "flake8"
 }
