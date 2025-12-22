@@ -1246,20 +1246,35 @@ class Window(QMainWindow):
                 self.markdown_new()
             else:
                 pass
-            self.tab_widget.setCurrentWidget(self.current_editor)
+            self.tab_widget.setCurrentWidget(container)
         else:
             pass
 
     def change_text_editor(self, index):
         widget = self.tab_widget.widget(index)
-        if index < len(self.editors):
+        
+        # Get the actual editor from the container
+        if widget and hasattr(widget, 'layout') and widget.layout():
+            # The editor is the first item in the layout
+            for i in range(widget.layout().count()):
+                item = widget.layout().itemAt(i)
+                if item and isinstance(item.widget(), CodeEditor):
+                    editor = item.widget()
+                    if index < len(self.editors):
+                        self.statusBar.show()
+                        # Set the previous editor as read-only
+                        if self.current_editor:
+                            self.current_editor.setReadOnly(True)
+                        
+                        self.current_editor = editor
+                        self.current_editor.setReadOnly(False)
+                    break
+        elif index < len(self.editors):
+            # Fallback for old-style tabs
             self.statusBar.show()
-            # Set the previous editor as read-only
             if self.current_editor:
                 self.current_editor.setReadOnly(True)
-
             self.current_editor = self.editors[index]
-
             self.current_editor.setReadOnly(False)
 
         if self.tab_widget.count() == 0:
