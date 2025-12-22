@@ -46,6 +46,7 @@ from ..Components import powershell, terminal, statusBar, ProjectManager, About,
 from ..Components.CommandPalette import CommandPalette
 from ..Components.NewProjectDialog import NewProjectDialog
 from ..Components.Linter import CodeLinter
+from .MiniMapWidget import MiniMapWidget
 
 from .AuraText import CodeEditor
 from auratext.Components.TabWidget import TabWidget
@@ -457,7 +458,24 @@ class Window(QMainWindow):
         self.command_palette.exec()
 
     def create_editor(self, file_path=""):
+        # Create container widget for editor + minimap
+        container = QWidget()
+        layout = QHBoxLayout(container)
+        layout.setContentsMargins(0, 0, 0, 0)
+        layout.setSpacing(0)
+        
+        # Create editor
         self.text_editor = CodeEditor(self)
+        
+        # Create minimap
+        minimap = MiniMapWidget(self.text_editor, container)
+        
+        # Add to layout
+        layout.addWidget(self.text_editor)
+        layout.addWidget(minimap)
+        
+        # Store minimap reference on editor
+        self.text_editor.minimap = minimap
         
         # Initialize linter for Python files if enabled
         if self._config.get("enable_linter", "True") == "True":
@@ -466,7 +484,7 @@ class Window(QMainWindow):
                 linter = CodeLinter(self.text_editor, file_path, linter_types)
                 self.linters[id(self.text_editor)] = linter
         
-        return self.text_editor
+        return container
 
     def getTextStats(self, widget):
         if isinstance(widget, QTextEdit):
