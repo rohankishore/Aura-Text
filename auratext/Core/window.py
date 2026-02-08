@@ -849,6 +849,13 @@ class Window(QMainWindow):
         ModuleFile.markdown_new(self)
 
     def gitCommit(self):
+        # Remove existing dock if it exists
+        if hasattr(self, 'gitCommitDock') and self.gitCommitDock:
+            self.removeDockWidget(self.gitCommitDock)
+            self.gitCommitDock.close()
+            self.gitCommitDock.deleteLater()
+        
+        # Create new dock with updated design
         self.gitCommitDock = GitCommit.GitCommitDock(self)
         self.addDockWidget(Qt.DockWidgetArea.RightDockWidgetArea, self.gitCommitDock)
 
