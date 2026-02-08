@@ -149,14 +149,8 @@ class CodeEditor(QsciScintilla):
         self.customContextMenuRequested.connect(self.show_context_menu)
         
         # Color preview setup
-        self.color_indicator = 8  # Indicator number for color previews
         self.hex_color_pattern = re.compile(r'#[0-9a-fA-F]{6}\b|#[0-9a-fA-F]{3}\b')
-        self.color_positions = {}  # Store {position: color_string}
-        
-        # Enable mouse dwell events for hover detection
-        self.SendScintilla(QsciScintilla.SCI_SETMOUSEDWELLTIME, 300)  # 300ms hover delay
-        self.SCN_DWELLSTART = 2016
-        self.SCN_DWELLEND = 2017
+        self.color_boxes = {}  # Store {(line, col): (color_string, QColor)}
         
         # Connect text changed to update color previews
         self.textChanged.connect(self.update_color_previews)
