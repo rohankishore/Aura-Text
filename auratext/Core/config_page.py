@@ -20,12 +20,10 @@ if TYPE_CHECKING:
     from .window import Window
 
 
-class ConfigPage(QDialog):
+class ConfigPage(QWidget):
     def __init__(self, window: Window):
         super().__init__()
         self._window = window
-
-        self.setWindowIcon(QIcon(f"{self._window.local_app_data}/icons/icon.ico"))
 
         self.json_data = {"editor_theme": "", "margin_theme": "", "lines_theme": ""}
 
@@ -174,7 +172,6 @@ class ConfigPage(QDialog):
 
 
         self.setLayout(main_layout)  # Set the main layout to ConfigPage
-        self.setWindowTitle("Settings")
 
     def save_json(self):
         self._window._themes["theme"] = self.theme_input.text()

@@ -634,9 +634,18 @@ class Window(QMainWindow):
         ModuleFile.CodeSnippets.snippets_open(self.current_editor)
 
     def expandSidebar__Settings(self):
-
+        # Check if settings tab is already open
+        for i in range(self.tab_widget.count()):
+            if self.tab_widget.tabText(i) == "Settings":
+                self.tab_widget.setCurrentIndex(i)
+                return
+        
+        # Create and add settings tab
         self.settings_widget = config_page.ConfigPage(self)
-        self.settings_widget.exec()
+        settings_icon = QIcon(f"{self.local_app_data}/icons/settings.png")
+        self.tab_widget.addTab(self.settings_widget, settings_icon, "Settings")
+        self.tab_widget.setCurrentWidget(self.settings_widget)
+        self.statusBar.show()
 
     def expandSidebar__Plugins(self):
         self.plugin_dock = QDockWidget("Extensions", self)
