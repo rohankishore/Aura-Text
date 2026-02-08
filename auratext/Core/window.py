@@ -378,12 +378,12 @@ class Window(QMainWindow):
         self.run_button.setStyleSheet(
             f"""
             QPushButton {{
-                background-color: {theme_color};
+                background-color: transparent;
                 border: none;
                 border-radius: 4px;
             }}
             QPushButton:hover {{
-                background-color: {theme_color}dd;
+                background-color: {theme_color};
             }}
             QPushButton:pressed {{
                 background-color: {theme_color}bb;
