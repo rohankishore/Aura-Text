@@ -2,8 +2,8 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 import re
 from PyQt6.Qsci import QsciScintilla, QsciAPIs
-from PyQt6.QtCore import Qt, QRect, QPoint, QTimer
-from PyQt6.QtGui import QColor, QFont, QFontMetrics, QShortcut, QKeySequence, QAction, QPainter, QPen
+from PyQt6.QtCore import Qt, QRect, QPoint, QTimer, QRectF
+from PyQt6.QtGui import QColor, QFont, QFontMetrics, QShortcut, QKeySequence, QAction, QPainter, QPen, QBrush
 from PyQt6.QtWidgets import QMenu, QLineEdit, QCheckBox, QPushButton, QLabel, QMessageBox, QDialog, QVBoxLayout, \
     QHBoxLayout, QColorDialog, QToolTip
 from . import Lexers
