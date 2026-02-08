@@ -15,7 +15,7 @@ import qdarktheme
 import markdown
 import platform
 from pyqtconsole.console import PythonConsole
-from PyQt6.QtCore import Qt, QSize
+from PyQt6.QtCore import Qt, QSize, QTimer
 from PyQt6.QtGui import QColor, QFont, QActionGroup, QFileSystemModel, QPixmap, QIcon, QShortcut, QKeySequence, QCursor
 from PyQt6.Qsci import QsciScintilla
 from PyQt6.QtWidgets import (
@@ -426,6 +426,11 @@ class Window(QMainWindow):
         self.configure_menuBar()
         sys.path.append(f"{local_app_data}/plugins")
         self.load_plugins()
+
+        # Setup autosave timer (saves every 30 seconds)
+        self.autosave_timer = QTimer(self)
+        self.autosave_timer.timeout.connect(self.autosave)
+        self.autosave_timer.start(30000)  # 30 seconds
 
         self.commands = [
             {"name": "File: New", "action": self.cs_new_document},
@@ -912,6 +917,23 @@ class Window(QMainWindow):
             self.run_button.show()
         else:
             self.run_button.hide()
+
+    def autosave(self):
+        """Autosave all open files that have file paths"""
+        for tab_index, file_path in self.tab_file_paths.items():
+            if file_path and tab_index < self.tab_widget.count():
+                widget = self.tab_widget.widget(tab_index)
+                if widget and hasattr(widget, 'layout') and widget.layout():
+                    for i in range(widget.layout().count()):
+                        item = widget.layout().itemAt(i)
+                        if item and isinstance(item.widget(), CodeEditor):
+                            editor = item.widget()
+                            try:
+                                with open(file_path, 'w') as f:
+                                    f.write(editor.text())
+                            except Exception:
+                                pass
+                            break
 
     def gitPush(self):
         self.gitPushDialog = GitPush.GitPushDialog(self)
