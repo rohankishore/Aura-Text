@@ -366,19 +366,21 @@ class Window(QMainWindow):
         self.plugin_button.clicked.connect(lambda: self.handle_sidebar_button_click(self.plugin_button, self.expandSidebar__Plugins))
 
         # Create Run button for Python files
-        self.run_button = QPushButton("▶ Run", self)
+        run_svg = f"{local_app_data}/icons/run.svg"
+        run_icon, _ = SVGIconManager.create_stateful_icon(
+            run_svg, None, theme_color, (20, 20)
+        )
+        self.run_button = QPushButton(self)
+        self.run_button.setIcon(run_icon)
         self.run_button.clicked.connect(self.run_python_file)
-        self.run_button.setFixedHeight(28)
+        self.run_button.setIconSize(QSize(20, 20))
+        self.run_button.setFixedSize(32, 32)
         self.run_button.setStyleSheet(
             f"""
             QPushButton {{
                 background-color: {theme_color};
-                color: white;
                 border: none;
                 border-radius: 4px;
-                padding: 4px 12px;
-                font-size: 13px;
-                font-weight: 500;
             }}
             QPushButton:hover {{
                 background-color: {theme_color}dd;
@@ -388,6 +390,7 @@ class Window(QMainWindow):
             }}
             """
         )
+        self.run_button.setToolTip("Run Python File")
         self.run_button.hide()  # Hidden by default
         
         # Add run button as corner widget on tab bar
@@ -891,17 +894,14 @@ class Window(QMainWindow):
                 QMessageBox.critical(self, "Save Error", f"Failed to save file: {e}")
                 return
         
-        # Open PowerShell terminal and run the file
-        if not hasattr(self, 'ps_dock') or self.ps_dock is None:
-            self.setupPowershell()
-        
-        # Show the PowerShell terminal
-        if hasattr(self, 'ps_dock'):
-            self.ps_dock.show()
-            # Send command to run the Python file in PowerShell
-            if hasattr(self, 'terminal') and self.terminal:
-                command = f'python "{file_path}"\n'
-                self.terminal.sendText(command)
+        # Run the Python file in PowerShell
+        try:
+            subprocess.Popen(
+                ['powershell', '-Command', f'python "{file_path}"'],
+                creationflags=subprocess.CREATE_NEW_CONSOLE
+            )
+        except Exception as e:
+            QMessageBox.critical(self, "Run Error", f"Failed to run file: {e}")
 
     def update_run_button_visibility(self):
         """Show/hide run button based on whether current tab is a Python file"""
