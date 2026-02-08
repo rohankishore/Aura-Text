@@ -533,20 +533,61 @@ class Window(QMainWindow):
         self.command_palette.hide()
         
         # Keyboard shortcuts
+        # Command palette
         shortcut = QShortcut(QKeySequence("Ctrl+Shift+P"), self)
         shortcut.activated.connect(self.show_command_palette)
         
+        # File operations
+        new_file_shortcut = QShortcut(QKeySequence("Ctrl+N"), self)
+        new_file_shortcut.activated.connect(self.cs_new_document)
+        
+        open_file_shortcut = QShortcut(QKeySequence("Ctrl+O"), self)
+        open_file_shortcut.activated.connect(self.open_document)
+        
+        save_file_shortcut = QShortcut(QKeySequence("Ctrl+S"), self)
+        save_file_shortcut.activated.connect(self.save_document)
+        
+        close_tab_shortcut = QShortcut(QKeySequence("Ctrl+W"), self)
+        close_tab_shortcut.activated.connect(lambda: self.remove_editor(self.tab_widget.currentIndex()) if self.tab_widget.currentIndex() >= 0 else None)
+        
+        # Edit operations
+        undo_shortcut = QShortcut(QKeySequence("Ctrl+Z"), self)
+        undo_shortcut.activated.connect(self.undo_document)
+        
+        redo_shortcut = QShortcut(QKeySequence("Ctrl+Y"), self)
+        redo_shortcut.activated.connect(self.redo_document)
+        
+        cut_shortcut = QShortcut(QKeySequence("Ctrl+X"), self)
+        cut_shortcut.activated.connect(self.cut_document)
+        
+        copy_shortcut = QShortcut(QKeySequence("Ctrl+C"), self)
+        copy_shortcut.activated.connect(self.copy_document)
+        
+        paste_shortcut = QShortcut(QKeySequence("Ctrl+V"), self)
+        paste_shortcut.activated.connect(self.paste_document)
+        
+        select_all_shortcut = QShortcut(QKeySequence("Ctrl+A"), self)
+        select_all_shortcut.activated.connect(lambda: self.current_editor.selectAll() if self.current_editor and self.current_editor != "" else None)
+        
+        # View operations
         terminal_shortcut = QShortcut(QKeySequence("Ctrl+`"), self)
         terminal_shortcut.activated.connect(self.setupPowershell)
         
         split_shortcut = QShortcut(QKeySequence("Ctrl+\\"), self)
         split_shortcut.activated.connect(self.toggle_split_editor)
         
+        fullscreen_shortcut = QShortcut(QKeySequence("F11"), self)
+        fullscreen_shortcut.activated.connect(self.fullscreen)
+        
+        # Code operations
         run_shortcut = QShortcut(QKeySequence("Shift+F5"), self)
         run_shortcut.activated.connect(self.run_python_file)
         
         find_shortcut = QShortcut(QKeySequence("Ctrl+F"), self)
         find_shortcut.activated.connect(self.find_in_editor)
+        
+        format_shortcut = QShortcut(QKeySequence("Shift+Alt+F"), self)
+        format_shortcut.activated.connect(self.code_formatting)
 
         self.showMaximized()
 
