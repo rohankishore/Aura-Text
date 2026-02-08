@@ -164,6 +164,7 @@ class GitCommitDock(QDockWidget):
             empty_layout.addWidget(self.pic_label)
             
             self.main_layout.addWidget(empty_container)
+            self.main_layout.addStretch(1)
 
         self.setWidget(self.main_widget)
 
@@ -272,39 +273,48 @@ class GitCommitDock(QDockWidget):
             item = self.file_list_widget.item(index)
             checkbox = self.file_list_widget.itemWidget(item)
             if checkbox.isChecked():
-                selected_files.append(checkbox.text())
+                selected_files.append(checkbox.property("full_path"))
 
-        if selected_files:
-            # Remove leading path from file paths to make them relative to repo
-            relative_files = [os.path.relpath(file, cpath) for file in selected_files]
+        if not selected_files:
+            QMessageBox.warning(self, 'No Files Selected', 
+                              'Please select at least one file to commit.')
+            return
 
-            try:
-                # Stage selected files for commit
-                if relative_files:
-                    subprocess.run(['git', 'add'] + relative_files, cwd=cpath, check=True)
+        # Get commit message
+        commit_msg = self.commit_entry.toPlainText().strip()
+        if not commit_msg:
+            QMessageBox.warning(self, 'No Commit Message', 
+                              'Please enter a commit message.')
+            return
 
-                    # Get commit message
-                    commit_msg = self.commit_entry.text() or "No message"
+        # Remove leading path from file paths to make them relative to repo
+        relative_files = [os.path.relpath(file, cpath) for file in selected_files]
 
-                    # Commit the changes
-                    result = subprocess.run(['git', 'commit', '-m', commit_msg], cwd=cpath, stdout=subprocess.PIPE,
-                                            stderr=subprocess.PIPE, text=True)
+        try:
+            # Stage selected files for commit
+            subprocess.run(['git', 'add'] + relative_files, cwd=cpath, check=True)
 
-                    if result.returncode == 0:
-                        QMessageBox.information(self, 'Commit Successful', 'Changes have been committed.')
-                        print(f"Committing changes for: {relative_files}")
-                    else:
-                        QMessageBox.warning(self, 'Commit Failed', f"Error: {result.stderr}")
-                        print(f"Commit failed: {result.stderr}")
+            # Commit the changes
+            result = subprocess.run(['git', 'commit', '-m', commit_msg], 
+                                  cwd=cpath, stdout=subprocess.PIPE,
+                                  stderr=subprocess.PIPE, text=True)
 
-                else:
-                    QMessageBox.warning(self, 'No Files Selected', 'Please select files to commit.')
+            if result.returncode == 0:
+                # Clear commit message and refresh file list
+                self.commit_entry.clear()
+                self.populate_file_list()
+                
+                # Show success message (VS Code-style)
+                file_count = len(selected_files)
+                QMessageBox.information(self, 'Commit Successful', 
+                                      f'Successfully committed {file_count} file(s).')
+            else:
+                QMessageBox.warning(self, 'Commit Failed', 
+                                  f"Git returned an error:\n{result.stderr}")
 
-            except subprocess.CalledProcessError as e:
-                QMessageBox.warning(self, 'Error', f"Command failed: {e}")
-                print(f"Command failed: {e}")
-            except Exception as e:
-                QMessageBox.warning(self, 'Error', f"Can't commit. Try again.\n{e}")
-                print(f"Unexpected error: {e}")
-        else:
-            QMessageBox.warning(self, 'No Files Selected', 'Please select files to commit.')
+        except subprocess.CalledProcessError as e:
+            QMessageBox.critical(self, 'Error', 
+                               f"Failed to execute git command:\n{e}")
+        except Exception as e:
+            QMessageBox.critical(self, 'Error', 
+                               f"An unexpected error occurred:\n{e}")
