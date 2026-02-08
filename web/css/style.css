@@ -677,6 +677,249 @@ kbd {
     h3 { font-size: 1.5rem; }
 }
 
+/* ===== Download Page ===== */
+.download-section {
+    padding: 4rem 0;
+}
+
+.platform-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 1rem;
+    padding: 3rem;
+    margin-bottom: 3rem;
+}
+
+.platform-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.platform-icon {
+    font-size: 3rem;
+}
+
+.platform-description {
+    color: var(--text-muted);
+    margin-bottom: 2rem;
+}
+
+.download-options {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 2rem;
+    margin-bottom: 2rem;
+}
+
+.download-option {
+    background: var(--bg-dark);
+    border: 1px solid var(--border-color);
+    border-radius: 0.75rem;
+    padding: 2rem;
+}
+
+.download-option h3 {
+    color: var(--text-primary);
+    margin-bottom: 0.5rem;
+}
+
+.download-option p {
+    margin-bottom: 1.5rem;
+}
+
+.file-info {
+    font-size: 0.875rem;
+    color: var(--text-muted);
+    margin-top: 0.75rem;
+}
+
+.install-instructions {
+    background: var(--bg-dark);
+    border: 1px solid var(--border-color);
+    border-radius: 0.75rem;
+    padding: 2rem;
+    margin-top: 2rem;
+}
+
+.install-instructions h4 {
+    color: var(--primary-color);
+    margin-bottom: 1rem;
+}
+
+.install-instructions ol {
+    margin-left: 1.5rem;
+    color: var(--text-secondary);
+}
+
+.install-instructions li {
+    margin-bottom: 0.5rem;
+}
+
+.platform-note {
+    text-align: center;
+    padding: 1rem;
+    background: var(--bg-dark);
+    border-radius: 0.5rem;
+    margin-top: 1rem;
+}
+
+.code-snippet {
+    background: var(--bg-darker);
+    border: 1px solid var(--border-color);
+    border-radius: 0.5rem;
+    padding: 1rem;
+    margin: 1rem 0;
+}
+
+.code-snippet pre {
+    margin: 0;
+    border: none;
+    background: transparent;
+}
+
+/* Requirements Section */
+.requirements-section {
+    padding: 4rem 0;
+    background: var(--bg-darker);
+}
+
+.requirements-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 2rem;
+}
+
+.requirement-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 0.75rem;
+    padding: 2rem;
+}
+
+.requirement-card h3 {
+    color: var(--primary-color);
+    margin-bottom: 1.5rem;
+}
+
+.requirement-card ul {
+    list-style: none;
+}
+
+.requirement-card li {
+    padding: 0.5rem 0;
+    border-bottom: 1px solid var(--border-color);
+    color: var(--text-secondary);
+}
+
+.requirement-card li:last-child {
+    border-bottom: none;
+}
+
+/* Alternative Methods */
+.alternative-methods {
+    padding: 4rem 0;
+}
+
+.methods-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
+    gap: 2rem;
+}
+
+.method-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 0.75rem;
+    padding: 2rem;
+}
+
+.method-card h3 {
+    color: var(--text-primary);
+    margin-bottom: 1rem;
+}
+
+.method-card p {
+    margin-bottom: 1.5rem;
+}
+
+/* Release Notes */
+.release-notes {
+    padding: 4rem 0;
+    background: var(--bg-darker);
+}
+
+.release-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 0.75rem;
+    padding: 2rem;
+}
+
+.release-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.release-content h4 {
+    color: var(--primary-color);
+    margin: 1.5rem 0 1rem;
+}
+
+.release-content ul {
+    margin-left: 1.5rem;
+    color: var(--text-secondary);
+}
+
+.release-content li {
+    margin-bottom: 0.5rem;
+}
+
+/* Support Section */
+.support-section {
+    padding: 4rem 0;
+}
+
+.support-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 2rem;
+}
+
+.support-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 0.75rem;
+    padding: 2rem;
+    text-align: center;
+    transition: all 0.3s ease;
+}
+
+.support-card:hover {
+    transform: translateY(-5px);
+    border-color: var(--primary-color);
+}
+
+.support-card h3 {
+    margin-bottom: 0.75rem;
+    color: var(--text-primary);
+}
+
+.support-card p {
+    margin-bottom: 1.5rem;
+    color: var(--text-muted);
+}
+
+.support-card a {
+    color: var(--primary-color);
+    font-weight: 600;
+}
+
 /* ===== Utilities ===== */
 .text-center { text-align: center; }
 .mt-1 { margin-top: 0.5rem; }
