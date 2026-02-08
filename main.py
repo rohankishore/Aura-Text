@@ -8,6 +8,9 @@ import sys
 
 from qt_material import apply_stylesheet
 
+# The app will automatically check system platform and set the local app data path accordingly. 
+# It will then load the config and theme files to apply the user's settings and theme preferences.
+
 if platform.system() == "Windows":
     local_app_data = os.getenv('LOCALAPPDATA')
 elif platform.system() == "Linux":
