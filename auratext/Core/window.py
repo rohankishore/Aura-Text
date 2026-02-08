@@ -48,6 +48,7 @@ from ..Components.CommandPalette import CommandPalette
 from ..Components.NewProjectDialog import NewProjectDialog
 from ..Components.Linter import CodeLinter
 from .MiniMapWidget import MiniMapWidget
+from .svg_icon_manager import SVGIconManager
 
 from .AuraText import CodeEditor
 from auratext.Components.TabWidget import TabWidget
@@ -122,7 +123,7 @@ else:
 class Sidebar(QDockWidget):
     def __init__(self, title, parent=None):
         super().__init__(title, parent)
-        self.setFixedWidth(40)
+        self.setFixedWidth(60)
         self.setAllowedAreas(Qt.DockWidgetArea.LeftDockWidgetArea)
         self.setFeatures(QDockWidget.DockWidgetFeature.NoDockWidgetFeatures)
 
@@ -258,6 +259,7 @@ class Window(QMainWindow):
         self.sidebar_widget = QWidget(self.sidebar_main)
         self.sidebar_widget.setStyleSheet(f"QWidget{{background-color: {self._themes['sidebar_bg']};}}")
         self.sidebar_layout = QVBoxLayout(self.sidebar_widget)
+        self.sidebar_layout.setAlignment(Qt.AlignmentFlag.AlignHCenter)
         self.sidebar_main.setWidget(self.sidebar_widget)
         self.addDockWidget(Qt.DockWidgetArea.LeftDockWidgetArea, self.sidebar_main)
 
@@ -274,60 +276,84 @@ class Window(QMainWindow):
         self.statusBar = statusBar.StatusBar(self, greeting=greeting)
         self.setStatusBar(self.statusBar)
 
-        explorer_icon = QIcon(f"{local_app_data}/icons/explorer_unfilled.png")
+        # Track currently selected sidebar button
+        self.selected_sidebar_button = None
+        
+        # Theme color for selected icons
+        theme_color = self._themes.get("theme", "#007ACC")
+        
+        # Create Explorer button with SVG icons
+        explorer_svg = f"{local_app_data}/icons/explorer.svg"
+        explorer_unselected, explorer_selected = SVGIconManager.create_stateful_icon(
+            explorer_svg, None, theme_color, (23, 23)
+        )
+        
         self.explorer_button = QPushButton(self)
-        self.explorer_button.setIcon(explorer_icon)
+        self.explorer_button.setIcon(explorer_unselected)
         self.explorer_button.setIconSize(QSize(23, 23))
-        self.explorer_button.setFixedSize(28, 28)
+        self.explorer_button.setFixedSize(36, 36)
         self.explorer_button.setStyleSheet(
             """
             QPushButton {
                 border: none;
-                border-radius:10;
-                align: left;
+                border-radius: 5px;
             }
             QPushButton:hover {
-                background-color: #4e5157;
+                background-color: rgba(255, 255, 255, 0.1);
             }
             """
         )
+        self.explorer_button.unselected_icon = explorer_unselected
+        self.explorer_button.selected_icon = explorer_selected
 
-        plugin_icon = QIcon(f"{local_app_data}/icons/extension_unfilled.png")
+        # Create Plugin/Extensions button with SVG icons
+        extensions_svg = f"{local_app_data}/icons/extensions.svg"
+        plugin_unselected, plugin_selected = SVGIconManager.create_stateful_icon(
+            extensions_svg, None, theme_color, (23, 23)
+        )
+        
         self.plugin_button = QPushButton(self)
-        self.plugin_button.setIcon(plugin_icon)
-        self.plugin_button.setIconSize(QSize(21, 21))
-        self.plugin_button.setFixedSize(30, 30)
+        self.plugin_button.setIcon(plugin_unselected)
+        self.plugin_button.setIconSize(QSize(23, 23))
+        self.plugin_button.setFixedSize(36, 36)
         self.plugin_button.setStyleSheet(
             """
             QPushButton {
                 border: none;
-                border-radius:10;
-                align: botton;
+                border-radius: 5px;
             }
             QPushButton:hover {
-                background-color: #4e5157;
+                background-color: rgba(255, 255, 255, 0.1);
             }
             """
         )
+        self.plugin_button.unselected_icon = plugin_unselected
+        self.plugin_button.selected_icon = plugin_selected
 
-        commit_icon = QIcon(f"{local_app_data}/icons/commit_unselected.png")
+        # Create Git/Commit button with SVG icons
+        git_svg = f"{local_app_data}/icons/git.svg"
+        commit_unselected, commit_selected = SVGIconManager.create_stateful_icon(
+            git_svg, None, theme_color, (23, 23)
+        )
+        
         self.commit_button = QPushButton(self)
-        self.commit_button.setIcon(commit_icon)
+        self.commit_button.setIcon(commit_unselected)
         self.commit_button.clicked.connect(self.gitCommit)
-        self.commit_button.setIconSize(QSize(25, 25))
-        self.commit_button.setFixedSize(30, 30)
+        self.commit_button.setIconSize(QSize(23, 23))
+        self.commit_button.setFixedSize(36, 36)
         self.commit_button.setStyleSheet(
             """
             QPushButton {
                 border: none;
-                border-radius:10;
-                align: botton;
+                border-radius: 5px;
             }
             QPushButton:hover {
-                background-color: #4e5157;
+                background-color: rgba(255, 255, 255, 0.1);
             }
             """
         )
+        self.commit_button.unselected_icon = commit_unselected
+        self.commit_button.selected_icon = commit_selected
 
         git_graph_icon = QIcon(f"{local_app_data}/icons/search.png")
         self.git_graph_button = QPushButton(self)
@@ -361,8 +387,8 @@ class Window(QMainWindow):
         self.leftBar_layout.addSpacing(45)
 
         # Connect the button's clicked signal to the slot
-        self.explorer_button.clicked.connect(self.expandSidebar__Explorer)
-        self.plugin_button.clicked.connect(self.expandSidebar__Plugins)
+        self.explorer_button.clicked.connect(lambda: self.handle_sidebar_button_click(self.explorer_button, self.expandSidebar__Explorer))
+        self.plugin_button.clicked.connect(lambda: self.handle_sidebar_button_click(self.plugin_button, self.expandSidebar__Plugins))
 
         self.setCentralWidget(self.tab_widget)
         self.statusBar.hide()
@@ -556,21 +582,27 @@ class Window(QMainWindow):
 
     def onPluginDockVisibilityChanged(self, visible):
         if visible:
-            self.plugin_button.setIcon(QIcon(f"{local_app_data}/icons/extension_filled.png"))
+            if hasattr(self.plugin_button, 'selected_icon'):
+                self.plugin_button.setIcon(self.plugin_button.selected_icon)
         else:
-            self.plugin_button.setIcon(QIcon(f"{local_app_data}/icons/extension_unfilled.png"))
+            if hasattr(self.plugin_button, 'unselected_icon'):
+                self.plugin_button.setIcon(self.plugin_button.unselected_icon)
 
     def onExplorerDockVisibilityChanged(self, visible):
         if visible:
-            self.explorer_button.setIcon(QIcon(f"{local_app_data}/icons/explorer_filled.png"))
+            if hasattr(self.explorer_button, 'selected_icon'):
+                self.explorer_button.setIcon(self.explorer_button.selected_icon)
         else:
-            self.explorer_button.setIcon(QIcon(f"{local_app_data}/icons/explorer_unfilled.png"))
+            if hasattr(self.explorer_button, 'unselected_icon'):
+                self.explorer_button.setIcon(self.explorer_button.unselected_icon)
 
     def onCommitDockVisibilityChanged(self, visible):
         if visible:
-            self.commit_button.setIcon(QIcon(f"{local_app_data}/icons/commit_selected.png"))
+            if hasattr(self.commit_button, 'selected_icon'):
+                self.commit_button.setIcon(self.commit_button.selected_icon)
         else:
-            self.commit_button.setIcon(QIcon(f"{local_app_data}/icons/commit_unselected.png"))
+            if hasattr(self.commit_button, 'unselected_icon'):
+                self.commit_button.setIcon(self.commit_button.unselected_icon)
 
     def treeview_project(self, path):
         self.dock = QDockWidget("Explorer", self)
@@ -598,6 +630,20 @@ class Window(QMainWindow):
         tree_view.setColumnHidden(3, True)  # Date modified column
 
         tree_view.doubleClicked.connect(self.open_file)
+    
+    def handle_sidebar_button_click(self, button, action):
+        """Handle sidebar button clicks and update icon states"""
+        # Reset previous selected button if exists
+        if self.selected_sidebar_button and hasattr(self.selected_sidebar_button, 'unselected_icon'):
+            self.selected_sidebar_button.setIcon(self.selected_sidebar_button.unselected_icon)
+        
+        # Set new selected button
+        self.selected_sidebar_button = button
+        if hasattr(button, 'selected_icon'):
+            button.setIcon(button.selected_icon)
+        
+        # Execute the original action
+        action()
 
     def expandSidebar__Explorer(self):
         self.dock = QDockWidget("Explorer", self)
