@@ -96,3 +96,105 @@ class Shortcuts(QDockWidget):
         label19 = QLabel("Extend rectangular selection to end of line:	Alt+Shift+Home")
         dock_layout.addWidget(label19)
 
+        # Add spacing
+        placeholder2 = QLabel("")
+        dock_layout.addWidget(placeholder2)
+
+        # Application Shortcuts Heading
+        app_heading = QLabel("Application Shortcuts")
+        app_heading.setStyleSheet("font-weight: bold; font-size: 25px;")
+        dock_layout.addWidget(app_heading)
+
+        placeholder3 = QLabel("")
+        dock_layout.addWidget(placeholder3)
+
+        # File Operations
+        file_heading = QLabel("File Operations")
+        file_heading.setStyleSheet("font-weight: bold; font-size: 16px;")
+        dock_layout.addWidget(file_heading)
+
+        new_file = QLabel("New File: Ctrl+N")
+        dock_layout.addWidget(new_file)
+
+        open_file = QLabel("Open File: Ctrl+O")
+        dock_layout.addWidget(open_file)
+
+        save_file = QLabel("Save File: Ctrl+S")
+        dock_layout.addWidget(save_file)
+
+        close_tab = QLabel("Close Tab: Ctrl+W")
+        dock_layout.addWidget(close_tab)
+
+        placeholder4 = QLabel("")
+        dock_layout.addWidget(placeholder4)
+
+        # Edit Operations
+        edit_heading = QLabel("Edit Operations")
+        edit_heading.setStyleSheet("font-weight: bold; font-size: 16px;")
+        dock_layout.addWidget(edit_heading)
+
+        undo = QLabel("Undo: Ctrl+Z")
+        dock_layout.addWidget(undo)
+
+        redo = QLabel("Redo: Ctrl+Y")
+        dock_layout.addWidget(redo)
+
+        cut = QLabel("Cut: Ctrl+X")
+        dock_layout.addWidget(cut)
+
+        copy = QLabel("Copy: Ctrl+C")
+        dock_layout.addWidget(copy)
+
+        paste = QLabel("Paste: Ctrl+V")
+        dock_layout.addWidget(paste)
+
+        select_all = QLabel("Select All: Ctrl+A")
+        dock_layout.addWidget(select_all)
+
+        find = QLabel("Find: Ctrl+F")
+        dock_layout.addWidget(find)
+
+        placeholder5 = QLabel("")
+        dock_layout.addWidget(placeholder5)
+
+        # View Operations
+        view_heading = QLabel("View Operations")
+        view_heading.setStyleSheet("font-weight: bold; font-size: 16px;")
+        dock_layout.addWidget(view_heading)
+
+        terminal = QLabel("Open Terminal: Ctrl+`")
+        dock_layout.addWidget(terminal)
+
+        split_editor = QLabel("Toggle Split Editor: Ctrl+\\")
+        dock_layout.addWidget(split_editor)
+
+        fullscreen = QLabel("Toggle Fullscreen: F11")
+        dock_layout.addWidget(fullscreen)
+
+        settings = QLabel("Settings: Ctrl+,")
+        dock_layout.addWidget(settings)
+
+        placeholder6 = QLabel("")
+        dock_layout.addWidget(placeholder6)
+
+        # Code Operations
+        code_heading = QLabel("Code Operations")
+        code_heading.setStyleSheet("font-weight: bold; font-size: 16px;")
+        dock_layout.addWidget(code_heading)
+
+        run_python = QLabel("Run Python File: Shift+F5")
+        dock_layout.addWidget(run_python)
+
+        format_code = QLabel("Format Code: Shift+Alt+F")
+        dock_layout.addWidget(format_code)
+
+        placeholder7 = QLabel("")
+        dock_layout.addWidget(placeholder7)
+
+        # Command Palette
+        palette_heading = QLabel("Command Palette")
+        palette_heading.setStyleSheet("font-weight: bold; font-size: 16px;")
+        dock_layout.addWidget(palette_heading)
+
+        command_palette = QLabel("Open Command Palette: Ctrl+Shift+P")
+        dock_layout.addWidget(command_palette)

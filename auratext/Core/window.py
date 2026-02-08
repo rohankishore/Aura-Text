@@ -588,6 +588,9 @@ class Window(QMainWindow):
         
         format_shortcut = QShortcut(QKeySequence("Shift+Alt+F"), self)
         format_shortcut.activated.connect(self.code_formatting)
+        
+        settings_shortcut = QShortcut(QKeySequence("Ctrl+,"), self)
+        settings_shortcut.activated.connect(self.expandSidebar__Settings)
 
         self.showMaximized()
 
@@ -613,6 +616,11 @@ class Window(QMainWindow):
         
         # Store minimap reference on editor
         self.text_editor.minimap = minimap
+        
+        # Check if minimap should be visible (default to True)
+        if not hasattr(self, 'minimap_visible'):
+            self.minimap_visible = True
+        minimap.setVisible(self.minimap_visible)
         
         # Initialize linter for Python files if enabled
         if self._config.get("enable_linter", "True") == "True":
@@ -1125,6 +1133,35 @@ class Window(QMainWindow):
                 self.editor_splitter.widget(1).deleteLater()
                 self.split_tab_widget = None
                 self.is_split = False
+
+    def toggle_minimap(self):
+        """Toggle minimap visibility for all editors"""
+        self.minimap_visible = not getattr(self, 'minimap_visible', True)
+        
+        # Toggle minimap in main tab widget
+        for i in range(self.tab_widget.count()):
+            widget = self.tab_widget.widget(i)
+            if widget and hasattr(widget, 'layout') and widget.layout():
+                for j in range(widget.layout().count()):
+                    item = widget.layout().itemAt(j)
+                    if item and isinstance(item.widget(), CodeEditor):
+                        editor = item.widget()
+                        if hasattr(editor, 'minimap'):
+                            editor.minimap.setVisible(self.minimap_visible)
+                        break
+        
+        # Toggle minimap in split tab widget if active
+        if self.is_split and self.split_tab_widget:
+            for i in range(self.split_tab_widget.count()):
+                widget = self.split_tab_widget.widget(i)
+                if widget and hasattr(widget, 'layout') and widget.layout():
+                    for j in range(widget.layout().count()):
+                        item = widget.layout().itemAt(j)
+                        if item and isinstance(item.widget(), CodeEditor):
+                            editor = item.widget()
+                            if hasattr(editor, 'minimap'):
+                                editor.minimap.setVisible(self.minimap_visible)
+                            break
 
     def gitPush(self):
         self.gitPushDialog = GitPush.GitPushDialog(self)

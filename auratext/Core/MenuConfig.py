@@ -171,6 +171,15 @@ QMenu::item::selected {{
     toggle_read_only_action.setCheckable(True)
     toggle_read_only_action.triggered.connect(read_only)
     view_menu.addAction(toggle_read_only_action)
+    
+    view_menu.addSeparator()
+    
+    toggle_minimap_action = QAction("Minimap", self)
+    toggle_minimap_action.setCheckable(True)
+    toggle_minimap_action.setChecked(True)  # Minimap is visible by default
+    toggle_minimap_action.triggered.connect(self.toggle_minimap)
+    view_menu.addAction(toggle_minimap_action)
+    
     menubar.addMenu(view_menu)
 
     code_menu = QMenu("&Code", self)
