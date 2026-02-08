@@ -31,7 +31,8 @@ from PyQt6.QtWidgets import (
     QWidget,
     QVBoxLayout,
     QHBoxLayout,
-    QStatusBar)
+    QStatusBar,
+    QMenu)
 from . import Lexers
 from ..Misc import shortcuts, WelcomeScreen, boilerplates, file_templates
 from . import MenuConfig
@@ -448,6 +449,9 @@ class Window(QMainWindow):
         ]
 
         self.command_palette = CommandPalette(self.commands)
+        
+        # Setup language button click handler
+        self.statusBar.setLanguageClickHandler(self.show_language_menu)
         self.command_palette.hide()
         shortcut = QShortcut(QKeySequence("Ctrl+Shift+P"), self)
         shortcut.activated.connect(self.show_command_palette)
@@ -1036,6 +1040,173 @@ class Window(QMainWindow):
         Lexers.fortran77(self)
         self.current_editor.setMarginsBackgroundColor(QColor(self._themes["margin_theme"]))
         self.current_editor.setMarginsForegroundColor(QColor("#FFFFFF"))
+    
+    def get_current_language(self):
+        """Get the current language/lexer name from the editor"""
+        if not self.current_editor or self.current_editor == "":
+            return "Plain Text"
+        
+        try:
+            lexer = self.current_editor.lexer()
+            if lexer is None:
+                return "Plain Text"
+            
+            # Get the language name from the lexer
+            lang = lexer.language()
+            if lang:
+                return lang
+            return "Plain Text"
+        except:
+            return "Plain Text"
+    
+    def show_language_menu(self):
+        """Show a menu to select a different language"""
+        if not self.current_editor or self.current_editor == "":
+            QMessageBox.warning(self, "No Editor", "Please open a file first.")
+            return
+        
+        # Create menu with all available languages
+        menu = QMenu(self)
+        
+        # Define all available languages in alphabetical order
+        languages = {
+            "Assembly": self.asm,
+            "AVS": self.avs,
+            "Bash": self.bash,
+            "Batch": self.batch,
+            "C/C++": self.cpp,
+            "C#": self.csharp,
+            "CMake": self.cmake,
+            "CoffeeScript": self.coffeescript,
+            "CSS": self.css,
+            "Fortran": self.fortran,
+            "Fortran77": self.fortran77,
+            "HTML": self.html,
+            "IDL": self.idl,
+            "Java": self.java,
+            "JavaScript": self.js,
+            "JSON": self.json,
+            "Lua": self.lua,
+            "Makefile": self.makefile,
+            "Markdown": self.markdown,
+            "Matlab": self.matlab,
+            "Octave": self.octave,
+            "Pascal": self.pascal,
+            "Perl": self.perl,
+            "Plain Text": self.set_plain_text,
+            "PostScript": self.postscript,
+            "Python": self.python,
+            "Ruby": self.ruby,
+            "SPICE": self.spice,
+            "SQL": self.sql,
+            "SREC": self.srec,
+            "TCL": self.tcl,
+            "TeX": self.tex,
+            "Verilog": self.verilog,
+            "VHDL": self.vhdl,
+            "XML": self.xml,
+            "YAML": self.yaml,
+        }
+        
+        # Add actions to menu
+        for lang_name in sorted(languages.keys()):
+            action = menu.addAction(lang_name)
+            action.triggered.connect(lambda checked, ln=lang_name: self.change_language(ln, languages[ln]))
+        
+        # Show menu at cursor position
+        menu.exec(QCursor.pos())
+    
+    def change_language(self, language_name, language_func):
+        """Change the current editor's language"""
+        try:
+            language_func()
+            self.statusBar.updateLanguage(language_name)
+        except Exception as e:
+            print(f"Error changing language: {e}")
+    
+    def set_plain_text(self):
+        """Remove lexer to set plain text mode"""
+        if self.current_editor and self.current_editor != "":
+            self.current_editor.setLexer(None)
+            self.current_editor.setMarginsBackgroundColor(QColor(self._themes["margin_theme"]))
+            self.current_editor.setMarginsForegroundColor(QColor("#FFFFFF"))
+    
+    def update_language_display(self):
+        """Update the language display in the status bar"""
+        lang = self.get_current_language()
+        self.statusBar.updateLanguage(lang)
+    
+    def auto_detect_language(self, filename):
+        """Auto-detect and apply language/lexer based on file extension"""
+        if not self.current_editor or self.current_editor == "":
+            return
+        
+        # Get file extension
+        ext = filename.split(".")[-1].lower() if "." in filename else ""
+        filename_lower = filename.lower()
+        
+        # Map extensions to language methods
+        extension_map = {
+            "py": self.python,
+            "pyw": self.python,
+            "cs": self.csharp,
+            "json": self.json,
+            "js": self.js,
+            "mjs": self.js,
+            "yaml": self.yaml,
+            "yml": self.yaml,
+            "xml": self.xml,
+            "html": self.html,
+            "htm": self.html,
+            "cpp": self.cpp,
+            "cc": self.cpp,
+            "cxx": self.cpp,
+            "c": self.cpp,
+            "h": self.cpp,
+            "hpp": self.cpp,
+            "rb": self.ruby,
+            "pl": self.perl,
+            "pm": self.perl,
+            "pas": self.pascal,
+            "css": self.css,
+            "sql": self.sql,
+            "lua": self.lua,
+            "cmake": self.cmake,
+            "ps": self.postscript,
+            "asm": self.asm,
+            "s": self.asm,
+            "avs": self.avs,
+            "coffee": self.coffeescript,
+            "bat": self.batch,
+            "cmd": self.batch,
+            "sh": self.bash,
+            "bash": self.bash,
+            "srec": self.srec,
+            "idl": self.idl,
+            "m": self.matlab,
+            "tcl": self.tcl,
+            "v": self.verilog,
+            "vhdl": self.vhdl,
+            "vhd": self.vhdl,
+            "sp": self.spice,
+            "f": self.fortran,
+            "f90": self.fortran,
+            "f77": self.fortran77,
+            "for": self.fortran77,
+            "tex": self.tex,
+            "md": self.markdown,
+            "markdown": self.markdown,
+            "java": self.java,
+        }
+        
+        # Special case for Makefile
+        if "makefile" in filename_lower:
+            self.makefile()
+            return
+        
+        # Apply language based on extension
+        if ext in extension_map:
+            extension_map[ext]()
 
     def tex(self):
         Lexers.tex(self)
@@ -1198,6 +1369,9 @@ class Window(QMainWindow):
         icon = self.get_icon(title)
         self.tab_widget.addTab(container, icon, title)
         self.tab_widget.setCurrentWidget(container)
+        # Auto-detect and set language based on file extension
+        self.auto_detect_language(file_path if file_path else title)
+        self.update_language_display()
 
     def custom_new_document(self, title, checked=False):
         container = self.create_editor()
@@ -1247,6 +1421,8 @@ class Window(QMainWindow):
             else:
                 pass
             self.tab_widget.setCurrentWidget(container)
+            # Update language display
+            self.update_language_display()
         else:
             pass
 
@@ -1268,6 +1444,8 @@ class Window(QMainWindow):
                         
                         self.current_editor = editor
                         self.current_editor.setReadOnly(False)
+                        # Update language display
+                        self.update_language_display()
                     break
         elif index < len(self.editors):
             # Fallback for old-style tabs
@@ -1276,6 +1454,8 @@ class Window(QMainWindow):
                 self.current_editor.setReadOnly(True)
             self.current_editor = self.editors[index]
             self.current_editor.setReadOnly(False)
+            # Update language display
+            self.update_language_display()
 
         if self.tab_widget.count() == 0:
             self.statusBar.hide()
