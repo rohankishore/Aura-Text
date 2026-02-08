@@ -1491,38 +1491,40 @@ class Window(QMainWindow):
     def change_text_editor(self, index):
         widget = self.tab_widget.widget(index)
         
-        # Check if this is a non-editor tab (like Welcome screen)
-        if widget and not hasattr(widget, 'layout'):
+        # Check if this is a non-editor tab (like Welcome screen, DB viewer, etc.)
+        from auratext.Misc import WelcomeScreen
+        from auratext.Components.DBViewer import DBViewer
+        
+        if isinstance(widget, (WelcomeScreen.WelcomeWidget, DBViewer)):
             self.statusBar.hide()
             return
         
         # Get the actual editor from the container
         if widget and hasattr(widget, 'layout') and widget.layout():
             # The editor is the first item in the layout
+            editor_found = False
             for i in range(widget.layout().count()):
                 item = widget.layout().itemAt(i)
                 if item and isinstance(item.widget(), CodeEditor):
                     editor = item.widget()
-                    if index < len(self.editors):
-                        self.statusBar.show()
-                        # Set the previous editor as read-only
-                        if self.current_editor:
+                    editor_found = True
+                    self.statusBar.show()
+                    # Set the previous editor as read-only
+                    if self.current_editor and self.current_editor != "":
+                        try:
                             self.current_editor.setReadOnly(True)
-                        
-                        self.current_editor = editor
-                        self.current_editor.setReadOnly(False)
-                        # Update language display
-                        self.update_language_display()
+                        except:
+                            pass
+                    
+                    self.current_editor = editor
+                    self.current_editor.setReadOnly(False)
+                    # Update language display
+                    self.update_language_display()
                     break
-        elif index < len(self.editors):
-            # Fallback for old-style tabs
-            self.statusBar.show()
-            if self.current_editor:
-                self.current_editor.setReadOnly(True)
-            self.current_editor = self.editors[index]
-            self.current_editor.setReadOnly(False)
-            # Update language display
-            self.update_language_display()
+            
+            # If no editor found in the layout, hide status bar
+            if not editor_found:
+                self.statusBar.hide()
 
         if self.tab_widget.count() == 0:
             self.statusBar.hide()
