@@ -54,21 +54,38 @@ Place screenshots in the `images/` folder:
 
 ### Homepage (`index.html`)
 - Hero section with CTA
-- Feature highlights
+- Feature highlights (6 key features)
 - Screenshot gallery
 - Download section
+- Stats display
 
 ### Features (`features.html`)
-- Comprehensive feature list
-- Categorized by functionality
-- Detailed descriptions
+- **Comprehensive feature list organized by category:**
+  - 📝 Editor (13 features)
+  - 🔍 Code Quality (5 features)
+  - 🌳 Git Integration (6 features)
+  - 💻 Terminal & Console (5 features)
+  - 📁 Project Management (5 features)
+  - 🎨 Customization & Theming (7 features)
+  - ⚡ Productivity Tools (10 features)
+  - 🔌 Plugin System (6 features)
+  - ⚡ Performance (5 features)
+- Each feature has clear title and description
 
-### Documentation (`docs/index.html`)
+### Documentation (`docs.html`)
+- Single-page documentation with sidebar navigation
 - Installation guide
 - Quick start tutorial
-- User guide
-- API reference
-- FAQ
+- User guide (editor basics, file management, shortcuts)
+- Feature guides (Git, Terminal, Linting, Plugins)
+- Advanced topics (plugin development, theme creation)
+- Troubleshooting & FAQ
+
+### Download (`download.html`)
+- Single download button linking to GitHub releases
+- Platform information cards (Windows, Linux, macOS)
+- Quick installation guide (3 steps)
+- Simplified and clean design
 
 ## 🎨 Customization
 
@@ -91,14 +108,17 @@ All content is in plain HTML files - edit directly to update text, links, and st
 
 ## 🔧 TODO
 
-- [ ] Create download.html page
+- [x] Create download.html page
+- [x] Reorganize features into clear categories
+- [x] Simplify download page to single GitHub link
+- [x] Move documentation to single-page structure
 - [ ] Add actual screenshots
 - [ ] Add logo and favicon
 - [ ] Set up deployment (GitHub Pages, Netlify, or Vercel)
 - [ ] Add search functionality to docs
-- [ ] Create blog section
+- [ ] Create blog section (optional)
 - [ ] Add language switcher for translations
-- [ ] Implement dark/light theme toggle
+- [ ] Implement dark/light theme toggle (optional)
 - [ ] Add analytics
 
 ## 🌐 Deployment
