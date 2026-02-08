@@ -284,13 +284,9 @@ class Window(QMainWindow):
         
         # Create Explorer button with SVG icons
         explorer_svg = f"{local_app_data}/icons/explorer.svg"
-        if os.path.exists(explorer_svg):
-            explorer_unselected, explorer_selected = SVGIconManager.create_stateful_icon(
-                explorer_svg, None, theme_color, (23, 23)
-            )
-        else:
-            explorer_unselected = QIcon(f"{local_app_data}/icons/explorer_unfilled.png")
-            explorer_selected = QIcon(f"{local_app_data}/icons/explorer_filled.png")
+        explorer_unselected, explorer_selected = SVGIconManager.create_stateful_icon(
+            explorer_svg, None, theme_color, (23, 23)
+        )
         
         self.explorer_button = QPushButton(self)
         self.explorer_button.setIcon(explorer_unselected)
@@ -312,13 +308,9 @@ class Window(QMainWindow):
 
         # Create Plugin/Extensions button with SVG icons
         extensions_svg = f"{local_app_data}/icons/extensions.svg"
-        if os.path.exists(extensions_svg):
-            plugin_unselected, plugin_selected = SVGIconManager.create_stateful_icon(
-                extensions_svg, None, theme_color, (23, 23)
-            )
-        else:
-            plugin_unselected = QIcon(f"{local_app_data}/icons/extension_unfilled.png")
-            plugin_selected = QIcon(f"{local_app_data}/icons/extension_filled.png")
+        plugin_unselected, plugin_selected = SVGIconManager.create_stateful_icon(
+            extensions_svg, None, theme_color, (23, 23)
+        )
         
         self.plugin_button = QPushButton(self)
         self.plugin_button.setIcon(plugin_unselected)
@@ -340,13 +332,9 @@ class Window(QMainWindow):
 
         # Create Git/Commit button with SVG icons
         git_svg = f"{local_app_data}/icons/git.svg"
-        if os.path.exists(git_svg):
-            commit_unselected, commit_selected = SVGIconManager.create_stateful_icon(
-                git_svg, None, theme_color, (23, 23)
-            )
-        else:
-            commit_unselected = QIcon(f"{local_app_data}/icons/commit_unselected.png")
-            commit_selected = QIcon(f"{local_app_data}/icons/commit_selected.png")
+        commit_unselected, commit_selected = SVGIconManager.create_stateful_icon(
+            git_svg, None, theme_color, (23, 23)
+        )
         
         self.commit_button = QPushButton(self)
         self.commit_button.setIcon(commit_unselected)
@@ -594,21 +582,27 @@ class Window(QMainWindow):
 
     def onPluginDockVisibilityChanged(self, visible):
         if visible:
-            self.plugin_button.setIcon(QIcon(f"{local_app_data}/icons/extension_filled.png"))
+            if hasattr(self.plugin_button, 'selected_icon'):
+                self.plugin_button.setIcon(self.plugin_button.selected_icon)
         else:
-            self.plugin_button.setIcon(QIcon(f"{local_app_data}/icons/extension_unfilled.png"))
+            if hasattr(self.plugin_button, 'unselected_icon'):
+                self.plugin_button.setIcon(self.plugin_button.unselected_icon)
 
     def onExplorerDockVisibilityChanged(self, visible):
         if visible:
-            self.explorer_button.setIcon(QIcon(f"{local_app_data}/icons/explorer_filled.png"))
+            if hasattr(self.explorer_button, 'selected_icon'):
+                self.explorer_button.setIcon(self.explorer_button.selected_icon)
         else:
-            self.explorer_button.setIcon(QIcon(f"{local_app_data}/icons/explorer_unfilled.png"))
+            if hasattr(self.explorer_button, 'unselected_icon'):
+                self.explorer_button.setIcon(self.explorer_button.unselected_icon)
 
     def onCommitDockVisibilityChanged(self, visible):
         if visible:
-            self.commit_button.setIcon(QIcon(f"{local_app_data}/icons/commit_selected.png"))
+            if hasattr(self.commit_button, 'selected_icon'):
+                self.commit_button.setIcon(self.commit_button.selected_icon)
         else:
-            self.commit_button.setIcon(QIcon(f"{local_app_data}/icons/commit_unselected.png"))
+            if hasattr(self.commit_button, 'unselected_icon'):
+                self.commit_button.setIcon(self.commit_button.unselected_icon)
 
     def treeview_project(self, path):
         self.dock = QDockWidget("Explorer", self)
