@@ -2,7 +2,8 @@ from PyQt6.QtWidgets import QLabel
 from PyQt6.QtWidgets import (
     QDockWidget,
     QWidget,
-    QVBoxLayout,)
+    QVBoxLayout,
+    QScrollArea,)
 
 class Shortcuts(QDockWidget):
     def __init__(self, title="Keyboard Shortcuts", parent=None):
@@ -11,13 +12,18 @@ class Shortcuts(QDockWidget):
         self.setWindowTitle(title)
         self.setMinimumWidth(300)
 
+        # Create a scroll area
+        scroll_area = QScrollArea()
+        scroll_area.setWidgetResizable(True)
+        self.setWidget(scroll_area)
+
         # Create a widget to hold the labels
         dock_widget_contents = QWidget()
-        self.setWidget(dock_widget_contents)
+        scroll_area.setWidget(dock_widget_contents)
 
         # Create a layout for the dock widget contents
         dock_layout = QVBoxLayout()
-        # dock_layout.addStretch()
+        dock_layout.addStretch()
         dock_widget_contents.setLayout(dock_layout)
 
         # Add Heading Label
