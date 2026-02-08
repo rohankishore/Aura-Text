@@ -234,52 +234,77 @@ class CodeEditor(QsciScintilla):
         return search(self.SCI_SEARCHINTARGET, len(string), bytes(string, "utf-8"))
     
     def update_color_previews(self):
-        """Scan text for hex color codes and add color preview indicators"""
-        self.color_positions.clear()
+        """Scan text for hex color codes and store their positions"""
+        self.color_boxes.clear()
         text = self.text()
+        lines = text.split('\n')
         
         # Find all hex color codes
-        for match in self.hex_color_pattern.finditer(text):
-            color_str = match.group()
-            start_pos = match.start()
-            end_pos = match.end()
-            
-            # Store position and color
-            self.color_positions[start_pos] = color_str
-            
-            # Expand 3-digit hex to 6-digit
-            if len(color_str) == 4:  # #RGB
-                color_str = f"#{color_str[1]}{color_str[1]}{color_str[2]}{color_str[2]}{color_str[3]}{color_str[3]}"
-            
-            # Set indicator style and color
-            try:
-                color = QColor(color_str)
-                # Use a box indicator with the actual color
-                self.SendScintilla(QsciScintilla.SCI_INDICSETSTYLE, self.color_indicator, QsciScintilla.INDIC_ROUNDBOX)
+        for line_num, line_text in enumerate(lines):
+            for match in self.hex_color_pattern.finditer(line_text):
+                color_str = match.group()
+                col = match.start()
                 
-                # Set indicator color (RGB as integer)
-                r, g, b = color.red(), color.green(), color.blue()
-                color_int = (b << 16) | (g << 8) | r
-                self.SendScintilla(QsciScintilla.SCI_INDICSETFORE, self.color_indicator, color_int)
+                # Expand 3-digit hex to 6-digit
+                display_color = color_str
+                if len(color_str) == 4:  # #RGB
+                    display_color = f"#{color_str[1]}{color_str[1]}{color_str[2]}{color_str[2]}{color_str[3]}{color_str[3]}"
                 
-                # Set alpha for transparency
-                self.SendScintilla(QsciScintilla.SCI_INDICSETALPHA, self.color_indicator, 80)
-                self.SendScintilla(QsciScintilla.SCI_INDICSETOUTLINEALPHA, self.color_indicator, 255)
-                
-                # Apply indicator to the hex code range
-                self.SendScintilla(QsciScintilla.SCI_SETINDICATORCURRENT, self.color_indicator)
-                self.SendScintilla(QsciScintilla.SCI_INDICATORFILLRANGE, start_pos, end_pos - start_pos)
-            except:
-                pass  # Invalid color, skip
+                try:
+                    color = QColor(display_color)
+                    if color.isValid():
+                        self.color_boxes[(line_num, col)] = (color_str, color)
+                except:
+                    pass
+        
+        # Trigger repaint to show color boxes
+        self.viewport().update()
+    
+    def paintEvent(self, event):
+        """Custom paint to draw color preview boxes"""
+        super().paintEvent(event)
+        
+        if not self.color_boxes:
+            return
+        
+        painter = QPainter(self.viewport())
+        painter.setRenderHint(QPainter.RenderHint.Antialiasing)
+        
+        # Get visible line range
+        first_visible = self.firstVisibleLine()
+        lines_on_screen = self.linesOnScreen()
+        
+        for (line_num, col), (color_str, color) in self.color_boxes.items():
+            # Check if line is visible
+            if line_num < first_visible or line_num > first_visible + lines_on_screen:
+                continue
+            
+            # Get pixel position of the hex code
+            x = self.SendScintilla(QsciScintilla.SCI_POINTXFROMPOSITION, 0, self.positionFromLineIndex(line_num, col))
+            y = self.SendScintilla(QsciScintilla.SCI_POINTYFROMPOSITION, 0, self.positionFromLineIndex(line_num, col))
+            
+            # Draw small colored square box before the text
+            box_size = 12
+            box_x = x - box_size - 4  # 4px gap between box and text
+            box_y = y + 2  # Slight vertical offset
+            
+            # Draw the color box
+            painter.setBrush(QBrush(color))
+            painter.setPen(QPen(QColor("#888"), 1))
+            painter.drawRect(QRectF(box_x, box_y, box_size, box_size))
+        
+        painter.end()
     
     def mouseMoveEvent(self, event):
         """Handle mouse move to show color preview tooltip"""
         pos = self.SendScintilla(QsciScintilla.SCI_POSITIONFROMPOINTCLOSE, event.pos().x(), event.pos().y())
         
         if pos >= 0:
+            line, col = self.lineIndexFromPosition(pos)
+            
             # Check if position is on a hex color
-            for color_pos, color_str in self.color_positions.items():
-                if color_pos <= pos < color_pos + len(color_str):
+            for (color_line, color_col), (color_str, color) in self.color_boxes.items():
+                if color_line == line and color_col <= col < color_col + len(color_str):
                     # Show tooltip with color preview
                     self.show_color_tooltip(event.globalPosition().toPoint(), color_str)
                     return
@@ -307,16 +332,18 @@ class CodeEditor(QsciScintilla):
         pos = self.SendScintilla(QsciScintilla.SCI_POSITIONFROMPOINTCLOSE, event.pos().x(), event.pos().y())
         
         if pos >= 0:
+            line, col = self.lineIndexFromPosition(pos)
+            
             # Check if position is on a hex color
-            for color_pos, color_str in self.color_positions.items():
-                if color_pos <= pos < color_pos + len(color_str):
+            for (color_line, color_col), (color_str, color) in self.color_boxes.items():
+                if color_line == line and color_col <= col < color_col + len(color_str):
                     # Open color picker
-                    self.pick_color(color_pos, color_str)
+                    self.pick_color(line, color_col, color_str)
                     return
         
         super().mouseDoubleClickEvent(event)
     
-    def pick_color(self, pos, current_color):
+    def pick_color(self, line, col, current_color):
         """Open color picker dialog and replace color if changed"""
         # Expand 3-digit hex to 6-digit
         if len(current_color) == 4:
@@ -329,18 +356,18 @@ class CodeEditor(QsciScintilla):
             # Replace the color in the text
             new_color_str = color.name().upper()
             
-            # Get line and index from position
-            line, index = self.lineIndexFromPosition(pos)
+            # Get the line text
+            line_text = self.text(line)
             
             # Find the hex color at this position
-            line_text = self.text(line)
-            match = self.hex_color_pattern.search(line_text, index)
+            match = self.hex_color_pattern.search(line_text, col)
             
-            if match and match.start() == index:
-                # Replace the color
-                start_pos = pos
-                end_pos = pos + len(match.group())
+            if match and match.start() == col:
+                # Calculate positions
+                start_pos = self.positionFromLineIndex(line, col)
+                end_pos = start_pos + len(match.group())
                 
+                # Replace the color
                 self.SendScintilla(QsciScintilla.SCI_SETSEL, start_pos, end_pos)
                 self.replaceSelectedText(new_color_str)
                 
