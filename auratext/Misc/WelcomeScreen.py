@@ -220,6 +220,10 @@ class WelcomeWidget(QWidget):
         manage_projects_btn.clicked.connect(window.manageProjects)
         start_column.addWidget(manage_projects_btn)
         
+        website_btn = ActionButton("🌐", "Visit Website", theme_color)
+        website_btn.clicked.connect(lambda: webbrowser.open_new_tab("https://aura-text.netlify.app"))
+        start_column.addWidget(website_btn)
+        
         start_column.addStretch()
         content_layout.addLayout(start_column, 1)
         
