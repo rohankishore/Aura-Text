@@ -21,7 +21,8 @@ if TYPE_CHECKING:
     from auratext.Core.window import Window
 
 example_cmds = ["'ascii Hello'", "'joke' for some byte sized humour", "'pip'",
-                "'cpath' to view the current project path", "'ctheme' to view the current theme", "'ipconfig'",
+                "'cpath' to view the current project path", "'pwd' to view the current working directory",
+                "'ctheme' to view the current theme", "'ipconfig'",
                 "'key' and type combinations of keyboard keys to emulate them. [key Win + Shift + C]"]
 
 
@@ -129,9 +130,29 @@ class AuraTextTerminalWidget(QWidget):
 
         self.quitSc = QShortcut(QKeySequence("Return"), self)
         self.quitSc.activated.connect(self.run_script)
+        
+        # Display welcome message with current working directory
+        self.show_welcome_message()
 
     def update_placeholders(self):
         self.script_edit.setPlaceholderText(("Try " + random.choice(example_cmds)))
+    
+    def show_welcome_message(self):
+        """Display welcome message with current working directory"""
+        try:
+            with open(f"{self._window.local_app_data}/data/CPath_Project.txt", "r") as file:
+                project_dir = file.readline().strip()
+                if project_dir and os.path.isdir(project_dir):
+                    self.text.append(f"Aura Text Terminal")
+                    self.text.append(f"Working Directory: {project_dir}")
+                    self.text.append("-" * 50)
+                else:
+                    self.text.append("Aura Text Terminal")
+                    self.text.append(f"Working Directory: {os.getcwd()}")
+                    self.text.append("-" * 50)
+        except:
+            self.text.append("Aura Text Terminal")
+            self.text.append("-" * 50)
 
     def terminal_history(self):
         self.dialog.setWindowTitle("Terminal History")
@@ -225,14 +246,47 @@ class AuraTextTerminalWidget(QWidget):
                     self.text.append(a)
                 else:
                     self.text.append("No folder opened!")
+        
+        elif script == "pwd" or script == "cwd":
+            # Show current working directory
+            try:
+                with open(f"{self._window.local_app_data}/data/CPath_Project.txt", "r") as file:
+                    project_dir = file.readline().strip()
+                    if project_dir and os.path.isdir(project_dir):
+                        self.text.append(f"Current Working Directory: {project_dir}")
+                    else:
+                        self.text.append(f"Current Working Directory: {os.getcwd()}")
+            except:
+                self.text.append(f"Current Working Directory: {os.getcwd()}")
 
         elif script == "exitat":
             sys.exit()
         else:
             try:
-                result = subprocess.run(["powershell", script], capture_output=True)
+                # Get current project directory
+                project_dir = None
+                try:
+                    with open(f"{self._window.local_app_data}/data/CPath_Project.txt", "r") as file:
+                        project_dir = file.readline().strip()
+                        if not project_dir or not os.path.isdir(project_dir):
+                            project_dir = None
+                except:
+                    project_dir = None
+                
+                # Run command in project directory if available
+                if project_dir:
+                    result = subprocess.run(["powershell", script], capture_output=True, cwd=project_dir)
+                else:
+                    result = subprocess.run(["powershell", script], capture_output=True)
+                    
                 res = result.stdout.decode("utf-8")
+                
+                # Also check for stderr
+                err = result.stderr.decode("utf-8")
+                if err:
+                    res += err
+                    
                 res = res.replace("\r\n", "\n").replace("\r", "\n")  # Normalize line endings
                 self.text.append(res)
             except Exception as e:
-                print(e)
+                self.text.append(f"Error: {str(e)}")
