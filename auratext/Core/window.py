@@ -15,7 +15,7 @@ import markdown
 import platform
 from pyqtconsole.console import PythonConsole
 from PyQt6.QtCore import Qt, QSize
-from PyQt6.QtGui import QColor, QFont, QActionGroup, QFileSystemModel, QPixmap, QIcon, QShortcut, QKeySequence
+from PyQt6.QtGui import QColor, QFont, QActionGroup, QFileSystemModel, QPixmap, QIcon, QShortcut, QKeySequence, QCursor
 from PyQt6.Qsci import QsciScintilla
 from PyQt6.QtWidgets import (
     QMainWindow,
