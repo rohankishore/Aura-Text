@@ -166,7 +166,6 @@ class GitCommitDock(QDockWidget):
             empty_layout.addWidget(self.pic_label)
             
             self.main_layout.addWidget(empty_container)
-            self.main_layout.addStretch(1)
 
         self.setWidget(self.main_widget)
 

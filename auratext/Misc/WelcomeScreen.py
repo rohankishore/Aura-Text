@@ -175,7 +175,7 @@ class WelcomeWidget(QWidget):
         title_label.setFont(QFont("Segoe UI", 48, QFont.Weight.Light))
         title_label.setStyleSheet("color: #cccccc;")
         
-        subtitle_label = QLabel("Editing evolved")
+        subtitle_label = QLabel("Like any text editor. Unlike any text editor")
         subtitle_label.setFont(QFont("Segoe UI", 16))
         subtitle_label.setStyleSheet("color: #888888; margin-bottom: 20px;")
         
