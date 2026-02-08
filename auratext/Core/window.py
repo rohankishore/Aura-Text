@@ -653,10 +653,22 @@ class Window(QMainWindow):
 
     def updateStatusBar(self):
         currentWidget = self.tab_widget.currentWidget()
-        if isinstance(currentWidget, (QTextEdit, QsciScintilla)):
-            lineNumber, columnNumber, totalLines, words = self.getTextStats(
-                currentWidget
-            )
+        
+        # Get the actual editor from the container
+        editor = None
+        if currentWidget and hasattr(currentWidget, 'layout') and currentWidget.layout():
+            for i in range(currentWidget.layout().count()):
+                item = currentWidget.layout().itemAt(i)
+                if item and isinstance(item.widget(), (QTextEdit, QsciScintilla, CodeEditor)):
+                    editor = item.widget()
+                    break
+        
+        # Fall back to checking if currentWidget itself is an editor
+        if not editor and isinstance(currentWidget, (QTextEdit, QsciScintilla)):
+            editor = currentWidget
+        
+        if editor:
+            lineNumber, columnNumber, totalLines, words = self.getTextStats(editor)
             self.statusBar.updateStats(lineNumber, columnNumber, totalLines, words)
 
             if self.current_editor == "":
@@ -1743,6 +1755,8 @@ class Window(QMainWindow):
         self.auto_detect_language(file_path if file_path else title)
         self.update_language_display()
         self.update_run_button_visibility()
+        # Update status bar to show initial stats
+        self.updateStatusBar()
 
     def custom_new_document(self, title, checked=False):
         container = self.create_editor()
@@ -1832,6 +1846,8 @@ class Window(QMainWindow):
                     self.update_language_display()
                     # Update run button visibility
                     self.update_run_button_visibility()
+                    # Update status bar
+                    self.updateStatusBar()
                     break
             
             # If no editor found in the layout, hide status bar
@@ -1948,6 +1964,7 @@ class Window(QMainWindow):
             self.tab_file_paths[tab_index] = cfile
             self.tab_widget.setCurrentWidget(container)
             self.update_run_button_visibility()
+            self.updateStatusBar()
         except FileNotFoundError and OSError:
             pass
 
