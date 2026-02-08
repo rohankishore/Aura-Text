@@ -260,7 +260,7 @@ class WelcomeWidget(QWidget):
             theme_color,
             badge="Popular"
         )
-        card3.mousePressEvent = lambda e: webbrowser.open_new_tab("https://github.com/rohankishore/Aura-Text/wiki")
+        card3.mousePressEvent = lambda e: webbrowser.open_new_tab("https://aura-text.netlify.app/docs.html")
         walkthrough_column.addWidget(card3)
         
         more_link = QPushButton("More...")
