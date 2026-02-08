@@ -493,6 +493,9 @@ QMenu::item::selected {{
     menubar.addMenu(prefernces_menu)
 
     help_menu = QMenu("&Help", self)
+    help_menu.addAction("Welcome", self.show_welcome).setWhatsThis(
+        "Show the Welcome page"
+    )
     help_menu.addAction("Keyboard Shortcuts", self.shortcuts).setWhatsThis(
         "List of Keyboard Shortcuts supported by Aura Text"
     )

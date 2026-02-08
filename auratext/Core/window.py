@@ -1689,6 +1689,11 @@ class Window(QMainWindow):
         else:
             pass
 
+    def show_welcome(self):
+        welcome_widget = WelcomeScreen.WelcomeWidget(self)
+        self.tab_widget.addTab(welcome_widget, "Welcome")
+        self.tab_widget.setCurrentWidget(welcome_widget)
+
     def shortcuts(self):
         shortcut_dock = shortcuts.Shortcuts()
         self.addDockWidget(Qt.DockWidgetArea.RightDockWidgetArea, shortcut_dock)
