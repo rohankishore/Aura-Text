@@ -5,7 +5,7 @@ PyAutoGUI==0.9.54
 pyjokes==0.6.0
 PyQt6==6.9.1
 PyQt6_sip==13.10.2
-PyQt6-QtSvg==6.9.1
+# PyQt6-QtSvg==6.9.1
 pyqt_find_replace_text_widget==0.0.14
 pyqtconsole==1.2.3
 pyttsx3==2.90
