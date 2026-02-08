@@ -33,7 +33,8 @@ from PyQt6.QtWidgets import (
     QVBoxLayout,
     QHBoxLayout,
     QStatusBar,
-    QMenu)
+    QMenu,
+    QSplitter)
 from . import Lexers
 from ..Misc import shortcuts, WelcomeScreen, boilerplates, file_templates
 from . import MenuConfig
@@ -208,6 +209,12 @@ class Window(QMainWindow):
                 padding: 8px;
             }
         """)
+
+        # Create splitter for split view
+        self.editor_splitter = QSplitter(Qt.Orientation.Horizontal)
+        self.editor_splitter.addWidget(self.tab_widget)
+        self.split_tab_widget = None
+        self.is_split = False
 
         self.current_editor = ""
 
@@ -393,10 +400,43 @@ class Window(QMainWindow):
         self.run_button.setToolTip("Run Python File")
         self.run_button.hide()  # Hidden by default
         
-        # Add run button as corner widget on tab bar
-        self.tab_widget.setCornerWidget(self.run_button, Qt.Corner.TopRightCorner)
+        # Create Split button
+        split_svg = f"{local_app_data}/icons/split.svg"
+        split_icon, _ = SVGIconManager.create_stateful_icon(
+            split_svg, None, theme_color, (20, 20)
+        )
+        self.split_button = QPushButton(self)
+        self.split_button.setIcon(split_icon)
+        self.split_button.clicked.connect(self.toggle_split_editor)
+        self.split_button.setIconSize(QSize(20, 20))
+        self.split_button.setFixedSize(32, 32)
+        self.split_button.setStyleSheet(
+            f"""
+            QPushButton {{
+                background-color: transparent;
+                border: none;
+                border-radius: 4px;
+            }}
+            QPushButton:hover {{
+                background-color: {theme_color};
+            }}
+            QPushButton:pressed {{
+                background-color: {theme_color}bb;
+            }}
+            """
+        )
+        self.split_button.setToolTip("Toggle Split Editor")
+        
+        # Add buttons as corner widget
+        button_container = QWidget()
+        button_layout = QHBoxLayout(button_container)
+        button_layout.setContentsMargins(0, 0, 0, 0)
+        button_layout.setSpacing(4)
+        button_layout.addWidget(self.run_button)
+        button_layout.addWidget(self.split_button)
+        self.tab_widget.setCornerWidget(button_container, Qt.Corner.TopRightCorner)
 
-        self.setCentralWidget(self.tab_widget)
+        self.setCentralWidget(self.editor_splitter)
         self.statusBar.hide()
         self.editors = []
         self.linters = {}  # Dictionary to store linters for each editor
@@ -934,6 +974,27 @@ class Window(QMainWindow):
                             except Exception:
                                 pass
                             break
+
+    def toggle_split_editor(self):
+        """Toggle split editor view"""
+        if not self.is_split:
+            # Enable split view
+            self.split_tab_widget = TabWidget()
+            self.split_tab_widget.setStyleSheet("""
+                QTabBar::tab {
+                    padding: 8px;
+                }
+            """)
+            self.split_tab_widget.setTabsClosable(True)
+            self.editor_splitter.addWidget(self.split_tab_widget)
+            self.editor_splitter.setSizes([self.width() // 2, self.width() // 2])
+            self.is_split = True
+        else:
+            # Disable split view
+            if self.split_tab_widget:
+                self.editor_splitter.widget(1).deleteLater()
+                self.split_tab_widget = None
+                self.is_split = False
 
     def gitPush(self):
         self.gitPushDialog = GitPush.GitPushDialog(self)
