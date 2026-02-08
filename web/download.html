@@ -19,7 +19,7 @@
             <ul class="nav-links">
                 <li><a href="index.html">Home</a></li>
                 <li><a href="features.html">Features</a></li>
-                <li><a href="docs/index.html">Documentation</a></li>
+                <li><a href="docs.html">Documentation</a></li>
                 <li><a href="download.html" class="active">Download</a></li>
                 <li><a href="https://github.com/rohankishore/Aura-Text" target="_blank">GitHub</a></li>
             </ul>
@@ -38,87 +38,67 @@
     <section class="download-section">
         <div class="container">
             
-            <!-- Windows -->
-            <div class="platform-card">
-                <div class="platform-header">
+            <!-- Main Download -->
+            <div class="download-hero">
+                <div class="download-icon">📥</div>
+                <h2>Download Aura Text</h2>
+                <p class="download-description">Get the latest version for Windows, Linux, and macOS</p>
+                <a href="https://github.com/rohankishore/Aura-Text/releases/latest" class="btn btn-primary btn-large" target="_blank">
+                    <span>Download Latest Release</span>
+                    <small>View all releases on GitHub</small>
+                </a>
+                <p class="version-info">Latest stable release available for all platforms</p>
+            </div>
+
+            <!-- Platform Info -->
+            <div class="platform-info-grid">
+                <div class="platform-info-card">
                     <div class="platform-icon">🪟</div>
-                    <h2>Windows</h2>
-                </div>
-                <p class="platform-description">Windows 10 x64 or later</p>
-                
-                <div class="download-options">
-                    <div class="download-option">
-                        <h3>Installer (Recommended)</h3>
-                        <p>Easy installation with automatic updates</p>
-                        <a href="https://github.com/rohankishore/Aura-Text/releases/latest/download/Aura-Text-setup-x64.exe" class="btn btn-primary">
-                            Download .exe Installer
-                        </a>
-                        <p class="file-info">~50 MB • Windows 10/11 (64-bit)</p>
-                    </div>
-                    
-                    <div class="download-option">
-                        <h3>Portable Version</h3>
-                        <p>Run without installation</p>
-                        <a href="https://github.com/rohankishore/Aura-Text/releases/latest" class="btn btn-secondary">
-                            Download Portable
-                        </a>
-                        <p class="file-info">Coming soon</p>
-                    </div>
+                    <h3>Windows</h3>
+                    <p>Windows 10/11 (64-bit)</p>
+                    <p class="file-type">Available as .exe installer</p>
                 </div>
                 
-                <div class="install-instructions">
-                    <h4>Installation Instructions</h4>
-                    <ol>
-                        <li>Download the installer</li>
-                        <li>Run the <code>.exe</code> file</li>
-                        <li>Follow the setup wizard</li>
-                        <li>Launch Aura Text from Start Menu</li>
-                    </ol>
+                <div class="platform-info-card">
+                    <div class="platform-icon">🐧</div>
+                    <h3>Linux</h3>
+                    <p>Ubuntu, Debian, Fedora, Arch</p>
+                    <p class="file-type">Source code & packages</p>
+                </div>
+                
+                <div class="platform-info-card">
+                    <div class="platform-icon">🍎</div>
+                    <h3>macOS</h3>
+                    <p>macOS 11+ (Big Sur and later)</p>
+                    <p class="file-type"><a href="https://github.com/matthewyang204/Aura-Text-Mac" target="_blank">macOS Port →</a></p>
                 </div>
             </div>
 
-            <!-- Linux -->
-            <div class="platform-card">
-                <div class="platform-header">
-                    <div class="platform-icon">🐧</div>
-                    <h2>Linux</h2>
-                </div>
-                <p class="platform-description">Ubuntu, Debian, Fedora, Arch, and more</p>
-                
-                <div class="download-options">
-                    <div class="download-option">
-                        <h3>From Source</h3>
-                        <p>Build and run from source code</p>
-                        <div class="code-snippet">
-                            <pre><code>git clone https://github.com/rohankishore/Aura-Text.git
-cd Aura-Text
-python3 -m venv venv
-source venv/bin/activate
-pip install -r requirements.txt
-python main.py</code></pre>
+            <!-- Quick Install -->
+            <div class="install-guide">
+                <h3>Quick Installation Guide</h3>
+                <div class="install-steps">
+                    <div class="install-step">
+                        <div class="step-number">1</div>
+                        <div class="step-content">
+                            <h4>Download</h4>
+                            <p>Click the download button above to go to GitHub releases and download the version for your platform</p>
                         </div>
                     </div>
-                </div>
-                
-                <p class="platform-note">📦 Debian/Ubuntu packages coming soon!</p>
-            </div>
-
-            <!-- macOS -->
-            <div class="platform-card">
-                <div class="platform-header">
-                    <div class="platform-icon">🍎</div>
-                    <h2>macOS</h2>
-                </div>
-                <p class="platform-description">macOS 11 (Big Sur) or later</p>
-                
-                <div class="download-options">
-                    <div class="download-option">
-                        <h3>macOS Port</h3>
-                        <p>Check out the macOS-specific version</p>
-                        <a href="https://github.com/matthewyang204/Aura-Text-Mac" class="btn btn-secondary" target="_blank">
-                            Visit macOS Port
-                        </a>
-                        <p class="file-info">Maintained by matthewyang204</p>
+                    <div class="install-step">
+                        <div class="step-number">2</div>
+                        <div class="step-content">
+                            <h4>Install</h4>
+                            <p><strong>Windows:</strong> Run the .exe installer and follow the setup wizard<br>
+                            <strong>Linux/macOS:</strong> Extract and run from source or use provided packages</p>
+                        </div>
+                    </div>
+                    <div class="install-step">
+                        <div class="step-number">3</div>
+                        <div class="step-content">
+                            <h4>Start Coding</h4>
+                            <p>Launch Aura Text and start enjoying a powerful Python-based IDE!</p>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -278,7 +258,7 @@ python build.py
                     <h4>Quick Links</h4>
                     <ul>
                         <li><a href="features.html">Features</a></li>
-                        <li><a href="docs/index.html">Documentation</a></li>
+                        <li><a href="docs.html">Documentation</a></li>
                         <li><a href="download.html">Download</a></li>
                         <li><a href="https://github.com/rohankishore/Aura-Text/wiki">Wiki</a></li>
                     </ul>

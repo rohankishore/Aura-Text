@@ -7,16 +7,16 @@ Official website for Aura Text IDE - Built with vanilla HTML, CSS, and JavaScrip
 ```
 web/
 ├── index.html          # Homepage
-├── features.html       # Features page
-├── download.html       # Download page (to be created)
-├── docs/
-│   └── index.html      # Documentation
+├── features.html       # Features page (categorized by Editor, Terminal, Git, etc.)
+├── docs.html           # Documentation (single page with sidebar navigation)
+├── download.html       # Download page (links to GitHub releases)
 ├── css/
 │   └── style.css       # Main stylesheet
 ├── js/
 │   └── main.js         # JavaScript functionality
 ├── images/             # Images and screenshots
-└── assets/             # Other assets (fonts, icons, etc.)
+├── assets/             # Other assets (fonts, icons, etc.)
+└── docs/               # Legacy docs folder (can be removed)
 ```
 
 ## 🚀 Getting Started

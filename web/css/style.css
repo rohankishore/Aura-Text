@@ -682,6 +682,150 @@ kbd {
     padding: 4rem 0;
 }
 
+.download-hero {
+    text-align: center;
+    max-width: 700px;
+    margin: 0 auto 4rem;
+    padding: 3rem;
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 1rem;
+}
+
+.download-icon {
+    font-size: 5rem;
+    margin-bottom: 1.5rem;
+}
+
+.download-hero h2 {
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+}
+
+.download-description {
+    font-size: 1.25rem;
+    color: var(--text-secondary);
+    margin-bottom: 2rem;
+}
+
+.download-hero .btn {
+    display: inline-flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    padding: 1.5rem 3rem;
+}
+
+.download-hero .btn span {
+    font-size: 1.25rem;
+    font-weight: 700;
+}
+
+.download-hero .btn small {
+    font-size: 0.875rem;
+    font-weight: 400;
+    opacity: 0.9;
+}
+
+.version-info {
+    margin-top: 1.5rem;
+    font-size: 0.875rem;
+    color: var(--text-muted);
+}
+
+.platform-info-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 2rem;
+    margin-bottom: 4rem;
+}
+
+.platform-info-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 0.75rem;
+    padding: 2rem;
+    text-align: center;
+    transition: all 0.3s ease;
+}
+
+.platform-info-card:hover {
+    transform: translateY(-5px);
+    border-color: var(--primary-color);
+}
+
+.platform-info-card .platform-icon {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+}
+
+.platform-info-card h3 {
+    color: var(--text-primary);
+    margin-bottom: 0.5rem;
+}
+
+.platform-info-card p {
+    color: var(--text-muted);
+    margin-bottom: 0.5rem;
+}
+
+.file-type {
+    font-size: 0.875rem;
+    font-weight: 600;
+}
+
+.file-type a {
+    color: var(--primary-color);
+}
+
+.install-guide {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 1rem;
+    padding: 3rem;
+}
+
+.install-guide h3 {
+    text-align: center;
+    font-size: 2rem;
+    margin-bottom: 3rem;
+    color: var(--text-primary);
+}
+
+.install-steps {
+    display: grid;
+    gap: 2rem;
+}
+
+.install-step {
+    display: flex;
+    gap: 2rem;
+    align-items: flex-start;
+}
+
+.step-number {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    font-weight: 700;
+    flex-shrink: 0;
+}
+
+.step-content h4 {
+    color: var(--text-primary);
+    margin-bottom: 0.5rem;
+}
+
+.step-content p {
+    color: var(--text-secondary);
+    line-height: 1.6;
+}
+
 .platform-card {
     background: var(--bg-card);
     border: 1px solid var(--border-color);
