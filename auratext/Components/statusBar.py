@@ -4,8 +4,9 @@ import time
 import platform
 import sys
 
-from PyQt6.QtGui import QFont
-from PyQt6.QtWidgets import QFrame, QHBoxLayout, QLabel, QStatusBar, QWidget
+from PyQt6.QtGui import QFont, QCursor
+from PyQt6.QtCore import Qt
+from PyQt6.QtWidgets import QFrame, QHBoxLayout, QLabel, QStatusBar, QWidget, QPushButton
 
 # from ..scripts.color_scheme_loader import color_schemes
 
@@ -69,6 +70,26 @@ class StatusBar(QStatusBar):
         self.totalLinesValueLabel = QLabel("0")
         self.wordsLabel = QLabel("⌁ Words:")
         self.wordsValueLabel = QLabel("0")
+        
+        # Language button
+        self.languageButton = QPushButton("Plain Text")
+        self.languageButton.setFont(smallFont)
+        self.languageButton.setCursor(QCursor(Qt.CursorShape.PointingHandCursor))
+        self.languageButton.setStyleSheet(
+            f"""
+            QPushButton {{
+                background-color: transparent;
+                color: #FFFFFF;
+                border: none;
+                padding: 2px 8px;
+                text-align: left;
+            }}
+            QPushButton:hover {{
+                background-color: {_themes.get('sidebar_bg', '#2b2b2b')};
+                text-decoration: underline;
+            }}
+            """
+        )
 
 
         for label in [
@@ -107,6 +128,8 @@ class StatusBar(QStatusBar):
         rightLayout.addWidget(self.wordsLabel)
         rightLayout.addWidget(self.wordsValueLabel)
         rightLayout.addWidget(Separator())
+        rightLayout.addWidget(self.languageButton)
+        rightLayout.addWidget(Separator())
 
         self.addPermanentWidget(rightWidget)
 
@@ -135,3 +158,11 @@ class StatusBar(QStatusBar):
         #    self.current_widget.setReadOnly(True)
         #else:
         #    self.current_widget.setReadOnly(False)
+    
+    def updateLanguage(self, language):
+        """Update the language button text"""
+        self.languageButton.setText(language)
+    
+    def setLanguageClickHandler(self, handler):
+        """Set the click handler for the language button"""
+        self.languageButton.clicked.connect(handler)
