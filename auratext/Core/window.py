@@ -1206,7 +1206,7 @@ class Window(QMainWindow):
             return
 
         try:
-            f = open(path, "r")
+            f = open(path, "r", encoding='utf-8', errors='ignore')
             filedata = f.read()
             f.close()
             self.new_document(title=os.path.basename(path), file_path=path)

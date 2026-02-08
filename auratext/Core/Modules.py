@@ -171,7 +171,7 @@ class CodeSnippets:
         ext = file_dir.split(".")[-1]
         if file_dir:
             try:
-                f = open(file_dir, "r")
+                f = open(file_dir, "r", encoding='utf-8', errors='ignore')
                 try:
                     filedata = f.read()
                     editor.append(filedata)
@@ -367,7 +367,7 @@ def open_document(self):
             messagebox.showerror("Wrong Filetype!", "This file type is not supported!")
 
         try:
-            f = open(file_dir, "r")
+            f = open(file_dir, "r", encoding='utf-8', errors='ignore')
             c = open(cfile_path, "r+")
             try:
                 filedata = f.read()
