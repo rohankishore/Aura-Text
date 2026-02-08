@@ -25,6 +25,8 @@ def run_pyinstaller():
         script_dir = os.path.dirname(os.path.abspath(__file__))
         dist_dir = os.path.join(script_dir, 'dist', 'Aura Text')
         shutil.copytree(os.path.join(script_dir, 'LocalAppData'), os.path.join(dist_dir, 'LocalAppData'), dirs_exist_ok=True)
+        if platform.system() == "Darwin":
+            shutil.copytree(os.path.join(script_dir, 'LocalAppData'), os.path.join(script_dir, 'dist', 'Aura Text.app', 'Contents', 'MacOS', 'LocalAppData'), dirs_exist_ok=True)
 
         print("Build successful.")
     except Exception as e:
