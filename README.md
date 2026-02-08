@@ -74,9 +74,10 @@
 <!-- ABOUT THE PROJECT -->
 ## 📖 About The Project
 
-<img width="1920" height="1140" alt="image" src="https://github.com/user-attachments/assets/62ba55aa-3add-4f71-bb42-2ecb0f1a0bea" />
+<img width="1920" height="1100" alt="image" src="https://github.com/user-attachments/assets/17399995-7032-4d90-957e-5cef278ceb6e" />
+<img width="1920" height="1100" alt="image" src="https://github.com/user-attachments/assets/7eb477ed-1469-4303-bce2-8124efcd8114" />
+<img width="1920" height="1100" alt="image" src="https://github.com/user-attachments/assets/c65eace4-8cc5-4390-bc9c-97d17c31c17c" />
 
-![image](https://github.com/user-attachments/assets/fca92d3e-4218-4550-96ca-dfa85dbc27dc)
 
 Aura Text is an excellent text/code editor that offers a wide array of essential tools. Built with PyQt6 and Python, it harnesses the power and flexibility of these technologies.
 
