@@ -1,9 +1,11 @@
 import subprocess
 import os
-from PyQt6.QtCore import Qt
-from PyQt6.QtGui import QPixmap
-from PyQt6.QtWidgets import QListWidget, QVBoxLayout, QWidget, QDockWidget, QPushButton, QListWidgetItem, QCheckBox, \
-    QMessageBox, QLineEdit, QLabel
+import json
+from PyQt6.QtCore import Qt, pyqtSignal
+from PyQt6.QtGui import QPixmap, QFont
+from PyQt6.QtWidgets import (QListWidget, QVBoxLayout, QWidget, QDockWidget, QPushButton, 
+                             QListWidgetItem, QCheckBox, QMessageBox, QTextEdit, QLabel, 
+                             QHBoxLayout, QFrame, QScrollArea)
 import platform
 
 
@@ -19,13 +21,23 @@ else:
 local_app_data = os.path.join(local_app_data, "AuraText")
 cpath = open(f"{local_app_data}/data/CPath_Project.txt", "r+").read()
 
+# Load theme
+with open(f"{local_app_data}/data/theme.json", "r") as f:
+    theme_data = json.load(f)
+    theme_color = theme_data.get("theme", "#007acc")
+    bg_color = theme_data.get("sidebar_bg", "#1e1e1e")
+    editor_bg = theme_data.get("editor_theme", "#121212")
+    fg_color = theme_data.get("editor_fg", "#ffffff")
+
 class GitCommitDock(QDockWidget):
     def __init__(self, parent=None):
-        super().__init__('Git Commit', parent)
+        super().__init__('Source Control', parent)
         self.setAllowedAreas(Qt.DockWidgetArea.AllDockWidgetAreas)
 
         self.main_widget = QWidget()
-        self.layout = QVBoxLayout(self.main_widget)
+        self.main_layout = QVBoxLayout(self.main_widget)
+        self.main_layout.setContentsMargins(0, 0, 0, 0)
+        self.main_layout.setSpacing(0)
 
         changed_files = self.list_changed_files()
 
@@ -34,36 +46,204 @@ class GitCommitDock(QDockWidget):
         )
 
         if changed_files != []:
-            self.file_list_widget = QListWidget()
-            self.populate_file_list()
-            self.layout.addWidget(self.file_list_widget)
+            # Header
+            header = QLabel("SOURCE CONTROL")
+            header.setStyleSheet(f"""
+                QLabel {{
+                    background-color: {bg_color};
+                    color: {fg_color};
+                    padding: 8px 12px;
+                    font-size: 11px;
+                    font-weight: normal;
+                    letter-spacing: 0.5px;
+                }}
+            """)
+            self.main_layout.addWidget(header)
 
-            self.commit_entry = QLineEdit()
-            self.commit_entry.setPlaceholderText("Commit message")
+            # Commit message section
+            commit_container = QWidget()
+            commit_container.setStyleSheet(f"background-color: {editor_bg};")
+            commit_layout = QVBoxLayout(commit_container)
+            commit_layout.setContentsMargins(8, 8, 8, 8)
+            commit_layout.setSpacing(8)
 
-            self.commit_button = QPushButton('Commit')
+            self.commit_entry = QTextEdit()
+            self.commit_entry.setPlaceholderText("Message (Ctrl+Enter to commit)")
+            self.commit_entry.setMaximumHeight(80)
+            self.commit_entry.setStyleSheet(f"""
+                QTextEdit {{
+                    background-color: {bg_color};
+                    color: {fg_color};
+                    border: 1px solid #3c3c3c;
+                    border-radius: 2px;
+                    padding: 6px;
+                    font-size: 13px;
+                }}
+            """)
+            
+            # Install event filter for Ctrl+Enter
+            self.commit_entry.installEventFilter(self)
+
+            # Commit button (VS Code style)
+            self.commit_button = QPushButton('✓ Commit')
             self.commit_button.clicked.connect(self.commit_changes)
+            self.commit_button.setStyleSheet(f"""
+                QPushButton {{
+                    background-color: {theme_color};
+                    color: #ffffff;
+                    border: none;
+                    border-radius: 2px;
+                    padding: 8px 16px;
+                    font-size: 13px;
+                    font-weight: 500;
+                }}
+                QPushButton:hover {{
+                    background-color: {self.adjust_color_brightness(theme_color, 1.1)};
+                }}
+                QPushButton:pressed {{
+                    background-color: {self.adjust_color_brightness(theme_color, 0.9)};
+                }}
+            """)
 
-            self.layout.addWidget(self.commit_entry)
-            self.layout.addWidget(self.commit_button)
+            commit_layout.addWidget(self.commit_entry)
+            commit_layout.addWidget(self.commit_button)
+            self.main_layout.addWidget(commit_container)
+
+            # Changes section header
+            changes_header = QWidget()
+            changes_header.setStyleSheet(f"background-color: {bg_color};")
+            changes_header_layout = QHBoxLayout(changes_header)
+            changes_header_layout.setContentsMargins(12, 6, 12, 6)
+            
+            changes_label = QLabel(f"CHANGES ({len(changed_files)})")
+            changes_label.setStyleSheet(f"""
+                QLabel {{
+                    color: {fg_color};
+                    font-size: 11px;
+                    font-weight: bold;
+                    letter-spacing: 0.5px;
+                }}
+            """)
+            changes_header_layout.addWidget(changes_label)
+            changes_header_layout.addStretch()
+            
+            self.main_layout.addWidget(changes_header)
+
+            # File list
+            self.file_list_widget = QListWidget()
+            self.file_list_widget.setStyleSheet(f"""
+                QListWidget {{
+                    background-color: {editor_bg};
+                    border: none;
+                    outline: none;
+                }}
+                QListWidget::item {{
+                    padding: 4px 12px;
+                    border: none;
+                }}
+                QListWidget::item:hover {{
+                    background-color: {self.adjust_color_brightness(editor_bg, 1.2)};
+                }}
+                QCheckBox {{
+                    color: {fg_color};
+                    spacing: 8px;
+                }}
+            """)
+            self.populate_file_list()
+            self.main_layout.addWidget(self.file_list_widget)
         else:
+            # Empty state
+            empty_container = QWidget()
+            empty_layout = QVBoxLayout(empty_container)
+            empty_layout.setAlignment(Qt.AlignmentFlag.AlignCenter)
+            
             self.pic_label = QLabel()
             photo = QPixmap(f"{local_app_data}/icons/no_commits.png")
             self.pic_label.setPixmap(photo)
             self.pic_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
-            self.layout.addWidget(self.pic_label)
+            empty_layout.addWidget(self.pic_label)
+            
+            self.main_layout.addWidget(empty_container)
 
         self.setWidget(self.main_widget)
 
+    def eventFilter(self, obj, event):
+        """Handle Ctrl+Enter to commit"""
+        if obj == self.commit_entry and event.type() == event.Type.KeyPress:
+            if event.key() == Qt.Key.Key_Return and event.modifiers() == Qt.KeyboardModifier.ControlModifier:
+                self.commit_changes()
+                return True
+        return super().eventFilter(obj, event)
+
+    def adjust_color_brightness(self, hex_color, factor):
+        """Adjust color brightness by factor"""
+        try:
+            hex_color = hex_color.lstrip('#')
+            r, g, b = tuple(int(hex_color[i:i+2], 16) for i in (0, 2, 4))
+            r = min(255, int(r * factor))
+            g = min(255, int(g * factor))
+            b = min(255, int(b * factor))
+            return f'#{r:02x}{g:02x}{b:02x}'
+        except:
+            return hex_color
+
+    def get_file_status(self, status_line):
+        """Parse git status code to readable format"""
+        if not status_line:
+            return ""
+        code = status_line[:2]
+        status_map = {
+            " M": "M",  # Modified
+            "M ": "M",  # Modified (staged)
+            "MM": "M",  # Modified (staged and unstaged)
+            "A ": "A",  # Added
+            "D ": "D",  # Deleted
+            " D": "D",  # Deleted (unstaged)
+            "R ": "R",  # Renamed
+            "C ": "C",  # Copied
+            "??": "U",  # Untracked
+        }
+        return status_map.get(code.strip() or code, "M")
+
     def populate_file_list(self):
         self.file_list_widget.clear()
-        changed_files = self.list_changed_files()
-        print(changed_files)
-        for file in changed_files:
-            item = QListWidgetItem(self.file_list_widget)
-            checkbox = QCheckBox(file)
-            self.file_list_widget.addItem(item)
-            self.file_list_widget.setItemWidget(item, checkbox)
+        try:
+            result = subprocess.run(['git', 'status', '--porcelain'], 
+                                  stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+                                  cwd=cpath, text=True)
+            if result.returncode != 0:
+                return
+                
+            files = result.stdout.strip().split('\n')
+            for line in files:
+                if not line:
+                    continue
+                    
+                status = self.get_file_status(line)
+                file_path = line[3:]  # Skip status codes
+                file_name = os.path.basename(file_path)
+                full_path = os.path.abspath(os.path.join(cpath, file_path))
+                
+                item = QListWidgetItem(self.file_list_widget)
+                
+                # Create checkbox with file status indicator
+                checkbox = QCheckBox(f"{status}  {file_name}")
+                checkbox.setProperty("full_path", full_path)
+                checkbox.setStyleSheet(f"""
+                    QCheckBox {{
+                        color: {fg_color};
+                        font-size: 13px;
+                    }}
+                    QCheckBox::indicator {{
+                        width: 16px;
+                        height: 16px;
+                    }}
+                """)
+                
+                self.file_list_widget.addItem(item)
+                self.file_list_widget.setItemWidget(item, checkbox)
+        except Exception as e:
+            print(f"Error populating file list: {e}")
 
     def list_changed_files(self):
         try:
