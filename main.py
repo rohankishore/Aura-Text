@@ -23,6 +23,9 @@ else:
 local_app_data = os.path.join(local_app_data, "AuraText")
 print(local_app_data)
 
+if not os.path.exists(local_app_data):
+    template_app_data = os.path.join(os.path.dirname(sys.executable), "LocalAppData", "AuraText")
+    shutil.copytree(template_app_data, local_app_data)
 
 from auratext.Core.window import Window
 # from auratext.Core import get_started
