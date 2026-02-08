@@ -891,14 +891,17 @@ class Window(QMainWindow):
                 QMessageBox.critical(self, "Save Error", f"Failed to save file: {e}")
                 return
         
-        # Run the Python file in PowerShell
-        try:
-            subprocess.Popen(
-                ['powershell', '-Command', f'python "{file_path}"'],
-                creationflags=subprocess.CREATE_NEW_CONSOLE
-            )
-        except Exception as e:
-            QMessageBox.critical(self, "Run Error", f"Failed to run file: {e}")
+        # Open PowerShell terminal and run the file
+        if not hasattr(self, 'ps_dock') or self.ps_dock is None:
+            self.setupPowershell()
+        
+        # Show the PowerShell terminal
+        if hasattr(self, 'ps_dock'):
+            self.ps_dock.show()
+            # Send command to run the Python file in PowerShell
+            if hasattr(self, 'terminal') and self.terminal:
+                command = f'python "{file_path}"\n'
+                self.terminal.sendText(command)
 
     def update_run_button_visibility(self):
         """Show/hide run button based on whether current tab is a Python file"""
