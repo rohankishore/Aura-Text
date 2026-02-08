@@ -531,8 +531,22 @@ class Window(QMainWindow):
         # Setup language button click handler
         self.statusBar.setLanguageClickHandler(self.show_language_menu)
         self.command_palette.hide()
+        
+        # Keyboard shortcuts
         shortcut = QShortcut(QKeySequence("Ctrl+Shift+P"), self)
         shortcut.activated.connect(self.show_command_palette)
+        
+        terminal_shortcut = QShortcut(QKeySequence("Ctrl+`"), self)
+        terminal_shortcut.activated.connect(self.setupPowershell)
+        
+        split_shortcut = QShortcut(QKeySequence("Ctrl+\\"), self)
+        split_shortcut.activated.connect(self.toggle_split_editor)
+        
+        run_shortcut = QShortcut(QKeySequence("Shift+F5"), self)
+        run_shortcut.activated.connect(self.run_python_file)
+        
+        find_shortcut = QShortcut(QKeySequence("Ctrl+F"), self)
+        find_shortcut.activated.connect(self.find_in_editor)
 
         self.showMaximized()
 
