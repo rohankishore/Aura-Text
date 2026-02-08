@@ -1,10 +1,11 @@
 from __future__ import annotations
 from typing import TYPE_CHECKING
+import re
 from PyQt6.Qsci import QsciScintilla, QsciAPIs
-from PyQt6.QtCore import Qt, QRect
-from PyQt6.QtGui import QColor, QFont, QFontMetrics, QShortcut, QKeySequence, QAction
+from PyQt6.QtCore import Qt, QRect, QPoint, QTimer, QRectF
+from PyQt6.QtGui import QColor, QFont, QFontMetrics, QShortcut, QKeySequence, QAction, QPainter, QPen, QBrush
 from PyQt6.QtWidgets import QMenu, QLineEdit, QCheckBox, QPushButton, QLabel, QMessageBox, QDialog, QVBoxLayout, \
-    QHBoxLayout
+    QHBoxLayout, QColorDialog, QToolTip
 from . import Lexers
 from . import Modules as ModuleFile
 
@@ -146,6 +147,16 @@ class CodeEditor(QsciScintilla):
 
         self.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
         self.customContextMenuRequested.connect(self.show_context_menu)
+        
+        # Color preview setup
+        self.hex_color_pattern = re.compile(r'#[0-9a-fA-F]{6}\b|#[0-9a-fA-F]{3}\b')
+        self.color_boxes = {}  # Store {(line, col): (color_string, QColor)}
+        
+        # Connect text changed to update color previews
+        self.textChanged.connect(self.update_color_previews)
+        
+        # Initial scan for colors
+        QTimer.singleShot(100, self.update_color_previews)
 
     def show_context_menu(self, point):
         self.context_menu.popup(self.mapToGlobal(point))
@@ -221,3 +232,145 @@ class CodeEditor(QsciScintilla):
         search(self.SCI_SETTARGETEND, end if forward else start)
         search(self.SCI_SETSEARCHFLAGS, self.SCFIND_MATCHCASE if cs else 0)
         return search(self.SCI_SEARCHINTARGET, len(string), bytes(string, "utf-8"))
+    
+    def update_color_previews(self):
+        """Scan text for hex color codes and store their positions"""
+        self.color_boxes.clear()
+        text = self.text()
+        lines = text.split('\n')
+        
+        # Find all hex color codes
+        for line_num, line_text in enumerate(lines):
+            for match in self.hex_color_pattern.finditer(line_text):
+                color_str = match.group()
+                col = match.start()
+                
+                # Expand 3-digit hex to 6-digit
+                display_color = color_str
+                if len(color_str) == 4:  # #RGB
+                    display_color = f"#{color_str[1]}{color_str[1]}{color_str[2]}{color_str[2]}{color_str[3]}{color_str[3]}"
+                
+                try:
+                    color = QColor(display_color)
+                    if color.isValid():
+                        self.color_boxes[(line_num, col)] = (color_str, color)
+                except:
+                    pass
+        
+        # Trigger repaint to show color boxes
+        self.viewport().update()
+    
+    def paintEvent(self, event):
+        """Custom paint to draw color preview boxes"""
+        super().paintEvent(event)
+        
+        if not self.color_boxes:
+            return
+        
+        painter = QPainter(self.viewport())
+        painter.setRenderHint(QPainter.RenderHint.Antialiasing)
+        
+        # Get visible line range
+        first_visible = self.firstVisibleLine()
+        lines_visible = self.SendScintilla(QsciScintilla.SCI_LINESONSCREEN)
+        
+        for (line_num, col), (color_str, color) in self.color_boxes.items():
+            # Check if line is visible
+            if line_num < first_visible or line_num > first_visible + lines_visible:
+                continue
+            
+            # Get pixel position of the hex code
+            pos = self.positionFromLineIndex(line_num, col)
+            x = self.SendScintilla(QsciScintilla.SCI_POINTXFROMPOSITION, 0, pos)
+            y = self.SendScintilla(QsciScintilla.SCI_POINTYFROMPOSITION, 0, pos)
+            
+            # Draw small colored square box before the text
+            box_size = 12
+            box_x = x - box_size - 4  # 4px gap between box and text
+            box_y = y + 2  # Slight vertical offset
+            
+            # Draw the color box
+            painter.setBrush(QBrush(color))
+            painter.setPen(QPen(QColor("#888"), 1))
+            painter.drawRect(QRectF(box_x, box_y, box_size, box_size))
+        
+        painter.end()
+    
+    def mouseMoveEvent(self, event):
+        """Handle mouse move to show color preview tooltip"""
+        pos = self.SendScintilla(QsciScintilla.SCI_POSITIONFROMPOINTCLOSE, event.pos().x(), event.pos().y())
+        
+        if pos >= 0:
+            line, col = self.lineIndexFromPosition(pos)
+            
+            # Check if position is on a hex color
+            for (color_line, color_col), (color_str, color) in self.color_boxes.items():
+                if color_line == line and color_col <= col < color_col + len(color_str):
+                    # Show tooltip with color preview
+                    self.show_color_tooltip(event.globalPosition().toPoint(), color_str)
+                    return
+        
+        super().mouseMoveEvent(event)
+    
+    def show_color_tooltip(self, global_pos, color_str):
+        """Show a tooltip with color preview"""
+        # Expand 3-digit hex to 6-digit for display
+        display_color = color_str
+        if len(color_str) == 4:
+            display_color = f"#{color_str[1]}{color_str[1]}{color_str[2]}{color_str[2]}{color_str[3]}{color_str[3]}"
+        
+        # Create HTML tooltip with color swatch
+        tooltip_html = f'''
+        <div style="padding: 5px;">
+            <div style="background-color: {display_color}; width: 40px; height: 40px; border: 2px solid #888; display: inline-block; vertical-align: middle;"></div>
+            <span style="margin-left: 10px; vertical-align: middle; font-family: monospace;">{color_str.upper()}</span>
+        </div>
+        '''
+        QToolTip.showText(global_pos, tooltip_html, self)
+    
+    def mouseDoubleClickEvent(self, event):
+        """Handle double-click on hex color to open color picker"""
+        pos = self.SendScintilla(QsciScintilla.SCI_POSITIONFROMPOINTCLOSE, event.pos().x(), event.pos().y())
+        
+        if pos >= 0:
+            line, col = self.lineIndexFromPosition(pos)
+            
+            # Check if position is on a hex color
+            for (color_line, color_col), (color_str, color) in self.color_boxes.items():
+                if color_line == line and color_col <= col < color_col + len(color_str):
+                    # Open color picker
+                    self.pick_color(line, color_col, color_str)
+                    return
+        
+        super().mouseDoubleClickEvent(event)
+    
+    def pick_color(self, line, col, current_color):
+        """Open color picker dialog and replace color if changed"""
+        # Expand 3-digit hex to 6-digit
+        if len(current_color) == 4:
+            current_color = f"#{current_color[1]}{current_color[1]}{current_color[2]}{current_color[2]}{current_color[3]}{current_color[3]}"
+        
+        initial_color = QColor(current_color)
+        color = QColorDialog.getColor(initial_color, self, "Pick a Color")
+        
+        if color.isValid() and color != initial_color:
+            # Replace the color in the text
+            new_color_str = color.name().upper()
+            
+            # Get the line text
+            line_text = self.text(line)
+            
+            # Find the hex color at this position
+            match = self.hex_color_pattern.search(line_text, col)
+            
+            if match and match.start() == col:
+                # Calculate positions
+                start_pos = self.positionFromLineIndex(line, col)
+                end_pos = start_pos + len(match.group())
+                
+                # Replace the color
+                self.SendScintilla(QsciScintilla.SCI_SETSEL, start_pos, end_pos)
+                self.replaceSelectedText(new_color_str)
+                
+                # Update color previews
+                QTimer.singleShot(50, self.update_color_previews)
