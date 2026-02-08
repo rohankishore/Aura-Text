@@ -272,16 +272,17 @@ class CodeEditor(QsciScintilla):
         
         # Get visible line range
         first_visible = self.firstVisibleLine()
-        lines_on_screen = self.linesOnScreen()
+        lines_visible = self.SendScintilla(QsciScintilla.SCI_LINESONSCREEN)
         
         for (line_num, col), (color_str, color) in self.color_boxes.items():
             # Check if line is visible
-            if line_num < first_visible or line_num > first_visible + lines_on_screen:
+            if line_num < first_visible or line_num > first_visible + lines_visible:
                 continue
             
             # Get pixel position of the hex code
-            x = self.SendScintilla(QsciScintilla.SCI_POINTXFROMPOSITION, 0, self.positionFromLineIndex(line_num, col))
-            y = self.SendScintilla(QsciScintilla.SCI_POINTYFROMPOSITION, 0, self.positionFromLineIndex(line_num, col))
+            pos = self.positionFromLineIndex(line_num, col)
+            x = self.SendScintilla(QsciScintilla.SCI_POINTXFROMPOSITION, 0, pos)
+            y = self.SendScintilla(QsciScintilla.SCI_POINTYFROMPOSITION, 0, pos)
             
             # Draw small colored square box before the text
             box_size = 12
