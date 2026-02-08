@@ -1491,6 +1491,11 @@ class Window(QMainWindow):
     def change_text_editor(self, index):
         widget = self.tab_widget.widget(index)
         
+        # Check if this is a non-editor tab (like Welcome screen)
+        if widget and not hasattr(widget, 'layout'):
+            self.statusBar.hide()
+            return
+        
         # Get the actual editor from the container
         if widget and hasattr(widget, 'layout') and widget.layout():
             # The editor is the first item in the layout
