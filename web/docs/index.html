@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Complete documentation for Aura Text IDE">
+    <title>Documentation - Aura Text</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="icon" type="image/x-icon" href="../images/favicon.ico">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="container">
+            <div class="nav-brand">
+                <img src="../images/logo.png" alt="Aura Text Logo" class="logo">
+                <span class="brand-name">Aura Text</span>
+            </div>
+            <ul class="nav-links">
+                <li><a href="../index.html">Home</a></li>
+                <li><a href="../features.html">Features</a></li>
+                <li><a href="index.html" class="active">Documentation</a></li>
+                <li><a href="../download.html">Download</a></li>
+                <li><a href="https://github.com/rohankishore/Aura-Text" target="_blank">GitHub</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Docs Layout -->
+    <div class="docs-layout">
+        <!-- Sidebar -->
+        <aside class="docs-sidebar">
+            <div class="sidebar-content">
+                <h3>Getting Started</h3>
+                <ul>
+                    <li><a href="#installation" class="active">Installation</a></li>
+                    <li><a href="#quick-start">Quick Start</a></li>
+                    <li><a href="#first-project">Your First Project</a></li>
+                </ul>
+
+                <h3>User Guide</h3>
+                <ul>
+                    <li><a href="#editor-basics">Editor Basics</a></li>
+                    <li><a href="#file-management">File Management</a></li>
+                    <li><a href="#keyboard-shortcuts">Keyboard Shortcuts</a></li>
+                    <li><a href="#customization">Customization</a></li>
+                </ul>
+
+                <h3>Features</h3>
+                <ul>
+                    <li><a href="#git-integration">Git Integration</a></li>
+                    <li><a href="#terminal">Terminal</a></li>
+                    <li><a href="#linting">Code Linting</a></li>
+                    <li><a href="#plugins">Plugins</a></li>
+                </ul>
+
+                <h3>Advanced</h3>
+                <ul>
+                    <li><a href="#plugin-development">Plugin Development</a></li>
+                    <li><a href="#theme-creation">Theme Creation</a></li>
+                    <li><a href="#configuration">Configuration</a></li>
+                </ul>
+
+                <h3>Reference</h3>
+                <ul>
+                    <li><a href="#api-reference">API Reference</a></li>
+                    <li><a href="#troubleshooting">Troubleshooting</a></li>
+                    <li><a href="#faq">FAQ</a></li>
+                </ul>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="docs-content">
+            <h1>Aura Text Documentation</h1>
+            <p class="lead">Complete guide to using and extending Aura Text IDE</p>
+
+            <!-- Installation -->
+            <section id="installation" class="doc-section">
+                <h2>Installation</h2>
+                <p>Aura Text currently supports Windows 10 x64 or later, with Linux and macOS ports in development.</p>
+                
+                <h3>Windows Installation</h3>
+                <div class="code-block">
+                    <h4>Option 1: Using the Installer (Recommended)</h4>
+                    <ol>
+                        <li>Download the latest installer from the <a href="../download.html">Downloads page</a></li>
+                        <li>Run the <code>Aura-Text-setup-x64.exe</code> file</li>
+                        <li>Follow the installation wizard</li>
+                        <li>Launch Aura Text from the Start menu</li>
+                    </ol>
+                </div>
+
+                <div class="code-block">
+                    <h4>Option 2: Running from Source</h4>
+                    <p><strong>Prerequisites:</strong></p>
+                    <ul>
+                        <li>Python 3.9 or later</li>
+                        <li>pip (comes with Python)</li>
+                        <li>Git (optional)</li>
+                    </ul>
+                    <pre><code># Clone the repository
+git clone https://github.com/rohankishore/Aura-Text.git
+cd Aura-Text
+
+# Create virtual environment (recommended)
+python -m venv venv
+venv\Scripts\activate
+
+# Install dependencies
+pip install -r requirements.txt
+
+# Run Aura Text
+python main.py</code></pre>
+                </div>
+            </section>
+
+            <!-- Quick Start -->
+            <section id="quick-start" class="doc-section">
+                <h2>Quick Start</h2>
+                <p>Get up and running with Aura Text in minutes</p>
+
+                <h3>Creating Your First File</h3>
+                <ol>
+                    <li>Launch Aura Text</li>
+                    <li>Press <kbd>Ctrl</kbd> + <kbd>N</kbd> or go to File → New</li>
+                    <li>Start typing your code</li>
+                    <li>Save with <kbd>Ctrl</kbd> + <kbd>S</kbd></li>
+                </ol>
+
+                <h3>Opening a Project</h3>
+                <ol>
+                    <li>Go to File → Open Project as Treeview</li>
+                    <li>Select your project folder</li>
+                    <li>The project structure will appear in the sidebar</li>
+                    <li>Click any file to open it</li>
+                </ol>
+            </section>
+
+            <!-- Editor Basics -->
+            <section id="editor-basics" class="doc-section">
+                <h2>Editor Basics</h2>
+                
+                <h3>Language Support</h3>
+                <p>Aura Text automatically detects the language based on file extension. You can manually set the language from Preferences → Language menu.</p>
+
+                <h3>Autocompletion</h3>
+                <p>Start typing and suggestions will appear automatically. Press <kbd>Tab</kbd> or <kbd>Enter</kbd> to accept a suggestion.</p>
+
+                <h3>Code Folding</h3>
+                <p>Click the arrows in the left margin to collapse or expand code blocks.</p>
+            </section>
+
+            <!-- File Management -->
+            <section id="file-management" class="doc-section">
+                <h2>File Management</h2>
+                <table class="shortcuts-table">
+                    <thead>
+                        <tr>
+                            <th>Action</th>
+                            <th>Shortcut</th>
+                            <th>Menu Path</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>New File</td>
+                            <td><kbd>Ctrl</kbd> + <kbd>N</kbd></td>
+                            <td>File → New</td>
+                        </tr>
+                        <tr>
+                            <td>Open File</td>
+                            <td><kbd>Ctrl</kbd> + <kbd>O</kbd></td>
+                            <td>File → Open</td>
+                        </tr>
+                        <tr>
+                            <td>Save File</td>
+                            <td><kbd>Ctrl</kbd> + <kbd>S</kbd></td>
+                            <td>File → Save As</td>
+                        </tr>
+                        <tr>
+                            <td>Close Tab</td>
+                            <td><kbd>Ctrl</kbd> + <kbd>W</kbd></td>
+                            <td>Right-click tab → Close</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </section>
+
+            <!-- Keyboard Shortcuts -->
+            <section id="keyboard-shortcuts" class="doc-section">
+                <h2>Keyboard Shortcuts</h2>
+                
+                <h3>Essential Shortcuts</h3>
+                <table class="shortcuts-table">
+                    <thead>
+                        <tr>
+                            <th>Action</th>
+                            <th>Shortcut</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Command Palette</td>
+                            <td><kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>P</kbd></td>
+                        </tr>
+                        <tr>
+                            <td>Find</td>
+                            <td><kbd>Ctrl</kbd> + <kbd>F</kbd></td>
+                        </tr>
+                        <tr>
+                            <td>Fullscreen</td>
+                            <td><kbd>F11</kbd></td>
+                        </tr>
+                        <tr>
+                            <td>Terminal</td>
+                            <td><kbd>Ctrl</kbd> + <kbd>`</kbd></td>
+                        </tr>
+                        <tr>
+                            <td>Zoom In</td>
+                            <td><kbd>Ctrl</kbd> + <kbd>+</kbd></td>
+                        </tr>
+                        <tr>
+                            <td>Zoom Out</td>
+                            <td><kbd>Ctrl</kbd> + <kbd>-</kbd></td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <p>View the complete list of shortcuts in Help → Keyboard Shortcuts</p>
+            </section>
+
+            <!-- Git Integration -->
+            <section id="git-integration" class="doc-section">
+                <h2>Git Integration</h2>
+                <p>Aura Text provides comprehensive Git support for version control.</p>
+
+                <h3>Cloning a Repository</h3>
+                <ol>
+                    <li>Go to File → New Project from VCS</li>
+                    <li>Enter the repository URL</li>
+                    <li>Choose a local directory</li>
+                    <li>Click Clone</li>
+                </ol>
+
+                <h3>Making Commits</h3>
+                <ol>
+                    <li>Go to Git → Commit</li>
+                    <li>Review your changes</li>
+                    <li>Write a commit message</li>
+                    <li>Click Commit</li>
+                </ol>
+
+                <h3>Pushing Changes</h3>
+                <ol>
+                    <li>Go to Git → Push</li>
+                    <li>Select the branch and remote</li>
+                    <li>Click Push</li>
+                </ol>
+            </section>
+
+            <!-- Linting -->
+            <section id="linting" class="doc-section">
+                <h2>Code Linting</h2>
+                <p>Real-time code analysis helps catch errors as you type.</p>
+
+                <h3>Enabling Linting</h3>
+                <ol>
+                    <li>Go to Code → Enable Linter</li>
+                    <li>Linting will start automatically for Python files</li>
+                    <li>Errors and warnings appear with colored markers</li>
+                </ol>
+
+                <h3>Supported Linters</h3>
+                <ul>
+                    <li><strong>pylint</strong> - Comprehensive Python linter</li>
+                    <li><strong>flake8</strong> - Style guide enforcement</li>
+                    <li><strong>pyflakes</strong> - Lightweight error detection</li>
+                </ul>
+            </section>
+
+            <!-- Plugins -->
+            <section id="plugins" class="doc-section">
+                <h2>Plugins</h2>
+                <p>Extend Aura Text functionality with plugins</p>
+
+                <h3>Installing Plugins</h3>
+                <ol>
+                    <li>Go to File → Extensions</li>
+                    <li>Browse available plugins</li>
+                    <li>Click Download on any plugin</li>
+                    <li>Restart Aura Text</li>
+                </ol>
+
+                <h3>Creating Custom Plugins</h3>
+                <p>See the <a href="#plugin-development">Plugin Development</a> section for detailed instructions.</p>
+            </section>
+
+            <!-- Plugin Development -->
+            <section id="plugin-development" class="doc-section">
+                <h2>Plugin Development</h2>
+                <p>Create your own plugins to add custom functionality</p>
+
+                <h3>Basic Plugin Structure</h3>
+                <pre><code>from auratext.Core.plugin_interface import Plugin
+
+class MyPlugin(Plugin):
+    def __init__(self, window):
+        super().__init__(window)
+        self.name = "My Plugin"
+        self.version = "1.0.0"
+        
+    def activate(self):
+        # Plugin initialization code
+        pass
+        
+    def deactivate(self):
+        # Cleanup code
+        pass</code></pre>
+
+                <h3>Adding Menu Items</h3>
+                <pre><code>from PyQt6.QtGui import QAction
+
+class MyPlugin(Plugin):
+    def __init__(self, window):
+        super().__init__(window)
+        # Add menu action
+        action = QAction("My Action", window)
+        action.triggered.connect(self.my_function)
+        window.menuBar().addAction(action)
+        
+    def my_function(self):
+        print("Plugin function called!")</code></pre>
+            </section>
+
+            <!-- Troubleshooting -->
+            <section id="troubleshooting" class="doc-section">
+                <h2>Troubleshooting</h2>
+                
+                <h3>Common Issues</h3>
+                
+                <div class="faq-item">
+                    <h4>Aura Text won't launch</h4>
+                    <p><strong>Solution:</strong> Check error_log.txt in the installation directory. Ensure Python 3.9+ is installed and all dependencies are met.</p>
+                </div>
+
+                <div class="faq-item">
+                    <h4>Linter not working</h4>
+                    <p><strong>Solution:</strong> Install pylint and flake8:<br>
+                    <code>pip install pylint flake8</code></p>
+                </div>
+
+                <div class="faq-item">
+                    <h4>Git features not appearing</h4>
+                    <p><strong>Solution:</strong> Git menu only appears when you have an open project that contains a .git folder.</p>
+                </div>
+            </section>
+
+            <!-- FAQ -->
+            <section id="faq" class="doc-section">
+                <h2>Frequently Asked Questions</h2>
+                
+                <div class="faq-item">
+                    <h4>Is Aura Text free?</h4>
+                    <p>Yes! Aura Text is completely free and open-source under the MIT License.</p>
+                </div>
+
+                <div class="faq-item">
+                    <h4>Can I use Aura Text for commercial projects?</h4>
+                    <p>Absolutely! The MIT License allows commercial use.</p>
+                </div>
+
+                <div class="faq-item">
+                    <h4>How can I contribute?</h4>
+                    <p>Check out our <a href="https://github.com/rohankishore/Aura-Text/blob/main/CONTRIBUTING.md">Contributing Guide</a> on GitHub!</p>
+                </div>
+
+                <div class="faq-item">
+                    <h4>Where are configuration files stored?</h4>
+                    <p>Windows: <code>%LOCALAPPDATA%\AuraText\</code><br>
+                    Linux: <code>~/.config/AuraText/</code><br>
+                    macOS: <code>~/Library/Application Support/AuraText/</code></p>
+                </div>
+            </section>
+
+        </main>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-bottom">
+                <p>&copy; 2022-2026 Aura Text. Released under the MIT License.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="../js/main.js"></script>
+</body>
+</html>
