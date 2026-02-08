@@ -7,6 +7,7 @@ from qfluentwidgets import (
     CardWidget, IconWidget, BodyLabel, CaptionLabel, TransparentToolButton, FluentIcon,
     RoundMenu, Action
 )
+from ..Core.svg_icon_manager import SVGIconManager
 
 class AppointmentsCard(CardWidget):
     def __init__(self, icon, title, content, parent=None):
@@ -108,8 +109,12 @@ class ProjectManager(QDialog):
         self.dbcursor.execute('SELECT name, path FROM projects')
         todos = self.dbcursor.fetchall()
         try:
+            # Use SVG icon instead of PNG
+            explorer_svg = f"{self.localappdata}/icons/explorer.svg"
+            icon = SVGIconManager.create_colored_icon(explorer_svg, "#007ACC", (48, 48))
+            
             for name, path in todos:
-                self.addCard_V(QIcon(f"{self.localappdata}/icons/explorer_filled.png"), name, path)
+                self.addCard_V(icon, name, path)
         except:
             pass
 
