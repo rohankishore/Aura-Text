@@ -127,30 +127,6 @@ class Sidebar(QDockWidget):
         self.setAllowedAreas(Qt.DockWidgetArea.LeftDockWidgetArea)
         self.setFeatures(QDockWidget.DockWidgetFeature.NoDockWidgetFeatures)
 
-class PluginActions(QDockWidget):
-    def __init__(self, title, parent=None):
-        super().__init__(title, parent)
-
-        self.plugin_widget = QWidget()
-
-        self.plugin_layout = QVBoxLayout(self.plugin_widget)
-        self.plugin_layout.addStretch(1)
-
-        # Set the widget with the layout as the dock's central widget
-        self.setWidget(self.plugin_widget)
-
-    def addPluginAction(self, widget):
-        """
-        Add a plugin action to the sidebar.
-
-        :param widget: The Widget object to add.
-        :return: None
-        :param widget:
-        :return:
-        """
-
-        self.plugin_layout.addWidget(widget)
-
 # noinspection PyUnresolvedReferences
 # no inspection for unresolved references as pylance flags inaccurately sometimes
 class Window(QMainWindow):
@@ -199,8 +175,6 @@ class Window(QMainWindow):
             pass
 
         self._config["show_setup_info"] = "False"
-
-        self.plugin_actions_dock = PluginActions("Plugin Actions", self)
 
         def splashScreen():
             # Splash Screen
@@ -390,10 +364,39 @@ class Window(QMainWindow):
         self.explorer_button.clicked.connect(lambda: self.handle_sidebar_button_click(self.explorer_button, self.expandSidebar__Explorer))
         self.plugin_button.clicked.connect(lambda: self.handle_sidebar_button_click(self.plugin_button, self.expandSidebar__Plugins))
 
+        # Create Run button for Python files
+        self.run_button = QPushButton("▶ Run", self)
+        self.run_button.clicked.connect(self.run_python_file)
+        self.run_button.setFixedHeight(28)
+        self.run_button.setStyleSheet(
+            f"""
+            QPushButton {{
+                background-color: {theme_color};
+                color: white;
+                border: none;
+                border-radius: 4px;
+                padding: 4px 12px;
+                font-size: 13px;
+                font-weight: 500;
+            }}
+            QPushButton:hover {{
+                background-color: {theme_color}dd;
+            }}
+            QPushButton:pressed {{
+                background-color: {theme_color}bb;
+            }}
+            """
+        )
+        self.run_button.hide()  # Hidden by default
+        
+        # Add run button as corner widget on tab bar
+        self.tab_widget.setCornerWidget(self.run_button, Qt.Corner.TopRightCorner)
+
         self.setCentralWidget(self.tab_widget)
         self.statusBar.hide()
         self.editors = []
         self.linters = {}  # Dictionary to store linters for each editor
+        self.tab_file_paths = {}  # Dictionary to store file paths for each tab index
 
         self.about_dialog = None
 
@@ -694,9 +697,27 @@ class Window(QMainWindow):
         self.statusBar.show()
 
     def expandSidebar__Plugins(self):
+        # Remove existing docks if they exist
+        if hasattr(self, 'plugin_dock') and self.plugin_dock:
+            self.removeDockWidget(self.plugin_dock)
+            self.plugin_dock.close()
+            self.plugin_dock.deleteLater()
+        
+        if hasattr(self, 'theme_dock') and self.theme_dock:
+            self.removeDockWidget(self.theme_dock)
+            self.theme_dock.close()
+            self.theme_dock.deleteLater()
+        
+        # Create new docks with updated design
         self.plugin_dock = QDockWidget("Extensions", self)
         self.theme_dock = QDockWidget("Themes", self)
         self.plugin_dock.setMinimumWidth(300)
+        
+        # Connect visibility tracking
+        self.plugin_dock.visibilityChanged.connect(
+            lambda visible: self.onPluginDockVisibilityChanged(visible)
+        )
+        
         self.plugin_widget = PluginDownload.FileDownloader(self)
         self.plugin_layout = QVBoxLayout()
         self.plugin_layout.addStretch(1)
@@ -712,20 +733,6 @@ class Window(QMainWindow):
         self.addDockWidget(Qt.DockWidgetArea.RightDockWidgetArea, self.plugin_dock)
         self.addDockWidget(Qt.DockWidgetArea.RightDockWidgetArea, self.theme_dock)
         self.tabifyDockWidget(self.theme_dock, self.plugin_dock)
-
-    def expandSidebar__PluginActions(self):
-        self.plugin_actions_dock = PluginActions("Plugin Actions")
-        background_color = (
-            self.plugin_button.palette().color(self.plugin_button.backgroundRole()).name()
-        )
-        if background_color == "#3574f0":
-            self.plugin_actions_dock.destroy()
-        else:
-            self.plugin_actions_dock.visibilityChanged.connect(
-                lambda visible: self.onPluginDockVisibilityChanged(visible)
-            )
-
-            self.addDockWidget(Qt.DockWidgetArea.RightDockWidgetArea, self.plugin_actions_dock)
 
     def addWidget_toPlugin(self, widget):
         self.plugin_layout.addWidget(widget)
@@ -858,6 +865,52 @@ class Window(QMainWindow):
         # Create new dock with updated design
         self.gitCommitDock = GitCommit.GitCommitDock(self)
         self.addDockWidget(Qt.DockWidgetArea.RightDockWidgetArea, self.gitCommitDock)
+
+    def run_python_file(self):
+        """Run the current Python file"""
+        current_index = self.tab_widget.currentIndex()
+        
+        # Get file path for current tab
+        file_path = self.tab_file_paths.get(current_index)
+        
+        if not file_path:
+            QMessageBox.warning(self, "No File", "Please save the file first before running.")
+            return
+        
+        if not file_path.endswith('.py'):
+            QMessageBox.warning(self, "Not a Python File", "This is not a Python file.")
+            return
+        
+        # Save the current file before running
+        if self.current_editor and self.current_editor != "":
+            try:
+                with open(file_path, 'w') as f:
+                    f.write(self.current_editor.text())
+            except Exception as e:
+                QMessageBox.critical(self, "Save Error", f"Failed to save file: {e}")
+                return
+        
+        # Open PowerShell terminal and run the file
+        if not hasattr(self, 'ps_dock') or self.ps_dock is None:
+            self.setupPowershell()
+        
+        # Show the PowerShell terminal
+        if hasattr(self, 'ps_dock'):
+            self.ps_dock.show()
+            # Send command to run the Python file in PowerShell
+            if hasattr(self, 'terminal') and self.terminal:
+                command = f'python "{file_path}"\n'
+                self.terminal.sendText(command)
+
+    def update_run_button_visibility(self):
+        """Show/hide run button based on whether current tab is a Python file"""
+        current_index = self.tab_widget.currentIndex()
+        file_path = self.tab_file_paths.get(current_index, "")
+        
+        if file_path and file_path.endswith('.py'):
+            self.run_button.show()
+        else:
+            self.run_button.hide()
 
     def gitPush(self):
         self.gitPushDialog = GitPush.GitPushDialog(self)
@@ -1430,10 +1483,15 @@ class Window(QMainWindow):
         self.editors.append(self.current_editor)
         icon = self.get_icon(title)
         self.tab_widget.addTab(container, icon, title)
+        tab_index = self.tab_widget.indexOf(container)
+        # Store file path for this tab
+        if file_path:
+            self.tab_file_paths[tab_index] = file_path
         self.tab_widget.setCurrentWidget(container)
         # Auto-detect and set language based on file extension
         self.auto_detect_language(file_path if file_path else title)
         self.update_language_display()
+        self.update_run_button_visibility()
 
     def custom_new_document(self, title, checked=False):
         container = self.create_editor()
@@ -1497,6 +1555,7 @@ class Window(QMainWindow):
         
         if isinstance(widget, (WelcomeScreen.WelcomeWidget, DBViewer)):
             self.statusBar.hide()
+            self.run_button.hide()
             return
         
         # Get the actual editor from the container
@@ -1520,14 +1579,18 @@ class Window(QMainWindow):
                     self.current_editor.setReadOnly(False)
                     # Update language display
                     self.update_language_display()
+                    # Update run button visibility
+                    self.update_run_button_visibility()
                     break
             
             # If no editor found in the layout, hide status bar
             if not editor_found:
                 self.statusBar.hide()
+                self.run_button.hide()
 
         if self.tab_widget.count() == 0:
             self.statusBar.hide()
+            self.run_button.hide()
 
     def undo_document(self):
         self.current_editor.undo()
@@ -1589,7 +1652,24 @@ class Window(QMainWindow):
         self.current_editor.paste()
 
     def remove_editor(self, index):
+        # Remove file path from tracking
+        if index in self.tab_file_paths:
+            del self.tab_file_paths[index]
+        
+        # Update indices for remaining tabs
+        new_paths = {}
+        for tab_index, path in self.tab_file_paths.items():
+            if tab_index > index:
+                new_paths[tab_index - 1] = path
+            else:
+                new_paths[tab_index] = path
+        self.tab_file_paths = new_paths
+        
+        # Remove the tab
         self.tab_widget.removeTab(index)
+        
+        # Update run button visibility after tab removal
+        self.update_run_button_visibility()
         if index < len(self.editors):
             del self.editors[index]
             self.statusBar.hide()
@@ -1612,7 +1692,11 @@ class Window(QMainWindow):
             self.editors.append(self.current_editor)
             self.current_editor.setText(text)
             self.tab_widget.addTab(container, title)
+            tab_index = self.tab_widget.indexOf(container)
+            # Store file path for this tab
+            self.tab_file_paths[tab_index] = cfile
             self.tab_widget.setCurrentWidget(container)
+            self.update_run_button_visibility()
         except FileNotFoundError and OSError:
             pass
 
