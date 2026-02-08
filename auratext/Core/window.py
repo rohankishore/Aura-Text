@@ -978,7 +978,29 @@ class Window(QMainWindow):
     def toggle_split_editor(self):
         """Toggle split editor view"""
         if not self.is_split:
-            # Enable split view
+            # Enable split view - check if there's an active editor
+            current_index = self.tab_widget.currentIndex()
+            if current_index < 0:
+                QMessageBox.warning(self, "No File", "Open a file first to use split view.")
+                return
+            
+            current_widget = self.tab_widget.widget(current_index)
+            current_title = self.tab_widget.tabText(current_index)
+            
+            # Get the current editor
+            current_editor = None
+            if current_widget and hasattr(current_widget, 'layout') and current_widget.layout():
+                for i in range(current_widget.layout().count()):
+                    item = current_widget.layout().itemAt(i)
+                    if item and isinstance(item.widget(), CodeEditor):
+                        current_editor = item.widget()
+                        break
+            
+            if not current_editor:
+                QMessageBox.warning(self, "No Editor", "Current tab is not a text editor.")
+                return
+            
+            # Create split tab widget
             self.split_tab_widget = TabWidget()
             self.split_tab_widget.setStyleSheet("""
                 QTabBar::tab {
@@ -986,12 +1008,65 @@ class Window(QMainWindow):
                 }
             """)
             self.split_tab_widget.setTabsClosable(True)
+            
+            # Create a new editor container with same content
+            split_container = QWidget()
+            split_layout = QHBoxLayout(split_container)
+            split_layout.setContentsMargins(0, 0, 0, 0)
+            split_layout.setSpacing(0)
+            
+            # Create split editor
+            split_editor = CodeEditor(self)
+            split_editor.setText(current_editor.text())
+            
+            # Create minimap for split editor
+            split_minimap = MiniMapWidget(split_editor, split_container)
+            split_editor.minimap = split_minimap
+            
+            # Add to layout
+            split_layout.addWidget(split_editor)
+            split_layout.addWidget(split_minimap)
+            
+            # Add to split tab widget
+            icon = self.get_icon(current_title)
+            self.split_tab_widget.addTab(split_container, icon, current_title)
+            
+            # Set up bidirectional sync
+            def sync_to_split():
+                if split_editor and not getattr(sync_to_split, 'syncing', False):
+                    sync_from_main.syncing = True
+                    split_editor.setText(current_editor.text())
+                    sync_from_main.syncing = False
+            
+            def sync_from_main():
+                if current_editor and not getattr(sync_from_main, 'syncing', False):
+                    sync_to_split.syncing = True
+                    current_editor.setText(split_editor.text())
+                    sync_to_split.syncing = False
+            
+            current_editor.textChanged.connect(sync_to_split)
+            split_editor.textChanged.connect(sync_from_main)
+            
+            # Store sync references to prevent garbage collection
+            self.split_sync_handlers = (sync_to_split, sync_from_main, split_editor, current_editor)
+            
+            # Add to splitter
             self.editor_splitter.addWidget(self.split_tab_widget)
             self.editor_splitter.setSizes([self.width() // 2, self.width() // 2])
             self.is_split = True
         else:
             # Disable split view
             if self.split_tab_widget:
+                # Disconnect sync handlers
+                if hasattr(self, 'split_sync_handlers'):
+                    sync_to_split, sync_from_main, split_editor, current_editor = self.split_sync_handlers
+                    try:
+                        current_editor.textChanged.disconnect(sync_to_split)
+                        split_editor.textChanged.disconnect(sync_from_main)
+                    except:
+                        pass
+                    self.split_sync_handlers = None
+                
                 self.editor_splitter.widget(1).deleteLater()
                 self.split_tab_widget = None
                 self.is_split = False
