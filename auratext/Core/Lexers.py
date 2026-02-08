@@ -212,7 +212,15 @@ def html(self):
     lexer.setDefaultColor(QColor("#FFFFFF"))
     self.current_editor.setLexer(lexer)
     lexer.setPaper(QColor(self._themes["editor_theme"]))
-    lexer.setColor(QColor("#808080"), lexer.Tag)
+    lexer.setColor(QColor("#FFFFFF"), lexer.Default)
+    lexer.setColor(QColor("#FFA500"), lexer.Tag)
+    lexer.setColor(QColor("#4EC9B0"), lexer.Attribute)
+    lexer.setColor(QColor("#3ba800"), lexer.HTMLDoubleQuotedString)
+    lexer.setColor(QColor("#3ba800"), lexer.HTMLSingleQuotedString)
+    lexer.setColor(QColor("#808080"), lexer.HTMLComment)
+    lexer.setColor(QColor("#FFFFFF"), lexer.Entity)
+    lexer.setColor(QColor("#FFFFFF"), lexer.OtherInTag)
+    lexer.setColor(QColor("#569CD6"), lexer.HTMLNumber)
     lexer.setFont(QFont(self._themes["font"]))
 
 
