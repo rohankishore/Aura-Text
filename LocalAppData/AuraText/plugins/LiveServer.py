@@ -37,33 +37,6 @@ class LiveReloadHandler(SimpleHTTPRequestHandler):
     should_reload = False
     
     def do_GET(self):
-        # Special endpoint for live reload polling
-        if self.path.startswith('/__livereload__'):
-            self.send_response(200)
-            self.send_header('Content-type', 'text/plain')
-            self.send_header('Cache-Control', 'no-cache')
-            self.end_headers()
-            
-            if LiveReloadHandler.should_reload:
-                self.wfile.write(b'reload')
-                LiveReloadHandler.should_reload = False
-            else:
-                self.wfile.write(b'ok')
-            return
-        
-        # Serve files normally
-        super().do_GET()
-    
-    def end_headers(self):
-        # Inject reload script into HTML files
-        if hasattr(self, 'path') and self.path.endswith(('.html', '.htm')):
-            content_type = self.headers.get('Content-Type', '')
-            if 'text/html' in content_type or not content_type:
-                # Will inject script after body is sent
-                self._inject_script = True
-        super().end_headers()
-    
-    def do_GET(self):
         if self.path.startswith('/__livereload__'):
             self.send_response(200)
             self.send_header('Content-type', 'text/plain')
@@ -132,8 +105,12 @@ class LiveServer(Plugin):
         self.port = 5500
         self.watcher = None
         
+        # Check if button already exists (prevent duplicates)
+        if hasattr(self.window, '_live_server_button'):
+            return
+        
         # Create "Go Live" button in status bar
-        self.live_button = QPushButton("🔴 Go Live")
+        self.live_button = QPushButton("Go Live")
         self.live_button.setStyleSheet("""
             QPushButton {
                 background: transparent;
@@ -153,6 +130,7 @@ class LiveServer(Plugin):
         # Add button to status bar
         if hasattr(self.window, 'statusBar'):
             self.window.statusBar.addPermanentWidget(self.live_button)
+            self.window._live_server_button = self.live_button
     
     def toggle_server(self):
         if self.is_running:
@@ -190,18 +168,17 @@ class LiveServer(Plugin):
             
             # Update UI
             self.is_running = True
-            self.live_button.setText(f"🟢 Port: {self.port}")
+            self.live_button.setText(f"Port: {self.port}")
             self.live_button.setStyleSheet("""
                 QPushButton {
                     background: transparent;
                     border: none;
-                    color: #4EC9B0;
+                    color: #858585;
                     padding: 2px 8px;
                     font-size: 12px;
-                    font-weight: bold;
                 }
                 QPushButton:hover {
-                    background: rgba(78, 201, 176, 0.2);
+                    background: rgba(255, 255, 255, 0.1);
                     border-radius: 3px;
                 }
             """)
@@ -231,7 +208,7 @@ class LiveServer(Plugin):
             self.watcher = None
         
         self.is_running = False
-        self.live_button.setText("🔴 Go Live")
+        self.live_button.setText("Go Live")
         self.live_button.setStyleSheet("""
             QPushButton {
                 background: transparent;
