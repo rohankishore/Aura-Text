@@ -4,8 +4,14 @@ SVG Icon Manager for dynamic color changes based on selection state
 import os
 import re
 from PyQt6.QtGui import QIcon, QPixmap, QPainter, QColor
-from PyQt6.QtSvg import QSvgRenderer
 from PyQt6.QtCore import QByteArray, Qt
+
+try:
+    from PyQt6.QtSvg import QSvgRenderer
+    SVG_AVAILABLE = True
+except ImportError:
+    SVG_AVAILABLE = False
+    print("Warning: PyQt6.QtSvg not available. Install with: pip install PyQt6-QtSvg")
 
 
 class SVGIconManager:
@@ -22,6 +28,10 @@ class SVGIconManager:
         Returns:
             QIcon with the specified color
         """
+        if not SVG_AVAILABLE:
+            # Fallback to regular icon loading
+            return QIcon(svg_path)
+        
         if not os.path.exists(svg_path):
             return QIcon()
         
