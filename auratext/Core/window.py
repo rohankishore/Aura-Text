@@ -122,7 +122,7 @@ else:
 class Sidebar(QDockWidget):
     def __init__(self, title, parent=None):
         super().__init__(title, parent)
-        self.setFixedWidth(40)
+        self.setFixedWidth(60)
         self.setAllowedAreas(Qt.DockWidgetArea.LeftDockWidgetArea)
         self.setFeatures(QDockWidget.DockWidgetFeature.NoDockWidgetFeatures)
 
@@ -258,6 +258,7 @@ class Window(QMainWindow):
         self.sidebar_widget = QWidget(self.sidebar_main)
         self.sidebar_widget.setStyleSheet(f"QWidget{{background-color: {self._themes['sidebar_bg']};}}")
         self.sidebar_layout = QVBoxLayout(self.sidebar_widget)
+        self.sidebar_layout.setAlignment(Qt.AlignmentFlag.AlignHCenter)
         self.sidebar_main.setWidget(self.sidebar_widget)
         self.addDockWidget(Qt.DockWidgetArea.LeftDockWidgetArea, self.sidebar_main)
 
