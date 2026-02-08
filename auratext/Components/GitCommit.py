@@ -1,11 +1,12 @@
 import subprocess
 import os
 import json
+import sys
 from PyQt6.QtCore import Qt, pyqtSignal
 from PyQt6.QtGui import QPixmap, QFont
 from PyQt6.QtWidgets import (QListWidget, QVBoxLayout, QWidget, QDockWidget, QPushButton, 
                              QListWidgetItem, QCheckBox, QMessageBox, QTextEdit, QLabel, 
-                             QHBoxLayout, QFrame, QScrollArea)
+                             QHBoxLayout, QFrame, QScrollArea, QSizePolicy)
 import platform
 
 
@@ -62,9 +63,10 @@ class GitCommitDock(QDockWidget):
 
             # Commit message section
             commit_container = QWidget()
-            commit_container.setStyleSheet(f"background-color: {editor_bg};")
+            commit_container.setStyleSheet(f"background-color: {bg_color};")
+            commit_container.setSizePolicy(QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Maximum)
             commit_layout = QVBoxLayout(commit_container)
-            commit_layout.setContentsMargins(8, 8, 8, 8)
+            commit_layout.setContentsMargins(12, 12, 12, 12)
             commit_layout.setSpacing(8)
 
             self.commit_entry = QTextEdit()
@@ -72,7 +74,7 @@ class GitCommitDock(QDockWidget):
             self.commit_entry.setMaximumHeight(80)
             self.commit_entry.setStyleSheet(f"""
                 QTextEdit {{
-                    background-color: {bg_color};
+                    background-color: {editor_bg};
                     color: {fg_color};
                     border: 1px solid #3c3c3c;
                     border-radius: 2px;
