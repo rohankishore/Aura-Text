@@ -43,7 +43,7 @@ class AboutAppDialog(QDialog):
         # App description
         description = QLabel("Aura Text is a versatile and powerful text editor powered by QScintilla that provides all the necessary tools for developers. It is build using PyQt6 and Python."
                              "\n" + "\n" 
-                             "Version: v5.1.0" + "\n" + "\n" + "\n" + "Made with ❣️ by Rohan Kishore")
+                             "Version: v5.3.0" + "\n" + "\n" + "\n" + "Made with ❣️ by Rohan Kishore")
         description.setWordWrap(True)
         description.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
