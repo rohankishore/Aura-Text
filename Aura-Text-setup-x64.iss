@@ -37,7 +37,7 @@ LicenseFile=LICENSE
 ; Remove the following line to run in administrative install mode (install for all users).
 PrivilegesRequired=lowest
 PrivilegesRequiredOverridesAllowed=dialog
-OutputBaseFilename=Aurs-Text-setup-{#MyAppVersion}-x64
+OutputBaseFilename=Aura-Text-setup-{#MyAppVersion}-x64
 SetupIconFile=icon.ico
 SolidCompression=yes
 WizardStyle=modern
