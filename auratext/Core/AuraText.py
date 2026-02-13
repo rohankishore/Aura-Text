@@ -78,6 +78,10 @@ class CodeEditor(QsciScintilla):
     def __init__(self, window: Window):
         super().__init__(parent=None)
 
+        # Always initialize context_menu and color_boxes first
+        self.context_menu = QMenu(self)
+        self.color_boxes = {}  # Store {(line, col): (color_string, QColor)}
+
         lexer = Lexers.PythonLexer(window)
         self.setLexer(lexer)
         self.setPaper(QColor(window._themes["editor_theme"]))
