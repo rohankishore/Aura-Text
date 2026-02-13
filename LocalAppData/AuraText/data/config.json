@@ -5,5 +5,7 @@
     "open_last_file": "False",
     "show_setup_info" : "True",
     "enable_linter": "True",
-    "linter_types": "flake8"
+    "linter_types": "flake8",
+    "tab_length_dropdown": "True",
+    "tab_length": 4
 }

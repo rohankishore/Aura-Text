@@ -258,6 +258,29 @@ class Window(QMainWindow):
         self.statusBar = statusBar.StatusBar(self, greeting=greeting)
         self.setStatusBar(self.statusBar)
 
+        # Connect tab length change to update editors
+        def tab_length_changed(value):
+            for i in range(self.tab_widget.count()):
+                widget = self.tab_widget.widget(i)
+                if widget and hasattr(widget, 'layout') and widget.layout():
+                    for j in range(widget.layout().count()):
+                        item = widget.layout().itemAt(j)
+                        editor = item.widget()
+                        if hasattr(editor, 'set_tab_length'):
+                            editor.set_tab_length(value)
+            # Also update split editors if active
+            if hasattr(self, 'split_tab_widget') and self.is_split and self.split_tab_widget:
+                for i in range(self.split_tab_widget.count()):
+                    widget = self.split_tab_widget.widget(i)
+                    if widget and hasattr(widget, 'layout') and widget.layout():
+                        for j in range(widget.layout().count()):
+                            item = widget.layout().itemAt(j)
+                            editor = item.widget()
+                            if hasattr(editor, 'set_tab_length'):
+                                editor.set_tab_length(value)
+
+        self.statusBar.tabLengthDropdown.currentTextChanged.connect(tab_length_changed)
+
         # Track currently selected sidebar button
         self.selected_sidebar_button = None
         
