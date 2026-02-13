@@ -57,6 +57,17 @@ class StatusBar(QStatusBar):
         smallFont = QFont()
         smallFont.setPointSize(8)
 
+        # Always initialize editModeLabel first
+        self.editModeLabel = QLabel("ReadOnly")
+        self.editModeLabel.setFont(smallFont)
+        self.editModeLabel.setStyleSheet(
+            f"""
+            color: {{"#FFFFFF;"}};
+            font-weight: bold;
+            margin-bottom: 5px;
+            """
+        )
+
         if greeting:
             self.greetingLabel = QLabel(greeting)
             self.greetingLabel.setFont(smallFont)
