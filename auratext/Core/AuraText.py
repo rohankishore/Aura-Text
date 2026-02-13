@@ -78,10 +78,6 @@ class CodeEditor(QsciScintilla):
     def __init__(self, window: Window):
         super().__init__(parent=None)
 
-        # Always initialize context_menu and color_boxes first
-        self.context_menu = QMenu(self)
-        self.color_boxes = {}  # Store {(line, col): (color_string, QColor)}
-
         lexer = Lexers.PythonLexer(window)
         self.setLexer(lexer)
         self.setPaper(QColor(window._themes["editor_theme"]))
@@ -109,18 +105,7 @@ class CodeEditor(QsciScintilla):
         lexer.setColor(QColor(window._themes["editor_fg"]), lexer.Default)
         lexer.setFont(QFont(window._themes["font"]))
 
-        # Set tab width from config
-        import os, json
-        config_path = os.path.join(window.local_app_data, "data", "config.json")
-        tab_width = 4
-        try:
-            with open(config_path, "r") as f:
-                config = json.load(f)
-                tab_width = int(config.get("tab_length", 4))
-        except Exception:
-            tab_width = 4
-        self.setTabWidth(tab_width)
-
+        self.setTabWidth(4)
         self.setMarginLineNumbers(1, True)
         self.setAutoIndent(True)
         self.setMarginWidth(1, "#0000")
@@ -133,9 +118,6 @@ class CodeEditor(QsciScintilla):
         self.SendScintilla(self.SCI_SETMARGINLEFT, left_margin_index, left_margin_width_pixels)
         self.setFolding(QsciScintilla.FoldStyle.BoxedTreeFoldStyle)
         self.setMarginSensitivity(2, True)
-
-    def set_tab_length(self, value):
-        self.setTabWidth(int(value))
         self.setFoldMarginColors(
             QColor(window._themes["margin_theme"]), QColor(window._themes["margin_theme"])
         )

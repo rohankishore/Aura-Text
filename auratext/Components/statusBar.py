@@ -73,28 +73,6 @@ class StatusBar(QStatusBar):
             self.greetingLabel.setFont(smallFont)
             self.addWidget(self.greetingLabel)
 
-        # Tab Length Dropdown
-        config_path = os.path.join(local_app_data, "data", "config.json")
-        with open(config_path, "r") as f:
-            config = json.load(f)
-        self.tab_length_dropdown_visible = config.get("tab_length_dropdown", "True") == "True"
-        self.tab_length = config.get("tab_length", 4)
-
-        from PyQt6.QtWidgets import QComboBox
-        self.tabLengthDropdown = QComboBox()
-        self.tabLengthDropdown.setFont(smallFont)
-        self.tabLengthDropdown.addItems(["2", "4", "6", "8"])
-        self.tabLengthDropdown.setCurrentText(str(self.tab_length))
-        self.tabLengthDropdown.setStyleSheet(
-            "QComboBox { background-color: #222; color: #fff; border: none; padding: 2px 8px; }"
-        )
-        self.tabLengthDropdown.setToolTip("Tab Length")
-        self.tabLengthDropdown.currentTextChanged.connect(self.save_tab_length)
-
-        if self.tab_length_dropdown_visible:
-            self.tabLengthDropdown.show()
-        else:
-            self.tabLengthDropdown.hide()
 
         self.lineLabel = QLabel("▼ Line:")
         self.lineValueLabel = QLabel("0")
@@ -165,19 +143,10 @@ class StatusBar(QStatusBar):
         rightLayout.addWidget(self.languageButton)
         rightLayout.addWidget(Separator())
 
-        # Insert tab length dropdown before last separator
-        rightLayout.insertWidget(rightLayout.count()-1, self.tabLengthDropdown)
-        rightLayout.insertWidget(rightLayout.count()-1, Separator())
+        # ...existing code...
 
         self.addPermanentWidget(rightWidget)
-    def save_tab_length(self, value):
-        config_path = os.path.join(local_app_data, "data", "config.json")
-        with open(config_path, "r") as f:
-            config = json.load(f)
-        config["tab_length"] = int(value)
-        with open(config_path, "w") as f:
-            json.dump(config, f, indent=4)
-        self.tab_length = int(value)
+        # ...existing code...
         # Optionally emit signal or call parent to update editor tab length
 
 
