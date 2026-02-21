@@ -75,22 +75,6 @@ class Search(QDialog):
 
 
 class CodeEditor(QsciScintilla):
-    def notifyBracketMatch(self, line):
-        # Notify the main window's status bar about bracket match
-        if hasattr(self.parent(), 'statusBar'):
-            self.parent().statusBar.showBracketMatchMessage(line)
-
-    def keyPressEvent(self, event):
-        super().keyPressEvent(event)
-        # Check for bracket match after key press
-        pos = self.SendScintilla(self.SCI_GETCURRENTPOS)
-        char = self.charAt(pos - 1) if pos > 0 else ''
-        if chr(char) in '(){}[]':
-            # Check if a match exists
-            match_pos = self.SendScintilla(self.SCI_BRACEMATCH, pos - 1)
-            if match_pos != -1:
-                line = self.lineIndexFromPosition(match_pos)[0] + 1
-                self.notifyBracketMatch(line)
     def __init__(self, window: Window):
         super().__init__(parent=None)
 
