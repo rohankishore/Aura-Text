@@ -2,7 +2,7 @@
 ; SEE THE DOCUMENTATION FOR DETAILS ON CREATING INNO SETUP SCRIPT FILES!
 
 #define MyAppName "Aura Text"
-#define MyAppVersion "5.2.1"
+#define MyAppVersion "5.3.0"
 #define MyAppPublisher "Rohan Kishore"
 #define MyAppURL "https://github.com/rohankishore/Aura-Text"
 #define MyAppExeName "Aura Text.exe"
@@ -37,7 +37,7 @@ LicenseFile=LICENSE
 ; Remove the following line to run in administrative install mode (install for all users).
 PrivilegesRequired=lowest
 PrivilegesRequiredOverridesAllowed=dialog
-OutputBaseFilename=Aurs-Text-setup-{#MyAppVersion}-x64
+OutputBaseFilename=Aura-Text-setup-{#MyAppVersion}-x64
 SetupIconFile=icon.ico
 SolidCompression=yes
 WizardStyle=modern
