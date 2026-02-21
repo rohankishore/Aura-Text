@@ -54,52 +54,48 @@ class StatusBar(QStatusBar):
                     border: none;
                 }}
                 QLabel {{
-                    padding: 0 2px;
-                }}
-                """
-            )
 
-            
-            smallFont = QFont()
-            smallFont.setPointSize(8)
+                        def showBracketMatchMessage(self, line):
+                            # Show a temporary message for bracket match
+                            msg = f"Bracket match found on line: {line}"
+                            self.showMessage(msg)
+                            QTimer.singleShot(4000, self.clearMessage)
 
-            # Always initialize editModeLabel first
-            self.editModeLabel = QLabel("ReadOnly")
-            self.editModeLabel.setFont(smallFont)
-            self.editModeLabel.setStyleSheet(
-                f"""
-                color: {{"#FFFFFF;"}};
-                font-weight: bold;
-                margin-bottom: 5px;
-                """
-            )
+                        def __init__(self, parent=None):
+                            super().__init__(parent)
+                            #self.current_editor = parent.current_editor
+                            self.current_widget = parent.tab_widget.currentWidget()
+                            self.setStyleSheet(
+                                f"""
+                                QStatusBar {{
+                                    background-color: {_themes['sidebar_bg']};
+                                    color: {"#FFFFFF"};
+                                    padding-bottom: 2px;
+                                    position: absolute;
+                                    bottom: 0;
+                                }}
+                                QStatusBar::item {{
+                                    border: none;
+                                }}
+                                QLabel {{
+                                    padding: 0 2px;
+                                }}
+                                """
+                            )
 
-            if greeting:
-                self.greetingLabel = QLabel(greeting)
-                self.greetingLabel.setFont(smallFont)
-                self.addWidget(self.greetingLabel)
+                            smallFont = QFont()
+                            smallFont.setPointSize(8)
 
-
-            self.lineLabel = QLabel("▼ Line:")
-            self.lineValueLabel = QLabel("0")
-            self.columnLabel = QLabel("▲ Column:")
-            self.columnValueLabel = QLabel("0")
-            self.totalLinesLabel = QLabel("∑ Total Lines:")
-            self.totalLinesValueLabel = QLabel("0")
-            self.wordsLabel = QLabel("⌁ Words:")
-            self.wordsValueLabel = QLabel("0")
-            
-            # Language button
-            self.languageButton = QPushButton("Plain Text")
-            self.languageButton.setFont(smallFont)
-            self.languageButton.setCursor(QCursor(Qt.CursorShape.PointingHandCursor))
-            self.languageButton.setStyleSheet(
-                f"""
-                QPushButton {{
-                    background-color: transparent;
-                    color: #FFFFFF;
-                    border: none;
-                    padding: 2px 8px;
+                            # Always initialize editModeLabel first
+                            self.editModeLabel = QLabel("ReadOnly")
+                            self.editModeLabel.setFont(smallFont)
+                            self.editModeLabel.setStyleSheet(
+                                f"""
+                                color: {{"#FFFFFF;"}};
+                                font-weight: bold;
+                                margin-bottom: 5px;
+                                """
+                            )
                     text-align: left;
                 }}
                 QPushButton:hover {{

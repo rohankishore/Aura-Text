@@ -255,7 +255,7 @@ class Window(QMainWindow):
         self.leftBar.setWidget(self.leftBar_widget)
         self.addDockWidget(Qt.DockWidgetArea.LeftDockWidgetArea, self.leftBar)
 
-        self.statusBar = statusBar.StatusBar(self, greeting=greeting)
+        self.statusBar = statusBar.StatusBar(self)
         self.setStatusBar(self.statusBar)
 
         # Track currently selected sidebar button
