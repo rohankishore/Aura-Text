@@ -1913,12 +1913,27 @@ class Window(QMainWindow):
         self.current_editor.copy()
 
     def summary(self):
-        lines = str(self.current_editor.lines())
         text = self.current_editor.text()
-        text = "Number of Lines: " + lines
-        messagebox = QMessageBox()
-        messagebox.setText(text), messagebox.setWindowTitle("Summary")
-        messagebox.exec()
+        lines = text.count('\n') + 1 if text else 0
+        words = len(text.split())
+        chars_with_spaces = len(text)
+        chars_no_spaces = len(text.replace(' ', '').replace('\n', '').replace('\r', ''))
+        try:
+            bytes_count = len(text.encode('utf-8'))
+        except Exception:
+            bytes_count = chars_with_spaces
+
+        summary = (
+            f"Lines: {lines}\n"
+            f"Words: {words}\n"
+            f"Characters (with spaces): {chars_with_spaces}\n"
+            f"Characters (no spaces): {chars_no_spaces}\n"
+            f"Bytes: {bytes_count}"
+        )
+        msg = QMessageBox()
+        msg.setWindowTitle("Document Statistics")
+        msg.setText(summary)
+        msg.exec()
 
     def paste_document(self):
         self.current_editor.paste()

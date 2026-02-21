@@ -97,8 +97,8 @@ QMenu::item::selected {{
 
     file_menu.addAction("Save As", self.save_document).setWhatsThis("Save the document")
     file_menu.addSeparator()
-    file_menu.addAction("Summary", self.summary).setWhatsThis(
-        "Get basic info of a file (Eg: Number of lines)"
+    file_menu.addAction("Document Stats", self.summary).setWhatsThis(
+        "Show document statistics (lines, words, characters, bytes)"
     )
     file_menu.addSeparator()
     file_menu.addAction("Extensions", self.expandSidebar__Plugins)
