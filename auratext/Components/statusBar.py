@@ -5,7 +5,7 @@ import platform
 import sys
 
 from PyQt6.QtGui import QFont, QCursor
-from PyQt6.QtCore import Qt
+from PyQt6.QtCore import Qt, QTimer
 from PyQt6.QtWidgets import QFrame, QHBoxLayout, QLabel, QStatusBar, QWidget, QPushButton
 
 # from ..scripts.color_scheme_loader import color_schemes
@@ -32,11 +32,11 @@ class Separator(QFrame):
 
 class StatusBar(QStatusBar):
 
-        def showBracketMatchMessage(self, line):
-            # Show a temporary message for bracket match
-            msg = f"Bracket match found on line: {line}"
-            self.showMessage(msg)
-            QTimer.singleShot(4000, self.clearMessage)
+    def showBracketMatchMessage(self, line):
+        # Show a temporary message for bracket match
+        msg = f"Bracket match found on line: {line}"
+        self.showMessage(msg)
+        QTimer.singleShot(4000, self.clearMessage)
         def __init__(self, parent=None, greeting=None):
             super().__init__(parent)
             #self.current_editor = parent.current_editor
