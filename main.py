@@ -3,10 +3,24 @@ import os
 import shutil
 import platform
 
-from PyQt6.QtWidgets import QApplication
+from PyQt6.QtCore import Qt
+from PyQt6.QtWidgets import QApplication, QSplashScreen
+from PyQt6.QtGui import QPixmap
 import sys
 
 from qt_material import apply_stylesheet
+
+"""
+Initialize the app and load splash screen
+"""
+
+app = QApplication(sys.argv)
+
+from auratext.Misc.embeddedresources import splashScreenImg
+splashpixmap = QPixmap()
+splashpixmap.loadFromData(splashScreenImg)
+splash = QSplashScreen(splashpixmap, Qt.WindowType.WindowStaysOnTopHint)
+splash.show()
 
 """
 The app will automatically check system platform and set the local app data path accordingly. 
@@ -45,11 +59,11 @@ with open(f"{local_app_data}/data/theme.json", "r") as config_file:
 import random
 
 def main():
-    app = QApplication(sys.argv)
     if _theme["theming"] == "material":
         theme = _theme["material_type"] + ".xml"
         apply_stylesheet(app, theme=theme)
     ex = Window()
+    splash.finish(ex)
     sys.exit(app.exec())
 
 if __name__ == "__main__":
