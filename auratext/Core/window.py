@@ -742,6 +742,8 @@ class Window(QMainWindow):
                 print(f"Error loading plugin {plugin_file}: {e}")
 
     def onPluginDockVisibilityChanged(self, visible):
+        if not hasattr(self, 'plugin_button'):
+            return
         if visible:
             if hasattr(self.plugin_button, 'selected_icon'):
                 self.plugin_button.setIcon(self.plugin_button.selected_icon)
@@ -750,6 +752,8 @@ class Window(QMainWindow):
                 self.plugin_button.setIcon(self.plugin_button.unselected_icon)
 
     def onExplorerDockVisibilityChanged(self, visible):
+        if not hasattr(self, 'explorer_button'):
+            return
         if visible:
             if hasattr(self.explorer_button, 'selected_icon'):
                 self.explorer_button.setIcon(self.explorer_button.selected_icon)
@@ -758,6 +762,8 @@ class Window(QMainWindow):
                 self.explorer_button.setIcon(self.explorer_button.unselected_icon)
 
     def onCommitDockVisibilityChanged(self, visible):
+        if not hasattr(self, 'commit_button'):
+            return
         if visible:
             if hasattr(self.commit_button, 'selected_icon'):
                 self.commit_button.setIcon(self.commit_button.selected_icon)
@@ -766,6 +772,8 @@ class Window(QMainWindow):
                 self.commit_button.setIcon(self.commit_button.unselected_icon)
 
     def onSearchDockVisibilityChanged(self, visible):
+        if not hasattr(self, 'search_button'):
+            return
         if visible:
             if hasattr(self.search_button, 'selected_icon'):
                 self.search_button.setIcon(self.search_button.selected_icon)
@@ -778,7 +786,15 @@ class Window(QMainWindow):
 
     def add_sidebar_panel_dock(self, dock_widget):
         self.addDockWidget(Qt.DockWidgetArea.LeftDockWidgetArea, dock_widget)
-        anchor = self.leftBar if hasattr(self, 'leftBar') and self.leftBar else self.sidebar_main
+        anchor = None
+        if hasattr(self, 'leftBar') and self.leftBar:
+            anchor = self.leftBar
+        elif hasattr(self, 'sidebar_main') and self.sidebar_main:
+            anchor = self.sidebar_main
+
+        if anchor is None:
+            return
+
         self.splitDockWidget(anchor, dock_widget, Qt.Orientation.Horizontal)
 
     def treeview_project(self, path):
