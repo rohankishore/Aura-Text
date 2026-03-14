@@ -742,8 +742,6 @@ class Window(QMainWindow):
                 print(f"Error loading plugin {plugin_file}: {e}")
 
     def onPluginDockVisibilityChanged(self, visible):
-        if not hasattr(self, 'plugin_button'):
-            return
         if visible:
             if hasattr(self.plugin_button, 'selected_icon'):
                 self.plugin_button.setIcon(self.plugin_button.selected_icon)
@@ -752,8 +750,6 @@ class Window(QMainWindow):
                 self.plugin_button.setIcon(self.plugin_button.unselected_icon)
 
     def onExplorerDockVisibilityChanged(self, visible):
-        if not hasattr(self, 'explorer_button'):
-            return
         if visible:
             if hasattr(self.explorer_button, 'selected_icon'):
                 self.explorer_button.setIcon(self.explorer_button.selected_icon)
@@ -762,8 +758,6 @@ class Window(QMainWindow):
                 self.explorer_button.setIcon(self.explorer_button.unselected_icon)
 
     def onCommitDockVisibilityChanged(self, visible):
-        if not hasattr(self, 'commit_button'):
-            return
         if visible:
             if hasattr(self.commit_button, 'selected_icon'):
                 self.commit_button.setIcon(self.commit_button.selected_icon)
@@ -772,8 +766,6 @@ class Window(QMainWindow):
                 self.commit_button.setIcon(self.commit_button.unselected_icon)
 
     def onSearchDockVisibilityChanged(self, visible):
-        if not hasattr(self, 'search_button'):
-            return
         if visible:
             if hasattr(self.search_button, 'selected_icon'):
                 self.search_button.setIcon(self.search_button.selected_icon)
@@ -784,26 +776,13 @@ class Window(QMainWindow):
             if self.selected_sidebar_button == self.search_button:
                 self.selected_sidebar_button = None
 
-    def add_sidebar_panel_dock(self, dock_widget):
-        self.addDockWidget(Qt.DockWidgetArea.LeftDockWidgetArea, dock_widget)
-        anchor = None
-        if hasattr(self, 'leftBar') and self.leftBar:
-            anchor = self.leftBar
-        elif hasattr(self, 'sidebar_main') and self.sidebar_main:
-            anchor = self.sidebar_main
-
-        if anchor is None:
-            return
-
-        self.splitDockWidget(anchor, dock_widget, Qt.Orientation.Horizontal)
-
     def treeview_project(self, path):
         self.dock = QDockWidget("Explorer", self)
         self.dock.visibilityChanged.connect(
             lambda visible: self.onExplorerDockVisibilityChanged(visible)
         )
         # dock.setStyleSheet("QDockWidget { background-color: #191a1b; color: white;}")
-        self.dock.setAllowedAreas(Qt.DockWidgetArea.AllDockWidgetAreas)
+        self.dock.setAllowedAreas(Qt.DockWidgetArea.RightDockWidgetArea)
         tree_view = QTreeView()
         self.model = QFileSystemModel()
         bg = self._themes["sidebar_bg"]
@@ -814,7 +793,7 @@ class Window(QMainWindow):
         tree_view.setRootIndex(self.model.index(path))
         self.model.setRootPath(path)
         self.dock.setWidget(tree_view)
-        self.add_sidebar_panel_dock(self.dock)
+        self.addDockWidget(Qt.DockWidgetArea.RightDockWidgetArea, self.dock)
 
         tree_view.setFont(QFont("Consolas"))
 
@@ -856,7 +835,7 @@ class Window(QMainWindow):
         tree_view.setRootIndex(self.model.index(cpath))
         self.model.setRootPath(cpath)
         self.dock.setWidget(tree_view)
-        self.add_sidebar_panel_dock(self.dock)
+        self.addDockWidget(Qt.DockWidgetArea.RightDockWidgetArea, self.dock)
 
         tree_view.setFont(QFont("Consolas"))
 
@@ -907,7 +886,7 @@ class Window(QMainWindow):
         search_layout.addWidget(self.project_search_results)
 
         self.search_dock.setWidget(search_container)
-        self.add_sidebar_panel_dock(self.search_dock)
+        self.addDockWidget(Qt.DockWidgetArea.RightDockWidgetArea, self.search_dock)
         self.search_dock.show()
         self.search_dock.raise_()
         self.project_search_input.setFocus()
@@ -1055,8 +1034,8 @@ class Window(QMainWindow):
         self.theme_layout.addWidget(self.theme_widget)
         self.theme_dock.setWidget(self.theme_widget)
 
-        self.add_sidebar_panel_dock(self.plugin_dock)
-        self.add_sidebar_panel_dock(self.theme_dock)
+        self.addDockWidget(Qt.DockWidgetArea.RightDockWidgetArea, self.plugin_dock)
+        self.addDockWidget(Qt.DockWidgetArea.RightDockWidgetArea, self.theme_dock)
         self.tabifyDockWidget(self.theme_dock, self.plugin_dock)
 
     def addWidget_toPlugin(self, widget):
