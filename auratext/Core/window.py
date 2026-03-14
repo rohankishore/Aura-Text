@@ -22,7 +22,11 @@ from PyQt6.QtWidgets import (
     QMainWindow,
     QInputDialog,
     QDockWidget,
+    QLabel,
+    QLineEdit,
     QTextEdit,
+    QListWidget,
+    QListWidgetItem,
     QTreeView,
     QFileDialog,
     QSplashScreen,
@@ -288,14 +292,14 @@ class Window(QMainWindow):
         self.explorer_button.unselected_icon = explorer_unselected
         self.explorer_button.selected_icon = explorer_selected
 
-        # Create Search button with SVG icon
+        # Create Search button with SVG icons
         search_svg = f"{local_app_data}/icons/search.svg"
-        search_icon, _ = SVGIconManager.create_stateful_icon(
+        search_unselected, search_selected = SVGIconManager.create_stateful_icon(
             search_svg, None, theme_color, (23, 23)
         )
 
         self.search_button = QPushButton(self)
-        self.search_button.setIcon(search_icon)
+        self.search_button.setIcon(search_unselected)
         self.search_button.setIconSize(QSize(23, 23))
         self.search_button.setFixedSize(36, 36)
         self.search_button.setStyleSheet(
@@ -309,7 +313,9 @@ class Window(QMainWindow):
             }
             """
         )
-        self.search_button.setToolTip("Search in file")
+        self.search_button.unselected_icon = search_unselected
+        self.search_button.selected_icon = search_selected
+        self.search_button.setToolTip("Search in project")
 
         # Create Plugin/Extensions button with SVG icons
         extensions_svg = f"{local_app_data}/icons/extensions.svg"
@@ -394,7 +400,7 @@ class Window(QMainWindow):
 
         # Connect the button's clicked signal to the slot
         self.explorer_button.clicked.connect(lambda: self.handle_sidebar_button_click(self.explorer_button, self.expandSidebar__Explorer))
-        self.search_button.clicked.connect(self.find_in_editor)
+        self.search_button.clicked.connect(lambda: self.handle_sidebar_button_click(self.search_button, self.expandSidebar__Search))
         self.plugin_button.clicked.connect(lambda: self.handle_sidebar_button_click(self.plugin_button, self.expandSidebar__Plugins))
 
         # Create Run button for Python files
@@ -610,6 +616,9 @@ class Window(QMainWindow):
         
         find_shortcut = QShortcut(QKeySequence("Ctrl+F"), self)
         find_shortcut.activated.connect(self.find_in_editor)
+
+        project_search_shortcut = QShortcut(QKeySequence("Ctrl+Shift+F"), self)
+        project_search_shortcut.activated.connect(self.expandSidebar__Search)
         
         format_shortcut = QShortcut(QKeySequence("Shift+Alt+F"), self)
         format_shortcut.activated.connect(self.code_formatting)
@@ -756,6 +765,17 @@ class Window(QMainWindow):
             if hasattr(self.commit_button, 'unselected_icon'):
                 self.commit_button.setIcon(self.commit_button.unselected_icon)
 
+    def onSearchDockVisibilityChanged(self, visible):
+        if visible:
+            if hasattr(self.search_button, 'selected_icon'):
+                self.search_button.setIcon(self.search_button.selected_icon)
+            self.selected_sidebar_button = self.search_button
+        else:
+            if hasattr(self.search_button, 'unselected_icon'):
+                self.search_button.setIcon(self.search_button.unselected_icon)
+            if self.selected_sidebar_button == self.search_button:
+                self.selected_sidebar_button = None
+
     def treeview_project(self, path):
         self.dock = QDockWidget("Explorer", self)
         self.dock.visibilityChanged.connect(
@@ -824,6 +844,141 @@ class Window(QMainWindow):
         tree_view.setColumnHidden(3, True)  # Date modified column
 
         tree_view.doubleClicked.connect(self.open_file)
+
+    def expandSidebar__Search(self):
+        if hasattr(self, 'search_dock') and self.search_dock:
+            self.search_dock.show()
+            self.search_dock.raise_()
+            if hasattr(self, 'project_search_input') and self.project_search_input:
+                self.project_search_input.setFocus()
+            return
+
+        self.search_dock = QDockWidget("Search", self)
+        self.search_dock.setMinimumWidth(320)
+        self.search_dock.setAllowedAreas(Qt.DockWidgetArea.AllDockWidgetAreas)
+        self.search_dock.visibilityChanged.connect(
+            lambda visible: self.onSearchDockVisibilityChanged(visible)
+        )
+
+        search_container = QWidget(self.search_dock)
+        search_layout = QVBoxLayout(search_container)
+        search_layout.setContentsMargins(8, 8, 8, 8)
+        search_layout.setSpacing(8)
+
+        top_row = QHBoxLayout()
+        self.project_search_input = QLineEdit(search_container)
+        self.project_search_input.setPlaceholderText("Search in project...")
+        self.project_search_input.returnPressed.connect(self.perform_project_search)
+
+        search_button = QPushButton("Search", search_container)
+        search_button.clicked.connect(self.perform_project_search)
+
+        top_row.addWidget(self.project_search_input)
+        top_row.addWidget(search_button)
+
+        self.project_search_info_label = QLabel("Enter a query and press Enter.", search_container)
+        self.project_search_results = QListWidget(search_container)
+        self.project_search_results.itemDoubleClicked.connect(self.open_project_search_result)
+        self.project_search_results.itemActivated.connect(self.open_project_search_result)
+
+        search_layout.addLayout(top_row)
+        search_layout.addWidget(self.project_search_info_label)
+        search_layout.addWidget(self.project_search_results)
+
+        self.search_dock.setWidget(search_container)
+        self.addDockWidget(Qt.DockWidgetArea.RightDockWidgetArea, self.search_dock)
+        self.search_dock.show()
+        self.search_dock.raise_()
+        self.project_search_input.setFocus()
+
+    def perform_project_search(self):
+        if not hasattr(self, 'project_search_results'):
+            return
+
+        query = self.project_search_input.text().strip()
+        self.project_search_results.clear()
+
+        if not query:
+            self.project_search_info_label.setText("Enter a query and press Enter.")
+            return
+
+        project_root = cpath if cpath and os.path.isdir(cpath) else ""
+        if not project_root:
+            self.project_search_info_label.setText("No project folder is open.")
+            return
+
+        excluded_dirs = {
+            ".git",
+            "__pycache__",
+            ".venv",
+            "venv",
+            "node_modules",
+            "build",
+            "dist",
+        }
+        max_file_size_bytes = 1024 * 1024
+        max_results = 500
+
+        query_lower = query.lower()
+        result_count = 0
+        reached_limit = False
+
+        for root, dirs, files in os.walk(project_root):
+            dirs[:] = [d for d in dirs if d not in excluded_dirs]
+
+            for filename in files:
+                file_path = os.path.join(root, filename)
+
+                try:
+                    if os.path.getsize(file_path) > max_file_size_bytes:
+                        continue
+                except OSError:
+                    continue
+
+                try:
+                    with open(file_path, "r", encoding="utf-8", errors="ignore") as file_handle:
+                        for line_number, line in enumerate(file_handle, start=1):
+                            if query_lower in line.lower():
+                                relative_path = os.path.relpath(file_path, project_root)
+                                preview = " ".join(line.strip().split())
+                                if len(preview) > 160:
+                                    preview = preview[:157] + "..."
+
+                                item = QListWidgetItem(f"{relative_path}:{line_number}  {preview}")
+                                item.setData(Qt.ItemDataRole.UserRole, (file_path, line_number))
+                                self.project_search_results.addItem(item)
+                                result_count += 1
+
+                                if result_count >= max_results:
+                                    reached_limit = True
+                                    break
+                except (UnicodeDecodeError, PermissionError, OSError):
+                    continue
+
+                if reached_limit:
+                    break
+
+            if reached_limit:
+                break
+
+        if result_count == 0:
+            self.project_search_info_label.setText(f"No results for '{query}'.")
+        elif reached_limit:
+            self.project_search_info_label.setText(f"Showing first {result_count} results for '{query}'.")
+        else:
+            self.project_search_info_label.setText(f"{result_count} result(s) for '{query}'.")
+
+    def open_project_search_result(self, item):
+        result_data = item.data(Qt.ItemDataRole.UserRole)
+        if not result_data:
+            return
+
+        file_path, line_number = result_data
+        self.open_file_from_path(file_path)
+
+        if self.current_editor and hasattr(self.current_editor, "setCursorPosition"):
+            self.current_editor.setCursorPosition(max(line_number - 1, 0), 0)
+            self.current_editor.setFocus()
 
     def create_snippet(self):
         ModuleFile.CodeSnippets.snippets_gen(self.current_editor)
@@ -1217,6 +1372,9 @@ class Window(QMainWindow):
 
     def open_file(self, index):
         path = self.model.filePath(index)
+        self.open_file_from_path(path)
+
+    def open_file_from_path(self, path):
         image_extensions = ["png", "jpg", "jpeg", "ico", "gif", "bmp"]
         ext = path.split(".")[-1]
 
@@ -1741,7 +1899,7 @@ class Window(QMainWindow):
             )
             if is_git_repo():
                 self.commit_button.hide()
-                self.sidebar_layout.insertWidget(2, self.commit_button)
+                self.sidebar_layout.insertWidget(3, self.commit_button)
                 self.commit_button.show()
             else:
                 self.commit_button.hide()
