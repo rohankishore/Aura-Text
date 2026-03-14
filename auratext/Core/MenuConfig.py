@@ -29,10 +29,6 @@ with open(f"{local_app_data}/data/theme.json", "r") as themes_file:
 def configure_menuBar(self):
     menubar = self.menuBar()
     self.setMenuBar(menubar)
-
-    def set_language(lang):
-        translator.set_language(lang)
-        self.configure_menuBar()  # Reload menu bar with new language
     
     self.setStyleSheet(
         f"""
@@ -68,30 +64,30 @@ QMenu::item::selected {{
     whats_this_action = QAction(self)
     whats_this_action.setShortcut("Shift+F1")
     menubar.addAction(whats_this_action)
-    file_menu = QMenu(translator.t("menu.file"), self)
-    file_menu.addAction(translator.t("menu.file.new"), self.cs_new_document).setWhatsThis(translator.t("menu.file.new.whats"))
+    file_menu = QMenu("&File", self)
+    file_menu.addAction("New", self.cs_new_document).setWhatsThis("Create a new document")
 
-    new_menu = QMenu(translator.t("menu.file.new_template"))
-    new_menu.addAction(translator.t("menu.file.new_template.html"), self.html_temp)
-    new_menu.addAction(translator.t("menu.file.new_template.py"), self.py_temp)
-    new_menu.addAction(translator.t("menu.file.new_template.cpp"), self.cpp_temp)
-    new_menu.addAction(translator.t("menu.file.new_template.php"), self.php_temp)
-    new_menu.addAction(translator.t("menu.file.new_template.tex"), self.tex_temp)
-    new_menu.addAction(translator.t("menu.file.new_template.java"), self.java_temp)
+    new_menu = QMenu("New Template")
+    new_menu.addAction("HTML", self.html_temp)
+    new_menu.addAction("Python", self.py_temp)
+    new_menu.addAction("C++", self.cpp_temp)
+    new_menu.addAction("PHP", self.php_temp)
+    new_menu.addAction("TeX", self.tex_temp)
+    new_menu.addAction("Java", self.java_temp)
 
-    file_menu.addAction(translator.t("menu.file.open"), self.open_document).setWhatsThis(translator.t("menu.file.open.whats"))
+    file_menu.addAction("Open", self.open_document).setWhatsThis("Open an existing document")
     file_menu.addSeparator()
-    file_menu.addAction(translator.t("menu.file.new_project"), self.new_project).setWhatsThis(translator.t("menu.file.new_project.whats"))
-    file_menu.addAction(translator.t("menu.file.new_project_vcs"), self.gitClone).setWhatsThis(translator.t("menu.file.new_project_vcs.whats"))
-    file_menu.addAction(translator.t("menu.file.open_project"), self.open_project).setWhatsThis(translator.t("menu.file.open_project.whats"))
-    file_menu.addAction(translator.t("menu.file.open_project_treeview"), self.open_project_as_treeview).setWhatsThis(translator.t("menu.file.open_project_treeview.whats"))
-    file_menu.addAction(translator.t("menu.file.manage_projects"), self.manageProjects)
+    file_menu.addAction("New Project", self.new_project).setWhatsThis("Create a new project")
+    file_menu.addAction("Clone Git Repository", self.gitClone).setWhatsThis("Clone a repository into a new project")
+    file_menu.addAction("Open Project", self.open_project).setWhatsThis("Open an existing project")
+    file_menu.addAction("Open Project in Tree View", self.open_project_as_treeview).setWhatsThis("Open project directory in the tree view")
+    file_menu.addAction("Manage Projects", self.manageProjects)
 
-    git_menu = QMenu(translator.t("menu.git"), self)
-    git_menu.addAction(translator.t("menu.git.commit"), self.gitCommit)
-    git_menu.addAction(translator.t("menu.git.push"), self.gitPush)
-    git_menu.addAction(translator.t("menu.git.graph"), self.gitGraph)
-    git_menu.addAction(translator.t("menu.git.rebase"), self.gitRebase)
+    git_menu = QMenu("&Git", self)
+    git_menu.addAction("Commit", self.gitCommit)
+    git_menu.addAction("Push", self.gitPush)
+    git_menu.addAction("Graph", self.gitGraph)
+    git_menu.addAction("Rebase", self.gitRebase)
 
     def is_git_repo():
         if os.path.isdir(os.path.join(cpath, '.git')):
@@ -102,9 +98,9 @@ QMenu::item::selected {{
     file_menu.addMenu(new_menu)
     file_menu.addSeparator()
 
-    file_menu.addAction(translator.t("menu.file.save_as"), self.save_document).setWhatsThis(translator.t("menu.file.save_as.whats"))
+    file_menu.addAction("Save As", self.save_document).setWhatsThis("Save the current document with a new name")
     file_menu.addSeparator()
-    file_menu.addAction(translator.t("menu.file.document_stats"), self.summary).setWhatsThis(
+    file_menu.addAction("Document Stats", self.summary).setWhatsThis(
         "Show document statistics (lines, words, characters, bytes)"
     )
     file_menu.addSeparator()
