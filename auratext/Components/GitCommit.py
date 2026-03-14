@@ -2,7 +2,7 @@ import subprocess
 import os
 import json
 import sys
-from PyQt6.QtCore import Qt, pyqtSignal
+from PyQt6.QtCore import Qt, QTimer
 from PyQt6.QtGui import QPixmap, QFont
 from PyQt6.QtWidgets import (QListWidget, QVBoxLayout, QWidget, QDockWidget, QPushButton, 
                              QListWidgetItem, QCheckBox, QMessageBox, QTextEdit, QLabel, 
@@ -34,140 +34,145 @@ class GitCommitDock(QDockWidget):
     def __init__(self, parent=None):
         super().__init__('Source Control', parent)
         self.setAllowedAreas(Qt.DockWidgetArea.AllDockWidgetAreas)
+        self._last_status_snapshot = None
 
         self.main_widget = QWidget()
         self.main_layout = QVBoxLayout(self.main_widget)
         self.main_layout.setContentsMargins(0, 0, 0, 0)
         self.main_layout.setSpacing(0)
 
-        changed_files = self.list_changed_files()
-
         self.visibilityChanged.connect(
             lambda visible: parent.onCommitDockVisibilityChanged(visible)
         )
 
-        if changed_files != []:
-            # Header
-            header = QLabel("SOURCE CONTROL")
-            header.setStyleSheet(f"""
-                QLabel {{
-                    background-color: {bg_color};
-                    color: {fg_color};
-                    padding: 8px 12px;
-                    font-size: 11px;
-                    font-weight: normal;
-                    letter-spacing: 0.5px;
-                }}
-            """)
-            self.main_layout.addWidget(header)
+        # Header
+        header = QLabel("SOURCE CONTROL")
+        header.setStyleSheet(f"""
+            QLabel {{
+                background-color: {bg_color};
+                color: {fg_color};
+                padding: 8px 12px;
+                font-size: 11px;
+                font-weight: normal;
+                letter-spacing: 0.5px;
+            }}
+        """)
+        self.main_layout.addWidget(header)
 
-            # Commit message section
-            commit_container = QWidget()
-            commit_container.setStyleSheet(f"background-color: {bg_color};")
-            commit_container.setSizePolicy(QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Maximum)
-            commit_layout = QVBoxLayout(commit_container)
-            commit_layout.setContentsMargins(12, 12, 12, 12)
-            commit_layout.setSpacing(8)
+        # Commit message section
+        self.commit_container = QWidget()
+        self.commit_container.setStyleSheet(f"background-color: {bg_color};")
+        self.commit_container.setSizePolicy(QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Maximum)
+        commit_layout = QVBoxLayout(self.commit_container)
+        commit_layout.setContentsMargins(12, 12, 12, 12)
+        commit_layout.setSpacing(8)
 
-            self.commit_entry = QTextEdit()
-            self.commit_entry.setPlaceholderText("Message (Ctrl+Enter to commit)")
-            self.commit_entry.setMaximumHeight(80)
-            self.commit_entry.setStyleSheet(f"""
-                QTextEdit {{
-                    background-color: {editor_bg};
-                    color: {fg_color};
-                    border: 1px solid #3c3c3c;
-                    border-radius: 2px;
-                    padding: 6px;
-                    font-size: 13px;
-                }}
-            """)
-            
-            # Install event filter for Ctrl+Enter
-            self.commit_entry.installEventFilter(self)
+        self.commit_entry = QTextEdit()
+        self.commit_entry.setPlaceholderText("Message (Ctrl+Enter to commit)")
+        self.commit_entry.setMaximumHeight(80)
+        self.commit_entry.setStyleSheet(f"""
+            QTextEdit {{
+                background-color: {editor_bg};
+                color: {fg_color};
+                border: 1px solid #3c3c3c;
+                border-radius: 2px;
+                padding: 6px;
+                font-size: 13px;
+            }}
+        """)
 
-            # Commit button (VS Code style)
-            self.commit_button = QPushButton('✓ Commit')
-            self.commit_button.clicked.connect(self.commit_changes)
-            self.commit_button.setStyleSheet(f"""
-                QPushButton {{
-                    background-color: {theme_color};
-                    color: #ffffff;
-                    border: none;
-                    border-radius: 2px;
-                    padding: 8px 16px;
-                    font-size: 13px;
-                    font-weight: 500;
-                }}
-                QPushButton:hover {{
-                    background-color: {self.adjust_color_brightness(theme_color, 1.1)};
-                }}
-                QPushButton:pressed {{
-                    background-color: {self.adjust_color_brightness(theme_color, 0.9)};
-                }}
-            """)
+        # Install event filter for Ctrl+Enter
+        self.commit_entry.installEventFilter(self)
 
-            commit_layout.addWidget(self.commit_entry)
-            commit_layout.addWidget(self.commit_button)
-            self.main_layout.addWidget(commit_container)
+        # Commit button (VS Code style)
+        self.commit_button = QPushButton('✓ Commit')
+        self.commit_button.clicked.connect(self.commit_changes)
+        self.commit_button.setStyleSheet(f"""
+            QPushButton {{
+                background-color: {theme_color};
+                color: #ffffff;
+                border: none;
+                border-radius: 2px;
+                padding: 8px 16px;
+                font-size: 13px;
+                font-weight: 500;
+            }}
+            QPushButton:hover {{
+                background-color: {self.adjust_color_brightness(theme_color, 1.1)};
+            }}
+            QPushButton:pressed {{
+                background-color: {self.adjust_color_brightness(theme_color, 0.9)};
+            }}
+        """)
 
-            # Changes section header
-            changes_header = QWidget()
-            changes_header.setStyleSheet(f"background-color: {bg_color};")
-            changes_header_layout = QHBoxLayout(changes_header)
-            changes_header_layout.setContentsMargins(12, 6, 12, 6)
-            
-            changes_label = QLabel(f"CHANGES ({len(changed_files)})")
-            changes_label.setStyleSheet(f"""
-                QLabel {{
-                    color: {fg_color};
-                    font-size: 11px;
-                    font-weight: bold;
-                    letter-spacing: 0.5px;
-                }}
-            """)
-            changes_header_layout.addWidget(changes_label)
-            changes_header_layout.addStretch()
-            
-            self.main_layout.addWidget(changes_header)
+        commit_layout.addWidget(self.commit_entry)
+        commit_layout.addWidget(self.commit_button)
+        self.main_layout.addWidget(self.commit_container)
 
-            # File list
-            self.file_list_widget = QListWidget()
-            self.file_list_widget.setStyleSheet(f"""
-                QListWidget {{
-                    background-color: {editor_bg};
-                    border: none;
-                    outline: none;
-                }}
-                QListWidget::item {{
-                    padding: 4px 12px;
-                    border: none;
-                }}
-                QListWidget::item:hover {{
-                    background-color: {self.adjust_color_brightness(editor_bg, 1.2)};
-                }}
-                QCheckBox {{
-                    color: {fg_color};
-                    spacing: 8px;
-                }}
-            """)
-            self.populate_file_list()
-            self.main_layout.addWidget(self.file_list_widget)
-        else:
-            # Empty state
-            empty_container = QWidget()
-            empty_layout = QVBoxLayout(empty_container)
-            empty_layout.setAlignment(Qt.AlignmentFlag.AlignCenter)
-            
-            self.pic_label = QLabel()
-            photo = QPixmap(f"{local_app_data}/icons/no_commits.png")
-            self.pic_label.setPixmap(photo)
-            self.pic_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
-            empty_layout.addWidget(self.pic_label)
-            
-            self.main_layout.addWidget(empty_container)
+        # Changes section header
+        changes_header = QWidget()
+        changes_header.setStyleSheet(f"background-color: {bg_color};")
+        changes_header_layout = QHBoxLayout(changes_header)
+        changes_header_layout.setContentsMargins(12, 6, 12, 6)
+
+        self.changes_label = QLabel("CHANGES (0)")
+        self.changes_label.setStyleSheet(f"""
+            QLabel {{
+                color: {fg_color};
+                font-size: 11px;
+                font-weight: bold;
+                letter-spacing: 0.5px;
+            }}
+        """)
+        changes_header_layout.addWidget(self.changes_label)
+        changes_header_layout.addStretch()
+
+        self.main_layout.addWidget(changes_header)
+
+        # File list
+        self.file_list_widget = QListWidget()
+        self.file_list_widget.setStyleSheet(f"""
+            QListWidget {{
+                background-color: {editor_bg};
+                border: none;
+                outline: none;
+            }}
+            QListWidget::item {{
+                padding: 4px 12px;
+                border: none;
+            }}
+            QListWidget::item:hover {{
+                background-color: {self.adjust_color_brightness(editor_bg, 1.2)};
+            }}
+            QCheckBox {{
+                color: {fg_color};
+                spacing: 8px;
+            }}
+        """)
+        self.main_layout.addWidget(self.file_list_widget)
+
+        # Empty state
+        self.empty_container = QWidget()
+        empty_layout = QVBoxLayout(self.empty_container)
+        empty_layout.setAlignment(Qt.AlignmentFlag.AlignCenter)
+
+        self.pic_label = QLabel()
+        photo = QPixmap(f"{local_app_data}/icons/no_commits.png")
+        self.pic_label.setPixmap(photo)
+        self.pic_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        empty_layout.addWidget(self.pic_label)
+
+        self.main_layout.addWidget(self.empty_container)
 
         self.setWidget(self.main_widget)
+
+        # Poll git status so file list updates while dock is open.
+        self.refresh_timer = QTimer(self)
+        self.refresh_timer.setInterval(1500)
+        self.refresh_timer.timeout.connect(self.refresh_status)
+        self.refresh_timer.start()
+
+        self.refresh_status(force=True)
 
     def eventFilter(self, obj, event):
         """Handle Ctrl+Enter to commit"""
@@ -207,16 +212,10 @@ class GitCommitDock(QDockWidget):
         }
         return status_map.get(code.strip() or code, "M")
 
-    def populate_file_list(self):
+    def populate_file_list(self, status_lines=None):
         self.file_list_widget.clear()
         try:
-            result = subprocess.run(['git', 'status', '--porcelain'], 
-                                  stdout=subprocess.PIPE, stderr=subprocess.PIPE,
-                                  cwd=cpath, text=True)
-            if result.returncode != 0:
-                return
-                
-            files = result.stdout.strip().split('\n')
+            files = status_lines if status_lines is not None else self.get_porcelain_status_lines()
             for line in files:
                 if not line:
                     continue
@@ -244,8 +243,41 @@ class GitCommitDock(QDockWidget):
                 
                 self.file_list_widget.addItem(item)
                 self.file_list_widget.setItemWidget(item, checkbox)
-        except Exception as e:
-            print(f"Error populating file list: {e}")
+        except Exception:
+            pass
+
+    def get_porcelain_status_lines(self):
+        try:
+            result = subprocess.run(
+                ['git', 'status', '--porcelain'],
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                cwd=cpath,
+                text=True,
+            )
+            if result.returncode != 0:
+                return []
+            return [line for line in result.stdout.splitlines() if line]
+        except Exception:
+            return []
+
+    def refresh_status(self, force=False):
+        status_lines = self.get_porcelain_status_lines()
+        snapshot = "\n".join(status_lines)
+
+        if not force and snapshot == self._last_status_snapshot:
+            return
+
+        self._last_status_snapshot = snapshot
+        self.populate_file_list(status_lines)
+
+        changes_count = len(status_lines)
+        self.changes_label.setText(f"CHANGES ({changes_count})")
+
+        has_changes = changes_count > 0
+        self.file_list_widget.setVisible(has_changes)
+        self.empty_container.setVisible(not has_changes)
+        self.commit_button.setEnabled(has_changes)
 
     def list_changed_files(self):
         try:
@@ -303,7 +335,7 @@ class GitCommitDock(QDockWidget):
             if result.returncode == 0:
                 # Clear commit message and refresh file list
                 self.commit_entry.clear()
-                self.populate_file_list()
+                self.refresh_status(force=True)
                 
                 # Show success message (VS Code-style)
                 file_count = len(selected_files)
