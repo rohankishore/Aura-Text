@@ -776,13 +776,18 @@ class Window(QMainWindow):
             if self.selected_sidebar_button == self.search_button:
                 self.selected_sidebar_button = None
 
+    def add_sidebar_panel_dock(self, dock_widget):
+        self.addDockWidget(Qt.DockWidgetArea.LeftDockWidgetArea, dock_widget)
+        anchor = self.leftBar if hasattr(self, 'leftBar') and self.leftBar else self.sidebar_main
+        self.splitDockWidget(anchor, dock_widget, Qt.Orientation.Horizontal)
+
     def treeview_project(self, path):
         self.dock = QDockWidget("Explorer", self)
         self.dock.visibilityChanged.connect(
             lambda visible: self.onExplorerDockVisibilityChanged(visible)
         )
         # dock.setStyleSheet("QDockWidget { background-color: #191a1b; color: white;}")
-        self.dock.setAllowedAreas(Qt.DockWidgetArea.RightDockWidgetArea)
+        self.dock.setAllowedAreas(Qt.DockWidgetArea.AllDockWidgetAreas)
         tree_view = QTreeView()
         self.model = QFileSystemModel()
         bg = self._themes["sidebar_bg"]
@@ -793,7 +798,7 @@ class Window(QMainWindow):
         tree_view.setRootIndex(self.model.index(path))
         self.model.setRootPath(path)
         self.dock.setWidget(tree_view)
-        self.addDockWidget(Qt.DockWidgetArea.RightDockWidgetArea, self.dock)
+        self.add_sidebar_panel_dock(self.dock)
 
         tree_view.setFont(QFont("Consolas"))
 
@@ -835,7 +840,7 @@ class Window(QMainWindow):
         tree_view.setRootIndex(self.model.index(cpath))
         self.model.setRootPath(cpath)
         self.dock.setWidget(tree_view)
-        self.addDockWidget(Qt.DockWidgetArea.RightDockWidgetArea, self.dock)
+        self.add_sidebar_panel_dock(self.dock)
 
         tree_view.setFont(QFont("Consolas"))
 
@@ -886,7 +891,7 @@ class Window(QMainWindow):
         search_layout.addWidget(self.project_search_results)
 
         self.search_dock.setWidget(search_container)
-        self.addDockWidget(Qt.DockWidgetArea.RightDockWidgetArea, self.search_dock)
+        self.add_sidebar_panel_dock(self.search_dock)
         self.search_dock.show()
         self.search_dock.raise_()
         self.project_search_input.setFocus()
@@ -1034,8 +1039,8 @@ class Window(QMainWindow):
         self.theme_layout.addWidget(self.theme_widget)
         self.theme_dock.setWidget(self.theme_widget)
 
-        self.addDockWidget(Qt.DockWidgetArea.RightDockWidgetArea, self.plugin_dock)
-        self.addDockWidget(Qt.DockWidgetArea.RightDockWidgetArea, self.theme_dock)
+        self.add_sidebar_panel_dock(self.plugin_dock)
+        self.add_sidebar_panel_dock(self.theme_dock)
         self.tabifyDockWidget(self.theme_dock, self.plugin_dock)
 
     def addWidget_toPlugin(self, widget):
