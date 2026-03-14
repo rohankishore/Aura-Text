@@ -6,6 +6,7 @@ import platform
 
 from PyQt6.QtWidgets import QMenu
 from PyQt6.QtGui import QAction, QIcon
+
 from .plugin_interface import MenuPluginInterface
 
 if platform.system() == "Windows":
@@ -27,8 +28,12 @@ with open(f"{local_app_data}/data/theme.json", "r") as themes_file:
 # noinspection PyArgumentList
 def configure_menuBar(self):
     menubar = self.menuBar()
-
     self.setMenuBar(menubar)
+
+    def set_language(lang):
+        translator.set_language(lang)
+        self.configure_menuBar()  # Reload menu bar with new language
+    
     self.setStyleSheet(
         f"""
 QMenuBar {{
@@ -56,35 +61,37 @@ QMenu::item::selected {{
 """
     )
 
+    menubar = self.menuBar()
+
+    self.setMenuBar(menubar)
+
     whats_this_action = QAction(self)
     whats_this_action.setShortcut("Shift+F1")
     menubar.addAction(whats_this_action)
-    file_menu = QMenu("&File", self)
-    file_menu.addAction("New", self.cs_new_document).setWhatsThis("Create a New File")
+    file_menu = QMenu(translator.t("menu.file"), self)
+    file_menu.addAction(translator.t("menu.file.new"), self.cs_new_document).setWhatsThis(translator.t("menu.file.new.whats"))
 
-    new_menu = QMenu("New(With Template)")
-    new_menu.addAction(".html", self.html_temp)
-    new_menu.addAction(".py", self.py_temp)
-    new_menu.addAction(".cpp", self.cpp_temp)
-    new_menu.addAction(".php", self.php_temp)
-    new_menu.addAction(".tex", self.tex_temp)
-    new_menu.addAction(".java", self.java_temp)
+    new_menu = QMenu(translator.t("menu.file.new_template"))
+    new_menu.addAction(translator.t("menu.file.new_template.html"), self.html_temp)
+    new_menu.addAction(translator.t("menu.file.new_template.py"), self.py_temp)
+    new_menu.addAction(translator.t("menu.file.new_template.cpp"), self.cpp_temp)
+    new_menu.addAction(translator.t("menu.file.new_template.php"), self.php_temp)
+    new_menu.addAction(translator.t("menu.file.new_template.tex"), self.tex_temp)
+    new_menu.addAction(translator.t("menu.file.new_template.java"), self.java_temp)
 
-    file_menu.addAction("Open", self.open_document).setWhatsThis("Open an existing file")
+    file_menu.addAction(translator.t("menu.file.open"), self.open_document).setWhatsThis(translator.t("menu.file.open.whats"))
     file_menu.addSeparator()
-    file_menu.addAction("New Project", self.new_project).setWhatsThis("Create a new project")
-    file_menu.addAction("New Project from VCS", self.gitClone).setWhatsThis("Clone GIT repo")
-    file_menu.addAction("Open Project", self.open_project).setWhatsThis("Open an existing project")
-    file_menu.addAction("Open Project as Treeview", self.open_project_as_treeview).setWhatsThis(
-        "Open an existing project as a treeview dock"
-    )
-    file_menu.addAction("Manage Projects", self.manageProjects)
+    file_menu.addAction(translator.t("menu.file.new_project"), self.new_project).setWhatsThis(translator.t("menu.file.new_project.whats"))
+    file_menu.addAction(translator.t("menu.file.new_project_vcs"), self.gitClone).setWhatsThis(translator.t("menu.file.new_project_vcs.whats"))
+    file_menu.addAction(translator.t("menu.file.open_project"), self.open_project).setWhatsThis(translator.t("menu.file.open_project.whats"))
+    file_menu.addAction(translator.t("menu.file.open_project_treeview"), self.open_project_as_treeview).setWhatsThis(translator.t("menu.file.open_project_treeview.whats"))
+    file_menu.addAction(translator.t("menu.file.manage_projects"), self.manageProjects)
 
-    git_menu = QMenu("&Git", self)
-    git_menu.addAction("Commit", self.gitCommit)
-    git_menu.addAction("Push", self.gitPush)
-    git_menu.addAction("Git Graph", self.gitGraph)
-    git_menu.addAction("Interactive Rebase", self.gitRebase)
+    git_menu = QMenu(translator.t("menu.git"), self)
+    git_menu.addAction(translator.t("menu.git.commit"), self.gitCommit)
+    git_menu.addAction(translator.t("menu.git.push"), self.gitPush)
+    git_menu.addAction(translator.t("menu.git.graph"), self.gitGraph)
+    git_menu.addAction(translator.t("menu.git.rebase"), self.gitRebase)
 
     def is_git_repo():
         if os.path.isdir(os.path.join(cpath, '.git')):
@@ -95,9 +102,9 @@ QMenu::item::selected {{
     file_menu.addMenu(new_menu)
     file_menu.addSeparator()
 
-    file_menu.addAction("Save As", self.save_document).setWhatsThis("Save the document")
+    file_menu.addAction(translator.t("menu.file.save_as"), self.save_document).setWhatsThis(translator.t("menu.file.save_as.whats"))
     file_menu.addSeparator()
-    file_menu.addAction("Document Stats", self.summary).setWhatsThis(
+    file_menu.addAction(translator.t("menu.file.document_stats"), self.summary).setWhatsThis(
         "Show document statistics (lines, words, characters, bytes)"
     )
     file_menu.addSeparator()
