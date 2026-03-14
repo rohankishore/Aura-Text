@@ -288,6 +288,29 @@ class Window(QMainWindow):
         self.explorer_button.unselected_icon = explorer_unselected
         self.explorer_button.selected_icon = explorer_selected
 
+        # Create Search button with SVG icon
+        search_svg = f"{local_app_data}/icons/search.svg"
+        search_icon, _ = SVGIconManager.create_stateful_icon(
+            search_svg, None, theme_color, (23, 23)
+        )
+
+        self.search_button = QPushButton(self)
+        self.search_button.setIcon(search_icon)
+        self.search_button.setIconSize(QSize(23, 23))
+        self.search_button.setFixedSize(36, 36)
+        self.search_button.setStyleSheet(
+            """
+            QPushButton {
+                border: none;
+                border-radius: 5px;
+            }
+            QPushButton:hover {
+                background-color: rgba(255, 255, 255, 0.1);
+            }
+            """
+        )
+        self.search_button.setToolTip("Search in file")
+
         # Create Plugin/Extensions button with SVG icons
         extensions_svg = f"{local_app_data}/icons/extensions.svg"
         plugin_unselected, plugin_selected = SVGIconManager.create_stateful_icon(
@@ -357,10 +380,11 @@ class Window(QMainWindow):
         )
 
         self.sidebar_layout.insertWidget(0, self.explorer_button)
-        self.sidebar_layout.insertWidget(1, self.plugin_button)
+        self.sidebar_layout.insertWidget(1, self.search_button)
+        self.sidebar_layout.insertWidget(2, self.plugin_button)
 
         if self.is_git_repo():
-            self.sidebar_layout.insertWidget(2, self.commit_button)
+            self.sidebar_layout.insertWidget(3, self.commit_button)
         else:
             pass
 
@@ -370,6 +394,7 @@ class Window(QMainWindow):
 
         # Connect the button's clicked signal to the slot
         self.explorer_button.clicked.connect(lambda: self.handle_sidebar_button_click(self.explorer_button, self.expandSidebar__Explorer))
+        self.search_button.clicked.connect(self.find_in_editor)
         self.plugin_button.clicked.connect(lambda: self.handle_sidebar_button_click(self.plugin_button, self.expandSidebar__Plugins))
 
         # Create Run button for Python files
