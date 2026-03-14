@@ -33,4 +33,6 @@ def run_pyinstaller():
         print(f"Build failed: {e}")
 
 if __name__ == '__main__':
-    run_pyinstaller()
+    run_pyinstaller()
+	
+	
