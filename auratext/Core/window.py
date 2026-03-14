@@ -377,7 +377,6 @@ class Window(QMainWindow):
             QPushButton {
                 border: none;
                 border-radius:10;
-                align: botton;
             }
             QPushButton:hover {
                 background-color: #4e5157;
@@ -723,12 +722,9 @@ class Window(QMainWindow):
         plugin_files = [
             f.split(".")[0] for f in os.listdir(f"{local_app_data}/plugins") if f.endswith(".py")
         ]
-        print("Plugins Found: ", plugin_files)
         sys.path.append(f"{local_app_data}/plugins")
         for plugin_file in plugin_files:
-            print(f"Loading plugin: {plugin_file}")
             if not plugin_file.isidentifier():
-                print(f"Skipping plugin with invalid name: {plugin_file}")
                 continue
             try:
                 module = importlib.import_module(plugin_file)
@@ -736,10 +732,10 @@ class Window(QMainWindow):
                     if isinstance(obj, type) and issubclass(obj, Plugin) and obj is not Plugin:
                         try:
                             self.plugins.append(obj(self))
-                        except Exception as e:
-                            print(f"Error initializing plugin {plugin_file}: {e}")
-            except Exception as e:
-                print(f"Error loading plugin {plugin_file}: {e}")
+                        except Exception:
+                            continue
+            except Exception:
+                continue
 
     def onPluginDockVisibilityChanged(self, visible):
         if visible:

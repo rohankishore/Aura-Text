@@ -1,6 +1,7 @@
 import csv
 import os
 import platform
+import sys
 
 from PyQt6.QtWidgets import (
     QVBoxLayout, QListWidget, QPushButton, QHBoxLayout, QMessageBox, QDialog, QLineEdit
@@ -21,21 +22,15 @@ cpath = open(f"{local_app_data}/data/CPath_Project.txt", "r+").read()
 
 def check_folder_exists(folder_path):
     """Check if a folder exists in the specified directory."""
-    if os.path.isdir(folder_path):
-        print(f"The folder '{folder_path}' exists.")
-        return True
-    else:
-        print(f"The folder '{folder_path}' does not exist.")
-        return False
+    return os.path.isdir(folder_path)
 
 
 def create_folder(folder_path):
     """Create a folder inside a directory if it doesn't already exist."""
     try:
         os.makedirs(folder_path, exist_ok=True)
-        print(f"The folder '{folder_path}' was created (or already exists).")
-    except Exception as e:
-        print(f"Failed to create folder '{folder_path}': {e}")
+    except Exception:
+        pass
 
 
 if check_folder_exists(f"{cpath}/Aura Text/"):

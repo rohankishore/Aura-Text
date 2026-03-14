@@ -3,6 +3,15 @@ import os
 import shutil
 import platform
 
+# Suppress noisy Qt startup warnings (e.g., DPI awareness context warnings on Windows).
+existing_qt_logging_rules = os.environ.get("QT_LOGGING_RULES", "").strip()
+if "qt.qpa.window=false" not in existing_qt_logging_rules:
+    os.environ["QT_LOGGING_RULES"] = (
+        f"{existing_qt_logging_rules};qt.qpa.window=false"
+        if existing_qt_logging_rules
+        else "qt.qpa.window=false"
+    )
+
 from PyQt6.QtWidgets import QApplication
 import sys
 
@@ -23,7 +32,6 @@ else:
     print("Unsupported operating system")
     sys.exit(1)
 local_app_data = os.path.join(local_app_data, "AuraText")
-print(local_app_data)
 
 if not os.path.exists(local_app_data):
     template_app_data = os.path.join(os.path.dirname(sys.executable), "LocalAppData", "AuraText")
