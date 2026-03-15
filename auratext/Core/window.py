@@ -226,11 +226,7 @@ class Window(QMainWindow):
             pass
 
         self.tab_widget = TabWidget()
-        self.tab_widget.setStyleSheet("""
-            QTabBar::tab {
-                padding: 8px;
-            }
-        """)
+        self.apply_vscode_tab_style(self.tab_widget)
 
         # Create splitter for split view
         self.editor_splitter = QSplitter(Qt.Orientation.Horizontal)
@@ -504,7 +500,7 @@ class Window(QMainWindow):
         self.action_group = QActionGroup(self)
         self.action_group.setExclusive(True)
 
-        self.tab_widget.setStyleSheet("QTabWidget {border: 10px;}")
+        self.apply_vscode_tab_style(self.tab_widget)
 
         self.tab_widget.currentChanged.connect(self.change_text_editor)
         self.tab_widget.tabCloseRequested.connect(self.remove_editor)
@@ -590,6 +586,48 @@ class Window(QMainWindow):
 
     def show_command_palette(self):
         self.command_palette.exec()
+
+    def apply_vscode_tab_style(self, target_tab_widget):
+        target_tab_widget.setStyleSheet("""
+            QTabWidget::pane {
+                border: 0;
+                background: #1e1e1e;
+            }
+
+            QTabBar::tab {
+                background: #2d2d2d;
+                color: #cccccc;
+                border: none;
+                min-height: 20px;
+                min-width: 90px;
+                padding: 6px 12px;
+                margin-right: 1px;
+            }
+
+            QTabBar::tab:selected {
+                background: #1e1e1e;
+                color: #ffffff;
+                border-top: 2px solid #007acc;
+            }
+
+            QTabBar::tab:hover:!selected {
+                background: #373737;
+            }
+
+            QTabBar::close-button {
+                image: none;
+                subcontrol-position: right;
+                margin-right: 6px;
+                width: 12px;
+                height: 12px;
+                border-radius: 2px;
+                background: transparent;
+            }
+
+            QTabBar::close-button:hover {
+                background: #4a4a4a;
+            }
+        """)
 
     def get_default_keybindings(self):
         return {
@@ -1364,11 +1402,7 @@ class Window(QMainWindow):
             
             # Create split tab widget
             self.split_tab_widget = TabWidget()
-            self.split_tab_widget.setStyleSheet("""
-                QTabBar::tab {
-                    padding: 8px;
-                }
-            """)
+            self.apply_vscode_tab_style(self.split_tab_widget)
             self.split_tab_widget.setTabsClosable(True)
             
             # Create a new editor container with same content
