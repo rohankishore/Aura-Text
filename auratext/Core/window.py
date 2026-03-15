@@ -551,10 +551,16 @@ class Window(QMainWindow):
         
         self.setup_keyboard_shortcuts()
 
-        self.showMaximized()
+        # Ensure the window state is applied after the initial show event.
+        self.show()
+        QTimer.singleShot(0, self._apply_startup_window_state)
         if self._startup_splash is not None:
             self._startup_splash.finish(self)
             self._startup_splash = None
+
+    def _apply_startup_window_state(self):
+        if not self.isFullScreen():
+            self.showMaximized()
 
     def show_command_palette(self):
         self.command_palette.exec()
