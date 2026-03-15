@@ -35,7 +35,6 @@ from PyQt6.QtWidgets import (
     QPushButton,
     QWidget,
     QFormLayout,
-    QGridLayout,
     QScrollArea,
     QKeySequenceEdit,
     QVBoxLayout,
@@ -57,6 +56,7 @@ from ..Components import powershell, terminal, statusBar, ProjectManager, About,
 from ..Components.CommandPalette import CommandPalette
 from ..Components.NewProjectDialog import NewProjectDialog
 from ..Components.Linter import CodeLinter
+from ..Components.FunctionGrid import FunctionGridWidget
 from .MiniMapWidget import MiniMapWidget
 from .svg_icon_manager import SVGIconManager
 
@@ -2311,19 +2311,7 @@ class Window(QMainWindow):
                 self.tab_widget.setCurrentIndex(i)
                 return
 
-        function_grid_widget = QWidget()
-        root_layout = QVBoxLayout(function_grid_widget)
-
-        header = QLabel("Function Grid")
-        root_layout.addWidget(header)
-
-        grid_container = QWidget()
-        grid_layout = QGridLayout(grid_container)
-        grid_layout.setContentsMargins(0, 0, 0, 0)
-        grid_layout.setSpacing(12)
-
-        root_layout.addWidget(grid_container)
-        root_layout.addStretch(1)
+        function_grid_widget = FunctionGridWidget(self)
 
         self.tab_widget.addTab(function_grid_widget, QIcon(), "Function Grid")
         self.tab_widget.setCurrentWidget(function_grid_widget)

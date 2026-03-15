@@ -8,4 +8,5 @@ from . import TabWidget
 from . import terminal
 from . import ToDo
 from . import GitGraph
+from . import FunctionGrid
 from .DBViewer import DBViewer
