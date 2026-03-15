@@ -34,6 +34,9 @@ from PyQt6.QtWidgets import (
     QPlainTextEdit,
     QPushButton,
     QWidget,
+    QFormLayout,
+    QScrollArea,
+    QKeySequenceEdit,
     QVBoxLayout,
     QHBoxLayout,
     QStatusBar,
@@ -165,9 +168,21 @@ class Window(QMainWindow):
         with open(f"{local_app_data}/data/terminal_history.txt", "r+") as thfile:
             self.terminal_history = thfile.readlines()
 
-        # keymap file
-        with open(f"{local_app_data}/data/keybindings.json", "r") as kmfile:
+        self.keybindings_path = f"{local_app_data}/data/keybindings.json"
+        if not os.path.exists(self.keybindings_path):
+            fallback_keybindings = os.path.join(script_dir, "keybindings.json")
+            if os.path.exists(fallback_keybindings):
+                shutil.copyfile(fallback_keybindings, self.keybindings_path)
+
+        with open(self.keybindings_path, "r") as kmfile:
             self._shortcuts = json.load(kmfile)
+
+        if not isinstance(self._shortcuts, dict):
+            self._shortcuts = {}
+
+        self.keybinding_inputs = {}
+        self.keybindings_widget = None
+        self.qt_shortcuts = []
 
         if self._themes["theming"] == "flat":
             # pywinstyles.apply_style(self, "dark")
@@ -549,6 +564,7 @@ class Window(QMainWindow):
             {"name": "Git: Graph", "action": self.gitGraph},
             {"name": "Git: Interactive Rebase", "action": self.gitRebase},
             {"name": "Preferences: Additional Preferences", "action": self.additional_prefs},
+            {"name": "Preferences: Keyboard Bindings", "action": self.keyboard_bindings},
             {"name": "Preferences: Import Theme", "action": self.import_theme},
             {"name": "Help: Keyboard Shortcuts", "action": self.shortcuts},
             {"name": "Help: Getting Started", "action": self.getting_started},
@@ -564,68 +580,7 @@ class Window(QMainWindow):
         self.statusBar.setLanguageClickHandler(self.show_language_menu)
         self.command_palette.hide()
         
-        # Keyboard shortcuts
-        # Command palette
-        shortcut = QShortcut(QKeySequence(self._shortcuts["command_palette"]), self)
-        shortcut.activated.connect(self.show_command_palette)
-        
-        # File operations
-        new_file_shortcut = QShortcut(QKeySequence(self._shortcuts["new_file"]), self)
-        new_file_shortcut.activated.connect(self.cs_new_document)
-        
-        open_file_shortcut = QShortcut(QKeySequence(self._shortcuts["open_file"]), self)
-        open_file_shortcut.activated.connect(self.open_document)
-        
-        save_file_shortcut = QShortcut(QKeySequence(self._shortcuts["save_file"]), self)
-        save_file_shortcut.activated.connect(self.save_document)
-        
-        close_tab_shortcut = QShortcut(QKeySequence(self._shortcuts["close_tab"]), self)
-        close_tab_shortcut.activated.connect(lambda: self.remove_editor(self.tab_widget.currentIndex()) if self.tab_widget.currentIndex() >= 0 else None)
-        
-        # Edit operations
-        undo_shortcut = QShortcut(QKeySequence(self._shortcuts["undo"]), self)
-        undo_shortcut.activated.connect(self.undo_document)
-        
-        redo_shortcut = QShortcut(QKeySequence(self._shortcuts["redo"]), self)
-        redo_shortcut.activated.connect(self.redo_document)
-        
-        cut_shortcut = QShortcut(QKeySequence(self._shortcuts["cut"]), self)
-        cut_shortcut.activated.connect(self.cut_document)
-        
-        copy_shortcut = QShortcut(QKeySequence(self._shortcuts["copy"]), self)
-        copy_shortcut.activated.connect(self.copy_document)
-        
-        paste_shortcut = QShortcut(QKeySequence(self._shortcuts["paste"]), self)
-        paste_shortcut.activated.connect(self.paste_document)
-        
-        select_all_shortcut = QShortcut(QKeySequence(self._shortcuts["select_all"]), self)
-        select_all_shortcut.activated.connect(lambda: self.current_editor.selectAll() if self.current_editor and self.current_editor != "" else None)
-        
-        # View operations
-        terminal_shortcut = QShortcut(QKeySequence(self._shortcuts["terminal"]), self)
-        terminal_shortcut.activated.connect(self.setupPowershell)
-        
-        split_shortcut = QShortcut(QKeySequence(self._shortcuts["split_editor"]), self)
-        split_shortcut.activated.connect(self.toggle_split_editor)
-        
-        fullscreen_shortcut = QShortcut(QKeySequence(self._shortcuts["fullscreen"]), self)
-        fullscreen_shortcut.activated.connect(self.fullscreen)
-        
-        # Code operations
-        run_shortcut = QShortcut(QKeySequence(self._shortcuts["run_python_file"]), self)
-        run_shortcut.activated.connect(self.run_python_file)
-        
-        find_shortcut = QShortcut(QKeySequence(self._shortcuts["find"]), self)
-        find_shortcut.activated.connect(self.find_in_editor)
-
-        project_search_shortcut = QShortcut(QKeySequence(self._shortcuts["project_search"]), self)
-        project_search_shortcut.activated.connect(self.expandSidebar__Search)
-        
-        format_shortcut = QShortcut(QKeySequence(self._shortcuts["format_code"]), self)
-        format_shortcut.activated.connect(self.code_formatting)
-        
-        settings_shortcut = QShortcut(QKeySequence(self._shortcuts["settings"]), self)
-        settings_shortcut.activated.connect(self.expandSidebar__Settings)
+        self.setup_keyboard_shortcuts()
 
         self.showMaximized()
         if self._startup_splash is not None:
