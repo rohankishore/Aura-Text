@@ -2309,7 +2309,22 @@ class Window(QMainWindow):
             self.showMaximized()
 
     def function_grid(self):
-        function_grid_dialog = FunctionGridDialog(self)
+        actions = {
+            "new_file": self.cs_new_document,
+            "open_file": self.open_document,
+            "save_file": self.save_document,
+            "find": self.find_in_editor,
+            "undo": self.undo_document,
+            "redo": self.redo_document,
+            "settings": self.expandSidebar__Settings,
+            "command_palette": self.show_command_palette,
+            "project_directory": self.expandSidebar__Explorer,
+            "terminal": self.setupPowershell,
+            "fullscreen": self.fullscreen,
+            "function_grid": self.function_grid,
+        }
+
+        function_grid_dialog = FunctionGridDialog(self, actions=actions)
         function_grid_dialog.exec()
 
     def show_command_palette(self):

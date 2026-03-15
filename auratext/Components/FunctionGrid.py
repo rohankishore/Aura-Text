@@ -1,9 +1,9 @@
-from PyQt6.QtCore import Qt, QEvent
-from PyQt6.QtWidgets import QDialog, QWidget, QVBoxLayout, QLabel, QGridLayout, QFrame
+from PyQt6.QtCore import Qt, QEvent, QSize
+from PyQt6.QtWidgets import QDialog, QWidget, QVBoxLayout, QLabel, QGridLayout, QToolButton, QStyle
 
 
 class FunctionGridDialog(QDialog):
-    def __init__(self, parent=None):
+    def __init__(self, parent=None, actions=None):
         super().__init__(parent)
 
         self.setWindowFlags(Qt.WindowType.Dialog | Qt.WindowType.FramelessWindowHint)
@@ -13,13 +13,30 @@ class FunctionGridDialog(QDialog):
         self.setStyleSheet(
             "QDialog { background-color: #1f1f1f; border: 1px solid #3a3a3a; border-radius: 12px; }"
             "QLabel { color: #f0f0f0; font-size: 15px; }"
-            "QFrame { background-color: #2b2b2b; border: 1px solid #4a4a4a; border-radius: 8px; }"
+            "QToolButton { background-color: #2b2b2b; border: 1px solid #4a4a4a; border-radius: 8px; }"
+            "QToolButton:hover { border: 1px solid #6a6a6a; }"
         )
 
+        self.actions = actions or {}
         self.rows = 3
         self.cols = 4
-        self.slots = []
+        self.buttons = []
         self.selected_index = 0
+
+        self.grid_items = [
+            ("new_file", "New File", QStyle.StandardPixmap.SP_FileIcon),
+            ("open_file", "Open File", QStyle.StandardPixmap.SP_DialogOpenButton),
+            ("save_file", "Save File", QStyle.StandardPixmap.SP_DialogSaveButton),
+            ("find", "Find", QStyle.StandardPixmap.SP_FileDialogContentsView),
+            ("undo", "Undo", QStyle.StandardPixmap.SP_ArrowBack),
+            ("redo", "Redo", QStyle.StandardPixmap.SP_ArrowForward),
+            ("settings", "Settings", QStyle.StandardPixmap.SP_FileDialogDetailedView),
+            ("command_palette", "Command Palette", QStyle.StandardPixmap.SP_DesktopIcon),
+            ("project_directory", "Project Directory", QStyle.StandardPixmap.SP_DirIcon),
+            ("terminal", "Powershell", QStyle.StandardPixmap.SP_ComputerIcon),
+            ("fullscreen", "Fullscreen", QStyle.StandardPixmap.SP_TitleBarMaxButton),
+            ("function_grid", "Function Grid", QStyle.StandardPixmap.SP_DialogApplyButton),
+        ]
 
         root_layout = QVBoxLayout(self)
         root_layout.setContentsMargins(18, 18, 18, 18)
@@ -33,13 +50,19 @@ class FunctionGridDialog(QDialog):
         self.grid_layout.setContentsMargins(0, 0, 0, 0)
         self.grid_layout.setSpacing(12)
 
-        for row in range(self.rows):
-            for col in range(self.cols):
-                slot = QFrame(grid_container)
-                slot.setMinimumSize(120, 90)
-                slot.installEventFilter(self)
-                self.grid_layout.addWidget(slot, row, col)
-                self.slots.append(slot)
+        for index, (action_key, tooltip_text, icon_name) in enumerate(self.grid_items):
+            row = index // self.cols
+            col = index % self.cols
+            button = QToolButton(grid_container)
+            button.setIcon(self.style().standardIcon(icon_name))
+            button.setIconSize(QSize(30, 30))
+            button.setToolTip(tooltip_text)
+            button.setCursor(Qt.CursorShape.PointingHandCursor)
+            button.setMinimumSize(120, 90)
+            button.installEventFilter(self)
+            button.clicked.connect(lambda checked=False, key=action_key: self.trigger_action(key))
+            self.grid_layout.addWidget(button, row, col)
+            self.buttons.append(button)
 
         self.update_selection()
 
@@ -70,23 +93,34 @@ class FunctionGridDialog(QDialog):
             return
 
         if event.key() == Qt.Key.Key_Down:
-            if self.selected_index + self.cols < len(self.slots):
+            if self.selected_index + self.cols < len(self.buttons):
                 self.selected_index += self.cols
                 self.update_selection()
+            return
+
+        if event.key() in (Qt.Key.Key_Return, Qt.Key.Key_Enter):
+            action_key = self.grid_items[self.selected_index][0]
+            self.trigger_action(action_key)
             return
 
         super().keyPressEvent(event)
 
     def eventFilter(self, watched, event):
-        if event.type() == QEvent.Type.MouseButtonPress and watched in self.slots:
-            self.selected_index = self.slots.index(watched)
+        if event.type() == QEvent.Type.MouseButtonPress and watched in self.buttons:
+            self.selected_index = self.buttons.index(watched)
             self.update_selection()
-            return True
+            return False
         return super().eventFilter(watched, event)
 
     def update_selection(self):
-        for index, slot in enumerate(self.slots):
+        for index, button in enumerate(self.buttons):
             if index == self.selected_index:
-                slot.setStyleSheet("background-color: #2b2b2b; border: 2px solid #00a2ff; border-radius: 8px;")
+                button.setStyleSheet("background-color: #2b2b2b; border: 2px solid #00a2ff; border-radius: 8px;")
             else:
-                slot.setStyleSheet("background-color: #2b2b2b; border: 1px solid #4a4a4a; border-radius: 8px;")
+                button.setStyleSheet("background-color: #2b2b2b; border: 1px solid #4a4a4a; border-radius: 8px;")
+
+    def trigger_action(self, action_key):
+        action = self.actions.get(action_key)
+        if callable(action):
+            self.accept()
+            action()
