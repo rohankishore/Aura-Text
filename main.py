@@ -3,14 +3,20 @@ import os
 import shutil
 import platform
 
-# Suppress noisy Qt startup warnings (e.g., DPI awareness context warnings on Windows).
+# Suppress noisy Qt startup warnings.
 existing_qt_logging_rules = os.environ.get("QT_LOGGING_RULES", "").strip()
-if "qt.qpa.window=false" not in existing_qt_logging_rules:
-    os.environ["QT_LOGGING_RULES"] = (
-        f"{existing_qt_logging_rules};qt.qpa.window=false"
-        if existing_qt_logging_rules
-        else "qt.qpa.window=false"
-    )
+required_qt_rules = [
+    "qt.qpa.window=false",
+    "qt.text.font.db=false",
+    "qt.text.font=false",
+]
+if existing_qt_logging_rules:
+    rule_set = {rule.strip() for rule in existing_qt_logging_rules.split(";") if rule.strip()}
+    for rule in required_qt_rules:
+        rule_set.add(rule)
+    os.environ["QT_LOGGING_RULES"] = ";".join(sorted(rule_set))
+else:
+    os.environ["QT_LOGGING_RULES"] = ";".join(required_qt_rules)
 
 from PyQt6.QtWidgets import QApplication
 import sys

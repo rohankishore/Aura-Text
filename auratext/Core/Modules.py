@@ -229,8 +229,6 @@ def markdown_new(self):
     self.md_widget = QTextBrowser()
     self.md_widget.setOpenExternalLinks(True)
     self.md_widget.setStyleSheet("background-color: #0d1117;")
-    self.md_layout = QVBoxLayout(self.md_widget)
-    self.md_layout.addWidget(self.md_widget)
     self.mdnew.setWidget(self.md_widget)
     self.addDockWidget(Qt.DockWidgetArea.RightDockWidgetArea, self.mdnew)
 
@@ -256,8 +254,6 @@ def markdown_open(self, path_data, file_path=None):
         if file_path:
             self.md_widget.setSearchPaths([os.path.dirname(file_path)])
 
-        self.md_layout = QVBoxLayout(self.md_widget)
-        self.md_layout.addWidget(self.md_widget)
         self.md_dock.setWidget(self.md_widget)
         self.addDockWidget(Qt.DockWidgetArea.RightDockWidgetArea, self.md_dock)
 
