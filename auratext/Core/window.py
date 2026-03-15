@@ -155,6 +155,7 @@ class Window(QMainWindow):
                 path TEXT
             )
         ''')
+        
 
         # theme file
         with open(f"{local_app_data}/data/theme.json", "r") as themes_file:
