@@ -615,7 +615,6 @@ class Window(QMainWindow):
             }
 
             QTabBar::close-button {
-                image: none;
                 subcontrol-position: right;
                 margin-right: 6px;
                 width: 12px;
