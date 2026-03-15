@@ -166,7 +166,7 @@ class Window(QMainWindow):
             self.terminal_history = thfile.readlines()
 
         # keymap file
-        with open(os.path.join(script_dir, "keybindings.json"), "r") as kmfile:
+        with open(f"{local_app_data}/data/keybindings.json", "r") as kmfile:
             self._shortcuts = json.load(kmfile)
 
         if self._themes["theming"] == "flat":
