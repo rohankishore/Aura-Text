@@ -24,18 +24,18 @@ class FunctionGridDialog(QDialog):
         self.selected_index = 0
 
         self.grid_items = [
-            ("open_project", "Open Project", QStyle.StandardPixmap.SP_DialogOpenButton),
-            ("settings", "Settings", QStyle.StandardPixmap.SP_FileDialogDetailedView),
-            ("todo", "To-Do", QStyle.StandardPixmap.SP_DialogApplyButton),
-            ("additional_prefs", "Additional Preferences", QStyle.StandardPixmap.SP_FileDialogInfoView),
-            ("keyboard_bindings", "Keyboard Bindings", QStyle.StandardPixmap.SP_ComputerIcon),
-            ("extensions", "Extensions", QStyle.StandardPixmap.SP_DirIcon),
-            ("themes", "Themes", QStyle.StandardPixmap.SP_FileDialogListView),
-            ("performance_monitor", "Performance Monitor", QStyle.StandardPixmap.SP_BrowserReload),
-            ("notes", "Notes", QStyle.StandardPixmap.SP_FileIcon),
-            ("manage_projects", "Manage Projects", QStyle.StandardPixmap.SP_DirOpenIcon),
-            ("open_project_tree", "Open Project as Tree View", QStyle.StandardPixmap.SP_DirHomeIcon),
-            ("command_palette", "Command Palette", QStyle.StandardPixmap.SP_DesktopIcon),
+            ("open_project", "Open", "Open Project", QStyle.StandardPixmap.SP_DialogOpenButton),
+            ("settings", "Settings", "Settings", QStyle.StandardPixmap.SP_FileDialogDetailedView),
+            ("todo", "To-Do", "To-Do", QStyle.StandardPixmap.SP_DialogApplyButton),
+            ("additional_prefs", "Prefs", "Additional Preferences", QStyle.StandardPixmap.SP_FileDialogInfoView),
+            ("keyboard_bindings", "Keys", "Keyboard Bindings", QStyle.StandardPixmap.SP_ComputerIcon),
+            ("extensions", "Extensions", "Extensions", QStyle.StandardPixmap.SP_DirIcon),
+            ("themes", "Themes", "Themes", QStyle.StandardPixmap.SP_FileDialogListView),
+            ("performance_monitor", "Perf", "Performance Monitor", QStyle.StandardPixmap.SP_BrowserReload),
+            ("notes", "Notes", "Notes", QStyle.StandardPixmap.SP_FileIcon),
+            ("manage_projects", "Projects", "Manage Projects", QStyle.StandardPixmap.SP_DirOpenIcon),
+            ("open_project_tree", "Tree", "Open Project as Tree View", QStyle.StandardPixmap.SP_DirHomeIcon),
+            ("command_palette", "Palette", "Command Palette", QStyle.StandardPixmap.SP_DesktopIcon),
         ]
 
         root_layout = QVBoxLayout(self)
@@ -50,22 +50,27 @@ class FunctionGridDialog(QDialog):
         self.grid_layout.setContentsMargins(0, 0, 0, 0)
         self.grid_layout.setSpacing(12)
 
-        for index, (action_key, tooltip_text, icon_name) in enumerate(self.grid_items):
+        for index, (action_key, caption_text, tooltip_text, icon_name) in enumerate(self.grid_items):
             row = index // self.cols
             col = index % self.cols
             button = QToolButton(grid_container)
             button.setIcon(self.style().standardIcon(icon_name))
             button.setIconSize(QSize(30, 30))
-            button.setText(tooltip_text)
+            button.setText(caption_text)
             button.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonTextUnderIcon)
             button.setToolTip(tooltip_text)
             button.setCursor(Qt.CursorShape.PointingHandCursor)
             button.setFocusPolicy(Qt.FocusPolicy.NoFocus)
-            button.setMinimumSize(120, 90)
+            button.setFixedSize(132, 132)
             button.installEventFilter(self)
             button.clicked.connect(lambda checked=False, key=action_key: self.trigger_action(key))
             self.grid_layout.addWidget(button, row, col)
             self.buttons.append(button)
+
+        for row in range(self.rows):
+            self.grid_layout.setRowStretch(row, 0)
+        for col in range(self.cols):
+            self.grid_layout.setColumnStretch(col, 0)
 
         self.update_selection()
 
