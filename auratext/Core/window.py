@@ -35,6 +35,7 @@ from PyQt6.QtWidgets import (
     QPushButton,
     QWidget,
     QFormLayout,
+    QGridLayout,
     QScrollArea,
     QKeySequenceEdit,
     QVBoxLayout,
@@ -2305,7 +2306,28 @@ class Window(QMainWindow):
             self.showMaximized()
 
     def function_grid(self):
-        self.show_command_palette()
+        for i in range(self.tab_widget.count()):
+            if self.tab_widget.tabText(i) == "Function Grid":
+                self.tab_widget.setCurrentIndex(i)
+                return
+
+        function_grid_widget = QWidget()
+        root_layout = QVBoxLayout(function_grid_widget)
+
+        header = QLabel("Function Grid")
+        root_layout.addWidget(header)
+
+        grid_container = QWidget()
+        grid_layout = QGridLayout(grid_container)
+        grid_layout.setContentsMargins(0, 0, 0, 0)
+        grid_layout.setSpacing(12)
+
+        root_layout.addWidget(grid_container)
+        root_layout.addStretch(1)
+
+        self.tab_widget.addTab(function_grid_widget, QIcon(), "Function Grid")
+        self.tab_widget.setCurrentWidget(function_grid_widget)
+        self.statusBar.show()
 
     def show_command_palette(self):
         self.command_palette.show()
