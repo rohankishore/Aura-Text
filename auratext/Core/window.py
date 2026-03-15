@@ -2304,6 +2304,9 @@ class Window(QMainWindow):
         else:
             self.showMaximized()
 
+    def function_grid(self):
+        self.show_command_palette()
+
     def show_command_palette(self):
         self.command_palette.show()
         # Center the palette
