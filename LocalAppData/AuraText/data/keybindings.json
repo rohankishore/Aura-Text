@@ -1,0 +1,21 @@
+{
+  "command_palette": "Ctrl+Shift+P",
+  "new_file": "Ctrl+N",
+  "open_file": "Ctrl+O",
+  "save_file": "Ctrl+S",
+  "close_tab": "Ctrl+W",
+  "undo": "Ctrl+Z",
+  "redo": "Ctrl+Y",
+  "cut": "Ctrl+X",
+  "copy": "Ctrl+C",
+  "paste": "Ctrl+V",
+  "select_all": "Ctrl+A",
+  "terminal": "Ctrl+`",
+  "split_editor": "Ctrl+\\",
+  "fullscreen": "F11",
+  "run_python_file": "Shift+F5",
+  "find": "Ctrl+F",
+  "project_search": "Ctrl+Shift+F",
+  "format_code": "Shift+Alt+F",
+  "settings": "Ctrl+,"
+}
