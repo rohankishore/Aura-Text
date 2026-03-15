@@ -1984,9 +1984,6 @@ class Window(QMainWindow):
         shortcut_dock = shortcuts.Shortcuts()
         self.addDockWidget(Qt.DockWidgetArea.RightDockWidgetArea, shortcut_dock)
 
-    def keyboard_bindings(self):
-        self.open_file_from_path(os.path.join(script_dir, "keybindings.json"))
-
     def find_in_editor(self):
         self.current_editor.show_search_dialog()
 
