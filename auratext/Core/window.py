@@ -531,7 +531,7 @@ class Window(QMainWindow):
             {"name": "Git: Commit", "action": self.gitCommit},
             {"name": "Git: Push", "action": self.gitPush},
             {"name": "Git: Graph", "action": self.gitGraph},
-            {"name": "Git: Interactive Rebase", "action": self.gitRebase},
+            {"name": "Git: Interactive Rebase", "action": getattr(self, "gitRebase", lambda: None)},
             {"name": "Preferences: Additional Preferences", "action": self.additional_prefs},
             {"name": "Preferences: Keyboard Bindings", "action": self.keyboard_bindings},
             {"name": "Preferences: Import Theme", "action": self.import_theme},
@@ -845,10 +845,15 @@ class Window(QMainWindow):
 
     def load_plugins(self):
         self.plugins = []
+        plugin_dir = f"{local_app_data}/plugins"
+        if not os.path.isdir(plugin_dir):
+            return
+
         plugin_files = [
-            f.split(".")[0] for f in os.listdir(f"{local_app_data}/plugins") if f.endswith(".py")
+            f.split(".")[0] for f in os.listdir(plugin_dir) if f.endswith(".py")
         ]
-        sys.path.append(f"{local_app_data}/plugins")
+        if plugin_dir not in sys.path:
+            sys.path.append(plugin_dir)
         for plugin_file in plugin_files:
             if not plugin_file.isidentifier():
                 continue

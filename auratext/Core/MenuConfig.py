@@ -19,7 +19,11 @@ else:
     print("Unsupported operating system")
     sys.exit(1)
 local_app_data = os.path.join(local_app_data, "AuraText")
-cpath = open(f"{local_app_data}/data/CPath_Project.txt", "r+").read()
+try:
+    with open(f"{local_app_data}/data/CPath_Project.txt", "r+") as _cpath_file:
+        cpath = _cpath_file.read().strip()
+except (FileNotFoundError, OSError):
+    cpath = ""
 
 with open(f"{local_app_data}/data/theme.json", "r") as themes_file:
     _themes = json.load(themes_file)
@@ -84,10 +88,10 @@ QMenu::item::selected {{
     file_menu.addAction("Manage Projects", self.manageProjects)
 
     git_menu = QMenu("&Git", self)
-    git_menu.addAction("Commit", self.gitCommit)
-    git_menu.addAction("Push", self.gitPush)
-    git_menu.addAction("Graph", self.gitGraph)
-    git_menu.addAction("Rebase", self.gitRebase)
+    git_menu.addAction("Commit", getattr(self, "gitCommit", lambda: None))
+    git_menu.addAction("Push", getattr(self, "gitPush", lambda: None))
+    git_menu.addAction("Graph", getattr(self, "gitGraph", lambda: None))
+    git_menu.addAction("Rebase", getattr(self, "gitRebase", lambda: None))
 
     def is_git_repo():
         if os.path.isdir(os.path.join(cpath, '.git')):
