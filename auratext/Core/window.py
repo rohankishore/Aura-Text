@@ -590,6 +590,155 @@ class Window(QMainWindow):
     def show_command_palette(self):
         self.command_palette.exec()
 
+    def get_default_keybindings(self):
+        return {
+            "command_palette": "Ctrl+Shift+P",
+            "new_file": "Ctrl+N",
+            "open_file": "Ctrl+O",
+            "save_file": "Ctrl+S",
+            "close_tab": "Ctrl+W",
+            "undo": "Ctrl+Z",
+            "redo": "Ctrl+Y",
+            "cut": "Ctrl+X",
+            "copy": "Ctrl+C",
+            "paste": "Ctrl+V",
+            "select_all": "Ctrl+A",
+            "terminal": "Ctrl+`",
+            "split_editor": "Ctrl+\\",
+            "fullscreen": "F11",
+            "run_python_file": "Shift+F5",
+            "find": "Ctrl+F",
+            "project_search": "Ctrl+Shift+F",
+            "format_code": "Shift+Alt+F",
+            "settings": "Ctrl+,"
+        }
+
+    def get_keybinding_items(self):
+        return [
+            ("command_palette", "Command Palette"),
+            ("new_file", "New File"),
+            ("open_file", "Open File"),
+            ("save_file", "Save File"),
+            ("close_tab", "Close Tab"),
+            ("undo", "Undo"),
+            ("redo", "Redo"),
+            ("cut", "Cut"),
+            ("copy", "Copy"),
+            ("paste", "Paste"),
+            ("select_all", "Select All"),
+            ("terminal", "Open Powershell"),
+            ("split_editor", "Toggle Split Editor"),
+            ("fullscreen", "Toggle Fullscreen"),
+            ("run_python_file", "Run Python File"),
+            ("find", "Find in File"),
+            ("project_search", "Search in Project"),
+            ("format_code", "Format Code"),
+            ("settings", "Open Settings")
+        ]
+
+    def setup_keyboard_shortcuts(self):
+        for shortcut in self.qt_shortcuts:
+            shortcut.setEnabled(False)
+            shortcut.deleteLater()
+        self.qt_shortcuts = []
+
+        bindings = self.get_default_keybindings()
+        bindings.update(self._shortcuts)
+        self._shortcuts = bindings
+
+        def register(binding_key, handler):
+            sequence = self._shortcuts.get(binding_key, "")
+            if not sequence:
+                return
+            shortcut = QShortcut(QKeySequence(sequence), self)
+            shortcut.activated.connect(handler)
+            self.qt_shortcuts.append(shortcut)
+
+        register("command_palette", self.show_command_palette)
+        register("new_file", self.cs_new_document)
+        register("open_file", self.open_document)
+        register("save_file", self.save_document)
+        register("close_tab", lambda: self.remove_editor(self.tab_widget.currentIndex()) if self.tab_widget.currentIndex() >= 0 else None)
+        register("undo", self.undo_document)
+        register("redo", self.redo_document)
+        register("cut", self.cut_document)
+        register("copy", self.copy_document)
+        register("paste", self.paste_document)
+        register("select_all", lambda: self.current_editor.selectAll() if self.current_editor and self.current_editor != "" else None)
+        register("terminal", self.setupPowershell)
+        register("split_editor", self.toggle_split_editor)
+        register("fullscreen", self.fullscreen)
+        register("run_python_file", self.run_python_file)
+        register("find", self.find_in_editor)
+        register("project_search", self.expandSidebar__Search)
+        register("format_code", self.code_formatting)
+        register("settings", self.expandSidebar__Settings)
+
+    def save_keybindings(self):
+        updated = {}
+        for key, editor in self.keybinding_inputs.items():
+            sequence = editor.keySequence().toString(QKeySequence.SequenceFormat.PortableText)
+            updated[key] = sequence
+
+        self._shortcuts = updated
+
+        with open(self.keybindings_path, "w") as file_handle:
+            json.dump(self._shortcuts, file_handle, indent=2)
+
+        self.setup_keyboard_shortcuts()
+        QMessageBox.information(self, "Keyboard Bindings", "Keybindings updated.")
+
+    def reset_keybindings_fields(self):
+        defaults = self.get_default_keybindings()
+        for key, editor in self.keybinding_inputs.items():
+            editor.setKeySequence(QKeySequence(defaults.get(key, "")))
+
+    def keyboard_bindings(self):
+        for i in range(self.tab_widget.count()):
+            if self.tab_widget.tabText(i) == "Keyboard Bindings":
+                self.tab_widget.setCurrentIndex(i)
+                return
+
+        self.keybindings_widget = QWidget()
+        outer_layout = QVBoxLayout(self.keybindings_widget)
+
+        title = QLabel("Press a shortcut in each box to assign it")
+        outer_layout.addWidget(title)
+
+        scroll_area = QScrollArea()
+        scroll_area.setWidgetResizable(True)
+        scroll_content = QWidget()
+        form_layout = QFormLayout(scroll_content)
+
+        self.keybinding_inputs = {}
+        for key, label in self.get_keybinding_items():
+            sequence_editor = QKeySequenceEdit()
+            sequence_editor.setKeySequence(QKeySequence(self._shortcuts.get(key, "")))
+            self.keybinding_inputs[key] = sequence_editor
+            form_layout.addRow(label, sequence_editor)
+
+        scroll_area.setWidget(scroll_content)
+        outer_layout.addWidget(scroll_area)
+
+        button_row = QHBoxLayout()
+        reset_button = QPushButton("Reset Defaults")
+        save_button = QPushButton("Save")
+        open_json_button = QPushButton("Open JSON")
+
+        reset_button.clicked.connect(self.reset_keybindings_fields)
+        save_button.clicked.connect(self.save_keybindings)
+        open_json_button.clicked.connect(lambda: self.open_file_from_path(self.keybindings_path))
+
+        button_row.addWidget(reset_button)
+        button_row.addWidget(open_json_button)
+        button_row.addWidget(save_button)
+        outer_layout.addLayout(button_row)
+
+        settings_icon = QIcon(f"{self.local_app_data}/icons/settings.png")
+        self.tab_widget.addTab(self.keybindings_widget, settings_icon, "Keyboard Bindings")
+        self.tab_widget.setCurrentWidget(self.keybindings_widget)
+        self.statusBar.show()
+
     def create_editor(self, file_path=""):
         container = QWidget()
         layout = QHBoxLayout(container)
