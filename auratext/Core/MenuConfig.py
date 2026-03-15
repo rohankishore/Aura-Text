@@ -491,6 +491,9 @@ QMenu::item::selected {{
         pass
 
     prefernces_menu.addMenu(language_menu)
+    prefernces_menu.addAction("Keyboard Bindings", self.keyboard_bindings).setWhatsThis(
+        "Open the keybindings JSON to customize keyboard shortcuts"
+    )
     prefernces_menu.addAction("Additional Preferences", self.additional_prefs)
     prefernces_menu.addAction("Import Theme", self.import_theme)
     menubar.addMenu(prefernces_menu)
