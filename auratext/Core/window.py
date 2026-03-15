@@ -206,6 +206,9 @@ class Window(QMainWindow):
         self.is_split = False
 
         self.current_editor = ""
+        self.dock = None
+        self.model = None
+        self.explorer_tree_view = None
 
         if self._config["explorer_default_open"] == "True":
             self.expandSidebar__Explorer()
@@ -215,8 +218,6 @@ class Window(QMainWindow):
         if cpath == "" or cpath == " ":
             welcome_widget = WelcomeScreen.WelcomeWidget(self)
             self.tab_widget.addTab(welcome_widget, "Welcome")
-        else:
-            self.treeview_project(cpath)
 
         self.tab_widget.setTabsClosable(True)
 
@@ -892,31 +893,7 @@ class Window(QMainWindow):
                 self.selected_sidebar_button = None
 
     def treeview_project(self, path):
-        self.dock = QDockWidget("Explorer", self)
-        self.dock.visibilityChanged.connect(
-            lambda visible: self.onExplorerDockVisibilityChanged(visible)
-        )
-        # dock.setStyleSheet("QDockWidget { background-color: #191a1b; color: white;}")
-        self.dock.setAllowedAreas(Qt.DockWidgetArea.RightDockWidgetArea)
-        tree_view = QTreeView()
-        self.model = QFileSystemModel()
-        bg = self._themes["sidebar_bg"]
-        tree_view.setStyleSheet(
-            f"QTreeView {{background-color: {bg}; color: white; border: none; }}"
-        )
-        tree_view.setModel(self.model)
-        tree_view.setRootIndex(self.model.index(path))
-        self.model.setRootPath(path)
-        self.dock.setWidget(tree_view)
-        self.addDockWidget(Qt.DockWidgetArea.RightDockWidgetArea, self.dock)
-
-        tree_view.setFont(QFont("Consolas"))
-
-        tree_view.setColumnHidden(1, True)  # File type column
-        tree_view.setColumnHidden(2, True)  # Size column
-        tree_view.setColumnHidden(3, True)  # Date modified column
-
-        tree_view.doubleClicked.connect(self.open_file)
+        self.expandSidebar__Explorer(path)
     
     def handle_sidebar_button_click(self, button, action):
         """Handle sidebar button clicks and update icon states"""
@@ -932,33 +909,39 @@ class Window(QMainWindow):
         # Execute the original action
         action()
 
-    def expandSidebar__Explorer(self):
-        self.dock = QDockWidget("Explorer", self)
-        self.dock.setMinimumWidth(200)
-        self.dock.visibilityChanged.connect(
-            lambda visible: self.onExplorerDockVisibilityChanged(visible)
-        )
-        self.dock.setAllowedAreas(Qt.DockWidgetArea.AllDockWidgetAreas)
-        tree_view = QTreeView()
+    def expandSidebar__Explorer(self, project_path=None):
+        root_path = (project_path if project_path is not None else cpath).strip()
+        if not root_path:
+            return
 
-        self.model = QFileSystemModel()
-        bg = self._themes["sidebar_bg"]
-        tree_view.setStyleSheet(
-            f"QTreeView {{background-color: {bg}; color: white; border: none; }}"
-        )
-        tree_view.setModel(self.model)
-        tree_view.setRootIndex(self.model.index(cpath))
-        self.model.setRootPath(cpath)
-        self.dock.setWidget(tree_view)
-        self.addDockWidget(Qt.DockWidgetArea.RightDockWidgetArea, self.dock)
+        if not self.dock:
+            self.dock = QDockWidget("Explorer", self)
+            self.dock.setMinimumWidth(200)
+            self.dock.visibilityChanged.connect(
+                lambda visible: self.onExplorerDockVisibilityChanged(visible)
+            )
+            self.dock.setAllowedAreas(Qt.DockWidgetArea.AllDockWidgetAreas)
 
-        tree_view.setFont(QFont("Consolas"))
+            self.explorer_tree_view = QTreeView()
+            self.model = QFileSystemModel()
+            bg = self._themes["sidebar_bg"]
+            self.explorer_tree_view.setStyleSheet(
+                f"QTreeView {{background-color: {bg}; color: white; border: none; }}"
+            )
+            self.explorer_tree_view.setModel(self.model)
+            self.dock.setWidget(self.explorer_tree_view)
+            self.addDockWidget(Qt.DockWidgetArea.RightDockWidgetArea, self.dock)
 
-        tree_view.setColumnHidden(1, True)  # File type column
-        tree_view.setColumnHidden(2, True)  # Size column
-        tree_view.setColumnHidden(3, True)  # Date modified column
+            self.explorer_tree_view.setFont(QFont("Consolas"))
+            self.explorer_tree_view.setColumnHidden(1, True)  # File type column
+            self.explorer_tree_view.setColumnHidden(2, True)  # Size column
+            self.explorer_tree_view.setColumnHidden(3, True)  # Date modified column
+            self.explorer_tree_view.doubleClicked.connect(self.open_file)
 
-        tree_view.doubleClicked.connect(self.open_file)
+        self.model.setRootPath(root_path)
+        self.explorer_tree_view.setRootIndex(self.model.index(root_path))
+        self.dock.show()
+        self.dock.raise_()
 
     def expandSidebar__Search(self):
         if hasattr(self, 'search_dock') and self.search_dock:
@@ -1486,6 +1469,8 @@ class Window(QMainWindow):
         return os.path.isdir(os.path.join(cpath, '.git'))
 
     def open_file(self, index):
+        if not self.model:
+            return
         path = self.model.filePath(index)
         self.open_file_from_path(path)
 
@@ -1550,6 +1535,10 @@ class Window(QMainWindow):
         if hasattr(self, 'dock') and self.dock:
             self.removeDockWidget(self.dock)
             self.dock.close()
+            self.dock.deleteLater()
+            self.dock = None
+            self.model = None
+            self.explorer_tree_view = None
         
         # Clear current project path
         with open(f"{self.local_app_data}/data/CPath_Project.txt", "w") as file:
