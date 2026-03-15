@@ -1,9 +1,12 @@
-from PyQt6.QtWidgets import QWidget, QVBoxLayout, QLabel, QGridLayout
+from PyQt6.QtWidgets import QDialog, QWidget, QVBoxLayout, QLabel, QGridLayout
 
 
-class FunctionGridWidget(QWidget):
+class FunctionGridDialog(QDialog):
     def __init__(self, parent=None):
         super().__init__(parent)
+
+        self.setWindowTitle("Function Grid")
+        self.resize(720, 460)
 
         root_layout = QVBoxLayout(self)
 

@@ -56,7 +56,7 @@ from ..Components import powershell, terminal, statusBar, ProjectManager, About,
 from ..Components.CommandPalette import CommandPalette
 from ..Components.NewProjectDialog import NewProjectDialog
 from ..Components.Linter import CodeLinter
-from ..Components.FunctionGrid import FunctionGridWidget
+from ..Components.FunctionGrid import FunctionGridDialog
 from .MiniMapWidget import MiniMapWidget
 from .svg_icon_manager import SVGIconManager
 
@@ -2306,16 +2306,8 @@ class Window(QMainWindow):
             self.showMaximized()
 
     def function_grid(self):
-        for i in range(self.tab_widget.count()):
-            if self.tab_widget.tabText(i) == "Function Grid":
-                self.tab_widget.setCurrentIndex(i)
-                return
-
-        function_grid_widget = FunctionGridWidget(self)
-
-        self.tab_widget.addTab(function_grid_widget, QIcon(), "Function Grid")
-        self.tab_widget.setCurrentWidget(function_grid_widget)
-        self.statusBar.show()
+        function_grid_dialog = FunctionGridDialog(self)
+        function_grid_dialog.exec()
 
     def show_command_palette(self):
         self.command_palette.show()
