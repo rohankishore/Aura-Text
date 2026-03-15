@@ -8,12 +8,8 @@ import sys
 import sqlite3
 import webbrowser
 import subprocess
-import git
-import pyjokes
 import qdarktheme
-import markdown
 import platform
-from pyqtconsole.console import PythonConsole
 from PyQt6.QtCore import Qt, QSize, QTimer
 from PyQt6.QtGui import QColor, QFont, QActionGroup, QFileSystemModel, QPixmap, QIcon, QShortcut, QKeySequence, QCursor
 from PyQt6.Qsci import QsciScintilla
@@ -77,44 +73,19 @@ else:
 local_app_data = os.path.join(local_app_data, "AuraText")
 
 script_dir = os.path.dirname(os.path.abspath(__file__))
-# Check dev path first: ../../LocalAppData/AuraText
-project_root = os.path.abspath(os.path.join(script_dir, "..", ".."))
-copytolocalappdata = os.path.join(project_root, "LocalAppData", "AuraText")
 
-if not os.path.exists(copytolocalappdata):
-    import sys
-    exedir = os.path.dirname(sys.executable)
-    copytolocalappdata = os.path.join(exedir, "LocalAppData", "AuraText")
+try:
+    with open(f"{local_app_data}/data/CPath_Project.txt", "r+") as _cpath_file:
+        cpath = _cpath_file.read().strip()
+except (FileNotFoundError, OSError):
+    cpath = ""
 
-if os.path.exists(copytolocalappdata):
-    if not os.path.exists(local_app_data):
-        os.makedirs(local_app_data)
+try:
+    with open(f"{local_app_data}/data/CPath_File.txt", "r+") as _cfile_file:
+        cfile = _cfile_file.read().strip()
+except (FileNotFoundError, OSError):
+    cfile = ""
 
-    for item in os.listdir(copytolocalappdata):
-        s = os.path.join(copytolocalappdata, item)
-        d = os.path.join(local_app_data, item)
-
-        if item == "data":
-            if not os.path.exists(d):
-                os.makedirs(d)
-            for data_item in os.listdir(s):
-                ds = os.path.join(s, data_item)
-                dd = os.path.join(d, data_item)
-                if not os.path.exists(dd):
-                    if os.path.isdir(ds):
-                        shutil.copytree(ds, dd)
-                    else:
-                        shutil.copy2(ds, dd)
-        else:
-            if os.path.isdir(s):
-                shutil.copytree(s, d, dirs_exist_ok=True)
-            else:
-                shutil.copy2(s, d)
-else:
-    print(f"Warning: Could not find LocalAppData/AuraText to copy. Checked: {copytolocalappdata}")
-
-cpath = open(f"{local_app_data}/data/CPath_Project.txt", "r+").read().strip()
-cfile = open(f"{local_app_data}/data/CPath_File.txt", "r+").read().strip()
 if not cpath:
     cpath = ""
 if not cfile:
@@ -483,13 +454,13 @@ class Window(QMainWindow):
         self.setCentralWidget(self.editor_splitter)
         self.statusBar.hide()
         self.editors = []
-        self.linters = {}  # Dictionary to store linters for each editor
-        self.tab_file_paths = {}  # Dictionary to store file paths for each tab index
+        self.linters = {}  
+        self.tab_file_paths = {}  
 
         self.about_dialog = None
 
         if self._config["open_last_file"] == "True":
-            if cfile != "" or cfile != " ":
+            if cfile and cfile.strip():
                 self.open_last_file()
                 self.statusBar.show()
             else:
@@ -509,7 +480,7 @@ class Window(QMainWindow):
         self.setWindowIcon(QIcon(f"{local_app_data}/icons/icon.ico"))
         self.configure_menuBar()
         sys.path.append(f"{local_app_data}/plugins")
-        self.load_plugins()
+        QTimer.singleShot(0, self.load_plugins)
 
         # Setup autosave timer (saves every 30 seconds)
         self.autosave_timer = QTimer(self)
@@ -1212,6 +1183,8 @@ class Window(QMainWindow):
             self.addProjectsToDB(name=project_name, project_path=project_path)
 
     def code_jokes(self):
+        import pyjokes
+
         a = pyjokes.get_joke(language="en", category="neutral")
         QMessageBox.information(self, "A Byte of Humour!", a)
 
@@ -1232,6 +1205,8 @@ class Window(QMainWindow):
         self.addDockWidget(Qt.DockWidgetArea.BottomDockWidgetArea, self.ps_dock)
 
     def python_console(self):
+        from pyqtconsole.console import PythonConsole
+
         self.console_dock = QDockWidget("Python Console", self)
         console_widget = PythonConsole()
         console_widget.eval_in_thread()
@@ -1267,7 +1242,7 @@ class Window(QMainWindow):
         messagebox = QMessageBox()
         global path
         try:
-            from git import Repo
+            from git import Repo, GitCommandError
 
             repo_url, ok = QInputDialog.getText(self, "Git Repo", "URL of the Repository")
             try:
@@ -1287,7 +1262,7 @@ class Window(QMainWindow):
                 )
                 messagebox.exec()
                 self.treeview_project(path)
-            except git.GitCommandError:
+            except GitCommandError:
                 pass
 
         except ImportError:
@@ -1978,6 +1953,8 @@ class Window(QMainWindow):
         dialog.exec()
 
     def toHTML(self):
+        import markdown
+
         index = self.tab_widget.currentIndex()
         tabText = str(self.tab_widget.tabText(index))
         print(tabText)
