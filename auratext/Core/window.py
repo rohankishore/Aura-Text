@@ -6,7 +6,6 @@ import random
 import shutil
 import sys
 import sqlite3
-import time
 import webbrowser
 import subprocess
 import git
@@ -19,6 +18,7 @@ from PyQt6.QtCore import Qt, QSize, QTimer
 from PyQt6.QtGui import QColor, QFont, QActionGroup, QFileSystemModel, QPixmap, QIcon, QShortcut, QKeySequence, QCursor
 from PyQt6.Qsci import QsciScintilla
 from PyQt6.QtWidgets import (
+    QApplication,
     QMainWindow,
     QInputDialog,
     QDockWidget,
@@ -182,8 +182,9 @@ class Window(QMainWindow):
 
         self._config["show_setup_info"] = "False"
 
+        self._startup_splash = None
+
         def splashScreen():
-            # Splash Screen
             splash_pix = ""
             current_time = datetime.datetime.now().time()
             sunrise_time = current_time.replace(hour=6, minute=0, second=0, microsecond=0)
@@ -199,8 +200,9 @@ class Window(QMainWindow):
 
             splash = QSplashScreen(splash_pix)
             splash.show()
-            time.sleep(1)
-            splash.hide()
+            splash.raise_()
+            QApplication.processEvents()
+            self._startup_splash = splash
 
         if self._config["splash"] == "True":
             splashScreen()
@@ -626,18 +628,19 @@ class Window(QMainWindow):
         settings_shortcut.activated.connect(self.expandSidebar__Settings)
 
         self.showMaximized()
+        if self._startup_splash is not None:
+            self._startup_splash.finish(self)
+            self._startup_splash = None
 
     def show_command_palette(self):
         self.command_palette.exec()
 
     def create_editor(self, file_path=""):
-        # Create container widget for editor + minimap
         container = QWidget()
         layout = QHBoxLayout(container)
         layout.setContentsMargins(0, 0, 0, 0)
         layout.setSpacing(0)
         
-        # Create editor
         self.text_editor = CodeEditor(self)
         
         # Create minimap
