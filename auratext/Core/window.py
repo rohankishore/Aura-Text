@@ -1989,7 +1989,8 @@ class Window(QMainWindow):
         self.addDockWidget(Qt.DockWidgetArea.RightDockWidgetArea, shortcut_dock)
 
     def find_in_editor(self):
-        self.current_editor.show_search_dialog()
+        if self.current_editor and self.current_editor != "" and hasattr(self.current_editor, "show_search_dialog"):
+            self.current_editor.show_search_dialog()
 
     def open_project(self):
         dialog = QFileDialog(self)
