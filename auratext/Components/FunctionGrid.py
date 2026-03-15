@@ -56,6 +56,8 @@ class FunctionGridDialog(QDialog):
             button = QToolButton(grid_container)
             button.setIcon(self.style().standardIcon(icon_name))
             button.setIconSize(QSize(30, 30))
+            button.setText(tooltip_text)
+            button.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonTextUnderIcon)
             button.setToolTip(tooltip_text)
             button.setCursor(Qt.CursorShape.PointingHandCursor)
             button.setFocusPolicy(Qt.FocusPolicy.NoFocus)
