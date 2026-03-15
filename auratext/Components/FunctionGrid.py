@@ -24,18 +24,18 @@ class FunctionGridDialog(QDialog):
         self.selected_index = 0
 
         self.grid_items = [
-            ("new_file", "New File", QStyle.StandardPixmap.SP_FileIcon),
-            ("open_file", "Open File", QStyle.StandardPixmap.SP_DialogOpenButton),
-            ("save_file", "Save File", QStyle.StandardPixmap.SP_DialogSaveButton),
-            ("find", "Find", QStyle.StandardPixmap.SP_FileDialogContentsView),
-            ("undo", "Undo", QStyle.StandardPixmap.SP_ArrowBack),
-            ("redo", "Redo", QStyle.StandardPixmap.SP_ArrowForward),
+            ("open_project", "Open Project", QStyle.StandardPixmap.SP_DialogOpenButton),
             ("settings", "Settings", QStyle.StandardPixmap.SP_FileDialogDetailedView),
+            ("todo", "To-Do", QStyle.StandardPixmap.SP_DialogApplyButton),
+            ("additional_prefs", "Additional Preferences", QStyle.StandardPixmap.SP_FileDialogInfoView),
+            ("keyboard_bindings", "Keyboard Bindings", QStyle.StandardPixmap.SP_ComputerIcon),
+            ("extensions", "Extensions", QStyle.StandardPixmap.SP_DirIcon),
+            ("themes", "Themes", QStyle.StandardPixmap.SP_FileDialogListView),
+            ("performance_monitor", "Performance Monitor", QStyle.StandardPixmap.SP_BrowserReload),
+            ("notes", "Notes", QStyle.StandardPixmap.SP_FileIcon),
+            ("manage_projects", "Manage Projects", QStyle.StandardPixmap.SP_DirOpenIcon),
+            ("open_project_tree", "Open Project as Tree View", QStyle.StandardPixmap.SP_DirHomeIcon),
             ("command_palette", "Command Palette", QStyle.StandardPixmap.SP_DesktopIcon),
-            ("project_directory", "Project Directory", QStyle.StandardPixmap.SP_DirIcon),
-            ("terminal", "Powershell", QStyle.StandardPixmap.SP_ComputerIcon),
-            ("fullscreen", "Fullscreen", QStyle.StandardPixmap.SP_TitleBarMaxButton),
-            ("function_grid", "Function Grid", QStyle.StandardPixmap.SP_DialogApplyButton),
         ]
 
         root_layout = QVBoxLayout(self)

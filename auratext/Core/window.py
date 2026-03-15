@@ -2311,18 +2311,18 @@ class Window(QMainWindow):
 
     def function_grid(self):
         actions = {
-            "new_file": self.cs_new_document,
-            "open_file": self.open_document,
-            "save_file": self.save_document,
-            "find": self.find_in_editor,
-            "undo": self.undo_document,
-            "redo": self.redo_document,
+            "open_project": self.open_project,
             "settings": self.expandSidebar__Settings,
+            "todo": self.todo,
+            "additional_prefs": self.additional_prefs,
+            "keyboard_bindings": self.keyboard_bindings,
+            "extensions": self.open_extensions_panel,
+            "themes": self.open_themes_panel,
+            "performance_monitor": self.show_performance,
+            "notes": self.notes,
+            "manage_projects": self.manageProjects,
+            "open_project_tree": self.open_project_as_treeview,
             "command_palette": self.show_command_palette,
-            "project_directory": self.expandSidebar__Explorer,
-            "terminal": self.setupPowershell,
-            "fullscreen": self.fullscreen,
-            "function_grid": self.function_grid,
         }
 
         function_grid_dialog = FunctionGridDialog(self, actions=actions)
@@ -2348,6 +2348,16 @@ class Window(QMainWindow):
         self.performance_dock.setWidget(self.performance_widget)
         self.addDockWidget(Qt.DockWidgetArea.RightDockWidgetArea, self.performance_dock)
         self.performance_dock.show()
+
+    def open_extensions_panel(self):
+        self.expandSidebar__Plugins()
+        if hasattr(self, 'plugin_dock') and self.plugin_dock:
+            self.plugin_dock.raise_()
+
+    def open_themes_panel(self):
+        self.expandSidebar__Plugins()
+        if hasattr(self, 'theme_dock') and self.theme_dock:
+            self.theme_dock.raise_()
 
     def get_icon(self, title):
         extension = os.path.splitext(title)[1].lower()
