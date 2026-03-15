@@ -58,6 +58,7 @@ class FunctionGridDialog(QDialog):
             button.setIconSize(QSize(30, 30))
             button.setToolTip(tooltip_text)
             button.setCursor(Qt.CursorShape.PointingHandCursor)
+            button.setFocusPolicy(Qt.FocusPolicy.NoFocus)
             button.setMinimumSize(120, 90)
             button.installEventFilter(self)
             button.clicked.connect(lambda checked=False, key=action_key: self.trigger_action(key))
@@ -68,6 +69,7 @@ class FunctionGridDialog(QDialog):
 
         root_layout.addWidget(grid_container)
         root_layout.addStretch(1)
+        self.setFocus()
 
     def keyPressEvent(self, event):
         if event.key() == Qt.Key.Key_Escape:
