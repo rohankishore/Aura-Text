@@ -594,6 +594,7 @@ class Window(QMainWindow):
     def get_default_keybindings(self):
         return {
             "command_palette": "Ctrl+Shift+P",
+            "function_grid": "Ctrl+Shift+W",
             "new_file": "Ctrl+N",
             "open_file": "Ctrl+O",
             "save_file": "Ctrl+S",
@@ -617,6 +618,7 @@ class Window(QMainWindow):
     def get_keybinding_items(self):
         return [
             ("command_palette", "Command Palette"),
+            ("function_grid", "Function Grid"),
             ("new_file", "New File"),
             ("open_file", "Open File"),
             ("save_file", "Save File"),
@@ -656,6 +658,7 @@ class Window(QMainWindow):
             self.qt_shortcuts.append(shortcut)
 
         register("command_palette", self.show_command_palette)
+        register("function_grid", self.function_grid)
         register("new_file", self.cs_new_document)
         register("open_file", self.open_document)
         register("save_file", self.save_document)
