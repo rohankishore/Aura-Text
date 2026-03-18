@@ -43,13 +43,17 @@ class TerminalEmulator(QWidget):
         with open(f"{local_app_data}/data/theme.json", "r") as themes_file:
             self._themes = json.load(themes_file)
 
+        editor_bg = self._themes.get("editor_theme", "#121212")
+        fg_color = self._themes.get("editor_fg", "#ffffff")
+
+
         self.terminal = QPlainTextEdit(self)
         self.set_terminal_font()
         self.terminal.setStyleSheet(
             """
             QPlainTextEdit {
                 background-color: #1E1E1E;
-                color: white;
+                color: ;
             }
         """
         )
