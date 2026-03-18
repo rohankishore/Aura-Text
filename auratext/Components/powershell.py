@@ -20,6 +20,15 @@ from auratext.scripts.def_path import resource
 newTerminalIcon = resource(r"../media/terminal/new.svg")
 killTerminalIcon = resource(r"../media/terminal/remove.svg")
 
+if platform.system() == "Windows":
+    local_app_data = os.getenv('LOCALAPPDATA')
+elif platform.system() == "Linux":
+    local_app_data = os.path.expanduser("~/.config")
+elif platform.system() == "Darwin":
+    local_app_data = os.path.expanduser("~/Library/Application Support")
+else:
+    print("Unsupported operating system")
+    sys.exit(1)
 
 class TerminalEmulator(QWidget):
     commandEntered = pyqtSignal(str)
@@ -30,6 +39,9 @@ class TerminalEmulator(QWidget):
         self.layout.setContentsMargins(0, 0, 0, 0)
 
         self.setup_toolbar()
+
+        with open(f"{local_app_data}/data/theme.json", "r") as themes_file:
+            self._themes = json.load(themes_file)
 
         self.terminal = QPlainTextEdit(self)
         self.set_terminal_font()
