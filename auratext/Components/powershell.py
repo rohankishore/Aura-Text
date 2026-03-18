@@ -50,11 +50,11 @@ class TerminalEmulator(QWidget):
         self.terminal = QPlainTextEdit(self)
         self.set_terminal_font()
         self.terminal.setStyleSheet(
-            """
-            QPlainTextEdit {
-                background-color: #1E1E1E;
-                color: ;
-            }
+            f"""
+            QPlainTextEdit {{
+                background-color: {editor_bg};
+                color: {fg_color};
+            }}
         """
         )
         self.terminal.keyPressEvent = self.terminal_key_press_event
