@@ -2,8 +2,8 @@ import os
 import re
 import subprocess
 import platform
-
-
+import sys
+import json
 from PyQt6.QtCore import QProcess, Qt, pyqtSignal
 from PyQt6.QtGui import QColor, QFont, QIcon, QKeyEvent, QTextCursor
 from PyQt6.QtWidgets import (
