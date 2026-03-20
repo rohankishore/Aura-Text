@@ -1,3 +1,6 @@
+"""
+A custom tab widget for the AuraText editor, supporting drag-and-drop reordering and a context"""
+
 from PyQt6.QtCore import QMimeData, QPoint
 from PyQt6.QtGui import QPixmap, QRegion, QAction
 from PyQt6.QtWidgets import QTabWidget, QMenu

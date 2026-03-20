@@ -1,3 +1,7 @@
+"""
+A custom status bar for the AuraText editor, displaying line/column info, total lines, word count, and current language mode."""
+
+
 import json
 import os
 import time
