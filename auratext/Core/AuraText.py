@@ -174,14 +174,23 @@ class CodeEditor(QsciScintilla):
         selected_fg = QColor("#ffffff")
         highlight_fg = QColor("#4fc1ff")
 
-        self.SendScintilla(self.SCI_AUTOCSETBACK, self._rgb_to_scintilla_color(popup_bg))
-        self.SendScintilla(self.SCI_AUTOCSETFORE, self._rgb_to_scintilla_color(popup_fg))
-        self.SendScintilla(self.SCI_AUTOCSETSELBACK, 1, self._rgb_to_scintilla_color(selected_bg))
-        self.SendScintilla(self.SCI_AUTOCSETSELFORE, 1, self._rgb_to_scintilla_color(selected_fg))
-        self.SendScintilla(self.SCI_AUTOCSETHLFORE, self._rgb_to_scintilla_color(highlight_fg))
-        self.SendScintilla(self.SCI_AUTOCSETHLBACK, self._rgb_to_scintilla_color(selected_bg))
-        self.SendScintilla(self.SCI_AUTOCSETMAXHEIGHT, 10)
-        self.SendScintilla(self.SCI_AUTOCSETMAXWIDTH, 48)
+        scintilla_type = type(self)
+        autoc_commands = [
+            ("SCI_AUTOCSETBACK", (self._rgb_to_scintilla_color(popup_bg),)),
+            ("SCI_AUTOCSETFORE", (self._rgb_to_scintilla_color(popup_fg),)),
+            ("SCI_AUTOCSETSELBACK", (1, self._rgb_to_scintilla_color(selected_bg))),
+            ("SCI_AUTOCSETSELFORE", (1, self._rgb_to_scintilla_color(selected_fg))),
+            ("SCI_AUTOCSETHLFORE", (self._rgb_to_scintilla_color(highlight_fg),)),
+            ("SCI_AUTOCSETHLBACK", (self._rgb_to_scintilla_color(selected_bg),)),
+            ("SCI_AUTOCSETMAXHEIGHT", (10,)),
+            ("SCI_AUTOCSETMAXWIDTH", (48,)),
+        ]
+
+        for command_name, args in autoc_commands:
+            command_id = getattr(scintilla_type, command_name, None)
+            if command_id is None:
+                continue
+            self.SendScintilla(command_id, *args)
 
     def setLexer(self, lexer):
         super().setLexer(lexer)
