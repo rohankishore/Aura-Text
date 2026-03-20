@@ -1,13 +1,14 @@
 from __future__ import annotations
 from typing import TYPE_CHECKING
 import re
-from PyQt6.Qsci import QsciScintilla, QsciAPIs
+from PyQt6.Qsci import QsciScintilla
 from PyQt6.QtCore import Qt, QRect, QPoint, QTimer, QRectF
-from PyQt6.QtGui import QColor, QFont, QFontMetrics, QShortcut, QKeySequence, QAction, QPainter, QPen, QBrush
+from PyQt6.QtGui import QColor, QFont, QFontMetrics, QShortcut, QKeySequence, QAction, QPainter, QPen, QBrush, QKeyEvent
 from PyQt6.QtWidgets import QMenu, QLineEdit, QCheckBox, QPushButton, QLabel, QMessageBox, QDialog, QVBoxLayout, \
     QHBoxLayout, QColorDialog, QToolTip
 from . import Lexers
 from . import Modules as ModuleFile
+from .autocomplete_engine import PythonAutocompleteEngine
 
 if TYPE_CHECKING:
     from .window import Window
@@ -81,10 +82,11 @@ class CodeEditor(QsciScintilla):
         lexer = Lexers.PythonLexer(window)
         self.setLexer(lexer)
         self.setPaper(QColor(window._themes["editor_theme"]))
+        self.autocomplete_engine = PythonAutocompleteEngine(self)
+        self.autocomplete_engine.refresh()
 
         # Autocompletion
-        apis = QsciAPIs(self.lexer())
-        self.setAutoCompletionSource(QsciScintilla.AutoCompletionSource.AcsAll)
+        self.setAutoCompletionSource(QsciScintilla.AutoCompletionSource.AcsAPIs)
         self.setAutoCompletionThreshold(1)
         self.setAutoCompletionCaseSensitivity(True)
         self.setWrapMode(QsciScintilla.WrapMode.WrapNone)
@@ -157,6 +159,21 @@ class CodeEditor(QsciScintilla):
         
         # Initial scan for colors
         QTimer.singleShot(100, self.update_color_previews)
+
+    def setLexer(self, lexer):
+        super().setLexer(lexer)
+        if hasattr(self, "autocomplete_engine"):
+            self.autocomplete_engine.refresh()
+
+    def keyPressEvent(self, event: QKeyEvent):
+        if event.key() == Qt.Key.Key_Space and event.modifiers() & Qt.KeyboardModifier.ControlModifier:
+            self.autocomplete_engine.trigger(force=True)
+            return
+        super().keyPressEvent(event)
+        self.autocomplete_engine.trigger()
+
+    def show_autocompletion(self):
+        self.autocomplete_engine.trigger(force=True)
 
     def show_context_menu(self, point):
         self.context_menu.popup(self.mapToGlobal(point))
