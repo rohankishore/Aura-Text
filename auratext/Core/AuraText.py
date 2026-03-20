@@ -79,6 +79,7 @@ class CodeEditor(QsciScintilla):
     def __init__(self, window: Window):
         super().__init__(parent=None)
 
+        self._themes = window._themes
         lexer = Lexers.PythonLexer(window)
         self.setLexer(lexer)
         self.setPaper(QColor(window._themes["editor_theme"]))
@@ -94,6 +95,7 @@ class CodeEditor(QsciScintilla):
         self.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAsNeeded)
         self.setAutoCompletionThreshold(1)
         self.setAutoCompletionFillupsEnabled(True)
+        self._configure_autocomplete_popup_style()
 
         # Setting up lexers
         lexer.setPaper(QColor(window._themes["editor_theme"]))
@@ -159,6 +161,27 @@ class CodeEditor(QsciScintilla):
         
         # Initial scan for colors
         QTimer.singleShot(100, self.update_color_previews)
+
+    def _rgb_to_scintilla_color(self, color: QColor) -> int:
+        return (color.blue() << 16) | (color.green() << 8) | color.red()
+
+    def _configure_autocomplete_popup_style(self):
+        editor_bg = QColor(self._themes.get("editor_theme", "#1e1e1e"))
+        editor_fg = QColor(self._themes.get("editor_fg", "#d4d4d4"))
+        popup_bg = editor_bg.darker(108)
+        popup_fg = editor_fg
+        selected_bg = QColor("#094771")
+        selected_fg = QColor("#ffffff")
+        highlight_fg = QColor("#4fc1ff")
+
+        self.SendScintilla(self.SCI_AUTOCSETBACK, self._rgb_to_scintilla_color(popup_bg))
+        self.SendScintilla(self.SCI_AUTOCSETFORE, self._rgb_to_scintilla_color(popup_fg))
+        self.SendScintilla(self.SCI_AUTOCSETSELBACK, 1, self._rgb_to_scintilla_color(selected_bg))
+        self.SendScintilla(self.SCI_AUTOCSETSELFORE, 1, self._rgb_to_scintilla_color(selected_fg))
+        self.SendScintilla(self.SCI_AUTOCSETHLFORE, self._rgb_to_scintilla_color(highlight_fg))
+        self.SendScintilla(self.SCI_AUTOCSETHLBACK, self._rgb_to_scintilla_color(selected_bg))
+        self.SendScintilla(self.SCI_AUTOCSETMAXHEIGHT, 10)
+        self.SendScintilla(self.SCI_AUTOCSETMAXWIDTH, 48)
 
     def setLexer(self, lexer):
         super().setLexer(lexer)
