@@ -169,6 +169,28 @@ class CodeEditor(QsciScintilla):
         if event.key() == Qt.Key.Key_Space and event.modifiers() & Qt.KeyboardModifier.ControlModifier:
             self.autocomplete_engine.trigger(force=True)
             return
+
+        key = event.key()
+        navigation_keys = {
+            Qt.Key.Key_Up,
+            Qt.Key.Key_Down,
+            Qt.Key.Key_Left,
+            Qt.Key.Key_Right,
+            Qt.Key.Key_PageUp,
+            Qt.Key.Key_PageDown,
+            Qt.Key.Key_Home,
+            Qt.Key.Key_End,
+            Qt.Key.Key_Escape,
+            Qt.Key.Key_Return,
+            Qt.Key.Key_Enter,
+            Qt.Key.Key_Tab,
+            Qt.Key.Key_Backtab,
+        }
+
+        if key in navigation_keys:
+            super().keyPressEvent(event)
+            return
+
         super().keyPressEvent(event)
         self.autocomplete_engine.trigger()
 
