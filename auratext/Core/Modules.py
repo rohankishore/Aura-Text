@@ -318,7 +318,6 @@ def summary(self):
 
 def save_document(self):
     try:
-        # a = self.tab_widget.
         name = str(filedialog.asksaveasfilename(title="Select file", defaultextension=".py"))
         file = open(name, "w")
         text = self.current_editor.text()
