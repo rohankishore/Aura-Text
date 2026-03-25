@@ -102,7 +102,8 @@ QMenu::item::selected {{
     file_menu.addMenu(new_menu)
     file_menu.addSeparator()
 
-    file_menu.addAction("Save As", self.save_document).setWhatsThis("Save the current document with a new name")
+    file_menu.addAction("Save", self.save_document).setWhatsThis("Save the current document")
+    file_menu.addAction("Save As", self.save_document_as).setWhatsThis("Save the current document with a new name")
     file_menu.addSeparator()
     file_menu.addAction("Document Stats", self.summary).setWhatsThis(
         "Show document statistics (lines, words, characters, bytes)"

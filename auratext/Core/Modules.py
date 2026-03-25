@@ -316,16 +316,41 @@ def summary(self):
     messagebox.showinfo("Summary", text)
 
 
-def save_document(self):
+def save_document(self, force_dialog=False):
     try:
-        name = str(filedialog.asksaveasfilename(title="Select file", defaultextension=".py"))
-        file = open(name, "w")
+        active_tab_index = self.tab_widget.currentIndex()
+        if active_tab_index < 0:
+            return
+
+        existing_path = self.tab_file_paths.get(active_tab_index, "") if hasattr(self, "tab_file_paths") else ""
+        current_tab_name = str(self.tab_widget.tabText(active_tab_index)).strip()
+
+        if force_dialog or not existing_path:
+            suggested_name = os.path.basename(existing_path) if existing_path else os.path.basename(current_tab_name)
+            if not suggested_name:
+                suggested_name = "untitled.py"
+            name = str(
+                filedialog.asksaveasfilename(
+                    title="Select file",
+                    defaultextension=".py",
+                    initialfile=suggested_name,
+                )
+            )
+            if not name:
+                return
+        else:
+            name = existing_path
+
+        file = open(name, "w", encoding="utf-8", errors="ignore")
         text = self.current_editor.text()
         file.write(text)
         title = os.path.basename(file.name) + "   ~ Aura Text"
-        active_tab_index = self.tab_widget.currentIndex()
         self.tab_widget.setTabText(active_tab_index, os.path.basename(file.name))
         self.setWindowTitle(title)
+        if hasattr(self, "tab_file_paths"):
+            self.tab_file_paths[active_tab_index] = name
+        if hasattr(self, "update_run_button_visibility"):
+            self.update_run_button_visibility()
         file.close()
         return
     except FileNotFoundError:

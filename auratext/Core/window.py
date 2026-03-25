@@ -502,7 +502,8 @@ class Window(QMainWindow):
             {"name": "File: Open Project", "action": self.open_project},
             {"name": "File: Open Project as Treeview", "action": self.open_project_as_treeview},
             {"name": "File: Manage Projects", "action": self.manageProjects},
-            {"name": "File: Save As", "action": self.save_document},
+            {"name": "File: Save", "action": self.save_document},
+            {"name": "File: Save As", "action": self.save_document_as},
             {"name": "File: Summary", "action": self.summary},
             {"name": "File: Extensions", "action": self.expandSidebar__Plugins},
             {"name": "File: Settings", "action": self.expandSidebar__Settings},
@@ -2291,6 +2292,9 @@ class Window(QMainWindow):
 
     def save_document(self):
         ModuleFile.save_document(self)
+
+    def save_document_as(self):
+        ModuleFile.save_document(self, force_dialog=True)
 
     @staticmethod
     def about_github():
