@@ -464,6 +464,8 @@ class Window(QMainWindow):
         self.take_break_image_label.setVisible(False)
         self.take_break_image_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.take_break_image_label.setStyleSheet("background-color: #000000;")
+        self.take_break_image_label.setMouseTracking(True)
+        self.take_break_image_label.installEventFilter(self)
 
         zen_image_path = os.path.join(local_app_data, "icons", "zen.png")
         if os.path.exists(zen_image_path):
