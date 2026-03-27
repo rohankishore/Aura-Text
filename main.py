@@ -44,7 +44,6 @@ if not os.path.exists(local_app_data):
     shutil.copytree(template_app_data, local_app_data)
 
 from auratext.Core.window import Window
-# from auratext.Core import get_started
 
 """ 
 This file includes the code to run the app. It also scans if the app is being opened for the first time in order to show the
