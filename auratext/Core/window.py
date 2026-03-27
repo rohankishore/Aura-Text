@@ -524,7 +524,7 @@ class Window(QMainWindow):
             {"name": "View: Powershell", "action": self.setupPowershell},
             {"name": "View: Python Console", "action": self.python_console},
             {"name": "View: Read-Only", "action": self.toggle_read_only},
-            {"name": "View: Take a Break Mode", "action": self.toggle_take_break_mode},
+            {"name": "View: Zen Mode", "action": self.toggle_take_break_mode},
             {"name": "Code: Code Formatting", "action": self.code_formatting},
             {"name": "Code: Boilerplates", "action": self.boilerplates},
             {"name": "Code: Create Snippet", "action": self.create_snippet},
@@ -731,7 +731,7 @@ class Window(QMainWindow):
             ("project_search", "Search in Project"),
             ("format_code", "Format Code"),
             ("settings", "Open Settings"),
-            ("take_break_mode", "Toggle Take a Break Mode")
+            ("take_break_mode", "Toggle Zen Mode")
         ]
 
     def setup_keyboard_shortcuts(self):

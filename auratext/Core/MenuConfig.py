@@ -143,7 +143,7 @@ QMenu::item::selected {{
         "Open the Function Grid"
     )
 
-    self.take_break_action = QAction("Take a Break Mode", self)
+    self.take_break_action = QAction("Zen Mode", self)
     self.take_break_action.setCheckable(True)
     self.take_break_action.setChecked(getattr(self, "take_break_mode_enabled", False))
     self.take_break_action.setShortcut(self._shortcuts.get("take_break_mode", "Ctrl+."))
