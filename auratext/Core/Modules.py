@@ -3,7 +3,7 @@ import os
 import random
 from tkinter import messagebox, filedialog
 import markdown
-
+import sys
 import pyttsx3
 import requests
 import pyperclip
