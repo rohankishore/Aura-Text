@@ -142,6 +142,15 @@ QMenu::item::selected {{
     view_menu.addAction("Function Grid", self.function_grid).setWhatsThis(
         "Open the Function Grid"
     )
+
+    self.take_break_action = QAction("Take a Break Mode", self)
+    self.take_break_action.setCheckable(True)
+    self.take_break_action.setChecked(getattr(self, "take_break_mode_enabled", False))
+    self.take_break_action.setShortcut(self._shortcuts.get("take_break_mode", "Ctrl+."))
+    self.take_break_action.triggered.connect(self.toggle_take_break_mode)
+    self.take_break_action.setWhatsThis("Hide menus and UI chrome for distraction-free writing")
+    view_menu.addAction(self.take_break_action)
+
     view_menu.addSeparator()
     #view_menu.addAction("AT Terminal", self.terminal_widget)
     #view_menu.addAction("Python Console", self.python_console)
