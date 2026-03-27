@@ -702,71 +702,9 @@ class Window(QMainWindow):
                     corner_widget = self.tab_widget.cornerWidget(Qt.Corner.TopRightCorner)
                     visible_docks = [dock for dock in self.findChildren(QDockWidget) if dock.isVisible()]
 
-                    self.take_break_state = {
-                        "window_mode": "fullscreen" if self.isFullScreen() else ("maximized" if self.isMaximized() else "normal"),
-                        "menu_visible": self.menuBar().isVisible(),
-                        "status_visible": self.statusBar.isVisible(),
-                        "tabbar_visible": self.tab_widget.tabBar().isVisible(),
-                        "corner_visible": corner_widget.isVisible() if corner_widget else None,
-                        "visible_docks": visible_docks,
-                    }
-
-                    for dock in visible_docks:
-                        dock.hide()
-
-                    self.menuBar().hide()
-                    self.statusBar.hide()
-                    self.tab_widget.tabBar().hide()
-                    if corner_widget:
-                        corner_widget.hide()
-
-                    if not self.isFullScreen():
-                        self.showFullScreen()
-
-                    self.take_break_mode_enabled = True
-                    self._set_take_break_action_checked(True)
-                    return
-
-                corner_widget = self.tab_widget.cornerWidget(Qt.Corner.TopRightCorner)
-                state = self.take_break_state if isinstance(self.take_break_state, dict) else {}
-
-                if state.get("menu_visible", True):
-                    self.menuBar().show()
-                else:
-                    self.menuBar().hide()
-
-                if state.get("status_visible", False):
-                    self.statusBar.show()
-                else:
-                    self.statusBar.hide()
-
-                if state.get("tabbar_visible", True):
-                    self.tab_widget.tabBar().show()
-                else:
-                    self.tab_widget.tabBar().hide()
-
-                if corner_widget and state.get("corner_visible") is not None:
-                    corner_widget.setVisible(state.get("corner_visible", True))
-
-                for dock in state.get("visible_docks", []):
-                    if dock is not None:
-                        dock.show()
-
-                window_mode = state.get("window_mode", "maximized")
-                if window_mode == "fullscreen":
-                    self.showFullScreen()
-                elif window_mode == "normal":
-                    self.showNormal()
-                else:
-                    self.showMaximized()
-
-                self.take_break_mode_enabled = False
-                self.take_break_state = {}
-                self._set_take_break_action_checked(False)
-        register("settings", self.expandSidebar__Settings)
-
-    def save_keybindings(self):
-        updated = {}
+        register("take_break_mode", self.toggle_take_break_mode)
+        if self.take_break_action is not None:
+            self.take_break_action.setShortcut(QKeySequence(self._shortcuts.get("take_break_mode", "")))
         for key, editor in self.keybinding_inputs.items():
             sequence = editor.keySequence().toString(QKeySequence.SequenceFormat.PortableText)
             updated[key] = sequence
