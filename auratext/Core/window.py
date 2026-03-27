@@ -160,6 +160,8 @@ class Window(QMainWindow):
         self.take_break_action = None
         self.take_break_exit_button = None
         self.take_break_hint_timer = None
+        self.take_break_image_label = None
+        self.take_break_image_pixmap = QPixmap()
 
         if self._themes["theming"] == "flat":
             # pywinstyles.apply_style(self, "dark")
@@ -458,6 +460,15 @@ class Window(QMainWindow):
         self.tab_widget.setCornerWidget(button_container, Qt.Corner.TopRightCorner)
 
         self.setCentralWidget(self.editor_splitter)
+        self.take_break_image_label = QLabel(self)
+        self.take_break_image_label.setVisible(False)
+        self.take_break_image_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.take_break_image_label.setStyleSheet("background-color: #000000;")
+
+        zen_image_path = os.path.join(local_app_data, "icons", "zen.png")
+        if os.path.exists(zen_image_path):
+            self.take_break_image_pixmap = QPixmap(zen_image_path)
+
         self.take_break_exit_button = QPushButton(self)
         self.take_break_exit_button.setVisible(False)
         self.take_break_exit_button.clicked.connect(self.toggle_take_break_mode)
@@ -631,6 +642,21 @@ class Window(QMainWindow):
         self.take_break_exit_button.show()
         self.take_break_hint_timer.start(1800)
 
+    def _update_take_break_image(self):
+        if self.take_break_image_label is None:
+            return
+
+        self.take_break_image_label.setGeometry(self.rect())
+        if self.take_break_image_pixmap.isNull():
+            return
+
+        scaled = self.take_break_image_pixmap.scaled(
+            self.take_break_image_label.size(),
+            Qt.AspectRatioMode.KeepAspectRatioByExpanding,
+            Qt.TransformationMode.SmoothTransformation,
+        )
+        self.take_break_image_label.setPixmap(scaled)
+
     def eventFilter(self, obj, event):
         if self.take_break_mode_enabled and event.type() == QEvent.Type.MouseMove:
             self._show_take_break_exit_hint()
@@ -638,6 +664,7 @@ class Window(QMainWindow):
 
     def resizeEvent(self, event):
         super().resizeEvent(event)
+        self._update_take_break_image()
         self._position_take_break_exit_button()
 
     def toggle_take_break_mode(self, _checked=None):
@@ -663,12 +690,18 @@ class Window(QMainWindow):
             if corner_widget:
                 corner_widget.hide()
 
+            if self.take_break_image_label is not None:
+                self._update_take_break_image()
+                self.take_break_image_label.show()
+                self.take_break_image_label.raise_()
+
             if not self.isFullScreen():
                 self.showFullScreen()
 
             self.take_break_mode_enabled = True
             self._set_take_break_action_checked(True)
             self.take_break_exit_button.hide()
+            self.take_break_exit_button.raise_()
             return
 
         corner_widget = self.tab_widget.cornerWidget(Qt.Corner.TopRightCorner)
@@ -709,6 +742,8 @@ class Window(QMainWindow):
         self._set_take_break_action_checked(False)
         if self.take_break_hint_timer is not None:
             self.take_break_hint_timer.stop()
+        if self.take_break_image_label is not None:
+            self.take_break_image_label.hide()
         if self.take_break_exit_button is not None:
             self.take_break_exit_button.hide()
 
