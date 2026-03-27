@@ -698,13 +698,13 @@ class Window(QMainWindow):
         register("project_search", self.expandSidebar__Search)
         register("format_code", self.code_formatting)
         register("take_break_mode", self.toggle_take_break_mode)
-                if not self.take_break_mode_enabled:
-                    corner_widget = self.tab_widget.cornerWidget(Qt.Corner.TopRightCorner)
-                    visible_docks = [dock for dock in self.findChildren(QDockWidget) if dock.isVisible()]
+        register("settings", self.expandSidebar__Settings)
 
-        register("take_break_mode", self.toggle_take_break_mode)
         if self.take_break_action is not None:
             self.take_break_action.setShortcut(QKeySequence(self._shortcuts.get("take_break_mode", "")))
+
+    def save_keybindings(self):
+        updated = {}
         for key, editor in self.keybinding_inputs.items():
             sequence = editor.keySequence().toString(QKeySequence.SequenceFormat.PortableText)
             updated[key] = sequence
