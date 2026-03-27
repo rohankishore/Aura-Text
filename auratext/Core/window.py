@@ -10,7 +10,7 @@ import webbrowser
 import subprocess
 import qdarktheme
 import platform
-from PyQt6.QtCore import Qt, QSize, QTimer
+from PyQt6.QtCore import Qt, QSize, QTimer, QEvent
 from PyQt6.QtGui import QColor, QFont, QActionGroup, QFileSystemModel, QPixmap, QIcon, QShortcut, QKeySequence, QCursor
 from PyQt6.Qsci import QsciScintilla
 from PyQt6.QtWidgets import (
@@ -158,6 +158,8 @@ class Window(QMainWindow):
         self.take_break_mode_enabled = False
         self.take_break_state = {}
         self.take_break_action = None
+        self.take_break_exit_button = None
+        self.take_break_hint_timer = None
 
         if self._themes["theming"] == "flat":
             # pywinstyles.apply_style(self, "dark")
@@ -456,6 +458,34 @@ class Window(QMainWindow):
         self.tab_widget.setCornerWidget(button_container, Qt.Corner.TopRightCorner)
 
         self.setCentralWidget(self.editor_splitter)
+        self.take_break_exit_button = QPushButton(self)
+        self.take_break_exit_button.setVisible(False)
+        self.take_break_exit_button.clicked.connect(self.toggle_take_break_mode)
+        self.take_break_exit_button.setStyleSheet(
+            """
+            QPushButton {
+                background-color: rgba(20, 20, 20, 220);
+                color: #ffffff;
+                border: 1px solid rgba(255, 255, 255, 70);
+                border-radius: 14px;
+                padding: 8px 14px;
+                font-weight: 600;
+            }
+            QPushButton:hover {
+                background-color: rgba(35, 35, 35, 230);
+            }
+            """
+        )
+        self.take_break_hint_timer = QTimer(self)
+        self.take_break_hint_timer.setSingleShot(True)
+        self.take_break_hint_timer.timeout.connect(lambda: self.take_break_exit_button.hide())
+        self._update_take_break_exit_button_text()
+        self.installEventFilter(self)
+        self.editor_splitter.installEventFilter(self)
+        self.tab_widget.installEventFilter(self)
+        self.setMouseTracking(True)
+        self.editor_splitter.setMouseTracking(True)
+        self.tab_widget.setMouseTracking(True)
         self.statusBar.hide()
         self.editors = []
         self.linters = {}  
@@ -573,6 +603,43 @@ class Window(QMainWindow):
         self.take_break_action.setChecked(checked)
         self.take_break_action.blockSignals(False)
 
+    def _get_take_break_shortcut_text(self):
+        return self._shortcuts.get("take_break_mode", "Ctrl+.")
+
+    def _update_take_break_exit_button_text(self):
+        if self.take_break_exit_button is None:
+            return
+        shortcut = self._get_take_break_shortcut_text()
+        if shortcut:
+            self.take_break_exit_button.setText(f"Exit Zen Mode ({shortcut})")
+        else:
+            self.take_break_exit_button.setText("Exit Zen Mode")
+        self.take_break_exit_button.adjustSize()
+        self._position_take_break_exit_button()
+
+    def _position_take_break_exit_button(self):
+        if self.take_break_exit_button is None:
+            return
+        x = max(8, (self.width() - self.take_break_exit_button.width()) // 2)
+        self.take_break_exit_button.move(x, 12)
+
+    def _show_take_break_exit_hint(self):
+        if not self.take_break_mode_enabled or self.take_break_exit_button is None:
+            return
+        self._update_take_break_exit_button_text()
+        self.take_break_exit_button.raise_()
+        self.take_break_exit_button.show()
+        self.take_break_hint_timer.start(1800)
+
+    def eventFilter(self, obj, event):
+        if self.take_break_mode_enabled and event.type() == QEvent.Type.MouseMove:
+            self._show_take_break_exit_hint()
+        return super().eventFilter(obj, event)
+
+    def resizeEvent(self, event):
+        super().resizeEvent(event)
+        self._position_take_break_exit_button()
+
     def toggle_take_break_mode(self, _checked=None):
         if not self.take_break_mode_enabled:
             corner_widget = self.tab_widget.cornerWidget(Qt.Corner.TopRightCorner)
@@ -601,6 +668,7 @@ class Window(QMainWindow):
 
             self.take_break_mode_enabled = True
             self._set_take_break_action_checked(True)
+            self.take_break_exit_button.hide()
             return
 
         corner_widget = self.tab_widget.cornerWidget(Qt.Corner.TopRightCorner)
@@ -639,6 +707,10 @@ class Window(QMainWindow):
         self.take_break_mode_enabled = False
         self.take_break_state = {}
         self._set_take_break_action_checked(False)
+        if self.take_break_hint_timer is not None:
+            self.take_break_hint_timer.stop()
+        if self.take_break_exit_button is not None:
+            self.take_break_exit_button.hide()
 
     def show_command_palette(self):
         self.command_palette.exec()
@@ -773,9 +845,7 @@ class Window(QMainWindow):
         register("format_code", self.code_formatting)
         register("take_break_mode", self.toggle_take_break_mode)
         register("settings", self.expandSidebar__Settings)
-
-        if self.take_break_action is not None:
-            self.take_break_action.setShortcut(QKeySequence(self._shortcuts.get("take_break_mode", "")))
+        self._update_take_break_exit_button_text()
 
     def save_keybindings(self):
         updated = {}
@@ -1553,7 +1623,7 @@ class Window(QMainWindow):
         self.gitPushDialog.exec()
 
     def gitGraph(self):
-        self.git_graph_widget = GitGraph(cpath)
+        self.git_graph_widget = GitGraph.GitGraph(cpath)
         self.git_graph_widget.show()
 
     def gitRebase(self):

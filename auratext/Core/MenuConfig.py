@@ -146,7 +146,6 @@ QMenu::item::selected {{
     self.take_break_action = QAction("Zen Mode", self)
     self.take_break_action.setCheckable(True)
     self.take_break_action.setChecked(getattr(self, "take_break_mode_enabled", False))
-    self.take_break_action.setShortcut(self._shortcuts.get("take_break_mode", "Ctrl+."))
     self.take_break_action.triggered.connect(self.toggle_take_break_mode)
     self.take_break_action.setWhatsThis("Hide menus and UI chrome for distraction-free writing")
     view_menu.addAction(self.take_break_action)
