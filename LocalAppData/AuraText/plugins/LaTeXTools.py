@@ -120,6 +120,8 @@ class LaTeXTools(Plugin):
         self.prev_page_btn.clicked.connect(lambda: self._pdf_page_navigate(-1))
         self.next_page_btn = QPushButton("Next")
         self.next_page_btn.clicked.connect(lambda: self._pdf_page_navigate(1))
+        self.mode_btn = QPushButton("Sideways View")
+        self.mode_btn.clicked.connect(self._toggle_pdf_view_mode)
         self.zoom_out_btn = QPushButton("Zoom-")
         self.zoom_out_btn.clicked.connect(lambda: self._zoom_pdf(-0.1))
         self.zoom_in_btn = QPushButton("Zoom+")
@@ -128,6 +130,7 @@ class LaTeXTools(Plugin):
         self.controls_row.addWidget(self.reload_btn)
         self.controls_row.addWidget(self.prev_page_btn)
         self.controls_row.addWidget(self.next_page_btn)
+        self.controls_row.addWidget(self.mode_btn)
         self.controls_row.addWidget(self.zoom_out_btn)
         self.controls_row.addWidget(self.zoom_in_btn)
 
@@ -156,6 +159,9 @@ class LaTeXTools(Plugin):
             self.pdf_document = QPdfDocument(self)
             view = QPdfView()
             view.setDocument(self.pdf_document)
+            if hasattr(QPdfView, "PageMode") and hasattr(view, "setPageMode"):
+                view.setPageMode(QPdfView.PageMode.MultiPage)
+            self._pdf_vertical_mode = True
             return view
         except Exception:
             try:
@@ -248,6 +254,20 @@ class LaTeXTools(Plugin):
         if self._pdf_backend == "webengine" and self.last_pdf_path:
             current = self.pdf_viewer.zoomFactor()
             self.pdf_viewer.setZoomFactor(max(0.25, min(4.0, current + delta)))
+
+    def _toggle_pdf_view_mode(self) -> None:
+        if self._pdf_backend != "qtpdf":
+            return
+        if not (hasattr(self.pdf_viewer, "setPageMode") and hasattr(type(self.pdf_viewer), "PageMode")):
+            return
+        if getattr(self, "_pdf_vertical_mode", True):
+            self.pdf_viewer.setPageMode(type(self.pdf_viewer).PageMode.SinglePage)
+            self.mode_btn.setText("Vertical View")
+            self._pdf_vertical_mode = False
+        else:
+            self.pdf_viewer.setPageMode(type(self.pdf_viewer).PageMode.MultiPage)
+            self.mode_btn.setText("Sideways View")
+            self._pdf_vertical_mode = True
 
     def _on_pdf_anchor_clicked(self, url: QUrl) -> None:
         if url.isLocalFile():

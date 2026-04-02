@@ -1750,11 +1750,15 @@ class Window(QMainWindow):
         viewer = QPdfView(container)
         viewer.setDocument(doc)
         viewer.setZoomMode(QPdfView.ZoomMode.FitToWidth)
+        pdf_vertical_mode = True
+        if hasattr(QPdfView, "PageMode") and hasattr(viewer, "setPageMode"):
+            viewer.setPageMode(QPdfView.PageMode.MultiPage)
 
         zoom_out_btn = QPushButton("Zoom-")
         zoom_in_btn = QPushButton("Zoom+")
         prev_btn = QPushButton("Prev")
         next_btn = QPushButton("Next")
+        mode_btn = QPushButton("Sideways View")
         page_label = QLabel("Page 1")
 
         def update_page_label():
@@ -1785,10 +1789,25 @@ class Window(QMainWindow):
         prev_btn.clicked.connect(lambda: jump_page(-1))
         next_btn.clicked.connect(lambda: jump_page(1))
 
+        def toggle_view_mode():
+            nonlocal pdf_vertical_mode
+            if not (hasattr(QPdfView, "PageMode") and hasattr(viewer, "setPageMode")):
+                return
+            if pdf_vertical_mode:
+                viewer.setPageMode(QPdfView.PageMode.SinglePage)
+                mode_btn.setText("Vertical View")
+            else:
+                viewer.setPageMode(QPdfView.PageMode.MultiPage)
+                mode_btn.setText("Sideways View")
+            pdf_vertical_mode = not pdf_vertical_mode
+
+        mode_btn.clicked.connect(toggle_view_mode)
+
         controls.addWidget(prev_btn)
         controls.addWidget(next_btn)
         controls.addWidget(zoom_out_btn)
         controls.addWidget(zoom_in_btn)
+        controls.addWidget(mode_btn)
         controls.addWidget(page_label)
         controls.addStretch(1)
 
