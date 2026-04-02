@@ -379,9 +379,13 @@ def open_document(self):
 
     if file_dir:
         if ext == "pdf":
+            opened = False
+            if hasattr(self, "open_pdf_in_app"):
+                opened = bool(self.open_pdf_in_app(file_dir))
             pdf_handler = getattr(self, "_latex_pdf_open_handler", None)
             if callable(pdf_handler):
                 pdf_handler(file_dir)
+            if opened or callable(pdf_handler):
                 return
 
         try:

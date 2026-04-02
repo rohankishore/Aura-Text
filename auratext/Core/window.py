@@ -1681,9 +1681,10 @@ class Window(QMainWindow):
         ext = path.split(".")[-1]
 
         if ext.lower() == "pdf":
-            pdf_handler = getattr(self, "_latex_pdf_open_handler", None)
-            if callable(pdf_handler):
-                pdf_handler(path)
+            if self.open_pdf_in_app(path):
+                pdf_handler = getattr(self, "_latex_pdf_open_handler", None)
+                if callable(pdf_handler):
+                    pdf_handler(path)
                 return
 
         if ext.lower() == "db":
@@ -1720,6 +1721,92 @@ class Window(QMainWindow):
                 f"An error occurred while opening the file: {e}"
             )
             messagebox.exec()
+
+    def open_pdf_in_app(self, path):
+        try:
+            from PyQt6.QtPdf import QPdfDocument
+            from PyQt6.QtPdfWidgets import QPdfView
+        except Exception:
+            messagebox = QMessageBox()
+            messagebox.setWindowTitle("PDF Viewer Unavailable")
+            messagebox.setText("Qt PDF backend is not available in this build.")
+            messagebox.exec()
+            return False
+
+        existing_tab_index = -1
+        for tab_index, file_path in self.tab_file_paths.items():
+            if os.path.normcase(file_path) == os.path.normcase(path):
+                existing_tab_index = tab_index
+                break
+        if existing_tab_index >= 0:
+            self.tab_widget.setCurrentIndex(existing_tab_index)
+            return True
+
+        container = QWidget()
+        layout = QVBoxLayout(container)
+        controls = QHBoxLayout()
+
+        doc = QPdfDocument(container)
+        viewer = QPdfView(container)
+        viewer.setDocument(doc)
+        viewer.setZoomMode(QPdfView.ZoomMode.FitToWidth)
+
+        zoom_out_btn = QPushButton("Zoom-")
+        zoom_in_btn = QPushButton("Zoom+")
+        prev_btn = QPushButton("Prev")
+        next_btn = QPushButton("Next")
+        page_label = QLabel("Page 1")
+
+        def update_page_label():
+            navigator = viewer.pageNavigator()
+            total = doc.pageCount()
+            if total <= 0:
+                page_label.setText("Page 0/0")
+                return
+            page_label.setText(f"Page {navigator.currentPage() + 1}/{total}")
+
+        def jump_page(delta):
+            navigator = viewer.pageNavigator()
+            total = doc.pageCount()
+            if total <= 0:
+                return
+            current = navigator.currentPage()
+            new_page = max(0, min(total - 1, current + delta))
+            if new_page != current:
+                navigator.jump(new_page, navigator.currentLocation(), navigator.currentZoom())
+            update_page_label()
+
+        zoom_out_btn.clicked.connect(
+            lambda: viewer.setZoomFactor(max(0.25, viewer.zoomFactor() - 0.1))
+        )
+        zoom_in_btn.clicked.connect(
+            lambda: viewer.setZoomFactor(min(4.0, viewer.zoomFactor() + 0.1))
+        )
+        prev_btn.clicked.connect(lambda: jump_page(-1))
+        next_btn.clicked.connect(lambda: jump_page(1))
+
+        controls.addWidget(prev_btn)
+        controls.addWidget(next_btn)
+        controls.addWidget(zoom_out_btn)
+        controls.addWidget(zoom_in_btn)
+        controls.addWidget(page_label)
+        controls.addStretch(1)
+
+        layout.addLayout(controls)
+        layout.addWidget(viewer)
+
+        doc.load(path)
+        update_page_label()
+
+        # keep references alive with the tab container
+        container._pdf_doc = doc
+        container._pdf_viewer = viewer
+
+        self.tab_widget.addTab(container, os.path.basename(path))
+        tab_index = self.tab_widget.indexOf(container)
+        self.tab_file_paths[tab_index] = path
+        self.tab_widget.setCurrentWidget(container)
+        return True
 
     def configure_menuBar(self):
         MenuConfig.configure_menuBar(self)
