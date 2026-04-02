@@ -3,6 +3,8 @@ import os
 import shutil
 import platform
 
+# im lowk going insane.
+
 # Suppress fcukass Qt startup warnings.
 existing_qt_logging_rules = os.environ.get("QT_LOGGING_RULES", "").strip()
 required_qt_rules = [
