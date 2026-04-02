@@ -378,6 +378,12 @@ def open_document(self):
     image_extensions = ["png", "jpg", "jpeg", "ico", "gif", "bmp"]
 
     if file_dir:
+        if ext == "pdf":
+            pdf_handler = getattr(self, "_latex_pdf_open_handler", None)
+            if callable(pdf_handler):
+                pdf_handler(file_dir)
+                return
+
         try:
             if ext in image_extensions:
                 add_image_tab(self, self.tab_widget, file_dir, os.path.basename(file_dir))

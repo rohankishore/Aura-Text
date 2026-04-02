@@ -1680,6 +1680,12 @@ class Window(QMainWindow):
         image_extensions = ["png", "jpg", "jpeg", "ico", "gif", "bmp"]
         ext = path.split(".")[-1]
 
+        if ext.lower() == "pdf":
+            pdf_handler = getattr(self, "_latex_pdf_open_handler", None)
+            if callable(pdf_handler):
+                pdf_handler(path)
+                return
+
         if ext.lower() == "db":
             self.db_viewer = DBViewer(path)
             self.tab_widget.addTab(self.db_viewer, os.path.basename(path))

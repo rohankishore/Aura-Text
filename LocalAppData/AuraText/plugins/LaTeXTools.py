@@ -1,3 +1,8 @@
+# the pdf part is ai slop kind of. im sorry i didnt had enough time to do it from scratch. 
+# it works though, so. yeah. also the code is a bit messy.
+# forgive me for this abomination of a code.
+
+
 import os
 import shutil
 import subprocess
@@ -40,6 +45,7 @@ class LaTeXTools(Plugin):
         self.window.menuBar().addMenu(self.latex_menu)
 
         self._create_pdf_dock()
+        self.window._latex_pdf_open_handler = self.open_pdf_path
 
         self.window.tab_widget.currentChanged.connect(self._update_menu_visibility)
         self.latex_menu.aboutToShow.connect(lambda: self._update_menu_visibility(self.window.tab_widget.currentIndex()))
@@ -202,13 +208,20 @@ class LaTeXTools(Plugin):
         self.pdf_dock.show()
         self.pdf_dock.raise_()
 
+    def open_pdf_path(self, pdf_path: str) -> None:
+        if not pdf_path or not os.path.exists(pdf_path):
+            QMessageBox.warning(self.window, "PDF", "Selected PDF file was not found.")
+            return
+        self.last_pdf_path = pdf_path
+        self._load_pdf(pdf_path)
+        self.preview_status.setText(f"Previewing: {pdf_path}")
+        self.show_preview_dock()
+
     def open_generated_pdf(self) -> None:
         if not self.last_pdf_path or not os.path.exists(self.last_pdf_path):
             QMessageBox.information(self.window, "LaTeX", "No generated PDF found yet.")
             return
-        self._load_pdf(self.last_pdf_path)
-        self.preview_status.setText(f"Previewing: {self.last_pdf_path}")
-        self.show_preview_dock()
+        self.open_pdf_path(self.last_pdf_path)
 
     def reload_pdf(self) -> None:
         self.open_generated_pdf()
