@@ -213,6 +213,8 @@ class LaTeXTools(Plugin):
             QMessageBox.warning(self.window, "PDF", "Selected PDF file was not found.")
             return
         self.last_pdf_path = pdf_path
+        if hasattr(self.window, "open_pdf_in_app"):
+            self.window.open_pdf_in_app(pdf_path)
         self._load_pdf(pdf_path)
         self.preview_status.setText(f"Previewing: {pdf_path}")
         self.show_preview_dock()
