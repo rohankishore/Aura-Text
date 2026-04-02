@@ -352,6 +352,7 @@ def makefile(self):
 
 def pascal(self):
     lexer = QsciLexerPascal()
+    lexer.setDefaultColor(QColor("#FFFFFF"))
     self.current_editor.setLexer(lexer)
     lexer.setPaper(QColor(self._themes["editor_theme"]))
     lexer.setColor(QColor("#808080"), lexer.Comment)

@@ -106,7 +106,7 @@ class CodeEditor(QsciScintilla):
         lexer.setColor(QColor("#59ff00"), lexer.TripleDoubleQuotedString)
         lexer.setColor(QColor("#3ba800"), lexer.SingleQuotedString)
         lexer.setColor(QColor("#3ba800"), lexer.DoubleQuotedString)
-        lexer.setColor(QColor(window._themes["editor_fg"]), lexer.Default)
+        lexer.setColor(QColor("#FFFFFF"), lexer.Default)
         lexer.setFont(QFont(window._themes["font"]))
 
         self.setTabWidth(4)
