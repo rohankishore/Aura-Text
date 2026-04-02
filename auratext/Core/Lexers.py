@@ -298,6 +298,12 @@ def tex(self):
     lexer.setDefaultColor(QColor("#FFFFFF"))
     self.current_editor.setLexer(lexer)
     lexer.setPaper(QColor(self._themes["editor_theme"]))
+    lexer.setColor(QColor("#FFFFFF"), lexer.Default)
+    lexer.setColor(QColor("#FFA500"), lexer.Command)
+    lexer.setColor(QColor("#4EC9B0"), lexer.Special)
+    lexer.setColor(QColor("#59ff00"), lexer.Group)
+    lexer.setColor(QColor("#DCDCAA"), lexer.Symbol)
+    lexer.setColor(QColor("#FFFFFF"), lexer.Text)
     lexer.setFont(QFont(self._themes["font"]))
 
 
