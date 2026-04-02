@@ -1,4 +1,4 @@
-# the pdf part is ai slop kind of. im sorry i didnt had enough time to do it from scratch. 
+# the pdf part is ai slop. im sorry i didnt had enough time to do it from scratch. 
 # it works though, so. yeah. also the code is a bit messy.
 # forgive me for this abomination of a code.
 
