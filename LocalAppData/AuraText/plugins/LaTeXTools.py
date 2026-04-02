@@ -7,10 +7,12 @@ from PyQt6.QtCore import Qt, QUrl
 from PyQt6.QtGui import QAction
 from PyQt6.QtWidgets import (
     QDockWidget,
+    QHBoxLayout,
     QLabel,
     QMenu,
     QMessageBox,
     QPlainTextEdit,
+    QPushButton,
     QTextBrowser,
     QVBoxLayout,
     QWidget,
@@ -103,6 +105,26 @@ class LaTeXTools(Plugin):
         self.preview_status = QLabel("Export a .tex file to generate and preview its PDF.")
         self.preview_status.setWordWrap(True)
 
+        self.controls_row = QHBoxLayout()
+        self.open_btn = QPushButton("Open Generated PDF")
+        self.open_btn.clicked.connect(self.open_generated_pdf)
+        self.reload_btn = QPushButton("Reload")
+        self.reload_btn.clicked.connect(self.reload_pdf)
+        self.prev_page_btn = QPushButton("Prev")
+        self.prev_page_btn.clicked.connect(lambda: self._pdf_page_navigate(-1))
+        self.next_page_btn = QPushButton("Next")
+        self.next_page_btn.clicked.connect(lambda: self._pdf_page_navigate(1))
+        self.zoom_out_btn = QPushButton("Zoom-")
+        self.zoom_out_btn.clicked.connect(lambda: self._zoom_pdf(-0.1))
+        self.zoom_in_btn = QPushButton("Zoom+")
+        self.zoom_in_btn.clicked.connect(lambda: self._zoom_pdf(0.1))
+        self.controls_row.addWidget(self.open_btn)
+        self.controls_row.addWidget(self.reload_btn)
+        self.controls_row.addWidget(self.prev_page_btn)
+        self.controls_row.addWidget(self.next_page_btn)
+        self.controls_row.addWidget(self.zoom_out_btn)
+        self.controls_row.addWidget(self.zoom_in_btn)
+
         self.pdf_viewer = self._build_pdf_viewer_widget()
 
         self.log_view = QPlainTextEdit()
@@ -111,6 +133,7 @@ class LaTeXTools(Plugin):
         self.log_view.setMaximumHeight(160)
 
         layout.addWidget(self.preview_status)
+        layout.addLayout(self.controls_row)
         layout.addWidget(self.pdf_viewer, 1)
         layout.addWidget(self.log_view)
 
@@ -138,7 +161,8 @@ class LaTeXTools(Plugin):
             except Exception:
                 self._pdf_backend = "fallback"
                 fallback = QTextBrowser()
-                fallback.setOpenExternalLinks(True)
+                fallback.setOpenExternalLinks(False)
+                fallback.anchorClicked.connect(self._on_pdf_anchor_clicked)
                 fallback.setHtml("<b>No embedded PDF backend available.</b><br>Export still works.")
                 return fallback
 
@@ -177,6 +201,46 @@ class LaTeXTools(Plugin):
     def show_preview_dock(self) -> None:
         self.pdf_dock.show()
         self.pdf_dock.raise_()
+
+    def open_generated_pdf(self) -> None:
+        if not self.last_pdf_path or not os.path.exists(self.last_pdf_path):
+            QMessageBox.information(self.window, "LaTeX", "No generated PDF found yet.")
+            return
+        self._load_pdf(self.last_pdf_path)
+        self.preview_status.setText(f"Previewing: {self.last_pdf_path}")
+        self.show_preview_dock()
+
+    def reload_pdf(self) -> None:
+        self.open_generated_pdf()
+
+    def _pdf_page_navigate(self, delta: int) -> None:
+        if self._pdf_backend != "qtpdf":
+            return
+        navigator = getattr(self.pdf_viewer, "pageNavigator", lambda: None)()
+        page_count = self.pdf_document.pageCount()
+        if not navigator or page_count <= 0:
+            return
+        current_page = navigator.currentPage()
+        next_page = max(0, min(page_count - 1, current_page + delta))
+        if next_page != current_page:
+            navigator.jump(next_page, navigator.currentLocation(), navigator.currentZoom())
+
+    def _zoom_pdf(self, delta: float) -> None:
+        if self._pdf_backend == "qtpdf":
+            current = self.pdf_viewer.zoomFactor()
+            self.pdf_viewer.setZoomFactor(max(0.25, min(4.0, current + delta)))
+            return
+        if self._pdf_backend == "webengine" and self.last_pdf_path:
+            current = self.pdf_viewer.zoomFactor()
+            self.pdf_viewer.setZoomFactor(max(0.25, min(4.0, current + delta)))
+
+    def _on_pdf_anchor_clicked(self, url: QUrl) -> None:
+        if url.isLocalFile():
+            file_path = url.toLocalFile()
+            if file_path.lower().endswith(".pdf"):
+                self.last_pdf_path = file_path
+                self.open_generated_pdf()
+                return
 
     def export_to_pdf(self) -> None:
         if not self._is_tex_tab():
@@ -245,6 +309,9 @@ class LaTeXTools(Plugin):
     def _load_pdf(self, pdf_path: str) -> None:
         if self._pdf_backend == "qtpdf":
             self.pdf_document.load(pdf_path)
+            navigator = getattr(self.pdf_viewer, "pageNavigator", lambda: None)()
+            if navigator and self.pdf_document.pageCount() > 0:
+                navigator.jump(0, navigator.currentLocation(), self.pdf_viewer.zoomFactor())
             return
 
         if self._pdf_backend == "webengine":
@@ -254,5 +321,6 @@ class LaTeXTools(Plugin):
         safe_path = pdf_path.replace("&", "&amp;")
         self.pdf_viewer.setHtml(
             "<b>Embedded preview unavailable.</b><br>"
-            f"Open file: <a href='file:///{safe_path}'>{pdf_path}</a>"
+            "Use the dock controls to open inside Aura Text when a backend is available.<br>"
+            f"Load PDF: <a href='file:///{safe_path}'>{pdf_path}</a>"
         )
