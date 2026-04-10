@@ -54,13 +54,17 @@
   <summary>View the README In:</summary>
   <ol>
     <li>    
-      <a href="translate/README_HN.md">Hindi 🇮🇳</a>
+      <a href="translate/README_HN.md">हिन्दी 🇮🇳</a>
     </li>
     <li>
-      <a href="translate/README_DE.md">German</a>
+      <a href="translate/README_DE.md">Deutsch</a>
     </li>
     <li><a href="translate/README_ES.md">Español</a></li>
-    <li><a href="#-contributing">Russian</a></li>
+    <li><a href="translate/README_TA.md">தமிழ் 🇮🇳</a></li>
+    <li><a href="translate/README_FR.md">Français</a></li>
+    <li><a href="translate/README_JA.md">日本語</a></li>
+    <li><a href="translate/README_PT.md">Português</a></li>
+    <li><a href="translate/README_RU.md">Русский</a></li>
     <li><a href="translate/ZH-CN/README_ZH-CN.md">简体中文</a></li>
   </ol>
 </details>
