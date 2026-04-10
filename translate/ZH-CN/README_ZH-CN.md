@@ -53,13 +53,17 @@
   <summary>查看其他语言的README：</summary>
   <ol>
     <li>    
-      <a href="README_HN.md">Hindi 🇮🇳</a>
+      <a href="README_HN.md">हिन्दी 🇮🇳</a>
     </li>
     <li>
-      <a href="README_DE.md">German</a>
+      <a href="README_DE.md">Deutsch</a>
     </li>
     <li><a href="README_ES.md">Español</a></li>
-    <li><a href="#-contributing">Russian</a></li>
+    <li><a href="README_TA.md">தமிழ் 🇮🇳</a></li>
+    <li><a href="README_FR.md">Français</a></li>
+    <li><a href="README_JA.md">日本語</a></li>
+    <li><a href="README_PT.md">Português</a></li>
+    <li><a href="README_RU.md">Русский</a></li>
     <li><a><strong>简体中文</strong></a></li>
   </ol>
 </details>

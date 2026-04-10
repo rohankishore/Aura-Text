@@ -50,13 +50,17 @@
   <summary>Sehen Sie sich die README-Datei an:</summary>
   <ol>
     <li>    
-      <a href="README_HN.md">Hindi 🇮🇳</a>
+      <a href="README_HN.md">हिन्दी 🇮🇳</a>
     </li>
     <li>
-      <a href="README_DE.md">German</a>
+      <a><strong>Deutsch</strong></a>
     </li>
     <li><a href="README_ES.md">Español</a></li>
-    <li><a href="#-contributing">Russian</a></li>
+    <li><a href="README_TA.md">தமிழ் 🇮🇳</a></li>
+    <li><a href="README_FR.md">Français</a></li>
+    <li><a href="README_JA.md">日本語</a></li>
+    <li><a href="README_PT.md">Português</a></li>
+    <li><a href="README_RU.md">Русский</a></li>
     <li><a href="ZH-CN/README_ZH-CN.md">简体中文</a></li>
   </ol>
 </details>
