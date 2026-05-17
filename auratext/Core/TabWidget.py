@@ -1,5 +1,5 @@
 from PyQt6.QtCore import QMimeData, QPoint, Qt
-from PyQt6.QtGui import QCursor, QDrag, QPixmap, QRegion, QAction
+from PyQt6.QtGui import QPixmap, QRegion, QAction
 from PyQt6.QtWidgets import QTabWidget, QMenu
 
 
@@ -44,11 +44,15 @@ class TabWidget(QTabWidget):
 
         pixmap = QPixmap(tabRect.size())
         tabBar.render(pixmap, QPoint(), QRegion(tabRect))
-        mimeData = QMimeData()
-        
-        drag = QDrag(self)
-        drag.setMimeData(mimeData)
-        drag.exec()
+        mimeData = QMimeData()
+
+        
+
+        # drag = QDrag(self)
+
+        # drag.setMimeData(mimeData)
+
+        # drag.exec()
 
     def contextMenuEvent(self, event):
         menu = QMenu(self)
