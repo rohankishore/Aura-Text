@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "aura-text"
-version = "5.4.1"
+version = "5.4.2"
 description = "Aura Text is a versatile and powerful text editor powered by QScintilla that provides all the necessary tools for developers. It is build using PyQt6 and Python."
 authors = ["Rohan Kishore (@rohankishore on GitHub)"]
 license = "GPL-3.0-or-later"
