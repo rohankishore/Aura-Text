@@ -14,17 +14,21 @@ class FunctionGridDialog(QDialog):
         # Use theme-aware colors
         from auratext.Core.window import Window
         if parent and hasattr(parent, '_themes'):
-            theme_type = parent._themes.get("theme_type", "dark")
+            self.theme_type = parent._themes.get("theme_type", "dark")
         else:
-            theme_type = "dark"
+            self.theme_type = "dark"
         
-        if theme_type == "light":
+        if self.theme_type == "light":
             dialog_bg = "#ffffff"
             dialog_border = "#d0d0d0"
             label_color = "#000000"
             button_bg = "#e0e0e0"
             button_border = "#b0b0b0"
             button_hover_border = "#808080"
+            self.selected_button_bg = "#e0e0e0"
+            self.selected_button_border = "#007acc"
+            self.normal_button_bg = "#e0e0e0"
+            self.normal_button_border = "#b0b0b0"
         else:
             dialog_bg = "#1f1f1f"
             dialog_border = "#3a3a3a"
@@ -32,6 +36,10 @@ class FunctionGridDialog(QDialog):
             button_bg = "#2b2b2b"
             button_border = "#4a4a4a"
             button_hover_border = "#6a6a6a"
+            self.selected_button_bg = "#2b2b2b"
+            self.selected_button_border = "#00a2ff"
+            self.normal_button_bg = "#2b2b2b"
+            self.normal_button_border = "#4a4a4a"
         
         self.setStyleSheet(
             f"QDialog {{ background-color: {dialog_bg}; border: 1px solid {dialog_border}; border-radius: 12px; }}"
@@ -147,9 +155,9 @@ class FunctionGridDialog(QDialog):
     def update_selection(self):
         for index, button in enumerate(self.buttons):
             if index == self.selected_index:
-                button.setStyleSheet("background-color: #2b2b2b; border: 2px solid #00a2ff; border-radius: 8px;")
+                button.setStyleSheet(f"background-color: {self.selected_button_bg}; border: 2px solid {self.selected_button_border}; border-radius: 8px;")
             else:
-                button.setStyleSheet("background-color: #2b2b2b; border: 1px solid #4a4a4a; border-radius: 8px;")
+                button.setStyleSheet(f"background-color: {self.normal_button_bg}; border: 1px solid {self.normal_button_border}; border-radius: 8px;")
 
     def trigger_action(self, action_key):
         action = self.actions.get(action_key)
