@@ -739,44 +739,65 @@ class Window(QMainWindow):
         self.command_palette.exec()
 
     def apply_vscode_tab_style(self, target_tab_widget):
-        target_tab_widget.setStyleSheet("""
-            QTabWidget::pane {
+        # Use theme-aware colors
+        theme_type = self._themes.get("theme_type", "dark")
+        if theme_type == "light":
+            pane_bg = "#f0f0f0"
+            tab_bg = "#e0e0e0"
+            tab_color = "#000000"
+            tab_selected_bg = "#ffffff"
+            tab_selected_color = "#000000"
+            tab_hover_bg = "#d0d0d0"
+            tab_border_color = "#007acc"
+            close_btn_hover_bg = "#c0c0c0"
+        else:
+            pane_bg = "#1e1e1e"
+            tab_bg = "#2d2d2d"
+            tab_color = "#cccccc"
+            tab_selected_bg = "#1e1e1e"
+            tab_selected_color = "#ffffff"
+            tab_hover_bg = "#373737"
+            tab_border_color = "#007acc"
+            close_btn_hover_bg = "#4a4a4a"
+        
+        target_tab_widget.setStyleSheet(f"""
+            QTabWidget::pane {{
                 border: 0;
-                background: #1e1e1e;
-            }
+                background: {pane_bg};
+            }}
 
-            QTabBar::tab {
-                background: #2d2d2d;
-                color: #cccccc;
+            QTabBar::tab {{
+                background: {tab_bg};
+                color: {tab_color};
                 border: none;
                 min-height: 20px;
                 min-width: 90px;
                 padding: 6px 12px;
                 margin-right: 1px;
-            }
+            }}
 
-            QTabBar::tab:selected {
-                background: #1e1e1e;
-                color: #ffffff;
-                border-top: 2px solid #007acc;
-            }
+            QTabBar::tab:selected {{
+                background: {tab_selected_bg};
+                color: {tab_selected_color};
+                border-top: 2px solid {tab_border_color};
+            }}
 
-            QTabBar::tab:hover:!selected {
-                background: #373737;
-            }
+            QTabBar::tab:hover:!selected {{
+                background: {tab_hover_bg};
+            }}
 
-            QTabBar::close-button {
+            QTabBar::close-button {{
                 subcontrol-position: right;
                 margin-right: 6px;
                 width: 12px;
                 height: 12px;
                 border-radius: 2px;
                 background: transparent;
-            }
+            }}
 
-            QTabBar::close-button:hover {
-                background: #4a4a4a;
-            }
+            QTabBar::close-button:hover {{
+                background: {close_btn_hover_bg};
+            }}
         """)
 
     def get_default_keybindings(self):
