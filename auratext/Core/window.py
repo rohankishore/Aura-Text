@@ -350,24 +350,6 @@ class Window(QMainWindow):
         self.commit_button.unselected_icon = commit_unselected
         self.commit_button.selected_icon = commit_selected
 
-        git_graph_icon = QIcon(f"{local_app_data}/icons/gitgraph.png")
-        self.git_graph_button = QPushButton(self)
-        self.git_graph_button.setIcon(git_graph_icon)
-        self.git_graph_button.clicked.connect(self.gitGraph)
-        self.git_graph_button.setIconSize(QSize(25, 25))
-        self.git_graph_button.setFixedSize(30, 30)
-        self.git_graph_button.setStyleSheet(
-            """
-            QPushButton {
-                border: none;
-                border-radius:10;
-            }
-            QPushButton:hover {
-                background-color: #4e5157;
-            }
-            """
-        )
-
         self.sidebar_layout.insertWidget(0, self.explorer_button)
         self.sidebar_layout.insertWidget(1, self.search_button)
         self.sidebar_layout.insertWidget(2, self.plugin_button)

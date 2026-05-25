@@ -104,6 +104,58 @@ class GitCommitDock(QDockWidget):
         commit_layout.addWidget(self.commit_button)
         self.main_layout.addWidget(self.commit_container)
 
+        # Action buttons section (Graph, Push)
+        actions_container = QWidget()
+        actions_container.setStyleSheet(f"background-color: {bg_color};")
+        actions_layout = QHBoxLayout(actions_container)
+        actions_layout.setContentsMargins(12, 6, 12, 6)
+        actions_layout.setSpacing(6)
+
+        self.graph_button = QPushButton('📊 Graph')
+        self.graph_button.clicked.connect(self.open_git_graph)
+        self.graph_button.setStyleSheet(f"""
+            QPushButton {{
+                background-color: {self.adjust_color_brightness(theme_color, 0.8)};
+                color: #ffffff;
+                border: none;
+                border-radius: 2px;
+                padding: 6px 12px;
+                font-size: 12px;
+                font-weight: 500;
+            }}
+            QPushButton:hover {{
+                background-color: {theme_color};
+            }}
+            QPushButton:pressed {{
+                background-color: {self.adjust_color_brightness(theme_color, 0.9)};
+            }}
+        """)
+
+        self.push_button = QPushButton('⬆ Push')
+        self.push_button.clicked.connect(self.open_git_push)
+        self.push_button.setStyleSheet(f"""
+            QPushButton {{
+                background-color: {self.adjust_color_brightness(theme_color, 0.8)};
+                color: #ffffff;
+                border: none;
+                border-radius: 2px;
+                padding: 6px 12px;
+                font-size: 12px;
+                font-weight: 500;
+            }}
+            QPushButton:hover {{
+                background-color: {theme_color};
+            }}
+            QPushButton:pressed {{
+                background-color: {self.adjust_color_brightness(theme_color, 0.9)};
+            }}
+        """)
+
+        actions_layout.addWidget(self.graph_button)
+        actions_layout.addWidget(self.push_button)
+        actions_layout.addStretch()
+        self.main_layout.addWidget(actions_container)
+
         # Changes section header
         changes_header = QWidget()
         changes_header.setStyleSheet(f"background-color: {bg_color};")
@@ -346,3 +398,19 @@ class GitCommitDock(QDockWidget):
         except Exception as e:
             QMessageBox.critical(self, 'Error', 
                                f"An unexpected error occurred:\n{e}")
+
+    def open_git_graph(self):
+        """Open the git graph window"""
+        parent = self.parent()
+        if parent and hasattr(parent, 'gitGraph'):
+            parent.gitGraph()
+        else:
+            QMessageBox.warning(self, 'Error', 'Could not open git graph.')
+
+    def open_git_push(self):
+        """Open the git push dialog"""
+        parent = self.parent()
+        if parent and hasattr(parent, 'gitPush'):
+            parent.gitPush()
+        else:
+            QMessageBox.warning(self, 'Error', 'Could not open git push dialog.')
