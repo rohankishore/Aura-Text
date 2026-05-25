@@ -158,13 +158,21 @@ class ConfigPage(QWidget):
 
         # Save Button
         save_button = QPushButton("Apply")
+        # Use theme-aware colors
+        theme_type = self._window._themes.get("theme_type", "dark")
+        if theme_type == "light":
+            button_bg = "#e0e0e0"
+            button_color = "#000000"
+        else:
+            button_bg = "#121212"
+            button_color = "#ffffff"
         save_button.setStyleSheet(
-            "QPushButton {"
-            "   border-radius: 10px;"
-            "   padding: 5px;"
-            "background-color: #121212;"
-            "color: white;"
-            "}"
+            f"QPushButton {{"
+            f"   border-radius: 10px;"
+            f"   padding: 5px;"
+            f"background-color: {button_bg};"
+            f"color: {button_color};"
+            f"}}"
         )
         save_button.clicked.connect(self.save_json)
 

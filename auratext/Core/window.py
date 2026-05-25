@@ -436,7 +436,9 @@ class Window(QMainWindow):
         self.take_break_image_label = QLabel(self)
         self.take_break_image_label.setVisible(False)
         self.take_break_image_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        self.take_break_image_label.setStyleSheet("background-color: #000000;")
+        # Use theme-aware background color
+        take_break_bg = "#000000" if self._themes.get("theme_type") == "dark" else "#ffffff"
+        self.take_break_image_label.setStyleSheet(f"background-color: {take_break_bg};")
         self.take_break_image_label.setMouseTracking(True)
         self.take_break_image_label.installEventFilter(self)
 
