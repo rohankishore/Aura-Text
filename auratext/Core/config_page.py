@@ -172,7 +172,6 @@ class ConfigPage(QWidget):
         self.scroll_layout.addWidget(self.theme_grouping)
         self.scroll_layout.addWidget(self.editor_grouping)
         self.scroll_layout.addWidget(save_button)
-        self.scroll_layout.addStretch()
 
         # Set the scroll widget and add scroll area to main layout
         self.scroll_area.setWidget(scroll_widget)
