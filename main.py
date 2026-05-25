@@ -37,7 +37,7 @@ It will then load the config and theme files to apply the user's settings and th
 
 local_app_data, script_dir = get_appdata_dirs()
 
-template_app_data = os.path.join(os.path.dirname(sys.executable), "LocalAppData", "AuraText")
+template_app_data = os.path.join(os.path.dirname(os.path.abspath(__file__)), "LocalAppData", "AuraText")
 if not os.path.exists(local_app_data):
     print("Setting up appdata...")
     shutil.copytree(template_app_data, local_app_data)
