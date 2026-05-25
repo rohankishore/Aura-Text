@@ -10,11 +10,34 @@ class FunctionGridDialog(QDialog):
         self.setModal(True)
         self.setFocusPolicy(Qt.FocusPolicy.StrongFocus)
         self.resize(720, 460)
+        
+        # Use theme-aware colors
+        from auratext.Core.window import Window
+        if parent and hasattr(parent, '_themes'):
+            theme_type = parent._themes.get("theme_type", "dark")
+        else:
+            theme_type = "dark"
+        
+        if theme_type == "light":
+            dialog_bg = "#ffffff"
+            dialog_border = "#d0d0d0"
+            label_color = "#000000"
+            button_bg = "#e0e0e0"
+            button_border = "#b0b0b0"
+            button_hover_border = "#808080"
+        else:
+            dialog_bg = "#1f1f1f"
+            dialog_border = "#3a3a3a"
+            label_color = "#f0f0f0"
+            button_bg = "#2b2b2b"
+            button_border = "#4a4a4a"
+            button_hover_border = "#6a6a6a"
+        
         self.setStyleSheet(
-            "QDialog { background-color: #1f1f1f; border: 1px solid #3a3a3a; border-radius: 12px; }"
-            "QLabel { color: #f0f0f0; font-size: 15px; }"
-            "QToolButton { background-color: #2b2b2b; border: 1px solid #4a4a4a; border-radius: 8px; }"
-            "QToolButton:hover { border: 1px solid #6a6a6a; }"
+            f"QDialog {{ background-color: {dialog_bg}; border: 1px solid {dialog_border}; border-radius: 12px; }}"
+            f"QLabel {{ color: {label_color}; font-size: 15px; }}"
+            f"QToolButton {{ background-color: {button_bg}; border: 1px solid {button_border}; border-radius: 8px; }}"
+            f"QToolButton:hover {{ border: 1px solid {button_hover_border}; }}"
         )
 
         self.actions = actions or {}
