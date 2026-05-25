@@ -30,14 +30,17 @@ class ConfigPage(QWidget):
         self.init_ui()
 
     def init_ui(self):
-        # Main layout
-        main_layout = QVBoxLayout(self)  # Added main layout
+        # Main layout for ConfigPage
+        main_layout = QVBoxLayout(self)
+        main_layout.setContentsMargins(0, 0, 0, 0)
 
+        # Create scroll area
         self.scroll_area = QScrollArea()
-        self.scroll_layout = QVBoxLayout()
-        self.scroll_area.setLayout(self.scroll_layout)
+        self.scroll_area.setWidgetResizable(True)
 
-        self.scroll_layout.addLayout(main_layout)
+        # Create a widget to hold all the content
+        scroll_widget = QWidget()
+        self.scroll_layout = QVBoxLayout(scroll_widget)
 
         self.theme_grouping = QGroupBox("Theming")
         self.theme_layout = QVBoxLayout()
@@ -165,13 +168,15 @@ class ConfigPage(QWidget):
         )
         save_button.clicked.connect(self.save_json)
 
-        # Add theme_grouping to the main layout
-        main_layout.addWidget(self.theme_grouping)
-        main_layout.addWidget(self.editor_grouping)
-        main_layout.addWidget(save_button)
+        # Add theme_grouping to the scroll layout
+        self.scroll_layout.addWidget(self.theme_grouping)
+        self.scroll_layout.addWidget(self.editor_grouping)
+        self.scroll_layout.addWidget(save_button)
+        self.scroll_layout.addStretch()
 
-
-        self.setLayout(main_layout)  # Set the main layout to ConfigPage
+        # Set the scroll widget and add scroll area to main layout
+        self.scroll_area.setWidget(scroll_widget)
+        main_layout.addWidget(self.scroll_area)
 
     def save_json(self):
         self._window._themes["theme"] = self.theme_input.text()
