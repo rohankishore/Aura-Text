@@ -449,19 +449,30 @@ class Window(QMainWindow):
         self.take_break_exit_button = QPushButton(self)
         self.take_break_exit_button.setVisible(False)
         self.take_break_exit_button.clicked.connect(self.toggle_take_break_mode)
+        # Use theme-aware colors for exit button
+        if self._themes.get("theme_type") == "dark":
+            exit_btn_bg = "rgba(20, 20, 20, 220)"
+            exit_btn_color = "#ffffff"
+            exit_btn_border = "rgba(255, 255, 255, 70)"
+            exit_btn_hover_bg = "rgba(35, 35, 35, 230)"
+        else:
+            exit_btn_bg = "rgba(220, 220, 220, 220)"
+            exit_btn_color = "#000000"
+            exit_btn_border = "rgba(0, 0, 0, 70)"
+            exit_btn_hover_bg = "rgba(200, 200, 200, 230)"
         self.take_break_exit_button.setStyleSheet(
-            """
-            QPushButton {
-                background-color: rgba(20, 20, 20, 220);
-                color: #ffffff;
-                border: 1px solid rgba(255, 255, 255, 70);
+            f"""
+            QPushButton {{
+                background-color: {exit_btn_bg};
+                color: {exit_btn_color};
+                border: 1px solid {exit_btn_border};
                 border-radius: 14px;
                 padding: 8px 14px;
                 font-weight: 600;
-            }
-            QPushButton:hover {
-                background-color: rgba(35, 35, 35, 230);
-            }
+            }}
+            QPushButton:hover {{
+                background-color: {exit_btn_hover_bg};
+            }}
             """
         )
         self.take_break_hint_timer = QTimer(self)
