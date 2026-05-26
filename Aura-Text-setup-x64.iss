@@ -2,7 +2,7 @@
 ; SEE THE DOCUMENTATION FOR DETAILS ON CREATING INNO SETUP SCRIPT FILES!
 
 #define MyAppName "Aura Text"
-#define MyAppVersion "5.4.2"
+#define MyAppVersion "5.5.0"
 #define MyAppPublisher "Rohan Kishore"
 #define MyAppURL "https://github.com/rohankishore/Aura-Text"
 #define MyAppExeName "Aura Text.exe"
