@@ -1145,7 +1145,7 @@ class Window(QMainWindow):
             self.explorer_tree_view.setColumnHidden(1, True)  # File type column
             self.explorer_tree_view.setColumnHidden(2, True)  # Size column
             self.explorer_tree_view.setColumnHidden(3, True)  # Date modified column
-            self.explorer_tree_view.doubleClicked.connect(self.open_file)
+            self.explorer_tree_view.doubleClicked.connect(self.on_tree_double_clicked)
 
         self.model.setRootPath(root_path)
         self.explorer_tree_view.setRootIndex(self.model.index(root_path))
@@ -1692,6 +1692,17 @@ class Window(QMainWindow):
         path = self.model.filePath(index)
         self.open_file_from_path(path)
 
+    def on_tree_double_clicked(self, index):
+        try:
+            self.open_file(index)
+        except IsADirectoryError:
+            if self.explorer_tree_view.isExpanded(index):
+                self.explorer_tree_view.collapse(index, False)
+                print("Collapsing directory:", self.model.filePath(index))
+            else:
+                self.explorer_tree_view.setExpanded(index, False)
+                print("Expanding directory:", self.model.filePath(index))
+
     def open_file_from_path(self, path):
         image_extensions = ["png", "jpg", "jpeg", "ico", "gif", "bmp"]
         ext = path.split(".")[-1]
@@ -1727,13 +1738,13 @@ class Window(QMainWindow):
             messagebox.exec()
         except FileNotFoundError:
             return
-        except Exception as e:
-            print(e)
-            messagebox = QMessageBox()
-            messagebox.setWindowTitle("Error"), messagebox.setText(
-                f"An error occurred while opening the file: {e}"
-            )
-            messagebox.exec()
+        # except Exception as e:
+        #     print(e)
+        #     messagebox = QMessageBox()
+        #     messagebox.setWindowTitle("Error"), messagebox.setText(
+        #         f"An error occurred while opening the file: {e}"
+        #     )
+        #     messagebox.exec()
 
     def open_pdf_in_app(self, path):
         try:
