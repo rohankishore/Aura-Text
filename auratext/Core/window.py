@@ -1730,10 +1730,10 @@ class Window(QMainWindow):
             return
         except IsADirectoryError:
             if self.explorer_tree_view.isExpanded(index):
-                self.explorer_tree_view.collapse(index, False)
+                self.explorer_tree_view.collapse(index)
                 print("Collapsing directory:", self.model.filePath(index))
             else:
-                self.explorer_tree_view.setExpanded(index, False)
+                self.explorer_tree_view.setExpanded(index, True)
                 print("Expanding directory:", self.model.filePath(index))
         except Exception as e:
             print(e)
