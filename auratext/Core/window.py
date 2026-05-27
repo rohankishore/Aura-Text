@@ -1146,6 +1146,7 @@ class Window(QMainWindow):
             self.explorer_tree_view.setColumnHidden(2, True)  # Size column
             self.explorer_tree_view.setColumnHidden(3, True)  # Date modified column
             self.explorer_tree_view.doubleClicked.connect(self.open_file)
+            self.explorer_tree_view.setExpandsOnDoubleClick(False)
 
         self.model.setRootPath(root_path)
         self.explorer_tree_view.setRootIndex(self.model.index(root_path))
