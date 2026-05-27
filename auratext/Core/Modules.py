@@ -172,7 +172,11 @@ class CodeSnippets:
 
     @staticmethod
     def snippets_gen(editor):
-        snippet_text = editor.selectedText()
+        try:
+            snippet_text = editor.selectedText()
+        except AttributeError:
+            QMessageBox.warning(editor, "No Editor Open", "The current widget is not an editor.")
+            return
         filename, ok = QFileDialog.getSaveFileName(None, "Select file", "", "Python Files (*.py);;All Files (*)")[0]
         if not ok:
             return
@@ -289,7 +293,10 @@ def calculate(self):
 
 
 def pastebin(self):
-    text_pb = self.current_editor.text()
+    try:
+        text_pb = self.current_editor.text()
+    except AttributeError:
+        QMessageBox.warning(self, "No Editor Open", "The current widget is not an editor.")
     if text_pb != "":
         data = {"api_dev_key": api_key_pastebin, "api_option": "paste", "api_paste_code": text_pb}
         response = (requests.post("https://pastebin.com/api/api_post.php", data=data)).text
