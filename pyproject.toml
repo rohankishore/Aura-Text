@@ -14,7 +14,7 @@ include = ["LICENSE"]
 python = ">=3.10"
 art = "6.0"
 autopep8 = "2.0.2"
-gitpython = "3.1.49"
+gitpython = "3.1.50"
 pyautogui = "0.9.54"
 pyjokes = "0.6.0"
 pyqt6 = "6.9.1"
