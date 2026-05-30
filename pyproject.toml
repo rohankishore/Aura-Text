@@ -4,14 +4,14 @@ version = "5.5.0"
 description = "Aura Text is a versatile and powerful text editor powered by QScintilla that provides all the necessary tools for developers. It is build using PyQt6 and Python."
 authors = ["Rohan Kishore (@rohankishore on GitHub)"]
 license = "GPL-3.0-or-later"
-license-files = ["LICENSE"]
 readme = "README.md"
 repository = "https://github.com/rohankishore/Aura-Text"
 homepage = "https://github.com/rohankishore/Aura-Text"
 packages = [{ include = "auratext" }]
+include = ["LICENSE"]
 
 [tool.poetry.dependencies]
-python = ">=3.7"
+python = ">=3.10"
 art = "6.0"
 autopep8 = "2.0.2"
 gitpython = "3.1.49"
@@ -25,7 +25,6 @@ pyttsx3 = "2.90"
 pywinstyles = "1.3"
 qt_material = "2.14"
 requests = "2.33.0"
-roastedbyai = "1.2.0"
 pyqtdarktheme = { path = "wheels/pyqtdarktheme-2.1.0-py3-none-any.whl" }
 pyqt6-fluent-widgets = "1.6.0"
 pyqt6-qscintilla = "2.14.1"
