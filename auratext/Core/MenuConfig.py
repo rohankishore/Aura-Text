@@ -198,6 +198,7 @@ QMenu::item::selected {{
     tools_menu.addAction("Upload to Pastebin", self.pastebin).setWhatsThis(
         "Uploads the entire text content in your current editor to Pastebin and automatically copies the link"
     )
+    tools_menu.addAction("Regex Playground", self.triggerRegExPg).setWhatsThis("Opens up a window to experiment with regular expressions in real time")
     tools_menu.addAction("Notes", self.notes).setWhatsThis(
         "Creates a new dock to write down ideas and temporary stuffs. The contents will be erased if you close the dock or the app"
     )
