@@ -1,5 +1,6 @@
 import subprocess
 import os
+import re
 import json
 import sys
 from PyQt6.QtCore import Qt, QTimer
@@ -7,12 +8,8 @@ from PyQt6.QtGui import QPixmap, QFont
 from PyQt6.QtWidgets import (QListWidget, QVBoxLayout, QWidget, QDockWidget, QPushButton, 
                              QListWidgetItem, QCheckBox, QMessageBox, QTextEdit, QLabel, 
                              QHBoxLayout, QLineEdit, QScrollArea, QSizePolicy, QDialog)
-import platform
 
 from auratext.Misc.import_res import notepadequalequalComponentImportPathAppend
-from auratext.Misc.boilerplates import get_appdata_dirs
-sys.path.append(notepadequalequalComponentImportPathAppend)
-from notepadequalequal.fileio import retrieve_file
 
 """
 File used to store the qdialog required for the working of the regular expression playground feature. 
@@ -33,5 +30,13 @@ class RegexPlaygroundDialog(QDialog):
         self.regex = QLineEdit()
         self.layout.addWidget(self.regex)
 
+        self.res = QTextEdit()
+        self.layout.addWidget(self.res)
+
     def ParseRegex(self):
-        pass
+        text = self.text.toPlainText()
+        pattern = self.regex.text()
+
+        result = re.findall(pattern, text)
+
+        #result = self.res.toPlainText()
