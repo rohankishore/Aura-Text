@@ -19,7 +19,7 @@ class RegexPlaygroundDialog(QDialog):
     def __init__(self, parent=None):
         super().__init__(parent)
         self.setWindowTitle("Regex Playground")
-        self.setMinimumSize(650, 350)
+        self.setMinimumSize(650, 350) # tbh not sure about the size. this will work for now as it'll be resizable.
 
         self.layout = QVBoxLayout()
         self.setLayout(self.layout)
@@ -38,6 +38,9 @@ class RegexPlaygroundDialog(QDialog):
         self.layout.addWidget(self.res)
 
     def ParseRegex(self):
+        """
+        A simple function to start out the feature. Will expand it as we go on.
+        """
         text = self.text.toPlainText()
         pattern = self.regex.text()
 
