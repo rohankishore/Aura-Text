@@ -27,3 +27,4 @@ class RegexPlaygroundDialog(QDialog):
         self.layout.addWidget(self.text)
 
         self.regex = QLineEdit()
+        self.layout.addWidget(self.regex)
