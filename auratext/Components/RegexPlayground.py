@@ -6,7 +6,7 @@ from PyQt6.QtCore import Qt, QTimer
 from PyQt6.QtGui import QPixmap, QFont
 from PyQt6.QtWidgets import (QListWidget, QVBoxLayout, QWidget, QDockWidget, QPushButton, 
                              QListWidgetItem, QCheckBox, QMessageBox, QTextEdit, QLabel, 
-                             QHBoxLayout, QFrame, QScrollArea, QSizePolicy, QDialog)
+                             QHBoxLayout, QLineEdit, QScrollArea, QSizePolicy, QDialog)
 import platform
 
 from auratext.Misc.import_res import notepadequalequalComponentImportPathAppend
@@ -25,3 +25,5 @@ class RegexPlaygroundDialog(QDialog):
 
         self.text = QTextEdit()
         self.layout.addWidget(self.text)
+
+        self.regex = QLineEdit()
