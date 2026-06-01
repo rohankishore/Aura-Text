@@ -47,7 +47,7 @@ from . import PluginDownload
 from . import ThemeDownload
 from . import config_page
 from .CommandPalette import CommandPalette
-from ..Components import powershell, terminal, statusBar, ProjectManager, About, ToDo, GitGraph, GitRebase, Performance
+from ..Components import powershell, terminal, statusBar, ProjectManager, About, ToDo, GitGraph, GitRebase, Performance, RegexPlayground
 from ..Components.CommandPalette import CommandPalette
 from ..Components.NewProjectDialog import NewProjectDialog
 from ..Components.Linter import CodeLinter
@@ -1103,6 +1103,10 @@ class Window(QMainWindow):
 
     def treeview_project(self, path):
         self.expandSidebar__Explorer(path)
+
+    def triggerRegExPg(self):
+        dialog = RegexPlayground.RegexPlaygroundDialog(self)
+        dialog.exec()
     
     def handle_sidebar_button_click(self, button, action):
         """Handle sidebar button clicks and update icon states"""
