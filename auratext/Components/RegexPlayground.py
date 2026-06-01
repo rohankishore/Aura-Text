@@ -28,6 +28,7 @@ class RegexPlaygroundDialog(QDialog):
         self.layout.addWidget(self.text)
 
         self.regex = QLineEdit()
+        self.regex.textChanged.connect(lambda: self.ParseRegex())
         self.layout.addWidget(self.regex)
 
         self.res = QTextEdit()
@@ -39,4 +40,7 @@ class RegexPlaygroundDialog(QDialog):
 
         result = re.findall(pattern, text)
 
-        #result = self.res.toPlainText()
+        try:
+            self.res.setText(result)
+        except Exception as e:
+            pass
