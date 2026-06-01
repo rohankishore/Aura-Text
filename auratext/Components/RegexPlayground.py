@@ -27,9 +27,6 @@ class RegexPlaygroundDialog(QDialog):
         self.layout = QVBoxLayout()
         self.setLayout(self.layout)
 
-        self.scrollarea = QScrollArea()
-        self.scrollarea.setLayout(self.layout)
-
         self.text = QTextEdit()
         self.layout.addWidget(self.text)
 
