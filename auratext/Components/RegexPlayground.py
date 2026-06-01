@@ -39,6 +39,7 @@ class RegexPlaygroundDialog(QDialog):
         pattern = self.regex.text()
 
         result = re.findall(pattern, text)
+        print(result)
 
         try:
             self.res.setText(result)
