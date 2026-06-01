@@ -111,11 +111,11 @@ class GitCommitDock(QDockWidget):
         actions_layout.setContentsMargins(12, 6, 12, 6)
         actions_layout.setSpacing(6)
 
-        self.graph_button = QPushButton('📊 Graph')
+        self.graph_button = QPushButton('Graph')
         self.graph_button.clicked.connect(self.open_git_graph)
         self.graph_button.setStyleSheet(f"""
             QPushButton {{
-                background-color: {self.adjust_color_brightness(theme_color, 0.8)};
+                background-color: {self.adjust_color_brightness(theme_color, 0.4)};
                 color: #ffffff;
                 border: none;
                 border-radius: 2px;
@@ -124,18 +124,18 @@ class GitCommitDock(QDockWidget):
                 font-weight: 500;
             }}
             QPushButton:hover {{
-                background-color: {theme_color};
+                background-color: {self.adjust_color_brightness(theme_color, 0.6)};
             }}
             QPushButton:pressed {{
                 background-color: {self.adjust_color_brightness(theme_color, 0.9)};
             }}
         """)
 
-        self.push_button = QPushButton('⬆ Push')
+        self.push_button = QPushButton('Push')
         self.push_button.clicked.connect(self.open_git_push)
         self.push_button.setStyleSheet(f"""
             QPushButton {{
-                background-color: {self.adjust_color_brightness(theme_color, 0.8)};
+                background-color: {self.adjust_color_brightness(theme_color, 0.4)};
                 color: #ffffff;
                 border: none;
                 border-radius: 2px;
@@ -144,7 +144,7 @@ class GitCommitDock(QDockWidget):
                 font-weight: 500;
             }}
             QPushButton:hover {{
-                background-color: {theme_color};
+                background-color: {self.adjust_color_brightness(theme_color, 0.6)};
             }}
             QPushButton:pressed {{
                 background-color: {self.adjust_color_brightness(theme_color, 0.9)};
