@@ -25,23 +25,31 @@ class RegexPlaygroundDialog(QDialog):
         self.setLayout(self.layout)
 
         self.text = QTextEdit()
+        self.text.setPlaceholderText("Type or paste sample text here")
         self.layout.addWidget(self.text)
 
         self.regex = QLineEdit()
-        self.regex.textChanged.connect(lambda: self.ParseRegex())
+        self.regex.setPlaceholderText("Enter a regular expression")
+        self.regex.textChanged.connect(self.ParseRegex)
         self.layout.addWidget(self.regex)
 
         self.res = QTextEdit()
+        self.res.setReadOnly(True)
         self.layout.addWidget(self.res)
 
     def ParseRegex(self):
         text = self.text.toPlainText()
         pattern = self.regex.text()
 
-        result = re.findall(pattern, text)
-        print(result)
-
         try:
-            self.res.setText(result)
-        except Exception as e:
-            pass
+            if not pattern:
+                self.res.clear()
+                return
+
+            matches = [match.group(0) for match in re.finditer(pattern, text)]
+            if matches:
+                self.res.setPlainText("\n".join(matches))
+            else:
+                self.res.setPlainText("No matches found.")
+        except re.error as error:
+            self.res.setPlainText(f"Regex error: {error}")
