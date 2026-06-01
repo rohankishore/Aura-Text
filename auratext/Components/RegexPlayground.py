@@ -14,6 +14,10 @@ from auratext.Misc.boilerplates import get_appdata_dirs
 sys.path.append(notepadequalequalComponentImportPathAppend)
 from notepadequalequal.fileio import retrieve_file
 
+"""
+File used to store the qdialog required for the working of the regular expression playground feature. 
+"""
+
 class RegexPlaygroundDialog(QDialog):
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -28,3 +32,6 @@ class RegexPlaygroundDialog(QDialog):
 
         self.regex = QLineEdit()
         self.layout.addWidget(self.regex)
+
+    def ParseRegex(self):
+        pass
