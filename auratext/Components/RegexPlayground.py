@@ -19,7 +19,7 @@ class RegexPlaygroundDialog(QDialog):
     def __init__(self, parent=None):
         super().__init__(parent)
         self.setWindowTitle("Regex Playground")
-        self.setMinimumSize(650, 350) # tbh not sure about the size. this will work for now as it'll be resizable.
+        self.setMinimumSize(400, 200) # tbh not sure about the size. this will work for now as it'll be resizable.
 
         self.layout = QVBoxLayout()
         self.setLayout(self.layout)
