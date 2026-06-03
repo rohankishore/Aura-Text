@@ -10,7 +10,7 @@ from PyQt6.QtWidgets import QVBoxLayout, QTextEdit, QLineEdit, QDialog
 from auratext.Misc.import_res import notepadequalequalComponentImportPathAppend
 
 """
-File used to store the qdialog required for the working of the regular expression playground feature. 
+Regex Playground component
 """
 
 class RegexPlaygroundDialog(QDialog):
