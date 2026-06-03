@@ -3,8 +3,6 @@ import re
 # from PyQt6.QtGui import QPixmap, QFont
 from PyQt6.QtWidgets import QVBoxLayout, QTextEdit, QLineEdit, QDialog
 
-from auratext.Misc.import_res import notepadequalequalComponentImportPathAppend
-
 """
 Regex Playground component
 """
