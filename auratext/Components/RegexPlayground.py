@@ -3,11 +3,9 @@ import os
 import re
 import json
 import sys
-from PyQt6.QtCore import Qt, QTimer
-from PyQt6.QtGui import QPixmap, QFont
-from PyQt6.QtWidgets import (QListWidget, QVBoxLayout, QWidget, QDockWidget, QPushButton, 
-                             QListWidgetItem, QCheckBox, QMessageBox, QTextEdit, QLabel, 
-                             QHBoxLayout, QLineEdit, QScrollArea, QSizePolicy, QDialog)
+# from PyQt6.QtCore import Qt, QTimer
+# from PyQt6.QtGui import QPixmap, QFont
+from PyQt6.QtWidgets import QVBoxLayout, QTextEdit, QLineEdit, QDialog
 
 from auratext.Misc.import_res import notepadequalequalComponentImportPathAppend
 
