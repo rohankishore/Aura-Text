@@ -1,25 +1,17 @@
-import subprocess
-import os
 import re
-import json
-import sys
-from PyQt6.QtCore import Qt, QTimer
-from PyQt6.QtGui import QPixmap, QFont
-from PyQt6.QtWidgets import (QListWidget, QVBoxLayout, QWidget, QDockWidget, QPushButton, 
-                             QListWidgetItem, QCheckBox, QMessageBox, QTextEdit, QLabel, 
-                             QHBoxLayout, QLineEdit, QScrollArea, QSizePolicy, QDialog)
-
-from auratext.Misc.import_res import notepadequalequalComponentImportPathAppend
+# from PyQt6.QtCore import Qt, QTimer
+# from PyQt6.QtGui import QPixmap, QFont
+from PyQt6.QtWidgets import QVBoxLayout, QTextEdit, QLineEdit, QDialog
 
 """
-File used to store the qdialog required for the working of the regular expression playground feature. 
+Regex Playground component
 """
 
 class RegexPlaygroundDialog(QDialog):
     def __init__(self, parent=None):
         super().__init__(parent)
         self.setWindowTitle("Regex Playground")
-        self.setMinimumSize(650, 350) # tbh not sure about the size. this will work for now as it'll be resizable.
+        self.setMinimumSize(400, 200) # tbh not sure about the size. this will work for now as it'll be resizable.
 
         self.layout = QVBoxLayout()
         self.setLayout(self.layout)
