@@ -85,6 +85,7 @@ With Aura Text, users can access a versatile and powerful editing environment. W
 - Git Clone, Commit and Push with interactive rebase and graphs
 - Command Palette for quick execution of tasks
 - Custom title bars
+- Regex Playground
 - Split pane Markdown editor
 - Terminal with history
 - Python Console
