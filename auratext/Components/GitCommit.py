@@ -1,10 +1,14 @@
+"""
+08/06/2026 - I added option to keep the commit msg intact after committing.
+"""
+
 import subprocess
 import os
 import json
 import sys
 from PyQt6.QtCore import Qt, QTimer
 from PyQt6.QtGui import QPixmap, QFont
-from PyQt6.QtWidgets import (QListWidget, QVBoxLayout, QWidget, QDockWidget, QPushButton, 
+from PyQt6.QtWidgets import (QDialog, QListWidget, QMenu, QVBoxLayout, QWidget, QDockWidget, QPushButton, 
                              QListWidgetItem, QCheckBox, QMessageBox, QTextEdit, QLabel, 
                              QHBoxLayout, QFrame, QScrollArea, QSizePolicy)
 import platform
@@ -17,6 +21,10 @@ from notepadequalequal.fileio import retrieve_file
 local_app_data, script_dir = get_appdata_dirs()
 cpath = retrieve_file(f"{local_app_data}/data/CPath_Project.txt").strip()
 
+
+with open(f"{local_app_data}/data/commit.json", "r+") as config_file:
+    _configCommit = json.load(config_file)
+
 # Load theme
 with open(f"{local_app_data}/data/theme.json", "r") as f:
     theme_data = json.load(f)
@@ -25,14 +33,75 @@ with open(f"{local_app_data}/data/theme.json", "r") as f:
     editor_bg = theme_data.get("editor_theme", "#121212")
     fg_color = theme_data.get("editor_fg", "#ffffff")
 
+
+class commitSettingsDialog(QDialog):
+    def __init__(self, parent = None):
+        super().__init__(parent)
+
+        self.setStyleSheet(f"""
+            QDialog {{
+                background-color: {bg_color};
+            }}
+        """)
+
+        self.setWindowTitle("Commit Settings")
+        self.setMinimumHeight(150)
+        self.setMinimumWidth(300)
+
+        self.main_widget = QWidget()
+        self.main_layout = QVBoxLayout(self)
+        self.setLayout(self.main_layout)
+
+        self.clearMsg = QCheckBox("Clear Message on Commit")
+        self.clearMsg.setStyleSheet(f"""
+            QCheckBox {{
+                background-color: {bg_color};
+                color: {fg_color};
+                font-size: 11px;
+                font-weight: normal;
+                letter-spacing: 0.5px;
+            }}
+        """)
+
+        self.apply = QPushButton("Apply Settings")
+        self.apply.clicked.connect(self.triggerApply)
+
+        self.main_layout.addWidget(self.clearMsg)
+        self.main_layout.addWidget(self.apply)
+
+        commitMsgState = _configCommit.get("clear", "true")
+
+        if commitMsgState == "true":
+            self.clearMsg.setChecked(True)
+        else:
+            self.clearMsg.setChecked(False)
+
+    def triggerApply(self):
+
+        # The save system here is directly taken from config_page. Might be unstable as I did this in a slight hurry. 
+
+        try:
+            if self.clearMsg.isChecked():
+                _configCommit["clear"] = "true"
+            else:
+                _configCommit["clear"] = "false"
+
+            with open(f"{local_app_data}/data/commit.json", "w") as config_file:
+                json.dump(_configCommit, config_file)
+        except Exception as e:
+            print(e)
+
+
 class GitCommitDock(QDockWidget):
     def __init__(self, parent=None):
-        super().__init__('Source Control', parent)
+        super().__init__('Version Control', parent)
         self.setAllowedAreas(Qt.DockWidgetArea.AllDockWidgetAreas)
         self._last_status_snapshot = None
 
         self.main_widget = QWidget()
         self.main_layout = QVBoxLayout(self.main_widget)
+        self.header_layout = QHBoxLayout()
+        self.main_layout.addLayout(self.header_layout)
         self.main_layout.setContentsMargins(0, 0, 0, 0)
         self.main_layout.setSpacing(0)
 
@@ -41,7 +110,7 @@ class GitCommitDock(QDockWidget):
         )
 
         # Header
-        header = QLabel("SOURCE CONTROL")
+        header = QLabel("VERSION CONTROL") # I renamed it to Version control to be more in-line with other IDEs
         header.setStyleSheet(f"""
             QLabel {{
                 background-color: {bg_color};
@@ -52,7 +121,22 @@ class GitCommitDock(QDockWidget):
                 letter-spacing: 0.5px;
             }}
         """)
-        self.main_layout.addWidget(header)
+
+        self.settingButton = QPushButton(" ⚙️ ")
+        self.settingButton.clicked.connect(self.triggerSettings)
+        self.settingButton.setStyleSheet(f"""
+            QPushButton {{
+                background-color: {editor_bg};
+                color: {fg_color};
+                border: 0px solid #3c3c3c;
+                border-radius: 2px;
+                padding: 6px;
+                font-size: 13px;
+            }}
+        """)
+
+        self.header_layout.addWidget(header)
+        self.header_layout.addWidget(self.settingButton)
 
         # Commit message section
         self.commit_container = QWidget()
@@ -220,6 +304,10 @@ class GitCommitDock(QDockWidget):
         self.refresh_timer.start()
 
         self.refresh_status(force=True)
+
+    def triggerSettings(self):
+        dialog = commitSettingsDialog()
+        dialog.exec()
 
     def eventFilter(self, obj, event):
         """Handle Ctrl+Enter to commit"""
