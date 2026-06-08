@@ -54,6 +54,9 @@ class GitCommitDock(QDockWidget):
                 letter-spacing: 0.5px;
             }}
         """)
+
+        
+
         self.header_layout.addWidget(header)
 
         # Commit message section
