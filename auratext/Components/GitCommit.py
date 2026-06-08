@@ -18,7 +18,7 @@ local_app_data, script_dir = get_appdata_dirs()
 cpath = retrieve_file(f"{local_app_data}/data/CPath_Project.txt").strip()
 
 
-with open(f"{local_app_data}/data/commit.json", "r+") as config_file:
+with open(f"{local_app_data}/data/commit.json", "w") as config_file:
     _configCommit = json.load(config_file)
 
 # Load theme
