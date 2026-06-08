@@ -33,6 +33,8 @@ class GitCommitDock(QDockWidget):
 
         self.main_widget = QWidget()
         self.main_layout = QVBoxLayout(self.main_widget)
+        self.header_layout = QHBoxLayout(self.main_layout)
+        self.main_layout.addLayout(self.header_layout)
         self.main_layout.setContentsMargins(0, 0, 0, 0)
         self.main_layout.setSpacing(0)
 
@@ -52,7 +54,7 @@ class GitCommitDock(QDockWidget):
                 letter-spacing: 0.5px;
             }}
         """)
-        self.main_layout.addWidget(header)
+        self.header_layout.addWidget(header)
 
         # Commit message section
         self.commit_container = QWidget()
