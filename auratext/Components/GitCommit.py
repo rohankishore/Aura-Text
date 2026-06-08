@@ -1,3 +1,7 @@
+"""
+08/06/2026 - I added option to keep the commit msg intact after committing.
+"""
+
 import subprocess
 import os
 import json
