@@ -44,7 +44,7 @@ class commitSettingsDialog(QDialog):
             }}
         """)
 
-        self.setWindowTitle("Commit Settings")
+        self.setWindowTitle("Version Control Settings")
         self.setMinimumHeight(150)
         self.setMinimumWidth(300)
 
