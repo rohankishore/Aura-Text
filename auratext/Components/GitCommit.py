@@ -33,7 +33,7 @@ class GitCommitDock(QDockWidget):
 
         self.main_widget = QWidget()
         self.main_layout = QVBoxLayout(self.main_widget)
-        self.header_layout = QHBoxLayout(self.main_layout)
+        self.header_layout = QHBoxLayout()
         self.main_layout.addLayout(self.header_layout)
         self.main_layout.setContentsMargins(0, 0, 0, 0)
         self.main_layout.setSpacing(0)
