@@ -63,10 +63,13 @@ class commitSettingsDialog(QDialog):
             self.clearMsg.setChecked(False)
 
     def triggerApply(self):
-        if self.clearMsg.isChecked():
-            _configCommit["clear"] = "true"
-        else:
-            _configCommit["clear"] = "false"
+        try:
+            if self.clearMsg.isChecked():
+                _configCommit["clear"] = "true"
+            else:
+                _configCommit["clear"] = "false"
+        except Exception as e:
+            print(e)
 
 
 
