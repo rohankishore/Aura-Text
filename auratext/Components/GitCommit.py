@@ -35,6 +35,9 @@ class commitSettingsDialog(QDialog):
         super().__init__(parent)
 
         self.setWindowTitle("Commit Settings")
+        self.setMinimumHeight(150)
+        self.setMinimumWidth(300)
+
         
 
 
