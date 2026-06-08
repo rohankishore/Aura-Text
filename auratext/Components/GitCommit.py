@@ -73,6 +73,9 @@ class commitSettingsDialog(QDialog):
             self.clearMsg.setChecked(False)
 
     def triggerApply(self):
+
+        # The save system here is directly taken from config_page. Might be unstable as I did this in a slight hurry. 
+
         try:
             if self.clearMsg.isChecked():
                 _configCommit["clear"] = "true"
