@@ -34,7 +34,8 @@ class commitSettingsDialog(QDialog):
     def __init__(self, parent = None):
         super().__init__(parent)
 
-
+        self.setWindowTitle("Commit Settings")
+        
 
 
 class GitCommitDock(QDockWidget):
