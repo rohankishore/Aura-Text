@@ -42,6 +42,15 @@ class commitSettingsDialog(QDialog):
         self.main_layout = QVBoxLayout(self.main_widget)
 
         self.clearMsg = QCheckBox("Clear Message on Commit")
+        self.clearMsg.setStyleSheet(f"""
+            QCheckBox {{
+                background-color: {bg_color};
+                color: {fg_color};
+                font-size: 11px;
+                font-weight: normal;
+                letter-spacing: 0.5px;
+            }}
+        """)
 
         commitMsgState = _configCommit.get("clear", "true")
 
@@ -267,7 +276,8 @@ class GitCommitDock(QDockWidget):
         self.refresh_status(force=True)
 
     def triggerSettings(self):
-        pass
+        dialog = commitSettingsDialog()
+        dialog.exec()
 
     def eventFilter(self, obj, event):
         """Handle Ctrl+Enter to commit"""
