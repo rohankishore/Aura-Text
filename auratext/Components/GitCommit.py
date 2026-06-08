@@ -41,6 +41,8 @@ class commitSettingsDialog(QDialog):
         self.main_widget = QWidget()
         self.main_layout = QVBoxLayout(self.main_widget)
 
+        self.clearMsg = QCheckBox("Clear Message on Commit")
+
 
 class GitCommitDock(QDockWidget):
     def __init__(self, parent=None):
