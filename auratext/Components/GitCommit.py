@@ -18,8 +18,8 @@ local_app_data, script_dir = get_appdata_dirs()
 cpath = retrieve_file(f"{local_app_data}/data/CPath_Project.txt").strip()
 
 
-with open(f"{local_app_data}/data/config.json", "r") as config_file:
-    _config = json.load(config_file)
+with open(f"{local_app_data}/data/commit.json", "r") as config_file:
+    _configCommit = json.load(config_file)
 
 # Load theme
 with open(f"{local_app_data}/data/theme.json", "r") as f:
@@ -34,7 +34,7 @@ class commitSettingsDialog(QDialog):
     def __init__(self, parent = None):
         super().__init__(parent)
 
-        
+
 
 
 class GitCommitDock(QDockWidget):
