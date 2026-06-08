@@ -52,12 +52,21 @@ class commitSettingsDialog(QDialog):
             }}
         """)
 
+        self.apply = QPushButton("Apply Settings")
+        self.apply.clicked.connect(self.triggerApply)
+
         commitMsgState = _configCommit.get("clear", "true")
 
         if commitMsgState == "true":
             self.clearMsg.setChecked(True)
         else:
             self.clearMsg.setChecked(False)
+
+    def triggerApply(self):
+        if self.clearMsg.isChecked():
+            _configCommit["clear"] = "true"
+        else:
+            _configCommit["clear"] = "false"
 
 
 
