@@ -238,6 +238,9 @@ class GitCommitDock(QDockWidget):
 
         self.refresh_status(force=True)
 
+    def triggerSettings(self):
+        pass
+
     def eventFilter(self, obj, event):
         """Handle Ctrl+Enter to commit"""
         if obj == self.commit_entry and event.type() == event.Type.KeyPress:
