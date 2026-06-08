@@ -78,6 +78,9 @@ class commitSettingsDialog(QDialog):
                 _configCommit["clear"] = "true"
             else:
                 _configCommit["clear"] = "false"
+
+            with open(f"{local_app_data}/data/commit.json", "r") as config_file:
+                json.dump(_configCommit, config_file)
         except Exception as e:
             print(e)
 
