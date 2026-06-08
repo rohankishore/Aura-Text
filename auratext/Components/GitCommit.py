@@ -55,7 +55,7 @@ class GitCommitDock(QDockWidget):
             }}
         """)
 
-        self.settingButton = QPushButton(" ⋮ ")
+        self.settingButton = QPushButton(" ⚙️ ")
         self.settingButton.setStyleSheet(f"""
             QPushButton {{
                 background-color: {editor_bg};
