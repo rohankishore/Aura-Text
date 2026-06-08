@@ -43,6 +43,15 @@ class commitSettingsDialog(QDialog):
 
         self.clearMsg = QCheckBox("Clear Message on Commit")
 
+        commitMsgState = _configCommit.get("clear", "true")
+
+        if commitMsgState == "true":
+            self.clearMsg.setChecked(True)
+        else:
+            self.clearMsg.setChecked(False)
+
+            
+
 
 class GitCommitDock(QDockWidget):
     def __init__(self, parent=None):
