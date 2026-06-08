@@ -34,12 +34,18 @@ class commitSettingsDialog(QDialog):
     def __init__(self, parent = None):
         super().__init__(parent)
 
+        self.setStyleSheet(f"""
+            QDialog {{
+                background-color: {bg_color};
+            }}
+        """)
+
         self.setWindowTitle("Commit Settings")
         self.setMinimumHeight(150)
         self.setMinimumWidth(300)
 
         self.main_widget = QWidget()
-        self.main_layout = QVBoxLayout(self.main_widget)
+        self.main_layout = QVBoxLayout(self)
         self.setLayout(self.main_layout)
 
         self.clearMsg = QCheckBox("Clear Message on Commit")
@@ -55,6 +61,9 @@ class commitSettingsDialog(QDialog):
 
         self.apply = QPushButton("Apply Settings")
         self.apply.clicked.connect(self.triggerApply)
+
+        self.main_layout.addWidget(self.clearMsg)
+        self.main_layout.addWidget(self.apply)
 
         commitMsgState = _configCommit.get("clear", "true")
 
