@@ -17,6 +17,10 @@ from notepadequalequal.fileio import retrieve_file
 local_app_data, script_dir = get_appdata_dirs()
 cpath = retrieve_file(f"{local_app_data}/data/CPath_Project.txt").strip()
 
+
+with open(f"{local_app_data}/data/config.json", "r") as config_file:
+    _config = json.load(config_file)
+
 # Load theme
 with open(f"{local_app_data}/data/theme.json", "r") as f:
     theme_data = json.load(f)
@@ -29,7 +33,9 @@ with open(f"{local_app_data}/data/theme.json", "r") as f:
 class commitSettingsDialog(QDialog):
     def __init__(self, parent = None):
         super().__init__(parent)
+
         
+
 
 class GitCommitDock(QDockWidget):
     def __init__(self, parent=None):
