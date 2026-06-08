@@ -474,6 +474,12 @@ class GitCommitDock(QDockWidget):
                 
                 # Show success message (VS Code-style)
                 file_count = len(selected_files)
+
+                if _configCommit["clear"] == "true":
+                    self.commit_entry.clear()
+                else:
+                    pass
+
                 QMessageBox.information(self, 'Commit Successful', 
                                       f'Successfully committed {file_count} file(s).')
             else:
