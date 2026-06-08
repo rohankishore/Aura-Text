@@ -40,6 +40,7 @@ class commitSettingsDialog(QDialog):
 
         self.main_widget = QWidget()
         self.main_layout = QVBoxLayout(self.main_widget)
+        self.setLayout(self.main_layout)
 
         self.clearMsg = QCheckBox("Clear Message on Commit")
         self.clearMsg.setStyleSheet(f"""
@@ -90,7 +91,7 @@ class GitCommitDock(QDockWidget):
         )
 
         # Header
-        header = QLabel("VERSION CONTROL")
+        header = QLabel("VERSION CONTROL") # I renamed it to Version control to be more in-line with other IDEs
         header.setStyleSheet(f"""
             QLabel {{
                 background-color: {bg_color};
@@ -114,7 +115,6 @@ class GitCommitDock(QDockWidget):
                 font-size: 13px;
             }}
         """)
-
 
         self.header_layout.addWidget(header)
         self.header_layout.addWidget(self.settingButton)
