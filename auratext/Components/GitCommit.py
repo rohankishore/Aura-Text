@@ -72,8 +72,6 @@ class commitSettingsDialog(QDialog):
             print(e)
 
 
-
-
 class GitCommitDock(QDockWidget):
     def __init__(self, parent=None):
         super().__init__('Version Control', parent)
@@ -105,6 +103,7 @@ class GitCommitDock(QDockWidget):
         """)
 
         self.settingButton = QPushButton(" ⚙️ ")
+        self.settingButton.clicked.connect(self.triggerSettings)
         self.settingButton.setStyleSheet(f"""
             QPushButton {{
                 background-color: {editor_bg};
