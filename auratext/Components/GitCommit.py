@@ -50,12 +50,12 @@ class commitSettingsDialog(QDialog):
         else:
             self.clearMsg.setChecked(False)
 
-            
+
 
 
 class GitCommitDock(QDockWidget):
     def __init__(self, parent=None):
-        super().__init__('Source Control', parent)
+        super().__init__('Version Control', parent)
         self.setAllowedAreas(Qt.DockWidgetArea.AllDockWidgetAreas)
         self._last_status_snapshot = None
 
@@ -71,7 +71,7 @@ class GitCommitDock(QDockWidget):
         )
 
         # Header
-        header = QLabel("SOURCE CONTROL")
+        header = QLabel("VERSION CONTROL")
         header.setStyleSheet(f"""
             QLabel {{
                 background-color: {bg_color};
