@@ -4,7 +4,7 @@ import json
 import sys
 from PyQt6.QtCore import Qt, QTimer
 from PyQt6.QtGui import QPixmap, QFont
-from PyQt6.QtWidgets import (QListWidget, QVBoxLayout, QWidget, QDockWidget, QPushButton, 
+from PyQt6.QtWidgets import (QDialog, QListWidget, QMenu, QVBoxLayout, QWidget, QDockWidget, QPushButton, 
                              QListWidgetItem, QCheckBox, QMessageBox, QTextEdit, QLabel, 
                              QHBoxLayout, QFrame, QScrollArea, QSizePolicy)
 import platform
@@ -24,6 +24,12 @@ with open(f"{local_app_data}/data/theme.json", "r") as f:
     bg_color = theme_data.get("sidebar_bg", "#1e1e1e")
     editor_bg = theme_data.get("editor_theme", "#121212")
     fg_color = theme_data.get("editor_fg", "#ffffff")
+
+
+class commitSettingsDialog(QDialog):
+    def __init__(self, parent = None):
+        super().__init__(parent)
+        
 
 class GitCommitDock(QDockWidget):
     def __init__(self, parent=None):
