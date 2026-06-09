@@ -322,11 +322,31 @@ class ConfigPage(QWidget):
         with open(f"{self._window.local_app_data}/data/config.json", "w") as config_file:
             json.dump(self._window._config, config_file, indent=4)
 
+        # Save keybindings
+        from PyQt6.QtGui import QKeySequence
+        updated_shortcuts = {}
+        for key, editor in self.keybinding_inputs.items():
+            sequence = editor.keySequence().toString(QKeySequence.SequenceFormat.PortableText)
+            updated_shortcuts[key] = sequence
+
+        self._window._shortcuts = updated_shortcuts
+
+        with open(self._window.keybindings_path, "w") as file_handle:
+            json.dump(self._window._shortcuts, file_handle, indent=2)
+
+        self._window.setup_keyboard_shortcuts()
+
         QMessageBox.information(
             self,
             "Settings Applied!",
             "The chosen settings have been applied. Restart Aura Text to see the changes.",
         )
+
+    def reset_keybindings_fields(self):
+        from PyQt6.QtGui import QKeySequence
+        defaults = self._window.get_default_keybindings()
+        for key, editor in self.keybinding_inputs.items():
+            editor.setKeySequence(QKeySequence(defaults.get(key, "")))
 
     def material_theme_settings(self):
         self.materialconfig_label = QLabel("Material Theme Type")
