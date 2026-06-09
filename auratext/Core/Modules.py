@@ -370,6 +370,7 @@ def add_image_tab(self, tab, image_path, tab_name):
     from PyQt6.QtWidgets import QScrollArea
     scroll_area = QScrollArea()
     scroll_area.setAlignment(Qt.AlignmentFlag.AlignCenter)
+    scroll_area.setWidgetResizable(True)
     
     label = QLabel()
     pixmap = QPixmap(image_path)
