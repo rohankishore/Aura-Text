@@ -1713,9 +1713,9 @@ class Window(QMainWindow):
         #     self.tab_widget.setCurrentWidget(self.db_viewer)
         #     return
 
-        # if ext.lower() in image_extensions:
-        #     ModuleFile.add_image_tab(self, self.tab_widget, path, os.path.basename(path))
-        #     return
+        if ext.lower() in image_extensions:
+            ModuleFile.add_image_tab(self, self.tab_widget, path, os.path.basename(path))
+            return
 
         try:
             filedata = retrieve_file(path)
