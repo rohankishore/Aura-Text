@@ -245,7 +245,8 @@ class CodeEditor(QsciScintilla):
         self.autocomplete_engine.trigger(force=True)
 
     def saveIndicTrigger(self):
-        pass
+        index = self.window.tab_widget.indexOf(self)
+        self.window.tab_widget.setTabText(index, f" {self.text()} *") # add a star indicating the file is not saved
 
     def show_context_menu(self, point):
         self.context_menu.popup(self.mapToGlobal(point))
