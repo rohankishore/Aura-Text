@@ -1,3 +1,4 @@
+from PyQt6.QtCore import QRegularExpression
 import base64
 import os
 import random
@@ -338,7 +339,7 @@ def save_document(self, force_dialog=False):
             suggested_name = os.path.basename(existing_path) if existing_path else os.path.basename(current_tab_name)
             if not suggested_name:
                 suggested_name = "untitled.py"
-            filename, ok = QFileDialog.getSaveFileName(None, "Select file", "", "Python Files (*.py);;All Files (*)", initialFile=suggested_name)
+            filename, ok = QFileDialog.getSaveFileName(None, "Select file", suggested_name, "Python Files (*.py);;All Files (*)")
             if not ok:
                 return
             name = filename
@@ -353,6 +354,7 @@ def save_document(self, force_dialog=False):
         title = os.path.basename(file.name) + " ~ Aura Text"
         self.tab_widget.setTabText(active_tab_index, os.path.basename(file.name))
         self.setWindowTitle(title)
+        self.current_editor.setModified(False)
         if hasattr(self, "tab_file_paths"):
             self.tab_file_paths[active_tab_index] = name
         if hasattr(self, "update_run_button_visibility"):

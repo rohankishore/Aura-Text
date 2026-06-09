@@ -1446,7 +1446,6 @@ class Window(QMainWindow):
 
     def gitClone(self):
         messagebox = QMessageBox()
-        global path
         try:
             from git import Repo, GitCommandError
 
