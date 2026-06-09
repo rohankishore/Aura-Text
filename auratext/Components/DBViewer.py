@@ -5,7 +5,6 @@ from PyQt6.QtSql import QSqlDatabase, QSqlTableModel
 class DBViewer(QWidget):
     def __init__(self, db_path):
         super().__init__()
-        print("DBViewer initialized")
         self.db_path = db_path
         self.layout = QVBoxLayout(self)
         self.tabs = QTabWidget()
