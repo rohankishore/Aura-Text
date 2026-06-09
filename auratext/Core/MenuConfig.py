@@ -4,6 +4,7 @@ import os
 import sys
 import platform
 
+from PyQt6.QtCore import QTimer
 from PyQt6.QtWidgets import QMenu
 from PyQt6.QtGui import QAction, QIcon
 
@@ -567,17 +568,15 @@ QMenu::item::selected {{
                             if section in sections:
                                 plugin.add_menu_items(sections[section])
                 except Exception as e:
-
-                    QMessageBox.critical(
-
-                        self,
-
-                        "Plugin Load Error",
-
-                        f"Error loading plugin '{plugin_module_name}':\n{e}"
-
-                    )
-
+                    error = str(e)
+                    def pluginLoadError(selfObject, plugin_module_name, e):
+                        QMessageBox.warning(
+                            selfObject,
+                            "Non-Critical Plugin Load Error",
+                            f"Error loading plugin '{plugin_module_name}':\n{e}"
+                        )
+                        print(f"Error loading plugin '{plugin_module_name}': {e}")
+                    QTimer.singleShot(0, lambda: pluginLoadError(self, plugin_module_name, error))
 
     for section, submenu in sections.items():
         menubar.addMenu(submenu)
