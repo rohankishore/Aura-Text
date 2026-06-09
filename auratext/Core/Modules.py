@@ -367,19 +367,19 @@ def save_document(self, force_dialog=False):
 
 
 def add_image_tab(self, tab, image_path, tab_name):
-    from PyQt6.QtWidgets import QScrollArea
-    scroll_area = QScrollArea()
-    scroll_area.setAlignment(Qt.AlignmentFlag.AlignCenter)
-    scroll_area.setWidgetResizable(True)
+    from PyQt6.QtWidgets import QWidget, QHBoxLayout
+    container = QWidget()
+    layout = QHBoxLayout(container)
+    layout.setContentsMargins(0, 0, 0, 0)
     
     label = QLabel()
     pixmap = QPixmap(image_path)
     label.setPixmap(pixmap)
     label.setAlignment(Qt.AlignmentFlag.AlignCenter)
     
-    scroll_area.setWidget(label)
-    tab.addTab(scroll_area, tab_name)
-    tab.setCurrentWidget(scroll_area)
+    layout.addWidget(label)
+    tab.addTab(container, tab_name)
+    tab.setCurrentWidget(container)
 
 
 
