@@ -247,7 +247,10 @@ class CodeEditor(QsciScintilla):
     def saveIndicTrigger(self):
         window_inst = self.window() 
         index = window_inst.tab_widget.indexOf(self)
-        self.window.tab_widget.setTabText(index, f" {self.text()} *") # add a star indicating the file is not saved
+        current_title = window_inst.tab_widget.tabText(index)
+        # Only add the asterisk if it's not already there
+        if not current_title.endswith(" *"):
+            window_inst.tab_widget.setTabText(index, f"{current_title} *") # add a star indicating the file is not saved
 
     def show_context_menu(self, point):
         self.context_menu.popup(self.mapToGlobal(point))
