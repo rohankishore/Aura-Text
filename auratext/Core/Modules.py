@@ -1,3 +1,4 @@
+from PyQt6.QtCore import QRegularExpression
 import base64
 import os
 import random
@@ -338,7 +339,7 @@ def save_document(self, force_dialog=False):
             suggested_name = os.path.basename(existing_path) if existing_path else os.path.basename(current_tab_name)
             if not suggested_name:
                 suggested_name = "untitled.py"
-            filename, ok = QFileDialog.getSaveFileName(None, "Select file", "", "Python Files (*.py);;All Files (*)", initialFile=suggested_name)
+            filename, ok = QFileDialog.getSaveFileName(None, "Select file", suggested_name, "Python Files (*.py);;All Files (*)")
             if not ok:
                 return
             name = filename
