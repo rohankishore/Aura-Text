@@ -14,7 +14,7 @@ from PyQt6.QtWidgets import (
     QVBoxLayout,
     QWidget,
     QMessageBox,
-    QComboBox, QGroupBox, QScrollArea, QTabWidget, )
+    QComboBox, QGroupBox, QScrollArea, QTabWidget, QCheckBox, )
 
 if TYPE_CHECKING:
     from .window import Window
@@ -64,9 +64,24 @@ class ConfigPage(QWidget):
         editor_scroll.setWidget(editor_scroll_widget)
         editor_tab_layout.addWidget(editor_scroll)
 
+        # --- Behaviour Tab Setup ---
+        behaviour_tab = QWidget()
+        behaviour_tab_layout = QVBoxLayout(behaviour_tab)
+        behaviour_tab_layout.setContentsMargins(0, 0, 0, 0)
+
+        behaviour_scroll = QScrollArea()
+        behaviour_scroll.setWidgetResizable(True)
+        behaviour_scroll.setStyleSheet("QScrollArea { border: none; }")
+        behaviour_scroll_widget = QWidget()
+        self.behaviour_layout = QVBoxLayout(behaviour_scroll_widget)
+        self.behaviour_layout.addStretch()
+        behaviour_scroll.setWidget(behaviour_scroll_widget)
+        behaviour_tab_layout.addWidget(behaviour_scroll)
+
         # Add tabs to tab widget
         self.settings_tabs.addTab(theme_tab, "Appearance")
         self.settings_tabs.addTab(editor_tab, "Editor")
+        self.settings_tabs.addTab(behaviour_tab, "Behaviour")
         main_layout.addWidget(self.settings_tabs)
 
         # --- Populate Appearance Settings ---
@@ -187,6 +202,30 @@ class ConfigPage(QWidget):
         self.editor_layout.addWidget(font_theme_label)
         self.editor_layout.addWidget(self.font_theme_combobox)
 
+        # --- Populate Behaviour Settings ---
+        self.behaviour_grouping = QGroupBox("Behaviour Options")
+        self.behaviour_layout.addWidget(self.behaviour_grouping)
+        behaviour_group_layout = QVBoxLayout()
+        self.behaviour_grouping.setLayout(behaviour_group_layout)
+        self.behaviour_layout = behaviour_group_layout
+
+        config = self._window._config
+        self.splash_checkbox = QCheckBox("Show Adaptive Splash Screens")
+        self.splash_checkbox.setChecked(config.get("splash", "True") == "True")
+        self.behaviour_layout.addWidget(self.splash_checkbox)
+
+        self.ttips_checkbox = QCheckBox("Show Tips in Terminal")
+        self.ttips_checkbox.setChecked(config.get("terminal_tips", "True") == "True")
+        self.behaviour_layout.addWidget(self.ttips_checkbox)
+
+        self.expopen_checkbox = QCheckBox("Show Explorer on Startup")
+        self.expopen_checkbox.setChecked(config.get("explorer_default_open", "True") == "True")
+        self.behaviour_layout.addWidget(self.expopen_checkbox)
+
+        self.open_last_file_checkbox = QCheckBox("Open the last opened file at startup")
+        self.open_last_file_checkbox.setChecked(config.get("open_last_file", "True") == "True")
+        self.behaviour_layout.addWidget(self.open_last_file_checkbox)
+
         # Trigger material settings loading if material theming is active by default
         if self._window._themes["theming"] != "flat":
             self.material_theme_settings()
@@ -213,7 +252,6 @@ class ConfigPage(QWidget):
         save_button.clicked.connect(self.save_json)
         main_layout.addWidget(save_button)
 
-
     def save_json(self):
         self._window._themes["theme"] = self.theme_input.text()
         self._window._themes["editor_theme"] = self.editor_theme_input.text()
@@ -235,6 +273,15 @@ class ConfigPage(QWidget):
 
         with open(f"{self._window.local_app_data}/data/theme.json", "w") as json_file:
             json.dump(self._window._themes, json_file)
+
+        # Save config file data
+        self._window._config["splash"] = "True" if self.splash_checkbox.isChecked() else "False"
+        self._window._config["terminal_tips"] = "True" if self.ttips_checkbox.isChecked() else "False"
+        self._window._config["explorer_default_open"] = "True" if self.expopen_checkbox.isChecked() else "False"
+        self._window._config["open_last_file"] = "True" if self.open_last_file_checkbox.isChecked() else "False"
+
+        with open(f"{self._window.local_app_data}/data/config.json", "w") as config_file:
+            json.dump(self._window._config, config_file, indent=4)
 
         QMessageBox.information(
             self,

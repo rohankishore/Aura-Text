@@ -2372,8 +2372,9 @@ class Window(QMainWindow):
             self.treeview_project(project_path)
 
     def additional_prefs(self):
-        settings = additional_prefs.SettingsWindow()
-        settings.exec()
+        self.expandSidebar__Settings()
+        if hasattr(self, "settings_widget") and hasattr(self.settings_widget, "settings_tabs"):
+            self.settings_widget.settings_tabs.setCurrentIndex(2)
 
     def new_document(self, checked=False, title="Scratch 1", file_path=""):
         container = self.create_editor(file_path)
