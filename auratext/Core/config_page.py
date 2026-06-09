@@ -60,6 +60,7 @@ class ConfigPage(QWidget):
         editor_scroll.setStyleSheet("QScrollArea { border: none; }")
         editor_scroll_widget = QWidget()
         self.editor_layout = QVBoxLayout(editor_scroll_widget)
+        self.editor_layout.addStretch()
         editor_scroll.setWidget(editor_scroll_widget)
         editor_tab_layout.addWidget(editor_scroll)
 
