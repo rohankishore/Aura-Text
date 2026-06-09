@@ -353,6 +353,7 @@ def save_document(self, force_dialog=False):
         title = os.path.basename(file.name) + " ~ Aura Text"
         self.tab_widget.setTabText(active_tab_index, os.path.basename(file.name))
         self.setWindowTitle(title)
+        self.current_editor.setModified(False)
         if hasattr(self, "tab_file_paths"):
             self.tab_file_paths[active_tab_index] = name
         if hasattr(self, "update_run_button_visibility"):
