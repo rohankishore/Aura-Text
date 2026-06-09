@@ -78,10 +78,25 @@ class ConfigPage(QWidget):
         behaviour_scroll.setWidget(behaviour_scroll_widget)
         behaviour_tab_layout.addWidget(behaviour_scroll)
 
+        # -- Keybinding Tab Setup -- 
+        keybinding_tab = QWidget()
+        keybinding_tab_layout = QVBoxLayout(keybinding_tab)
+        keybinding_tab_layout.setContentsMargins(0, 0, 0, 0)
+
+        keybinding_scroll = QScrollArea()
+        keybinding_scroll.setWidgetResizable(True)
+        keybinding_scroll.setStyleSheet("QScrollArea { border: none; }")
+        keybinding_scroll_widget = QWidget()
+        self.keybinding_layout = QVBoxLayout(keybinding_scroll_widget)
+        self.keybinding_layout.addStretch()
+        keybinding_scroll.setWidget(keybinding_scroll_widget)
+        keybinding_tab_layout.addWidget(keybinding_scroll)
+
         # Add tabs to tab widget
         self.settings_tabs.addTab(theme_tab, "Appearance")
         self.settings_tabs.addTab(editor_tab, "Editor")
         self.settings_tabs.addTab(behaviour_tab, "Behaviour")
+        self.settings_tabs.addTab(keybinding_tab, "Keybinding")
         main_layout.addWidget(self.settings_tabs)
 
         # --- Populate Appearance Settings ---
