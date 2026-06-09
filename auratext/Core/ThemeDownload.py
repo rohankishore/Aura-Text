@@ -62,6 +62,7 @@ class ThemeDownloader(QWidget):
 
     username = "rohankishore"
     repo = "AuraText-Themes"
+    branch = "main"
 
     def get_theme_list(self):
         api_url = f"https://api.github.com/repos/{self.username}/{self.repo}/contents/Themes"
@@ -81,7 +82,7 @@ class ThemeDownloader(QWidget):
 
     def download_theme(self, file_name):
         selected_file = file_name + ".json"
-        download_url = f"https://raw.githubusercontent.com/{self.username}/{self.repo}/main/Themes/{selected_file}"
+        download_url = f"https://raw.githubusercontent.com/{self.username}/{self.repo}/{self.branch}/Themes/{selected_file}"
         response = requests.get(download_url)
 
         if response.status_code == 200:
