@@ -244,13 +244,26 @@ class CodeEditor(QsciScintilla):
     def show_autocompletion(self):
         self.autocomplete_engine.trigger(force=True)
 
-    def saveIndicTrigger(self):
-        window_inst = self.window() 
-        index = window_inst.tab_widget.indexOf(self)
+    def saveIndicTrigger(self, modified):
+        window_inst = self.window()
+        # Find the parent container instead of self
+        container = self.parentWidget()
+        index = window_inst.tab_widget.indexOf(container)
+        
+        if index == -1:
+            return  # Safety check: Tab not found 
+            
         current_title = window_inst.tab_widget.tabText(index)
-        # Only add the asterisk if it's not already there
-        if not current_title.endswith(" *"):
-            window_inst.tab_widget.setTabText(index, f"{current_title} *") # add a star indicating the file is not saved
+        
+        if modified:
+            # Add the star if it's not already there
+            if not current_title.endswith(" *"):
+                window_inst.tab_widget.setTabText(index, f"{current_title} *")
+        else:
+            # Remove the star if it is there
+            if current_title.endswith(" *"):
+                window_inst.tab_widget.setTabText(index, current_title[:-2])
+
 
     def show_context_menu(self, point):
         self.context_menu.popup(self.mapToGlobal(point))
