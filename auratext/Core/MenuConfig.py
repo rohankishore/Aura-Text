@@ -210,7 +210,6 @@ QMenu::item::selected {{
 
     menubar.addMenu(tools_menu)
 
-    prefernces_menu = QMenu("&Preferences", self)
     language_menu = QMenu("&Languages", prefernces_menu)
     a_menu = QMenu("&A", language_menu)
     b_menu = QMenu("&B", language_menu)
@@ -478,14 +477,6 @@ QMenu::item::selected {{
     else:
         pass
 
-    prefernces_menu.addMenu(language_menu)
-    prefernces_menu.addAction("Keyboard Bindings", self.keyboard_bindings).setWhatsThis(
-        "Open the keybindings JSON to customize keyboard shortcuts"
-    )
-    prefernces_menu.addAction("Additional Preferences", self.additional_prefs)
-    prefernces_menu.addAction("Import Theme", self.import_theme)
-    menubar.addMenu(prefernces_menu)
-
     terminal_menu = QMenu("&Terminal", self)
     def toggle_terminal():
         if toggle_terminal_action.isChecked():
@@ -543,7 +534,7 @@ QMenu::item::selected {{
 
     # Define a dictionary to map section names to corresponding QMenu instances
     sections = {"File": file_menu, "Edit": edit_menu, "View": view_menu, "Code": code_menu, "Tools": tools_menu,
-                "Git": git_menu, "Preferences": prefernces_menu, "Terminal": terminal_menu, "Help": help_menu}
+                "Git": git_menu, "Terminal": terminal_menu, "Help": help_menu}
 
     # Load and categorize plugins
     plugin_dir = os.path.abspath(f"{self.local_app_data}/plugins")  # Path to your plugins directory
