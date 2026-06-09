@@ -224,7 +224,8 @@ class ConfigPage(QWidget):
         self._window._themes["lines_fg"] = self.lines_fg_input.text()
         self._window._themes["font"] = self.font_theme_combobox.currentText()
         self._window._themes["theme_type"] = self.theme_combobox.currentText()
-        self._window._themes["material_type"] = self.materialconfig_combobox.currentText()
+        if hasattr(self, "materialconfig_combobox"):
+            self._window._themes["material_type"] = self.materialconfig_combobox.currentText()
 
         if self.theming_combobox.currentText() == "Flat (Default)":
             self._window._themes["theming"] = "flat"
