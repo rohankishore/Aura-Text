@@ -1698,7 +1698,6 @@ class Window(QMainWindow):
                 self.explorer_tree_view.setExpanded(index, True)
                 print("Expanding directory:", self.model.filePath(index))
         except Exception as e:
-            print(e)
             messagebox = QMessageBox()
             messagebox.setWindowTitle("Error"), messagebox.setText(
                 f"An error occurred while opening the file: {e}"
@@ -2243,7 +2242,6 @@ class Window(QMainWindow):
 
         index = self.tab_widget.currentIndex()
         tabText = str(self.tab_widget.tabText(index))
-        print(tabText)
         if ".md" in tabText:
             mdText = self.current_editor.text()
             HTMLText = markdown.markdown(mdText)
