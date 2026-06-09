@@ -88,6 +88,9 @@ class CodeEditor(QsciScintilla):
         self.autocomplete_engine = PythonAutocompleteEngine(self)
         self.autocomplete_engine.refresh()
 
+        # trigger save indicator
+        self.modificationChanged.connect(self.saveIndicTrigger)
+
         # Autocompletion
         self.setAutoCompletionSource(QsciScintilla.AutoCompletionSource.AcsAPIs)
         self.setAutoCompletionThreshold(1)
