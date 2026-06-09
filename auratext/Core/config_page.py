@@ -14,7 +14,7 @@ from PyQt6.QtWidgets import (
     QVBoxLayout,
     QWidget,
     QMessageBox,
-    QComboBox, QGroupBox, QScrollArea, QDialog, )
+    QComboBox, QGroupBox, QScrollArea, QTabWidget, )
 
 if TYPE_CHECKING:
     from .window import Window
@@ -33,6 +33,21 @@ class ConfigPage(QWidget):
         # Main layout for ConfigPage
         main_layout = QVBoxLayout(self)
         main_layout.setContentsMargins(0, 0, 0, 0)
+
+        self.themeTab = QTabWidget(self)
+        self.themeTab.setTabText("Appearance")
+
+        self.editorTab = QTabWidget(self)
+        self.editorTab.setTabText("Editor")
+
+        self.theme_layout = QVBoxLayout(self.themeTab)
+        self.editor_layout = QVBoxLayout(self.editorTab)
+
+        self.theme_scroll_area = QScrollArea()
+        self.theme_scroll_area.setWidgetResizable(True)
+
+        self.themeWidget = QWidget()
+        self.themeScrollLayout = QVBoxLayout(self.themeWidget)
 
         # Create scroll area
         self.scroll_area = QScrollArea()
