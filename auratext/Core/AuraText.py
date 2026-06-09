@@ -241,6 +241,9 @@ class CodeEditor(QsciScintilla):
     def show_autocompletion(self):
         self.autocomplete_engine.trigger(force=True)
 
+    def saveIndicTrigger(self):
+        pass
+
     def show_context_menu(self, point):
         self.context_menu.popup(self.mapToGlobal(point))
 
