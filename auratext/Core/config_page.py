@@ -32,38 +32,49 @@ class ConfigPage(QWidget):
     def init_ui(self):
         # Main layout for ConfigPage
         main_layout = QVBoxLayout(self)
-        main_layout.setContentsMargins(0, 0, 0, 0)
+        main_layout.setContentsMargins(10, 10, 10, 10)
 
-        self.themeTab = QTabWidget(self)
-        self.themeTab.setTabText("Appearance")
+        # Create the settings tab widget
+        self.settings_tabs = QTabWidget(self)
 
-        self.editorTab = QTabWidget(self)
-        self.editorTab.setTabText("Editor")
+        # --- Appearance Tab Setup ---
+        theme_tab = QWidget()
+        theme_tab_layout = QVBoxLayout(theme_tab)
+        theme_tab_layout.setContentsMargins(0, 0, 0, 0)
 
-        self.theme_layout = QVBoxLayout(self.themeTab)
-        self.editor_layout = QVBoxLayout(self.editorTab)
+        theme_scroll = QScrollArea()
+        theme_scroll.setWidgetResizable(True)
+        theme_scroll.setStyleSheet("QScrollArea { border: none; }")
+        theme_scroll_widget = QWidget()
+        self.theme_layout = QVBoxLayout(theme_scroll_widget)
+        theme_scroll.setWidget(theme_scroll_widget)
+        theme_tab_layout.addWidget(theme_scroll)
 
-        self.theme_scroll_area = QScrollArea()
-        self.theme_scroll_area.setWidgetResizable(True)
+        # --- Editor Tab Setup ---
+        editor_tab = QWidget()
+        editor_tab_layout = QVBoxLayout(editor_tab)
+        editor_tab_layout.setContentsMargins(0, 0, 0, 0)
 
-        self.themeWidget = QWidget()
-        self.themeScrollLayout = QVBoxLayout(self.themeWidget)
+        editor_scroll = QScrollArea()
+        editor_scroll.setWidgetResizable(True)
+        editor_scroll.setStyleSheet("QScrollArea { border: none; }")
+        editor_scroll_widget = QWidget()
+        self.editor_layout = QVBoxLayout(editor_scroll_widget)
+        editor_scroll.setWidget(editor_scroll_widget)
+        editor_tab_layout.addWidget(editor_scroll)
 
-        # Create scroll area
-        self.scroll_area = QScrollArea()
-        self.scroll_area.setWidgetResizable(True)
+        # Add tabs to tab widget
+        self.settings_tabs.addTab(theme_tab, "Appearance")
+        self.settings_tabs.addTab(editor_tab, "Editor")
+        main_layout.addWidget(self.settings_tabs)
 
-        # Create a widget to hold all the content
-        scroll_widget = QWidget()
-        self.scroll_layout = QVBoxLayout(scroll_widget)
-
-        self.theme_grouping = QGroupBox("Theming")
-        self.theme_layout = QVBoxLayout()
-        self.theme_grouping.setLayout(self.theme_layout)
-
-        self.editor_grouping = QGroupBox("Editor")
-        self.editor_layout = QVBoxLayout()
-        self.editor_grouping.setLayout(self.editor_layout)
+        # --- Populate Appearance Settings ---
+        self.theme_grouping = QGroupBox("Theming Options")
+        self.theme_layout.addWidget(self.theme_grouping)
+        # We redirect the layout of theme settings to the group box layout
+        theme_group_layout = QVBoxLayout()
+        self.theme_grouping.setLayout(theme_group_layout)
+        self.theme_layout = theme_group_layout # Redirect self.theme_layout to populate inside groupbox
 
         # Theming Type
         theming_label = QLabel("Theming Type :")
@@ -105,22 +116,13 @@ class ConfigPage(QWidget):
         self.theme_layout.addWidget(theme_label)
         self.theme_layout.addWidget(self.theme_input)
 
-        theme_label1 = QLabel("Theme :")
+        theme_label1 = QLabel("Theme Mode:")
         self.theme_combobox = QComboBox()
-        self.theme_combobox.setCurrentText(self._window._themes["font"])
         theme_opt = ["dark", "light"]
         self.theme_combobox.addItems(theme_opt)
-        current_font_theme = self._window._themes.get("font", "")
         self.theme_combobox.setCurrentText(self._window._themes["theme_type"])
         self.theme_layout.addWidget(theme_label1)
         self.theme_layout.addWidget(self.theme_combobox)
-
-        # Editor Theme
-        editor_theme_label = QLabel("Editor Background:")
-        self.editor_theme_input = QLineEdit()
-        self.editor_theme_input.setText(self._window._themes["editor_theme"])
-        self.editor_layout.addWidget(editor_theme_label)
-        self.editor_layout.addWidget(self.editor_theme_input)
 
         # Sidebar Theme
         sidebar_theme_label = QLabel("Sidebar Background:")
@@ -143,6 +145,20 @@ class ConfigPage(QWidget):
         self.theme_layout.addWidget(margin_theme_label)
         self.theme_layout.addWidget(self.margin_theme_input)
 
+        # --- Populate Editor Settings ---
+        self.editor_grouping = QGroupBox("Editor Options")
+        self.editor_layout.addWidget(self.editor_grouping)
+        editor_group_layout = QVBoxLayout()
+        self.editor_grouping.setLayout(editor_group_layout)
+        self.editor_layout = editor_group_layout # Redirect self.editor_layout to populate inside groupbox
+
+        # Editor Theme
+        editor_theme_label = QLabel("Editor Background:")
+        self.editor_theme_input = QLineEdit()
+        self.editor_theme_input.setText(self._window._themes["editor_theme"])
+        self.editor_layout.addWidget(editor_theme_label)
+        self.editor_layout.addWidget(self.editor_theme_input)
+
         # Lines Background
         lines_theme_label = QLabel("Line Number Background:")
         self.lines_theme_input = QLineEdit()
@@ -163,13 +179,16 @@ class ConfigPage(QWidget):
         # Font Theme
         font_theme_label = QLabel("Font Theme:")
         self.font_theme_combobox = QComboBox()
-        self.font_theme_combobox.setCurrentText(self._window._themes["font"])
         self.font_theme_combobox.addItems(font_names)
         current_font_theme = self._window._themes.get("font", "")
         if current_font_theme in font_names:
             self.font_theme_combobox.setCurrentText(current_font_theme)
         self.editor_layout.addWidget(font_theme_label)
         self.editor_layout.addWidget(self.font_theme_combobox)
+
+        # Trigger material settings loading if material theming is active by default
+        if self._window._themes["theming"] != "flat":
+            self.material_theme_settings()
 
         # Save Button
         save_button = QPushButton("Apply")
@@ -184,21 +203,15 @@ class ConfigPage(QWidget):
         save_button.setStyleSheet(
             f"QPushButton {{"
             f"   border-radius: 10px;"
-            f"   padding: 5px;"
+            f"   padding: 8px;"
             f"background-color: {button_bg};"
             f"color: {button_color};"
+            f"font-weight: bold;"
             f"}}"
         )
         save_button.clicked.connect(self.save_json)
+        main_layout.addWidget(save_button)
 
-        # Add theme_grouping to the scroll layout
-        self.scroll_layout.addWidget(self.theme_grouping)
-        self.scroll_layout.addWidget(self.editor_grouping)
-        self.scroll_layout.addWidget(save_button)
-
-        # Set the scroll widget and add scroll area to main layout
-        self.scroll_area.setWidget(scroll_widget)
-        main_layout.addWidget(self.scroll_area)
 
     def save_json(self):
         self._window._themes["theme"] = self.theme_input.text()
