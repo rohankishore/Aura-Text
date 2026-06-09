@@ -14,7 +14,8 @@ from PyQt6.QtWidgets import (
     QVBoxLayout,
     QWidget,
     QMessageBox,
-    QComboBox, QGroupBox, QScrollArea, QTabWidget, QCheckBox, )
+    QComboBox, QGroupBox, QScrollArea, QTabWidget, QCheckBox,
+    QFormLayout, QKeySequenceEdit, QHBoxLayout, )
 
 if TYPE_CHECKING:
     from .window import Window
@@ -88,6 +89,29 @@ class ConfigPage(QWidget):
         keybinding_scroll.setStyleSheet("QScrollArea { border: none; }")
         keybinding_scroll_widget = QWidget()
         self.keybinding_layout = QVBoxLayout(keybinding_scroll_widget)
+        
+        # Populate keybindings form
+        from PyQt6.QtGui import QKeySequence
+        keybinding_form_widget = QWidget()
+        form_layout = QFormLayout(keybinding_form_widget)
+        self.keybinding_inputs = {}
+        for key, label in self._window.get_keybinding_items():
+            sequence_editor = QKeySequenceEdit()
+            sequence_editor.setKeySequence(QKeySequence(self._window._shortcuts.get(key, "")))
+            self.keybinding_inputs[key] = sequence_editor
+            form_layout.addRow(label, sequence_editor)
+        self.keybinding_layout.addWidget(keybinding_form_widget)
+
+        # Add buttons inside Keybindings Tab
+        button_row = QHBoxLayout()
+        reset_button = QPushButton("Reset Defaults")
+        open_json_button = QPushButton("Open JSON")
+        reset_button.clicked.connect(self.reset_keybindings_fields)
+        open_json_button.clicked.connect(lambda: self._window.open_file_from_path(self._window.keybindings_path))
+        button_row.addWidget(reset_button)
+        button_row.addWidget(open_json_button)
+        self.keybinding_layout.addLayout(button_row)
+        
         self.keybinding_layout.addStretch()
         keybinding_scroll.setWidget(keybinding_scroll_widget)
         keybinding_tab_layout.addWidget(keybinding_scroll)
