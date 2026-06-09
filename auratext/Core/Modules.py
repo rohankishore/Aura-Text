@@ -367,11 +367,18 @@ def save_document(self, force_dialog=False):
 
 
 def add_image_tab(self, tab, image_path, tab_name):
+    from PyQt6.QtWidgets import QScrollArea
+    scroll_area = QScrollArea()
+    scroll_area.setAlignment(Qt.AlignmentFlag.AlignCenter)
+    
     label = QLabel()
     pixmap = QPixmap(image_path)
     label.setPixmap(pixmap)
     label.setAlignment(Qt.AlignmentFlag.AlignCenter)
-    tab.addTab(label, tab_name)
+    
+    scroll_area.setWidget(label)
+    tab.addTab(scroll_area, tab_name)
+    tab.setCurrentWidget(scroll_area)
 
 
 
