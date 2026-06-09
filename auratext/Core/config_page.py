@@ -14,7 +14,8 @@ from PyQt6.QtWidgets import (
     QVBoxLayout,
     QWidget,
     QMessageBox,
-    QComboBox, QGroupBox, QScrollArea, QDialog, )
+    QComboBox, QGroupBox, QScrollArea, QTabWidget, QCheckBox,
+    QFormLayout, QKeySequenceEdit, QHBoxLayout, )
 
 if TYPE_CHECKING:
     from .window import Window
@@ -32,23 +33,103 @@ class ConfigPage(QWidget):
     def init_ui(self):
         # Main layout for ConfigPage
         main_layout = QVBoxLayout(self)
-        main_layout.setContentsMargins(0, 0, 0, 0)
+        main_layout.setContentsMargins(10, 10, 10, 10)
 
-        # Create scroll area
-        self.scroll_area = QScrollArea()
-        self.scroll_area.setWidgetResizable(True)
+        # Create the settings tab widget
+        self.settings_tabs = QTabWidget(self)
 
-        # Create a widget to hold all the content
-        scroll_widget = QWidget()
-        self.scroll_layout = QVBoxLayout(scroll_widget)
+        # --- Appearance Tab Setup ---
+        theme_tab = QWidget()
+        theme_tab_layout = QVBoxLayout(theme_tab)
+        theme_tab_layout.setContentsMargins(0, 0, 0, 0)
 
-        self.theme_grouping = QGroupBox("Theming")
-        self.theme_layout = QVBoxLayout()
-        self.theme_grouping.setLayout(self.theme_layout)
+        theme_scroll = QScrollArea()
+        theme_scroll.setWidgetResizable(True)
+        theme_scroll.setStyleSheet("QScrollArea { border: none; }")
+        theme_scroll_widget = QWidget()
+        self.theme_layout = QVBoxLayout(theme_scroll_widget)
+        theme_scroll.setWidget(theme_scroll_widget)
+        theme_tab_layout.addWidget(theme_scroll)
 
-        self.editor_grouping = QGroupBox("Editor")
-        self.editor_layout = QVBoxLayout()
-        self.editor_grouping.setLayout(self.editor_layout)
+        # --- Editor Tab Setup ---
+        editor_tab = QWidget()
+        editor_tab_layout = QVBoxLayout(editor_tab)
+        editor_tab_layout.setContentsMargins(0, 0, 0, 0)
+
+        editor_scroll = QScrollArea()
+        editor_scroll.setWidgetResizable(True)
+        editor_scroll.setStyleSheet("QScrollArea { border: none; }")
+        editor_scroll_widget = QWidget()
+        self.editor_layout = QVBoxLayout(editor_scroll_widget)
+        self.editor_layout.addStretch()
+        editor_scroll.setWidget(editor_scroll_widget)
+        editor_tab_layout.addWidget(editor_scroll)
+
+        # --- Behaviour Tab Setup ---
+        behaviour_tab = QWidget()
+        behaviour_tab_layout = QVBoxLayout(behaviour_tab)
+        behaviour_tab_layout.setContentsMargins(0, 0, 0, 0)
+
+        behaviour_scroll = QScrollArea()
+        behaviour_scroll.setWidgetResizable(True)
+        behaviour_scroll.setStyleSheet("QScrollArea { border: none; }")
+        behaviour_scroll_widget = QWidget()
+        self.behaviour_layout = QVBoxLayout(behaviour_scroll_widget)
+        self.behaviour_layout.addStretch()
+        behaviour_scroll.setWidget(behaviour_scroll_widget)
+        behaviour_tab_layout.addWidget(behaviour_scroll)
+
+        # -- Keybinding Tab Setup -- 
+        keybinding_tab = QWidget()
+        keybinding_tab_layout = QVBoxLayout(keybinding_tab)
+        keybinding_tab_layout.setContentsMargins(0, 0, 0, 0)
+
+        keybinding_scroll = QScrollArea()
+        keybinding_scroll.setWidgetResizable(True)
+        keybinding_scroll.setStyleSheet("QScrollArea { border: none; }")
+        keybinding_scroll_widget = QWidget()
+        self.keybinding_layout = QVBoxLayout(keybinding_scroll_widget)
+        
+        # Populate keybindings form
+        from PyQt6.QtGui import QKeySequence
+        keybinding_form_widget = QWidget()
+        form_layout = QFormLayout(keybinding_form_widget)
+        self.keybinding_inputs = {}
+        for key, label in self._window.get_keybinding_items():
+            sequence_editor = QKeySequenceEdit()
+            sequence_editor.setKeySequence(QKeySequence(self._window._shortcuts.get(key, "")))
+            self.keybinding_inputs[key] = sequence_editor
+            form_layout.addRow(label, sequence_editor)
+        self.keybinding_layout.addWidget(keybinding_form_widget)
+
+        # Add buttons inside Keybindings Tab
+        button_row = QHBoxLayout()
+        reset_button = QPushButton("Reset Defaults")
+        open_json_button = QPushButton("Open JSON")
+        reset_button.clicked.connect(self.reset_keybindings_fields)
+        open_json_button.clicked.connect(lambda: self._window.open_file_from_path(self._window.keybindings_path))
+        button_row.addWidget(reset_button)
+        button_row.addWidget(open_json_button)
+        self.keybinding_layout.addLayout(button_row)
+        
+        self.keybinding_layout.addStretch()
+        keybinding_scroll.setWidget(keybinding_scroll_widget)
+        keybinding_tab_layout.addWidget(keybinding_scroll)
+
+        # Add tabs to tab widget
+        self.settings_tabs.addTab(theme_tab, "Appearance")
+        self.settings_tabs.addTab(editor_tab, "Editor")
+        self.settings_tabs.addTab(behaviour_tab, "Behaviour")
+        self.settings_tabs.addTab(keybinding_tab, "Keybinding")
+        main_layout.addWidget(self.settings_tabs)
+
+        # --- Populate Appearance Settings ---
+        self.theme_grouping = QGroupBox("Theming Options")
+        self.theme_layout.addWidget(self.theme_grouping)
+        # We redirect the layout of theme settings to the group box layout
+        theme_group_layout = QVBoxLayout()
+        self.theme_grouping.setLayout(theme_group_layout)
+        self.theme_layout = theme_group_layout # Redirect self.theme_layout to populate inside groupbox
 
         # Theming Type
         theming_label = QLabel("Theming Type :")
@@ -90,22 +171,13 @@ class ConfigPage(QWidget):
         self.theme_layout.addWidget(theme_label)
         self.theme_layout.addWidget(self.theme_input)
 
-        theme_label1 = QLabel("Theme :")
+        theme_label1 = QLabel("Theme Mode:")
         self.theme_combobox = QComboBox()
-        self.theme_combobox.setCurrentText(self._window._themes["font"])
         theme_opt = ["dark", "light"]
         self.theme_combobox.addItems(theme_opt)
-        current_font_theme = self._window._themes.get("font", "")
         self.theme_combobox.setCurrentText(self._window._themes["theme_type"])
         self.theme_layout.addWidget(theme_label1)
         self.theme_layout.addWidget(self.theme_combobox)
-
-        # Editor Theme
-        editor_theme_label = QLabel("Editor Background:")
-        self.editor_theme_input = QLineEdit()
-        self.editor_theme_input.setText(self._window._themes["editor_theme"])
-        self.editor_layout.addWidget(editor_theme_label)
-        self.editor_layout.addWidget(self.editor_theme_input)
 
         # Sidebar Theme
         sidebar_theme_label = QLabel("Sidebar Background:")
@@ -128,6 +200,20 @@ class ConfigPage(QWidget):
         self.theme_layout.addWidget(margin_theme_label)
         self.theme_layout.addWidget(self.margin_theme_input)
 
+        # --- Populate Editor Settings ---
+        self.editor_grouping = QGroupBox("Editor Options")
+        self.editor_layout.addWidget(self.editor_grouping)
+        editor_group_layout = QVBoxLayout()
+        self.editor_grouping.setLayout(editor_group_layout)
+        self.editor_layout = editor_group_layout # Redirect self.editor_layout to populate inside groupbox
+
+        # Editor Theme
+        editor_theme_label = QLabel("Editor Background:")
+        self.editor_theme_input = QLineEdit()
+        self.editor_theme_input.setText(self._window._themes["editor_theme"])
+        self.editor_layout.addWidget(editor_theme_label)
+        self.editor_layout.addWidget(self.editor_theme_input)
+
         # Lines Background
         lines_theme_label = QLabel("Line Number Background:")
         self.lines_theme_input = QLineEdit()
@@ -148,13 +234,40 @@ class ConfigPage(QWidget):
         # Font Theme
         font_theme_label = QLabel("Font Theme:")
         self.font_theme_combobox = QComboBox()
-        self.font_theme_combobox.setCurrentText(self._window._themes["font"])
         self.font_theme_combobox.addItems(font_names)
         current_font_theme = self._window._themes.get("font", "")
         if current_font_theme in font_names:
             self.font_theme_combobox.setCurrentText(current_font_theme)
         self.editor_layout.addWidget(font_theme_label)
         self.editor_layout.addWidget(self.font_theme_combobox)
+
+        # --- Populate Behaviour Settings ---
+        self.behaviour_grouping = QGroupBox("Behaviour Options")
+        self.behaviour_layout.addWidget(self.behaviour_grouping)
+        behaviour_group_layout = QVBoxLayout()
+        self.behaviour_grouping.setLayout(behaviour_group_layout)
+        self.behaviour_layout = behaviour_group_layout
+
+        config = self._window._config
+        self.splash_checkbox = QCheckBox("Show Adaptive Splash Screens")
+        self.splash_checkbox.setChecked(config.get("splash", "True") == "True")
+        self.behaviour_layout.addWidget(self.splash_checkbox)
+
+        self.ttips_checkbox = QCheckBox("Show Tips in Terminal")
+        self.ttips_checkbox.setChecked(config.get("terminal_tips", "True") == "True")
+        self.behaviour_layout.addWidget(self.ttips_checkbox)
+
+        self.expopen_checkbox = QCheckBox("Show Explorer on Startup")
+        self.expopen_checkbox.setChecked(config.get("explorer_default_open", "True") == "True")
+        self.behaviour_layout.addWidget(self.expopen_checkbox)
+
+        self.open_last_file_checkbox = QCheckBox("Open the last opened file at startup")
+        self.open_last_file_checkbox.setChecked(config.get("open_last_file", "True") == "True")
+        self.behaviour_layout.addWidget(self.open_last_file_checkbox)
+
+        # Trigger material settings loading if material theming is active by default
+        if self._window._themes["theming"] != "flat":
+            self.material_theme_settings()
 
         # Save Button
         save_button = QPushButton("Apply")
@@ -169,21 +282,14 @@ class ConfigPage(QWidget):
         save_button.setStyleSheet(
             f"QPushButton {{"
             f"   border-radius: 10px;"
-            f"   padding: 5px;"
+            f"   padding: 8px;"
             f"background-color: {button_bg};"
             f"color: {button_color};"
+            f"font-weight: bold;"
             f"}}"
         )
         save_button.clicked.connect(self.save_json)
-
-        # Add theme_grouping to the scroll layout
-        self.scroll_layout.addWidget(self.theme_grouping)
-        self.scroll_layout.addWidget(self.editor_grouping)
-        self.scroll_layout.addWidget(save_button)
-
-        # Set the scroll widget and add scroll area to main layout
-        self.scroll_area.setWidget(scroll_widget)
-        main_layout.addWidget(self.scroll_area)
+        main_layout.addWidget(save_button)
 
     def save_json(self):
         self._window._themes["theme"] = self.theme_input.text()
@@ -196,7 +302,8 @@ class ConfigPage(QWidget):
         self._window._themes["lines_fg"] = self.lines_fg_input.text()
         self._window._themes["font"] = self.font_theme_combobox.currentText()
         self._window._themes["theme_type"] = self.theme_combobox.currentText()
-        self._window._themes["material_type"] = self.materialconfig_combobox.currentText()
+        if hasattr(self, "materialconfig_combobox"):
+            self._window._themes["material_type"] = self.materialconfig_combobox.currentText()
 
         if self.theming_combobox.currentText() == "Flat (Default)":
             self._window._themes["theming"] = "flat"
@@ -206,11 +313,40 @@ class ConfigPage(QWidget):
         with open(f"{self._window.local_app_data}/data/theme.json", "w") as json_file:
             json.dump(self._window._themes, json_file)
 
+        # Save config file data
+        self._window._config["splash"] = "True" if self.splash_checkbox.isChecked() else "False"
+        self._window._config["terminal_tips"] = "True" if self.ttips_checkbox.isChecked() else "False"
+        self._window._config["explorer_default_open"] = "True" if self.expopen_checkbox.isChecked() else "False"
+        self._window._config["open_last_file"] = "True" if self.open_last_file_checkbox.isChecked() else "False"
+
+        with open(f"{self._window.local_app_data}/data/config.json", "w") as config_file:
+            json.dump(self._window._config, config_file, indent=4)
+
+        # Save keybindings
+        from PyQt6.QtGui import QKeySequence
+        updated_shortcuts = {}
+        for key, editor in self.keybinding_inputs.items():
+            sequence = editor.keySequence().toString(QKeySequence.SequenceFormat.PortableText)
+            updated_shortcuts[key] = sequence
+
+        self._window._shortcuts = updated_shortcuts
+
+        with open(self._window.keybindings_path, "w") as file_handle:
+            json.dump(self._window._shortcuts, file_handle, indent=2)
+
+        self._window.setup_keyboard_shortcuts()
+
         QMessageBox.information(
             self,
             "Settings Applied!",
             "The chosen settings have been applied. Restart Aura Text to see the changes.",
         )
+
+    def reset_keybindings_fields(self):
+        from PyQt6.QtGui import QKeySequence
+        defaults = self._window.get_default_keybindings()
+        for key, editor in self.keybinding_inputs.items():
+            editor.setKeySequence(QKeySequence(defaults.get(key, "")))
 
     def material_theme_settings(self):
         self.materialconfig_label = QLabel("Material Theme Type")

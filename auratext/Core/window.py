@@ -911,50 +911,9 @@ class Window(QMainWindow):
             editor.setKeySequence(QKeySequence(defaults.get(key, "")))
 
     def keyboard_bindings(self):
-        for i in range(self.tab_widget.count()):
-            if self.tab_widget.tabText(i) == "Keyboard Bindings":
-                self.tab_widget.setCurrentIndex(i)
-                return
-
-        self.keybindings_widget = QWidget()
-        outer_layout = QVBoxLayout(self.keybindings_widget)
-
-        title = QLabel("Press a shortcut in each box to assign it")
-        outer_layout.addWidget(title)
-
-        scroll_area = QScrollArea()
-        scroll_area.setWidgetResizable(True)
-        scroll_content = QWidget()
-        form_layout = QFormLayout(scroll_content)
-
-        self.keybinding_inputs = {}
-        for key, label in self.get_keybinding_items():
-            sequence_editor = QKeySequenceEdit()
-            sequence_editor.setKeySequence(QKeySequence(self._shortcuts.get(key, "")))
-            self.keybinding_inputs[key] = sequence_editor
-            form_layout.addRow(label, sequence_editor)
-
-        scroll_area.setWidget(scroll_content)
-        outer_layout.addWidget(scroll_area)
-
-        button_row = QHBoxLayout()
-        reset_button = QPushButton("Reset Defaults")
-        save_button = QPushButton("Save")
-        open_json_button = QPushButton("Open JSON")
-
-        reset_button.clicked.connect(self.reset_keybindings_fields)
-        save_button.clicked.connect(self.save_keybindings)
-        open_json_button.clicked.connect(lambda: self.open_file_from_path(self.keybindings_path))
-
-        button_row.addWidget(reset_button)
-        button_row.addWidget(open_json_button)
-        button_row.addWidget(save_button)
-        outer_layout.addLayout(button_row)
-
-        settings_icon = QIcon(f"{self.local_app_data}/icons/settings.png")
-        self.tab_widget.addTab(self.keybindings_widget, settings_icon, "Keyboard Bindings")
-        self.tab_widget.setCurrentWidget(self.keybindings_widget)
-        self.statusBar.show()
+        self.expandSidebar__Settings()
+        if hasattr(self, "settings_widget") and hasattr(self.settings_widget, "settings_tabs"):
+            self.settings_widget.settings_tabs.setCurrentIndex(3)
 
     def create_editor(self, file_path=""):
         container = QWidget()
@@ -2372,8 +2331,9 @@ class Window(QMainWindow):
             self.treeview_project(project_path)
 
     def additional_prefs(self):
-        settings = additional_prefs.SettingsWindow()
-        settings.exec()
+        self.expandSidebar__Settings()
+        if hasattr(self, "settings_widget") and hasattr(self.settings_widget, "settings_tabs"):
+            self.settings_widget.settings_tabs.setCurrentIndex(2)
 
     def new_document(self, checked=False, title="Scratch 1", file_path=""):
         container = self.create_editor(file_path)
