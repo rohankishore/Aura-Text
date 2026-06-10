@@ -340,10 +340,8 @@ class Window(QMainWindow):
         self.sidebar_layout.insertWidget(1, self.search_button)
         self.sidebar_layout.insertWidget(2, self.plugin_button)
 
-        if self.is_git_repo():
-            self.sidebar_layout.insertWidget(3, self.commit_button)
-        else:
-            pass
+        # Check git repository asynchronously
+        self.check_git_repo_async(self.cpath)
 
         self.sidebar_layout.addStretch()
         self.leftBar_layout.addStretch()
@@ -1649,6 +1647,41 @@ class Window(QMainWindow):
     def is_git_repo(self):
         return os.path.isdir(os.path.join(cpath, '.git'))
 
+    def check_git_repo_async(self, path=None):
+        if path is None:
+            path = self.cpath
+        
+        if not path:
+            if hasattr(self, 'commit_button'):
+                self.commit_button.hide()
+            return
+
+        from PyQt6.QtCore import QThread, pyqtSignal
+
+        class GitCheckWorker(QThread):
+            finished = pyqtSignal(bool)
+            def __init__(self, check_path):
+                super().__init__()
+                self.check_path = check_path
+            def run(self):
+                is_git = os.path.isdir(os.path.join(self.check_path, '.git'))
+                self.finished.emit(is_git)
+
+        self._git_worker = GitCheckWorker(path)
+        
+        def on_finished(is_git):
+            if hasattr(self, 'commit_button'):
+                if is_git:
+                    self.commit_button.hide()
+                    self.sidebar_layout.insertWidget(3, self.commit_button)
+                    self.commit_button.show()
+                else:
+                    self.commit_button.hide()
+            self._git_worker = None
+
+        self._git_worker.finished.connect(on_finished)
+        self._git_worker.start()
+
     def open_file(self, index):
         if not self.model:
             return
@@ -2307,12 +2340,7 @@ class Window(QMainWindow):
         messagebox.setWindowTitle("New Project"), messagebox.setText(
             f"New project created at {project_path}"
         )
-        if self.is_git_repo():
-            self.commit_button.hide()
-            self.sidebar_layout.insertWidget(3, self.commit_button)
-            self.commit_button.show()
-        else:
-            self.commit_button.hide()
+        self.check_git_repo_async(project_path)
         messagebox.exec()
         self.treeview_project(project_path)
         self.cpath = project_path
