@@ -563,16 +563,7 @@ QMenu::item::selected {{
                             if section in sections:
                                 plugin.add_menu_items(sections[section])
                 except Exception as e:
-
-                    QMessageBox.critical(
-
-                        self,
-
-                        "Plugin Load Error",
-
-                        f"Error loading plugin '{plugin_module_name}':\n{e}"
-
-                    )
+                    print(f"Error loading plugin '{plugin_module_name}':\n{e}")
 
 
     for section, submenu in sections.items():
