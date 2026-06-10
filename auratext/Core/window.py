@@ -503,11 +503,8 @@ class Window(QMainWindow):
 
         # Setup autosave timer (saves every 30 seconds)
         self.autosave_timer = QTimer(self)
-        if self.current_editor.textChanged():
-            self.autosave_timer.timeout.connect(self.autosave)
-            self.autosave_timer.start(30000)  # 30 seconds
-        else:
-            self.autosave_timer.stop()
+        self.autosave_timer.timeout.connect(self.autosave)
+        self.autosave_timer.start(30000)  # 30 seconds
 
         self.commands = [
             {"name": "File: New", "action": self.cs_new_document},
@@ -1504,11 +1501,13 @@ class Window(QMainWindow):
                         item = widget.layout().itemAt(i)
                         if item and isinstance(item.widget(), CodeEditor):
                             editor = item.widget()
-                            try:
-                                with open(file_path, 'w') as f:
-                                    f.write(editor.text())
-                            except Exception:
-                                pass
+                            if editor.isModified():
+                                try:
+                                    with open(file_path, 'w', encoding="utf-8") as f:
+                                        f.write(editor.text())
+                                    editor.setModified(False)
+                                except Exception:
+                                    pass
                             break
 
     def toggle_split_editor(self):
