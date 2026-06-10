@@ -503,8 +503,11 @@ class Window(QMainWindow):
 
         # Setup autosave timer (saves every 30 seconds)
         self.autosave_timer = QTimer(self)
-        self.autosave_timer.timeout.connect(self.autosave)
-        self.autosave_timer.start(30000)  # 30 seconds
+        if self.current_editor.textChanged():
+            self.autosave_timer.timeout.connect(self.autosave)
+            self.autosave_timer.start(30000)  # 30 seconds
+        else:
+            self.autosave_timer.stop()
 
         self.commands = [
             {"name": "File: New", "action": self.cs_new_document},
