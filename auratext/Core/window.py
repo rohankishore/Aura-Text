@@ -2305,7 +2305,7 @@ class Window(QMainWindow):
         messagebox.setWindowTitle("New Project"), messagebox.setText(
             f"New project created at {project_path}"
         )
-        if is_git_repo():
+        if self.is_git_repo():
             self.commit_button.hide()
             self.sidebar_layout.insertWidget(3, self.commit_button)
             self.commit_button.show()
