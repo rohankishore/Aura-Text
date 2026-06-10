@@ -43,7 +43,7 @@ from ..Misc import shortcuts, WelcomeScreen, boilerplates, file_templates
 from . import MenuConfig
 from . import Modules as ModuleFile
 from .CommandPalette import CommandPalette
-from ..Components import statusBar
+from ..Components import powershell, terminal, statusBar, ProjectManager, About, ToDo, GitCommit, GitGraph, GitRebase, Performance, RegexPlayground
 from ..Components.CommandPalette import CommandPalette
 from .MiniMapWidget import MiniMapWidget
 from .svg_icon_manager import SVGIconManager

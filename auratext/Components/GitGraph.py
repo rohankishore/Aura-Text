@@ -1,7 +1,8 @@
 
 import subprocess
-from PyQt6.QtWidgets import QWidget, QVBoxLayout, QTextEdit, QRadioButton, QHBoxLayout, QGroupBox
+from PyQt6.QtWidgets import QMessageBox, QWidget, QVBoxLayout, QTextEdit, QRadioButton, QHBoxLayout, QGroupBox
 from PyQt6.QtGui import QFont
+from PyQt6.QtCore import QTimer
 
 from auratext.Misc.boilerplates import get_font_for_platform
 
@@ -69,6 +70,7 @@ class GitGraph(QWidget):
                 self.graph_display.setText(process.stdout)
             else:
                 self.graph_display.setText(f"Error fetching Git log:\n{process.stderr}")
+                QTimer.singleShot(0, lambda: QMessageBox.warning(self, "Git Error", f"Error fetching Git log:\n{process.stderr}"))
 
         except FileNotFoundError:
             self.graph_display.setText("Either Git is not installed or you have not opened a Git repository. Please ensure Git is installed and you have a Git repository opened.")
