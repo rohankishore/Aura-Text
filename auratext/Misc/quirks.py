@@ -14,7 +14,8 @@ def crosvm_quirks():
 
 def copy_if_not_exists(src, dst, *, follow_symlinks=True):
     if not os.path.exists(dst):
-        print(f"{dst} does not exist, copying...")
+        # print(f"{dst} does not exist, copying...") Commented out to improve perf
         return shutil.copy2(src, dst, follow_symlinks=follow_symlinks)
     else:
-        print(f"{dst} already exists, not copying...")
+        pass
+        # print(f"{dst} already exists, not copying...")
