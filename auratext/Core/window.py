@@ -41,17 +41,10 @@ from PyQt6.QtWidgets import (
 from . import Lexers
 from ..Misc import shortcuts, WelcomeScreen, boilerplates, file_templates
 from . import MenuConfig
-from . import additional_prefs
 from . import Modules as ModuleFile
-from . import PluginDownload
-from . import ThemeDownload
-from . import config_page
 from .CommandPalette import CommandPalette
-from ..Components import powershell, terminal, statusBar, ProjectManager, About, ToDo, GitGraph, GitRebase, Performance, RegexPlayground
+from ..Components import statusBar
 from ..Components.CommandPalette import CommandPalette
-from ..Components.NewProjectDialog import NewProjectDialog
-from ..Components.Linter import CodeLinter
-from ..Components.FunctionGrid import FunctionGridDialog
 from .MiniMapWidget import MiniMapWidget
 from .svg_icon_manager import SVGIconManager
 
@@ -81,14 +74,7 @@ if not cpath:
 if not cfile:
     cfile = ""
 
-def is_git_repo():
-    return os.path.isdir(os.path.join(cpath, '.git'))
 
-
-if is_git_repo():
-    from ..Components import GitCommit, GitPush
-else:
-    pass
 
 
 class Sidebar(QDockWidget):
@@ -942,6 +928,7 @@ class Window(QMainWindow):
         if self._config.get("enable_linter", "True") == "True":
             if file_path.endswith('.py') or not file_path:
                 linter_types = self._config.get("linter_types", "flake8").split(",")
+                from ..Components.Linter import CodeLinter
                 linter = CodeLinter(self.text_editor, file_path, linter_types)
                 self.linters[id(self.text_editor)] = linter
         
@@ -1064,6 +1051,7 @@ class Window(QMainWindow):
         self.expandSidebar__Explorer(path)
 
     def triggerRegExPg(self):
+        from ..Components import RegexPlayground
         dialog = RegexPlayground.RegexPlaygroundDialog(self)
         dialog.exec()
     
@@ -1274,6 +1262,7 @@ class Window(QMainWindow):
                 return
         
         # Create and add settings tab
+        from . import config_page
         self.settings_widget = config_page.ConfigPage(self)
         settings_icon = QIcon(f"{self.local_app_data}/icons/settings.png")
         self.tab_widget.addTab(self.settings_widget, settings_icon, "Settings")
@@ -1302,6 +1291,8 @@ class Window(QMainWindow):
             lambda visible: self.onPluginDockVisibilityChanged(visible)
         )
         
+        from . import PluginDownload
+        from . import ThemeDownload
         self.plugin_widget = PluginDownload.FileDownloader(self)
         self.plugin_layout = QVBoxLayout()
         self.plugin_layout.addStretch(1)
@@ -1322,6 +1313,7 @@ class Window(QMainWindow):
         self.plugin_layout.addWidget(widget)
 
     def new_project(self):
+        from ..Components.NewProjectDialog import NewProjectDialog
         dialog = NewProjectDialog(self)
         if dialog.exec():
             project_details = dialog.get_project_details()
@@ -1354,6 +1346,7 @@ class Window(QMainWindow):
         QMessageBox.information(self, "A Byte of Humour!", a)
 
     def terminal_widget(self):
+        from ..Components import terminal
         self.terminal_dock = QDockWidget("AT Terminal", self)
         terminal_widget = terminal.AuraTextTerminalWidget(self)
         self.terminal_dock.setWidget(terminal_widget)
@@ -1363,6 +1356,7 @@ class Window(QMainWindow):
         self.terminal_dock.hide()
 
     def setupPowershell(self):
+        from ..Components import powershell
         self.ps_dock = QDockWidget("Powershell")
         self.terminal = powershell.TerminalEmulator()
         self.terminal.setMinimumHeight(100)
@@ -1450,6 +1444,7 @@ class Window(QMainWindow):
             self.gitCommitDock.deleteLater()
         
         # Create new dock with updated design
+        from ..Components import GitCommit
         self.gitCommitDock = GitCommit.GitCommitDock(self)
         self.addDockWidget(Qt.DockWidgetArea.RightDockWidgetArea, self.gitCommitDock)
 
@@ -1635,14 +1630,17 @@ class Window(QMainWindow):
                             break
 
     def gitPush(self):
+        from ..Components import GitPush
         self.gitPushDialog = GitPush.GitPushDialog(self)
         self.gitPushDialog.exec()
 
     def gitGraph(self):
+        from ..Components import GitGraph
         self.git_graph_widget = GitGraph.GitGraph(cpath)
         self.git_graph_widget.show()
 
     def gitRebase(self):
+        from ..Components import GitRebase
         self.git_rebase_dialog = GitRebase.GitRebaseDialog(cpath)
         self.git_rebase_dialog.exec()
 
@@ -2234,6 +2232,7 @@ class Window(QMainWindow):
             self.setCursorPosition(line_number - 1, 0)
 
     def manageProjects(self):
+        from ..Components import ProjectManager
         dialog = ProjectManager.ProjectManager(self)
         dialog.exec()
 
@@ -2492,6 +2491,7 @@ class Window(QMainWindow):
         note_dock.show()
 
     def todo(self):
+        from ..Components import ToDo
         todo_dialog = ToDo.ToDoApp()
         todo_dialog.exec()
 
@@ -2597,6 +2597,7 @@ class Window(QMainWindow):
     def version(self):
         try:
             if not self.about_dialog:
+                from ..Components import About
                 self.about_dialog = About.AboutAppDialog()
             self.about_dialog.exec()
             self.about_dialog.raise_()
@@ -2633,6 +2634,7 @@ class Window(QMainWindow):
             "command_palette": self.show_command_palette,
         }
 
+        from ..Components.FunctionGrid import FunctionGridDialog
         function_grid_dialog = FunctionGridDialog(self, actions=actions)
         function_grid_dialog.exec()
 
@@ -2651,6 +2653,7 @@ class Window(QMainWindow):
         webbrowser.open_new_tab("https://github.com/rohankishore/Aura-Text/issues/new/choose")
 
     def show_performance(self):
+        from ..Components import Performance
         self.performance_dock = QDockWidget("Performance", self)
         self.performance_widget = Performance.PerformanceWidget(self)
         self.performance_dock.setWidget(self.performance_widget)

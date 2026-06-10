@@ -28,8 +28,6 @@ else:
 from PyQt6.QtWidgets import QApplication
 import sys
 
-from qt_material import apply_stylesheet
-
 """
 The app will automatically check system platform and set the local app data path accordingly. 
 It will then load the config and theme files to apply the user's settings and theme preferences.
@@ -76,6 +74,7 @@ def pathArgsHandler(ex, args):
 def main():
     app = QApplication(sys.argv)
     if _theme["theming"] == "material":
+        from qt_material import apply_stylesheet
         theme = _theme["material_type"] + ".xml"
         apply_stylesheet(app, theme=theme)
     ex = Window()
