@@ -70,12 +70,7 @@ class GitPushDialog(QDialog):
             self.branch_list.addItems(self.branches)
             self.remote_list.addItems(self.remotes)
 
-            print("Branches:", self.branches)
-            print("Current Branch:", self.c_branch)
-            print("Remotes:", self.remotes)
-
         except Exception as e:
-            print("Error initializing GitPushDialog:", e)
             QMessageBox.critical(self, "Initialization Error", str(e))
 
     def is_git_repo(self):
