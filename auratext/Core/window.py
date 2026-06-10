@@ -47,7 +47,7 @@ from . import PluginDownload
 from . import ThemeDownload
 from . import config_page
 from .CommandPalette import CommandPalette
-from ..Components import powershell, terminal, statusBar, ProjectManager, About, ToDo, GitGraph, GitRebase, Performance, RegexPlayground
+from ..Components import powershell, terminal, statusBar, ProjectManager, About, ToDo, GitCommit, GitGraph, GitRebase, Performance, RegexPlayground
 from ..Components.CommandPalette import CommandPalette
 from ..Components.NewProjectDialog import NewProjectDialog
 from ..Components.Linter import CodeLinter

@@ -298,6 +298,7 @@ def pastebin(self):
         text_pb = self.current_editor.text()
     except AttributeError:
         QMessageBox.warning(self, "No Editor Open", "The current widget is not an editor.")
+        return
     if text_pb != "":
         data = {"api_dev_key": api_key_pastebin, "api_option": "paste", "api_paste_code": text_pb}
         response = (requests.post("https://pastebin.com/api/api_post.php", data=data)).text
