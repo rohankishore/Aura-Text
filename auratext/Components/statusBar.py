@@ -20,6 +20,9 @@ local_app_data, script_dir = get_appdata_dirs()
 with open(f"{local_app_data}/data/theme.json", "r") as themes_file:
     _themes = json.load(themes_file)
 
+with open(f"{local_app_data}/data/config.json", "r") as config_file:
+    _config = json.load(config_file)
+
 class Separator(QFrame):
     def __init__(self, parent=None):
         super().__init__(parent)
