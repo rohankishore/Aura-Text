@@ -250,12 +250,6 @@ class ConfigPage(QWidget):
         self.editor_layout = addon_group_layout
 
         self.breadcrumbs = QCheckBox("Show Breadcrumb Explorer")
-        
-        if self._window._config.get("breadcrumbs_show", "False") == "true":
-            self.breadcrumbs.setChecked(True)
-        else:
-            self.breadcrumbs.setChecked(False)
-
 
         self.bc_area = QComboBox()
         self.bc_area.addItems(["Editor Top", "Status Bar"])
@@ -291,6 +285,11 @@ class ConfigPage(QWidget):
         self.open_last_file_checkbox = QCheckBox("Open the last opened file at startup")
         self.open_last_file_checkbox.setChecked(config.get("open_last_file", "True") == "True")
         self.behaviour_layout.addWidget(self.open_last_file_checkbox)
+
+        if config.get("breadcrumbs_show", "False") == "True":
+            self.breadcrumbs.setChecked(True)
+        else:
+            self.breadcrumbs.setChecked(False)
 
         # Trigger material settings loading if material theming is active by default
         if self._window._themes["theming"] != "flat":
