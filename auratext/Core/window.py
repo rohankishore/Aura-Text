@@ -5,6 +5,7 @@ import os
 import random
 import shutil
 import sys
+from .BreadcrumbBar import BreadcrumbBar
 import sqlite3
 import webbrowser
 import subprocess
@@ -923,8 +924,6 @@ class Window(QMainWindow):
         main_layout.setSpacing(0)
 
         if self._config["breadcrumbs_show"] == "true":
-        
-            from .BreadcrumbBar import BreadcrumbBar
             breadcrumbs = BreadcrumbBar(self, file_path)
             container.breadcrumbs = breadcrumbs
 
