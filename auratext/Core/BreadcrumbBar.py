@@ -1,3 +1,8 @@
+"""
+This file is used for the breadcrumbs bar. It can be either turned on/off, and change positions to either on status bar at bottom or 
+at the top of the editor.
+"""
+
 import os
 import subprocess
 import platform
