@@ -89,6 +89,8 @@ class Window(QMainWindow):
         self.local_app_data = local_app_data
         # self._terminal_history = ""
 
+        self.version = "v5.5.0"
+
         # project manager db init
         self.conn = sqlite3.connect(f"{self.local_app_data}/data/ProjectManager.db")
         self.dbcursor = self.conn.cursor()
