@@ -244,6 +244,13 @@ class ConfigPage(QWidget):
 
         # Add-on grouping
         self.addongroup = QGroupBox("Add-Ons")
+        self.editor_layout.addWidget(self.addongroup)
+        addon_group_layout = QVBoxLayout()
+        self.addongroup.setLayout(addon_group_layout)
+        self.editor_layout = addon_group_layout
+
+        
+
 
         # --- Populate Behaviour Settings ---
         self.behaviour_grouping = QGroupBox("Behaviour Options")
