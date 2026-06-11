@@ -201,7 +201,7 @@ class ConfigPage(QWidget):
         self.theme_layout.addWidget(self.margin_theme_input)
 
         # --- Populate Editor Settings ---
-        self.editor_grouping = QGroupBox("Editor Options")
+        self.editor_grouping = QGroupBox("Editor Theming")
         self.editor_layout.addWidget(self.editor_grouping)
         editor_group_layout = QVBoxLayout()
         self.editor_grouping.setLayout(editor_group_layout)
@@ -248,6 +248,11 @@ class ConfigPage(QWidget):
         addon_group_layout = QVBoxLayout()
         self.addongroup.setLayout(addon_group_layout)
         self.editor_layout = addon_group_layout
+
+        self.breadcrumbs = QCheckBox("Show Breadcrumb Explorer")
+        self.bc_area = QComboBox()
+        self.bc_area.addItems(["Editor Top", "Status Bar"])
+        addon_group_layout.addWidget(self.breadcrumbs)
 
         
 
@@ -301,6 +306,12 @@ class ConfigPage(QWidget):
         )
         save_button.clicked.connect(self.save_json)
         main_layout.addWidget(save_button)
+
+    def triggerBC(self):
+        if self.breadcrumbs.isChecked():
+            self.bc_area.show()
+        else:
+            self.bc_area.hide()
 
     def save_json(self):
         self._window._themes["theme"] = self.theme_input.text()
