@@ -629,9 +629,6 @@ class Window(QMainWindow):
         )
         self.take_break_image_label.setPixmap(scaled)
 
-    def toggle_hideSidebar(self):
-        
-
     def eventFilter(self, obj, event):
         if self.take_break_mode_enabled and event.type() == QEvent.Type.MouseMove:
             self._show_take_break_exit_hint()
