@@ -253,7 +253,9 @@ class ConfigPage(QWidget):
         self.bc_area = QComboBox()
         self.bc_area.addItems(["Editor Top", "Status Bar"])
         addon_group_layout.addWidget(self.bc_area)
-        if self.breadcrumbs.isChecked(False):
+        if self.breadcrumbs.isChecked():
+            pass
+        else:
             self.bc_area.hide()
 
         self.breadcrumbs.checkStateChanged.connect(self.triggerBC) # trigger when unchecked/checked
