@@ -905,11 +905,12 @@ class Window(QMainWindow):
         main_layout.setContentsMargins(0, 0, 0, 0)
         main_layout.setSpacing(0)
         
-        # Create breadcrumb bar
         from .BreadcrumbBar import BreadcrumbBar
         breadcrumbs = BreadcrumbBar(self, file_path)
         container.breadcrumbs = breadcrumbs
-        main_layout.addWidget(breadcrumbs)
+
+        if self._config["breadcrumbs_area"] == "et":
+            main_layout.addWidget(breadcrumbs)
         
         editor_area = QWidget()
         editor_layout = QHBoxLayout(editor_area)
