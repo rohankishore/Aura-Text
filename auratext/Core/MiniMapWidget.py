@@ -1,8 +1,14 @@
+import json
+from auratext.Misc.boilerplates import get_appdata_dirs
 from PyQt6.QtWidgets import QWidget
 from PyQt6.QtGui import QPainter, QColor, QFont, QFontMetrics, QPen, QBrush
 from PyQt6.QtCore import Qt, QRect, QRectF, QTimer, QPropertyAnimation, QEasingCurve, pyqtProperty
 
 from auratext.Misc.boilerplates import get_font_for_platform
+
+local_app_data, script_dir = get_appdata_dirs()
+with open(f"{local_app_data}/data/theme.json", "r") as themes_file:
+    _themes = json.load(themes_file)
 
 class MiniMapWidget(QWidget):
     def __init__(self, editor=None, parent=None):
