@@ -1,6 +1,11 @@
 """
 This file is used for the breadcrumbs bar. It can be either turned on/off, and change positions to either on status bar at bottom or 
 at the top of the editor.
+
+In the config.json, the value "breadcrumbs_display" can be used to turn on/off , and "breadcrumbs_area"
+decides where to display it. 
+- "sb" - status bar
+- "et" - editor top
 """
 
 import os
