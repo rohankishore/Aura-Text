@@ -901,18 +901,29 @@ class Window(QMainWindow):
 
     def create_editor(self, file_path=""):
         container = QWidget()
-        layout = QHBoxLayout(container)
-        layout.setContentsMargins(0, 0, 0, 0)
-        layout.setSpacing(0)
+        main_layout = QVBoxLayout(container)
+        main_layout.setContentsMargins(0, 0, 0, 0)
+        main_layout.setSpacing(0)
+        
+        # Create breadcrumb bar
+        from .BreadcrumbBar import BreadcrumbBar
+        breadcrumbs = BreadcrumbBar(self, file_path)
+        container.breadcrumbs = breadcrumbs
+        main_layout.addWidget(breadcrumbs)
+        
+        editor_area = QWidget()
+        editor_layout = QHBoxLayout(editor_area)
+        editor_layout.setContentsMargins(0, 0, 0, 0)
+        editor_layout.setSpacing(0)
         
         self.text_editor = CodeEditor(self)
         
         # Create minimap
-        minimap = MiniMapWidget(self.text_editor, container)
+        minimap = MiniMapWidget(self.text_editor, editor_area)
         
         # Add to layout
-        layout.addWidget(self.text_editor)
-        layout.addWidget(minimap)
+        editor_layout.addWidget(self.text_editor)
+        editor_layout.addWidget(minimap)
         
         # Store minimap reference on editor
         self.text_editor.minimap = minimap
@@ -921,6 +932,8 @@ class Window(QMainWindow):
         if not hasattr(self, 'minimap_visible'):
             self.minimap_visible = True
         minimap.setVisible(self.minimap_visible)
+        
+        main_layout.addWidget(editor_area)
         
         # Initialize linter for Python files if enabled
         if self._config.get("enable_linter", "True") == "True":
@@ -2474,6 +2487,9 @@ class Window(QMainWindow):
                     self.update_run_button_visibility()
                     # Update status bar
                     self.updateStatusBar()
+                    # Update status bar breadcrumbs
+                    file_path = self.tab_file_paths.get(index, "")
+                    self.statusBar.updateBreadcrumbs(self, file_path)
                     break
             
             # If no editor found in the layout, hide status bar

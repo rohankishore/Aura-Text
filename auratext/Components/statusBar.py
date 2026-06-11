@@ -180,3 +180,16 @@ class StatusBar(QStatusBar):
     def setLanguageClickHandler(self, handler):
         """Set the click handler for the language button"""
         self.languageButton.clicked.connect(handler)
+
+    def updateBreadcrumbs(self, parent_window, file_path):
+        """Update the breadcrumbs display in the status bar"""
+        if self.breadcrumb_widget:
+            self.removeWidget(self.breadcrumb_widget)
+            self.breadcrumb_widget.deleteLater()
+            self.breadcrumb_widget = None
+            
+        from auratext.Core.BreadcrumbBar import BreadcrumbBar
+        self.breadcrumb_widget = BreadcrumbBar(parent_window, file_path, is_status_bar=True)
+        # Add it on the left (index 0 or default left-side addWidget)
+        self.addWidget(self.breadcrumb_widget)
+        self.breadcrumb_widget.show()
