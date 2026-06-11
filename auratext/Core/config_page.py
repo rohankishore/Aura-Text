@@ -347,6 +347,7 @@ class ConfigPage(QWidget):
         self._window._themes["lines_fg"] = self.lines_fg_input.text()
         self._window._themes["font"] = self.font_theme_combobox.currentText()
         self._window._themes["theme_type"] = self.theme_combobox.currentText()
+        self._window._themes["minimap_theme"] = self.minimap_theme_input.text()
 
         if self.bc_area.currentText() == "Editor Top":
             self._window._config["breadcrumbs_area"] = "et"
