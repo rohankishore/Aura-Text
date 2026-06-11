@@ -926,7 +926,7 @@ class Window(QMainWindow):
         breadcrumbs = BreadcrumbBar(self, file_path)
         container.breadcrumbs = breadcrumbs
 
-        if self._config["breadcrumbs_area"] == "et":
+        if self._config.get("breadcrumbs_area", "et") == "et":
             main_layout.addWidget(breadcrumbs)
         
         editor_area = QWidget()
