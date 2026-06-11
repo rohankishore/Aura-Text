@@ -47,6 +47,40 @@ else:
     print("Verifying appdata integrity...")
     shutil.copytree(template_app_data, local_app_data, dirs_exist_ok=True, copy_function=copy_if_not_exists)
 
+def merge_json_keys(template_path, user_path):
+    if not os.path.exists(template_path) or not os.path.exists(user_path):
+        return
+    try:
+        with open(template_path, "r") as f:
+            template_data = json.load(f)
+        with open(user_path, "r") as f:
+            user_data = json.load(f)
+        
+        if not isinstance(template_data, dict) or not isinstance(user_data, dict):
+            return
+            
+        updated = False
+        for key, val in template_data.items():
+            if key not in user_data:
+                user_data[key] = val
+                updated = True
+                
+        if updated:
+            with open(user_path, "w") as f:
+                json.dump(user_data, f, indent=4)
+            print(f"Merged missing configuration keys into {user_path}")
+    except Exception as e:
+        print(f"Error merging JSON keys for {user_path}: {e}")
+
+merge_json_keys(
+    os.path.join(template_app_data, "data", "config.json"),
+    os.path.join(local_app_data, "data", "config.json")
+)
+merge_json_keys(
+    os.path.join(template_app_data, "data", "theme.json"),
+    os.path.join(local_app_data, "data", "theme.json")
+)
+
 from auratext.Core.window import Window
 
 """ 

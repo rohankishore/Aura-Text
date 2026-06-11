@@ -30,10 +30,10 @@ class SettingsWindow(QDialog):
         with open(f"{local_app_data}/data/config.json", "r") as json_file:
             self._config = json.load(json_file)
 
-        self.splash_status = self._config['splash']
-        self.terminaltips_status = self._config["terminal_tips"]
-        self.exp_open_status = self._config["explorer_default_open"]
-        self.file_open_status = self._config["open_last_file"]
+        self.splash_status = self._config.get('splash', 'True')
+        self.terminaltips_status = self._config.get("terminal_tips", 'True')
+        self.exp_open_status = self._config.get("explorer_default_open", 'False')
+        self.file_open_status = self._config.get("open_last_file", 'False')
         print(self.exp_open_status)
 
         # self._config = {
@@ -102,15 +102,13 @@ class SettingsWindow(QDialog):
 
         print(self.exp_open_status)
 
-        config_data = {
-            "splash": self.splash_status,
-            "terminal_tips": self.terminaltips_status,
-            "explorer_default_open": self.exp_open_status,
-            "open_last_file": self.file_open_status
-        }
+        self._config["splash"] = self.splash_status
+        self._config["terminal_tips"] = self.terminaltips_status
+        self._config["explorer_default_open"] = self.exp_open_status
+        self._config["open_last_file"] = self.file_open_status
 
         with open(f"{local_app_data}/data/config.json", "w") as json_file:
-            json.dump(config_data, json_file, indent=4)
+            json.dump(self._config, json_file, indent=4)
 
         QMessageBox.information(
             self,

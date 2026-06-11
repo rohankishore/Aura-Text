@@ -923,7 +923,7 @@ class Window(QMainWindow):
         main_layout.setContentsMargins(0, 0, 0, 0)
         main_layout.setSpacing(0)
 
-        if self._config["breadcrumbs_show"] == "true":
+        if self._config.get("breadcrumbs_show", "false") == "true":
             breadcrumbs = BreadcrumbBar(self, file_path)
             container.breadcrumbs = breadcrumbs
 
