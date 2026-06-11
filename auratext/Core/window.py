@@ -339,6 +339,7 @@ class Window(QMainWindow):
         self.sidebar_layout.insertWidget(0, self.explorer_button)
         self.sidebar_layout.insertWidget(1, self.search_button)
         self.sidebar_layout.insertWidget(2, self.plugin_button)
+        
 
         # Check git repository asynchronously
         self.check_git_repo_async(self.cpath)
