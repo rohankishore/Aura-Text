@@ -579,11 +579,6 @@ QMenu::item::selected {{
                 except Exception as e:
                     error = str(e)
                     def pluginLoadError(selfObject, plugin_module_name, e):
-                        QMessageBox.warning(
-                            selfObject,
-                            "Non-Critical Plugin Load Error",
-                            f"Error loading plugin '{plugin_module_name}':\n{e}"
-                        )
                         print(f"Error loading plugin '{plugin_module_name}': {e}")
                     QTimer.singleShot(0, lambda: pluginLoadError(self, plugin_module_name, error))
 
