@@ -8,6 +8,6 @@
     "linter_types": "flake8",
     "tab_length_dropdown": "True",
     "tab_length": 4,
-    "breadcrumbs_show": "true",
+    "breadcrumbs_show": "false",
     "breadcrumbs_area": "et"
 }

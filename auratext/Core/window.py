@@ -921,13 +921,15 @@ class Window(QMainWindow):
         main_layout = QVBoxLayout(container)
         main_layout.setContentsMargins(0, 0, 0, 0)
         main_layout.setSpacing(0)
-        
-        from .BreadcrumbBar import BreadcrumbBar
-        breadcrumbs = BreadcrumbBar(self, file_path)
-        container.breadcrumbs = breadcrumbs
 
-        if self._config.get("breadcrumbs_area", "et") == "et":
-            main_layout.addWidget(breadcrumbs)
+        if self._config["breadcrumbs_show"] == "true":
+        
+            from .BreadcrumbBar import BreadcrumbBar
+            breadcrumbs = BreadcrumbBar(self, file_path)
+            container.breadcrumbs = breadcrumbs
+
+            if self._config.get("breadcrumbs_area", "et") == "et":
+                main_layout.addWidget(breadcrumbs)
         
         editor_area = QWidget()
         editor_layout = QHBoxLayout(editor_area)
