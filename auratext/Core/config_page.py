@@ -23,10 +23,6 @@ if TYPE_CHECKING:
 
 local_app_data, script_dir = get_appdata_dirs()
 
-
-with open(f"{local_app_data}/data/config.json", "r") as config_file:
-            _config = json.load(config_file)
-
 class ConfigPage(QWidget):
     def __init__(self, window: Window):
         super().__init__()
@@ -292,12 +288,12 @@ class ConfigPage(QWidget):
         self.open_last_file_checkbox.setChecked(config.get("open_last_file", "True") == "True")
         self.behaviour_layout.addWidget(self.open_last_file_checkbox)
 
-        if _config["breadcrumbs_show"] == "True":
+        if config.get("breadcrumbs_show", "false").lower() == "true":
             self.breadcrumbs.setChecked(True)
         else:
             self.breadcrumbs.setChecked(False)
 
-        if _config["breadcrumbs_area"] == "et":
+        if config.get("breadcrumbs_area", "et").lower() == "et":
             self.bc_area.setCurrentText("Editor Top")
         else:
             self.bc_area.setCurrentText("Status Bar")
@@ -347,9 +343,9 @@ class ConfigPage(QWidget):
         self._window._themes["theme_type"] = self.theme_combobox.currentText()
 
         if self.bc_area.currentText() == "Editor Top":
-            self._window._themes["breadcrumbs_area"] = "et"
+            self._window._config["breadcrumbs_area"] = "et"
         else:
-            self._window._themes["breadcrumbs_area"] = "sb"
+            self._window._config["breadcrumbs_area"] = "sb"
 
         if hasattr(self, "materialconfig_combobox"):
             self._window._themes["material_type"] = self.materialconfig_combobox.currentText()
