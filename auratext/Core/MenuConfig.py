@@ -157,9 +157,9 @@ QMenu::item::selected {{
 
     def sidebar_hide():
         if self.hideSidebarAction.isChecked():
-            self.sidebar.setHidden(True)
+            self.sidebar_main.setHidden(True)
         else:
-            self.sidebar.setHidden(False)
+            self.sidebar_main.setHidden(False)
 
     self.hideSidebarAction = QAction("Hide Sidebar", self)
     self.hideSidebarAction.setCheckable(True)
