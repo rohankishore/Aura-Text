@@ -190,9 +190,10 @@ class StatusBar(QStatusBar):
             self.removeWidget(self.breadcrumb_widget)
             self.breadcrumb_widget.deleteLater()
             self.breadcrumb_widget = None
-            
-        from auratext.Core.BreadcrumbBar import BreadcrumbBar
-        self.breadcrumb_widget = BreadcrumbBar(parent_window, file_path, is_status_bar=True)
-        # Add it on the left (index 0 or default left-side addWidget)
-        self.addWidget(self.breadcrumb_widget)
-        self.breadcrumb_widget.show()
+
+        if _config["breadcrumbs_area"] == "sb": 
+            from auratext.Core.BreadcrumbBar import BreadcrumbBar
+            self.breadcrumb_widget = BreadcrumbBar(parent_window, file_path, is_status_bar=True)
+            # Add it on the left (index 0 or default left-side addWidget)
+            self.addWidget(self.breadcrumb_widget)
+            self.breadcrumb_widget.show()
