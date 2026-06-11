@@ -250,6 +250,13 @@ class ConfigPage(QWidget):
         self.editor_layout = addon_group_layout
 
         self.breadcrumbs = QCheckBox("Show Breadcrumb Explorer")
+        
+        if self._window._config.get("breadcrumbs_show", "False") == "true":
+            self.breadcrumbs.setChecked(True)
+        else:
+            self.breadcrumbs.setChecked(False)
+
+
         self.bc_area = QComboBox()
         self.bc_area.addItems(["Editor Top", "Status Bar"])
         if self.breadcrumbs.isChecked():
