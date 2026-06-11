@@ -344,6 +344,8 @@ class ConfigPage(QWidget):
         self._window._config["terminal_tips"] = "True" if self.ttips_checkbox.isChecked() else "False"
         self._window._config["explorer_default_open"] = "True" if self.expopen_checkbox.isChecked() else "False"
         self._window._config["open_last_file"] = "True" if self.open_last_file_checkbox.isChecked() else "False"
+        self._window._config["breadcrumbs_show"] = "True" if self.breadcrumbs.isChecked() else "False"
+        self._window._config["breadcrumbs_area"] = "et" if self.open_last_file_checkbox.isChecked() else "False"
 
         with open(f"{self._window.local_app_data}/data/config.json", "w") as config_file:
             json.dump(self._window._config, config_file, indent=4)
