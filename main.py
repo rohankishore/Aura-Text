@@ -5,6 +5,8 @@ import platform
 from auratext.Misc.quirks import copy_if_not_exists
 from auratext.Misc.boilerplates import get_appdata_dirs
 
+# v5.5.0
+
 if platform.system() == "Linux":
     from auratext.Misc.quirks import get_linux_productname, crosvm_quirks
     if "crosvm" in get_linux_productname():
