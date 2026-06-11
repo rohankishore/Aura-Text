@@ -74,9 +74,6 @@ if not cpath:
 if not cfile:
     cfile = ""
 
-
-
-
 class Sidebar(QDockWidget):
     def __init__(self, title, parent=None):
         super().__init__(title, parent)
