@@ -148,14 +148,27 @@ QMenu::item::selected {{
     view_menu.addAction(self.take_break_action)
 
     view_menu.addSeparator()
-    #view_menu.addAction("AT Terminal", self.terminal_widget)
-    #view_menu.addAction("Python Console", self.python_console)
 
     def read_only():
         if toggle_read_only_action.isChecked():
             self.toggle_read_only()
         else:
             self.read_only_reset()
+
+    def sidebar_hide():
+        if self.hideSidebarAction.isChecked():
+            self.sidebar_main.hide()
+            if hasattr(self, "leftBar"):
+                self.leftBar.hide()
+        else:
+            self.sidebar_main.show()
+            if hasattr(self, "leftBar"):
+                self.leftBar.show()
+
+    self.hideSidebarAction = QAction("Hide Sidebar", self)
+    self.hideSidebarAction.setCheckable(True)
+    self.hideSidebarAction.triggered.connect(sidebar_hide)
+    view_menu.addAction(self.hideSidebarAction)
 
 
     toggle_read_only_action = QAction("Read-Only", self)
