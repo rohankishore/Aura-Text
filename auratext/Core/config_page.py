@@ -216,6 +216,12 @@ class ConfigPage(QWidget):
         self.editor_layout.addWidget(editor_theme_label)
         self.editor_layout.addWidget(self.editor_theme_input)
 
+        minimap_theme_label = QLabel("Minimap Background:")
+        self.minimap_theme_input = QLineEdit()
+        self.minimap_theme_input.setText(self._window._themes["minimap_theme"])
+        self.editor_layout.addWidget(minimap_theme_label)
+        self.editor_layout.addWidget(self.minimap_theme_input)
+
         # Lines Background
         lines_theme_label = QLabel("Line Number Background:")
         self.lines_theme_input = QLineEdit()
