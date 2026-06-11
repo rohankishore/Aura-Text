@@ -32,6 +32,7 @@ class StatusBar(QStatusBar):
         super().__init__(parent)
         #self.current_editor = parent.current_editor
         self.current_widget = parent.tab_widget.currentWidget()
+        self.breadcrumb_widget = None
         self.setStyleSheet(
             f"""
             QStatusBar {{
