@@ -5,6 +5,7 @@ import os
 import random
 import shutil
 import sys
+from .BreadcrumbBar import BreadcrumbBar
 import sqlite3
 import webbrowser
 import subprocess
@@ -899,20 +900,49 @@ class Window(QMainWindow):
         if hasattr(self, "settings_widget") and hasattr(self.settings_widget, "settings_tabs"):
             self.settings_widget.settings_tabs.setCurrentIndex(3)
 
+    def get_editor_from_widget(self, widget):
+        if not widget:
+            return None
+        from PyQt6.Qsci import QsciScintilla
+        from PyQt6.QtWidgets import QTextEdit
+        from .AuraText import CodeEditor
+        # Try finding CodeEditor recursively
+        editor = widget.findChild(CodeEditor)
+        if editor:
+            return editor
+        # Fallback to other editor types
+        editor = widget.findChild(QsciScintilla)
+        if editor:
+            return editor
+        editor = widget.findChild(QTextEdit)
+        return editor
+
     def create_editor(self, file_path=""):
         container = QWidget()
-        layout = QHBoxLayout(container)
-        layout.setContentsMargins(0, 0, 0, 0)
-        layout.setSpacing(0)
+        main_layout = QVBoxLayout(container)
+        main_layout.setContentsMargins(0, 0, 0, 0)
+        main_layout.setSpacing(0)
+
+        if self._config.get("breadcrumbs_show", "false") == "true":
+            breadcrumbs = BreadcrumbBar(self, file_path)
+            container.breadcrumbs = breadcrumbs
+
+            if self._config.get("breadcrumbs_area", "et") == "et":
+                main_layout.addWidget(breadcrumbs)
+        
+        editor_area = QWidget()
+        editor_layout = QHBoxLayout(editor_area)
+        editor_layout.setContentsMargins(0, 0, 0, 0)
+        editor_layout.setSpacing(0)
         
         self.text_editor = CodeEditor(self)
         
         # Create minimap
-        minimap = MiniMapWidget(self.text_editor, container)
+        minimap = MiniMapWidget(self.text_editor, editor_area)
         
         # Add to layout
-        layout.addWidget(self.text_editor)
-        layout.addWidget(minimap)
+        editor_layout.addWidget(self.text_editor)
+        editor_layout.addWidget(minimap)
         
         # Store minimap reference on editor
         self.text_editor.minimap = minimap
@@ -921,6 +951,8 @@ class Window(QMainWindow):
         if not hasattr(self, 'minimap_visible'):
             self.minimap_visible = True
         minimap.setVisible(self.minimap_visible)
+        
+        main_layout.addWidget(editor_area)
         
         # Initialize linter for Python files if enabled
         if self._config.get("enable_linter", "True") == "True":
@@ -956,13 +988,7 @@ class Window(QMainWindow):
         currentWidget = self.tab_widget.currentWidget()
         
         # Get the actual editor from the container
-        editor = None
-        if currentWidget and hasattr(currentWidget, 'layout') and currentWidget.layout():
-            for i in range(currentWidget.layout().count()):
-                item = currentWidget.layout().itemAt(i)
-                if item and isinstance(item.widget(), (QTextEdit, QsciScintilla, CodeEditor)):
-                    editor = item.widget()
-                    break
+        editor = self.get_editor_from_widget(currentWidget)
         
         # Fall back to checking if currentWidget itself is an editor
         if not editor and isinstance(currentWidget, (QTextEdit, QsciScintilla)):
@@ -1494,19 +1520,15 @@ class Window(QMainWindow):
         for tab_index, file_path in self.tab_file_paths.items():
             if file_path and tab_index < self.tab_widget.count():
                 widget = self.tab_widget.widget(tab_index)
-                if widget and hasattr(widget, 'layout') and widget.layout():
-                    for i in range(widget.layout().count()):
-                        item = widget.layout().itemAt(i)
-                        if item and isinstance(item.widget(), CodeEditor):
-                            editor = item.widget()
-                            if editor.isModified():
-                                try:
-                                    with open(file_path, 'w', encoding="utf-8") as f:
-                                        f.write(editor.text())
-                                    editor.setModified(False)
-                                except Exception:
-                                    pass
-                            break
+                editor = self.get_editor_from_widget(widget)
+                if editor and isinstance(editor, CodeEditor):
+                    if editor.isModified():
+                        try:
+                            with open(file_path, 'w', encoding="utf-8") as f:
+                                f.write(editor.text())
+                            editor.setModified(False)
+                        except Exception:
+                            pass
 
     def toggle_split_editor(self):
         """Toggle split editor view"""
@@ -1521,13 +1543,7 @@ class Window(QMainWindow):
             current_title = self.tab_widget.tabText(current_index)
             
             # Get the current editor
-            current_editor = None
-            if current_widget and hasattr(current_widget, 'layout') and current_widget.layout():
-                for i in range(current_widget.layout().count()):
-                    item = current_widget.layout().itemAt(i)
-                    if item and isinstance(item.widget(), CodeEditor):
-                        current_editor = item.widget()
-                        break
+            current_editor = self.get_editor_from_widget(current_widget)
             
             if not current_editor:
                 QMessageBox.warning(self, "No Editor", "Current tab is not a text editor.")
@@ -1607,27 +1623,17 @@ class Window(QMainWindow):
         # Toggle minimap in main tab widget
         for i in range(self.tab_widget.count()):
             widget = self.tab_widget.widget(i)
-            if widget and hasattr(widget, 'layout') and widget.layout():
-                for j in range(widget.layout().count()):
-                    item = widget.layout().itemAt(j)
-                    if item and isinstance(item.widget(), CodeEditor):
-                        editor = item.widget()
-                        if hasattr(editor, 'minimap'):
-                            editor.minimap.setVisible(self.minimap_visible)
-                        break
+            editor = self.get_editor_from_widget(widget)
+            if editor and isinstance(editor, CodeEditor) and hasattr(editor, 'minimap'):
+                editor.minimap.setVisible(self.minimap_visible)
         
         # Toggle minimap in split tab widget if active
         if self.is_split and self.split_tab_widget:
             for i in range(self.split_tab_widget.count()):
                 widget = self.split_tab_widget.widget(i)
-                if widget and hasattr(widget, 'layout') and widget.layout():
-                    for j in range(widget.layout().count()):
-                        item = widget.layout().itemAt(j)
-                        if item and isinstance(item.widget(), CodeEditor):
-                            editor = item.widget()
-                            if hasattr(editor, 'minimap'):
-                                editor.minimap.setVisible(self.minimap_visible)
-                            break
+                editor = self.get_editor_from_widget(widget)
+                if editor and isinstance(editor, CodeEditor) and hasattr(editor, 'minimap'):
+                    editor.minimap.setVisible(self.minimap_visible)
 
     def gitPush(self):
         from ..Components import GitPush
@@ -2450,31 +2456,29 @@ class Window(QMainWindow):
             return
         
         # Get the actual editor from the container
-        if widget and hasattr(widget, 'layout') and widget.layout():
-            # The editor is the first item in the layout
-            editor_found = False
-            for i in range(widget.layout().count()):
-                item = widget.layout().itemAt(i)
-                if item and isinstance(item.widget(), CodeEditor):
-                    editor = item.widget()
-                    editor_found = True
-                    self.statusBar.show()
-                    # Set the previous editor as read-only
-                    if self.current_editor and self.current_editor != "":
-                        try:
-                            self.current_editor.setReadOnly(True)
-                        except:
-                            pass
-                    
-                    self.current_editor = editor
-                    self.current_editor.setReadOnly(False)
-                    # Update language display
-                    self.update_language_display()
-                    # Update run button visibility
-                    self.update_run_button_visibility()
-                    # Update status bar
-                    self.updateStatusBar()
-                    break
+        editor = self.get_editor_from_widget(widget)
+        editor_found = False
+        if editor and isinstance(editor, CodeEditor):
+            editor_found = True
+            self.statusBar.show()
+            # Set the previous editor as read-only
+            if self.current_editor and self.current_editor != "":
+                try:
+                    self.current_editor.setReadOnly(True)
+                except:
+                    pass
+            
+            self.current_editor = editor
+            self.current_editor.setReadOnly(False)
+            # Update language display
+            self.update_language_display()
+            # Update run button visibility
+            self.update_run_button_visibility()
+            # Update status bar
+            self.updateStatusBar()
+            # Update status bar breadcrumbs
+            file_path = self.tab_file_paths.get(index, "")
+            self.statusBar.updateBreadcrumbs(self, file_path)
             
             # If no editor found in the layout, hide status bar
             if not editor_found:

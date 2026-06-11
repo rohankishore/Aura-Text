@@ -1,4 +1,5 @@
 from __future__ import annotations
+from auratext.Misc.boilerplates import get_appdata_dirs
 
 import json
 import platform
@@ -20,6 +21,7 @@ from PyQt6.QtWidgets import (
 if TYPE_CHECKING:
     from .window import Window
 
+local_app_data, script_dir = get_appdata_dirs()
 
 class ConfigPage(QWidget):
     def __init__(self, window: Window):
@@ -201,7 +203,7 @@ class ConfigPage(QWidget):
         self.theme_layout.addWidget(self.margin_theme_input)
 
         # --- Populate Editor Settings ---
-        self.editor_grouping = QGroupBox("Editor Options")
+        self.editor_grouping = QGroupBox("Editor Theming")
         self.editor_layout.addWidget(self.editor_grouping)
         editor_group_layout = QVBoxLayout()
         self.editor_grouping.setLayout(editor_group_layout)
@@ -241,6 +243,27 @@ class ConfigPage(QWidget):
         self.editor_layout.addWidget(font_theme_label)
         self.editor_layout.addWidget(self.font_theme_combobox)
 
+
+        # Add-on grouping
+        self.addongroup = QGroupBox("Add-Ons")
+        editor_tab_layout.addWidget(self.addongroup)
+        addon_group_layout = QVBoxLayout()
+        self.addongroup.setLayout(addon_group_layout)
+        self.editor_layout = addon_group_layout
+
+        self.breadcrumbs = QCheckBox("Show Breadcrumb Explorer")
+
+        self.bc_area = QComboBox()
+        self.bc_area.addItems(["Editor Top", "Status Bar"])
+        if self.breadcrumbs.isChecked():
+            pass
+        else:
+            self.bc_area.hide()
+
+        self.breadcrumbs.checkStateChanged.connect(self.triggerBC) # trigger when unchecked/checked
+        addon_group_layout.addWidget(self.breadcrumbs)
+        addon_group_layout.addWidget(self.bc_area)
+
         # --- Populate Behaviour Settings ---
         self.behaviour_grouping = QGroupBox("Behaviour Options")
         self.behaviour_layout.addWidget(self.behaviour_grouping)
@@ -264,6 +287,16 @@ class ConfigPage(QWidget):
         self.open_last_file_checkbox = QCheckBox("Open the last opened file at startup")
         self.open_last_file_checkbox.setChecked(config.get("open_last_file", "True") == "True")
         self.behaviour_layout.addWidget(self.open_last_file_checkbox)
+
+        if config.get("breadcrumbs_show", "false").lower() == "true":
+            self.breadcrumbs.setChecked(True)
+        else:
+            self.breadcrumbs.setChecked(False)
+
+        if config.get("breadcrumbs_area", "et").lower() == "et":
+            self.bc_area.setCurrentText("Editor Top")
+        else:
+            self.bc_area.setCurrentText("Status Bar")
 
         # Trigger material settings loading if material theming is active by default
         if self._window._themes["theming"] != "flat":
@@ -291,6 +324,12 @@ class ConfigPage(QWidget):
         save_button.clicked.connect(self.save_json)
         main_layout.addWidget(save_button)
 
+    def triggerBC(self):
+        if self.breadcrumbs.isChecked():
+            self.bc_area.show()
+        else:
+            self.bc_area.hide()
+
     def save_json(self):
         self._window._themes["theme"] = self.theme_input.text()
         self._window._themes["editor_theme"] = self.editor_theme_input.text()
@@ -302,6 +341,12 @@ class ConfigPage(QWidget):
         self._window._themes["lines_fg"] = self.lines_fg_input.text()
         self._window._themes["font"] = self.font_theme_combobox.currentText()
         self._window._themes["theme_type"] = self.theme_combobox.currentText()
+
+        if self.bc_area.currentText() == "Editor Top":
+            self._window._config["breadcrumbs_area"] = "et"
+        else:
+            self._window._config["breadcrumbs_area"] = "sb"
+
         if hasattr(self, "materialconfig_combobox"):
             self._window._themes["material_type"] = self.materialconfig_combobox.currentText()
 
@@ -318,6 +363,7 @@ class ConfigPage(QWidget):
         self._window._config["terminal_tips"] = "True" if self.ttips_checkbox.isChecked() else "False"
         self._window._config["explorer_default_open"] = "True" if self.expopen_checkbox.isChecked() else "False"
         self._window._config["open_last_file"] = "True" if self.open_last_file_checkbox.isChecked() else "False"
+        self._window._config["breadcrumbs_show"] = "True" if self.breadcrumbs.isChecked() else "False"
 
         with open(f"{self._window.local_app_data}/data/config.json", "w") as config_file:
             json.dump(self._window._config, config_file, indent=4)

@@ -20,6 +20,9 @@ local_app_data, script_dir = get_appdata_dirs()
 with open(f"{local_app_data}/data/theme.json", "r") as themes_file:
     _themes = json.load(themes_file)
 
+with open(f"{local_app_data}/data/config.json", "r") as config_file:
+    _config = json.load(config_file)
+
 class Separator(QFrame):
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -32,6 +35,7 @@ class StatusBar(QStatusBar):
         super().__init__(parent)
         #self.current_editor = parent.current_editor
         self.current_widget = parent.tab_widget.currentWidget()
+        self.breadcrumb_widget = None
         self.setStyleSheet(
             f"""
             QStatusBar {{
@@ -179,3 +183,17 @@ class StatusBar(QStatusBar):
     def setLanguageClickHandler(self, handler):
         """Set the click handler for the language button"""
         self.languageButton.clicked.connect(handler)
+
+    def updateBreadcrumbs(self, parent_window, file_path):
+        """Update the breadcrumbs display in the status bar"""
+        if self.breadcrumb_widget:
+            self.removeWidget(self.breadcrumb_widget)
+            self.breadcrumb_widget.deleteLater()
+            self.breadcrumb_widget = None
+
+        if _config.get("breadcrumbs_area", "et") == "sb": 
+            from auratext.Core.BreadcrumbBar import BreadcrumbBar
+            self.breadcrumb_widget = BreadcrumbBar(parent_window, file_path, is_status_bar=True)
+            # Add it on the left (index 0 or default left-side addWidget)
+            self.addWidget(self.breadcrumb_widget)
+            self.breadcrumb_widget.show()

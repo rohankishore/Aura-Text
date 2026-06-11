@@ -358,6 +358,14 @@ def save_document(self, force_dialog=False):
         self.current_editor.setModified(False)
         if hasattr(self, "tab_file_paths"):
             self.tab_file_paths[active_tab_index] = name
+            
+        # Update breadcrumbs
+        container = self.tab_widget.widget(active_tab_index)
+        if container and hasattr(container, "breadcrumbs"):
+            container.breadcrumbs.set_file_path(name)
+        if hasattr(self, "statusBar") and hasattr(self.statusBar, "updateBreadcrumbs"):
+            self.statusBar.updateBreadcrumbs(self, name)
+
         if hasattr(self, "update_run_button_visibility"):
             self.update_run_button_visibility()
         file.close()
