@@ -19,7 +19,7 @@ class MiniMapWidget(QWidget):
         self.setSizePolicy(self.sizePolicy().horizontalPolicy(), self.sizePolicy().verticalPolicy())
         
         # Visual settings
-        self.bg_color = _themes["minimap_theme"]
+        self.bg_color = QColor(_themes["minimap_theme"])
         self.text_color = QColor("#d4d4d4")
         self.keyword_color = QColor("#569cd6")
         self.string_color = QColor("#ce9178")
