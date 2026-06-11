@@ -291,6 +291,11 @@ class ConfigPage(QWidget):
         else:
             self.breadcrumbs.setChecked(False)
 
+        if config.get("breadcrumbs_area", "et") == "et":
+            self.bc_area.setCurrentText("Editor Top")
+        else:
+            self.bc_area.setCurrentText("Status Bar")
+
         # Trigger material settings loading if material theming is active by default
         if self._window._themes["theming"] != "flat":
             self.material_theme_settings()
