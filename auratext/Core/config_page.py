@@ -252,7 +252,6 @@ class ConfigPage(QWidget):
         self.breadcrumbs = QCheckBox("Show Breadcrumb Explorer")
         self.bc_area = QComboBox()
         self.bc_area.addItems(["Editor Top", "Status Bar"])
-        addon_group_layout.addWidget(self.bc_area)
         if self.breadcrumbs.isChecked():
             pass
         else:
@@ -260,6 +259,7 @@ class ConfigPage(QWidget):
 
         self.breadcrumbs.checkStateChanged.connect(self.triggerBC) # trigger when unchecked/checked
         addon_group_layout.addWidget(self.breadcrumbs)
+        addon_group_layout.addWidget(self.bc_area)
 
         # --- Populate Behaviour Settings ---
         self.behaviour_grouping = QGroupBox("Behaviour Options")
