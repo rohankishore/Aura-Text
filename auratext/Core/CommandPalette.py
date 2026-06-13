@@ -1,3 +1,4 @@
+import json
 import os
 from PyQt6.QtWidgets import (
     QDialog, QVBoxLayout, QHBoxLayout, QLineEdit, QListWidget, QListWidgetItem, 
@@ -6,6 +7,10 @@ from PyQt6.QtWidgets import (
 from PyQt6.QtCore import Qt, QSize
 from PyQt6.QtGui import QIcon, QColor
 from auratext.Misc.boilerplates import get_appdata_dirs
+
+local_app_data, script_dir = get_appdata_dirs()
+with open(f"{local_app_data}/data/config.json", "r") as config_file:
+    _config = json.load(config_file)
 
 class CommandPaletteItemWidget(QWidget):
     def __init__(self, name, shortcut, parent=None):
