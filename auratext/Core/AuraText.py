@@ -234,6 +234,65 @@ class CodeEditor(QsciScintilla):
             Qt.Key.Key_Backtab,
         }
 
+        BRACKET_PAIRS = {
+            '(': ')',
+            '[': ']',
+            '{': '}',
+            '"': '"',
+            "'": "'",
+            '`': '`'
+        }
+        CLOSING_CHARS = {')', ']', '}', '"', "'", '`'}
+
+        if key == Qt.Key.Key_Backspace:
+            line, col = self.getCursorPosition()
+            if col > 0:
+                line_text = self.text(line)
+                prev_char = line_text[col - 1]
+                next_char = line_text[col] if col < len(line_text) else ""
+                if prev_char in BRACKET_PAIRS and next_char == BRACKET_PAIRS[prev_char]:
+                    # Delete the closing character first
+                    self.SendScintilla(QsciScintilla.SCI_DELETERANGE, self.positionFromLineIndex(line, col), 1)
+                    # Let the default backspace delete the opening character
+                    super().keyPressEvent(event)
+                    return
+
+        char = event.text()
+        if char:
+            line, col = self.getCursorPosition()
+            line_text = self.text(line)
+            next_char = line_text[col] if col < len(line_text) else ""
+
+            # 1. Overwrite/Step-over closing characters
+            if char in CLOSING_CHARS and next_char == char:
+                self.setCursorPosition(line, col + 1)
+                return
+
+            # 2. Wrapping selection
+            if self.hasSelectedText() and char in BRACKET_PAIRS:
+                line_from, index_from, line_to, index_to = self.getSelection()
+                sel_text = self.selectedText()
+                wrapped = char + sel_text + BRACKET_PAIRS[char]
+                self.replaceSelectedText(wrapped)
+                self.setSelection(line_from, index_from, line_to, index_to + 2)
+                return
+
+            # 3. Auto-insert pairs
+            if char in BRACKET_PAIRS:
+                # Do not auto-close quotes if the next character is alphanumeric
+                if char in {'"', "'", '`'} and next_char.isalnum():
+                    super().keyPressEvent(event)
+                    self.autocomplete_engine.trigger()
+                    return
+
+                # Insert the closing character at the cursor position
+                pos = self.positionFromLineIndex(line, col)
+                self.SendScintilla(QsciScintilla.SCI_INSERTTEXT, pos, bytes(BRACKET_PAIRS[char], "utf-8"))
+                # Let the default key handler type the opening character and advance cursor
+                super().keyPressEvent(event)
+                self.autocomplete_engine.trigger()
+                return
+
         if key in navigation_keys:
             super().keyPressEvent(event)
             return
