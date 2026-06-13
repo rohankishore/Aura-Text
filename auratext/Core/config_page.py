@@ -255,6 +255,9 @@ class ConfigPage(QWidget):
         self.editor_behaviour.setLayout(editor_behaviour_layout)
         self.editor_layout = editor_behaviour_layout
 
+        self.brcktclose = QCheckBox("Intelligent Auto-Close Brackets & Quotes")
+        editor_behaviour_layout.addWidget(self.brcktclose)
+
         # Add-on grouping
         self.addongroup = QGroupBox("Add-Ons")
         editor_tab_layout.addWidget(self.addongroup)
