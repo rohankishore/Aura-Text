@@ -9,12 +9,13 @@ import time
 import platform
 import sys
 
-from PyQt6.QtGui import QFont, QCursor
-from PyQt6.QtCore import Qt
+from PyQt6.QtGui import QFont, QCursor, QColor, QIcon
+from PyQt6.QtCore import Qt, QSize
 from PyQt6.QtWidgets import QFrame, QHBoxLayout, QLabel, QStatusBar, QWidget, QPushButton
 
 # from ..scripts.color_scheme_loader import color_schemes
 from auratext.Misc.boilerplates import get_font_for_platform, get_appdata_dirs
+from auratext.Core.svg_icon_manager import SVGIconManager
 
 local_app_data, script_dir = get_appdata_dirs()
 with open(f"{local_app_data}/data/theme.json", "r") as themes_file:
@@ -22,6 +23,27 @@ with open(f"{local_app_data}/data/theme.json", "r") as themes_file:
 
 with open(f"{local_app_data}/data/config.json", "r") as config_file:
     _config = json.load(config_file)
+
+class NotificationButton(QPushButton):
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.has_unread = False
+        
+    def set_unread(self, has_unread):
+        self.has_unread = has_unread
+        self.update()
+        
+    def paintEvent(self, event):
+        super().paintEvent(event)
+        if self.has_unread:
+            from PyQt6.QtGui import QPainter, QBrush, QPen
+            painter = QPainter(self)
+            painter.setRenderHint(QPainter.RenderHint.Antialiasing)
+            painter.setBrush(QBrush(QColor("#ef4444")))
+            painter.setPen(QPen(QColor("#1e1d23"), 1))
+            # Draw tiny red dot in top-right corner
+            painter.drawEllipse(self.width() - 8, 2, 6, 6)
+            painter.end()
 
 class Separator(QFrame):
     def __init__(self, parent=None):
@@ -104,6 +126,30 @@ class StatusBar(QStatusBar):
             """
         )
 
+        # Notification button
+        theme_color = _themes.get("theme", "#007ACC")
+        bell_svg = f"{local_app_data}/icons/notification.svg"
+        bell_icon, _ = SVGIconManager.create_stateful_icon(bell_svg, None, theme_color, (14, 14))
+
+        self.notification_btn = NotificationButton()
+        self.notification_btn.setIcon(bell_icon)
+        self.notification_btn.setIconSize(QSize(14, 14))
+        self.notification_btn.setFixedSize(22, 22)
+        self.notification_btn.setCursor(QCursor(Qt.CursorShape.PointingHandCursor))
+        self.notification_btn.setStyleSheet(
+            f"""
+            QPushButton {{
+                background-color: transparent;
+                border: none;
+                border-radius: 4px;
+            }}
+            QPushButton:hover {{
+                background-color: rgba(255, 255, 255, 0.1);
+            }}
+            """
+        )
+        self.notification_btn.setToolTip("Notifications")
+        self.notification_btn.clicked.connect(self.toggle_notification_drawer)
 
         for label in [
             self.lineLabel,
@@ -142,6 +188,8 @@ class StatusBar(QStatusBar):
         rightLayout.addWidget(self.wordsValueLabel)
         rightLayout.addWidget(Separator())
         rightLayout.addWidget(self.languageButton)
+        rightLayout.addWidget(Separator())
+        rightLayout.addWidget(self.notification_btn)
         rightLayout.addWidget(Separator())
 
         # ...existing code...
