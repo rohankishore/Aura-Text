@@ -10,5 +10,6 @@
     "tab_length": 4,
     "breadcrumbs_show": "true",
     "breadcrumbs_area": "et",
-    "brckt_close": "true"
+    "brckt_close": "true",
+    "cmdpaletteglass": "true"
 }

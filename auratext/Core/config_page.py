@@ -263,6 +263,14 @@ class ConfigPage(QWidget):
         else:
             self.brcktclose.setChecked(False)
 
+        self.cmdpaletteglass = QCheckBox("Glassmorphism in Command Palette")
+        editor_behaviour_layout.addWidget(self.cmdpaletteglass)
+
+        if self._window._config.get("cmdpaletteglass", "true").lower() == "true":
+            self.cmdpaletteglass.setChecked(True)
+        else:
+            self.cmdpaletteglass.setChecked(False)
+
         # Add-on grouping
         self.addongroup = QGroupBox("Add-Ons")
         editor_tab_layout.addWidget(self.addongroup)
