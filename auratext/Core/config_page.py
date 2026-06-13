@@ -249,6 +249,11 @@ class ConfigPage(QWidget):
         self.editor_layout.addWidget(font_theme_label)
         self.editor_layout.addWidget(self.font_theme_combobox)
 
+        self.editor_behaviour = QGroupBox("Editor Behaviour")
+        editor_tab_layout.addWidget(self.editor_behaviour)
+        editor_behaviour_layout = QVBoxLayout()
+        self.editor_behaviour.setLayout(editor_behaviour_layout)
+        self.editor_layout = editor_behaviour_layout
 
         # Add-on grouping
         self.addongroup = QGroupBox("Add-Ons")
