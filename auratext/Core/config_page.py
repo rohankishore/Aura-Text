@@ -258,6 +258,11 @@ class ConfigPage(QWidget):
         self.brcktclose = QCheckBox("Intelligent Auto-Close Brackets & Quotes")
         editor_behaviour_layout.addWidget(self.brcktclose)
 
+        if self._window._config.get("brckt_close", "true").lower() == "true":
+            self.brcktclose.setChecked(True)
+        else:
+            self.brcktclose.setChecked(False)
+
         # Add-on grouping
         self.addongroup = QGroupBox("Add-Ons")
         editor_tab_layout.addWidget(self.addongroup)
@@ -379,6 +384,7 @@ class ConfigPage(QWidget):
         self._window._config["explorer_default_open"] = "True" if self.expopen_checkbox.isChecked() else "False"
         self._window._config["open_last_file"] = "True" if self.open_last_file_checkbox.isChecked() else "False"
         self._window._config["breadcrumbs_show"] = "True" if self.breadcrumbs.isChecked() else "False"
+        self._window._config["brckt_close"] = "True" if self.brcktclose.isChecked() else "False"
 
         with open(f"{self._window.local_app_data}/data/config.json", "w") as config_file:
             json.dump(self._window._config, config_file, indent=4)

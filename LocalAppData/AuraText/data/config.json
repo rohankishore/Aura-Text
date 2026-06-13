@@ -9,5 +9,6 @@
     "tab_length_dropdown": "True",
     "tab_length": 4,
     "breadcrumbs_show": "true",
-    "breadcrumbs_area": "et"
+    "breadcrumbs_area": "et",
+    "brckt_close": "true"
 }
