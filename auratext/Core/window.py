@@ -232,6 +232,10 @@ class Window(QMainWindow):
         self.statusBar = statusBar.StatusBar(self, greeting=greeting)
         self.setStatusBar(self.statusBar)
 
+        from auratext.Components.Toast import ToastManager
+        self.toast_manager = ToastManager(self)
+        self.toast_manager.on_history_changed = self.update_notification_badge
+
         # Track currently selected sidebar button
         self.selected_sidebar_button = None
         
@@ -579,6 +583,11 @@ class Window(QMainWindow):
     def _apply_startup_window_state(self):
         if not self.isFullScreen():
             self.showMaximized()
+
+    def update_notification_badge(self):
+        if hasattr(self, "statusBar") and hasattr(self.statusBar, "notification_btn"):
+            has_unread = len(self.toast_manager.history) > 0
+            self.statusBar.notification_btn.set_unread(has_unread)
 
     def _set_take_break_action_checked(self, checked):
         if self.take_break_action is None:
