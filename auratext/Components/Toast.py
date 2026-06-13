@@ -1,7 +1,8 @@
 import os
 import json
 from PyQt6.QtWidgets import (
-    QWidget, QVBoxLayout, QHBoxLayout, QLabel, QPushButton, QGraphicsDropShadowEffect, QApplication
+    QWidget, QVBoxLayout, QHBoxLayout, QLabel, QPushButton, QGraphicsDropShadowEffect, QApplication,
+    QDialog, QListWidget, QListWidgetItem
 )
 from PyQt6.QtCore import Qt, QTimer, QPropertyAnimation, QRect, QPoint, QEasingCurve
 from PyQt6.QtGui import QColor, QFont, QIcon
@@ -141,7 +142,7 @@ class ToastManager:
 
     def show_toast(self, message, toast_type="info"):
         # Log to history
-        self.history.append({"message": message, "type": toast_type, "time": QTimer.singleShot})
+        self.history.append({"message": message, "type": toast_type})
         if self.on_history_changed:
             self.on_history_changed()
 
@@ -188,3 +189,163 @@ class ToastManager:
                 toast.anim.setEndValue(QPoint(x, target_y))
             else:
                 toast.move(x, target_y)
+
+
+class NotificationDrawer(QDialog):
+    def __init__(self, manager, parent=None):
+        super().__init__(parent)
+        self.manager = manager
+        self.setWindowTitle("Notifications")
+        self.setWindowFlags(Qt.WindowType.FramelessWindowHint | Qt.WindowType.Popup)
+        self.setAttribute(Qt.WidgetAttribute.WA_TranslucentBackground)
+        self.setFixedSize(300, 400)
+        
+        # Load theme config
+        active_window = parent or QApplication.activeWindow()
+        config = getattr(active_window, "_config", {})
+        is_glass = config.get("cmdpaletteglass", "true").lower() == "true"
+        theme_bg = "#1e1d23"
+        if active_window and hasattr(active_window, "_themes"):
+            theme_bg = active_window._themes.get("editor_theme", "#1e1d23")
+            
+        bg_color = "rgba(30, 30, 35, 0.94)" if is_glass else theme_bg
+        border_color = "rgba(255, 255, 255, 0.15)" if is_glass else "rgba(255, 255, 255, 0.08)"
+
+        dialog_layout = QVBoxLayout(self)
+        dialog_layout.setContentsMargins(10, 10, 10, 10)
+
+        # Floating Container
+        self.container = QWidget(self)
+        self.container.setObjectName("Container")
+        self.container.setStyleSheet(f"""
+            QWidget#Container {{
+                background-color: {bg_color};
+                border: 1px solid {border_color};
+                border-radius: 12px;
+            }}
+            QListWidget {{
+                background-color: transparent;
+                border: none;
+                outline: none;
+            }}
+            QListWidget::item {{
+                background-color: transparent;
+                border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+                padding: 8px 4px;
+            }}
+        """)
+        
+        # Add Drop Shadow
+        shadow = QGraphicsDropShadowEffect(self)
+        shadow.setBlurRadius(15)
+        shadow.setColor(QColor(0, 0, 0, 160))
+        shadow.setOffset(0, 4)
+        self.container.setGraphicsEffect(shadow)
+        
+        dialog_layout.addWidget(self.container)
+
+        # Content Layout
+        layout = QVBoxLayout(self.container)
+        layout.setContentsMargins(12, 12, 12, 12)
+        layout.setSpacing(10)
+
+        # Header
+        header_layout = QHBoxLayout()
+        self.header_title = QLabel("Notifications")
+        self.header_title.setStyleSheet("color: #ffffff; font-size: 14px; font-weight: bold; background: transparent;")
+        header_layout.addWidget(self.header_title)
+        
+        header_layout.addStretch()
+        
+        self.clear_btn = QPushButton("Clear All")
+        self.clear_btn.setCursor(Qt.CursorShape.PointingHandCursor)
+        self.clear_btn.setStyleSheet("""
+            QPushButton {
+                background: transparent;
+                color: #a5a5b2;
+                border: none;
+                font-size: 11px;
+                font-weight: bold;
+            }
+            QPushButton:hover {
+                color: #ef4444;
+            }
+        """)
+        self.clear_btn.clicked.connect(self.clear_all)
+        header_layout.addWidget(self.clear_btn)
+        layout.addLayout(header_layout)
+
+        # List of past notifications
+        self.list_widget = QListWidget()
+        layout.addWidget(self.list_widget)
+
+        self.populate_history()
+
+    def populate_history(self):
+        self.list_widget.clear()
+        if not self.manager.history:
+            item = QListWidgetItem("No notifications")
+            item.setFlags(Qt.ItemFlag.NoItemFlags)
+            item.setForeground(QColor("#a5a5b2"))
+            item.setFont(QFont("Segoe UI", 10, QFont.Weight.StyleItalic))
+            self.list_widget.addItem(item)
+            return
+
+        # Colors based on type
+        colors = {
+            "success": "#22c55e",
+            "warning": "#eab308",
+            "error": "#ef4444",
+            "info": "#3b82f6"
+        }
+        
+        # Populate history in reverse chronological order
+        for log in reversed(self.manager.history):
+            item_widget = QWidget()
+            item_layout = QHBoxLayout(item_widget)
+            item_layout.setContentsMargins(4, 4, 4, 4)
+            item_layout.setSpacing(8)
+            
+            accent_color = colors.get(log["type"].lower(), "#3b82f6")
+            
+            # Accent dot
+            dot = QWidget()
+            dot.setFixedSize(6, 6)
+            dot.setStyleSheet(f"background-color: {accent_color}; border-radius: 3px;")
+            item_layout.addWidget(dot, alignment=Qt.AlignmentFlag.AlignVCenter)
+            
+            # Message
+            msg = QLabel(log["message"])
+            msg.setWordWrap(True)
+            msg.setStyleSheet("color: #e1e1e6; font-size: 12px; background: transparent;")
+            item_layout.addWidget(msg, 1)
+            
+            item = QListWidgetItem()
+            item.setSizeHint(item_widget.sizeHint())
+            self.list_widget.addItem(item)
+            self.list_widget.setItemWidget(item, item_widget)
+
+    def clear_all(self):
+        self.manager.history.clear()
+        if self.manager.on_history_changed:
+            self.manager.on_history_changed()
+        self.populate_history()
+
+    def showEvent(self, event):
+        super().showEvent(event)
+        self.position_above_bell()
+        self.populate_history()
+
+    def position_above_bell(self):
+        # Position right above the notification button
+        active_window = self.parent() or QApplication.activeWindow()
+        if active_window and hasattr(active_window, "statusBar"):
+            status_bar = active_window.statusBar
+            # Find the notification button global position
+            if hasattr(status_bar, "notification_btn"):
+                btn = status_bar.notification_btn
+                btn_pos = btn.mapToGlobal(QPoint(0, 0))
+                # Position drawer centered above the bell
+                x = btn_pos.x() - self.width() + btn.width() + 10
+                y = btn_pos.y() - self.height() - 5
+                self.move(x, y)
