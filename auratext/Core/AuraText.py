@@ -234,6 +234,11 @@ class CodeEditor(QsciScintilla):
             Qt.Key.Key_Backtab,
         }
 
+        # Check if bracket close is enabled in window configuration
+        active_window = self.window()
+        config = getattr(active_window, "_config", {})
+        brckt_close = config.get("brckt_close", "true").lower() == "true"
+
         BRACKET_PAIRS = {
             '(': ')',
             '[': ']',
@@ -251,11 +256,12 @@ class CodeEditor(QsciScintilla):
                 prev_char = line_text[col - 1]
                 next_char = line_text[col] if col < len(line_text) else ""
                 if prev_char in BRACKET_PAIRS and next_char == BRACKET_PAIRS[prev_char]:
-                    # Delete the closing character first
-                    self.SendScintilla(QsciScintilla.SCI_DELETERANGE, self.positionFromLineIndex(line, col), 1)
-                    # Let the default backspace delete the opening character
-                    super().keyPressEvent(event)
-                    return
+                    if brckt_close:
+                        # Delete the closing character first
+                        self.SendScintilla(QsciScintilla.SCI_DELETERANGE, self.positionFromLineIndex(line, col), 1)
+                        # Let the default backspace delete the opening character
+                        super().keyPressEvent(event)
+                        return
 
         char = event.text()
         if char:
@@ -264,12 +270,12 @@ class CodeEditor(QsciScintilla):
             next_char = line_text[col] if col < len(line_text) else ""
 
             # 1. Overwrite/Step-over closing characters
-            if char in CLOSING_CHARS and next_char == char:
+            if brckt_close and char in CLOSING_CHARS and next_char == char:
                 self.setCursorPosition(line, col + 1)
                 return
 
             # 2. Wrapping selection
-            if self.hasSelectedText() and char in BRACKET_PAIRS:
+            if brckt_close and self.hasSelectedText() and char in BRACKET_PAIRS:
                 line_from, index_from, line_to, index_to = self.getSelection()
                 sel_text = self.selectedText()
                 wrapped = char + sel_text + BRACKET_PAIRS[char]
@@ -281,7 +287,7 @@ class CodeEditor(QsciScintilla):
                 return
 
             # 3. Auto-insert pairs
-            if char in BRACKET_PAIRS:
+            if brckt_close and char in BRACKET_PAIRS:
                 # Do not auto-close quotes if the next character is alphanumeric
                 if char in {'"', "'", '`'} and next_char.isalnum():
                     super().keyPressEvent(event)

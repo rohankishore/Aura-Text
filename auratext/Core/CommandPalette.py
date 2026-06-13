@@ -50,6 +50,26 @@ class CommandPalette(QDialog):
         self.setAttribute(Qt.WidgetAttribute.WA_TranslucentBackground)
         self.setFixedSize(620, 370)
 
+        # Resolve config and theme background dynamically
+        active_window = parent or QApplication.activeWindow()
+        config = getattr(active_window, "_config", None)
+        theme_bg = "#1e1d23"
+        if active_window and hasattr(active_window, "_themes"):
+            theme_bg = active_window._themes.get("editor_theme", "#1e1d23")
+
+        if config is None:
+            try:
+                local_app_data, _ = get_appdata_dirs()
+                with open(os.path.join(local_app_data, "data", "config.json"), "r") as config_file:
+                    config = json.load(config_file)
+            except Exception:
+                config = {}
+
+        is_glass = config.get("cmdpaletteglass", "true").lower() == "true"
+        bg_color = "rgba(30, 30, 35, 0.93)" if is_glass else theme_bg
+        input_bg = "rgba(20, 20, 20, 0.6)" if is_glass else "rgba(0, 0, 0, 0.2)"
+        border_color = "rgba(255, 255, 255, 0.15)" if is_glass else "rgba(255, 255, 255, 0.08)"
+
         # Dialog layout (provides space for drop shadow)
         dialog_layout = QVBoxLayout(self)
         dialog_layout.setContentsMargins(10, 10, 10, 10)
@@ -57,42 +77,42 @@ class CommandPalette(QDialog):
         # Floating Container
         self.container = QWidget(self)
         self.container.setObjectName("Container")
-        self.container.setStyleSheet("""
-            QWidget#Container {
-                background-color: rgba(30, 30, 35, 0.93);
-                border: 1px solid rgba(255, 255, 255, 0.15);
+        self.container.setStyleSheet(f"""
+            QWidget#Container {{
+                background-color: {bg_color};
+                border: 1px solid {border_color};
                 border-radius: 12px;
-            }
-            QLineEdit {
-                background-color: rgba(20, 20, 20, 0.6);
+            }}
+            QLineEdit {{
+                background-color: {input_bg};
                 color: #ffffff;
                 border: 1px solid rgba(255, 255, 255, 0.1);
                 border-radius: 8px;
                 padding: 10px 12px;
                 padding-left: 36px;
                 font-size: 14px;
-            }
-            QLineEdit:focus {
+            }}
+            QLineEdit:focus {{
                 border: 1px solid #007acc;
                 background-color: rgba(15, 15, 15, 0.8);
-            }
-            QListWidget {
+            }}
+            QListWidget {{
                 background-color: transparent;
                 border: none;
                 outline: none;
-            }
-            QListWidget::item {
+            }}
+            QListWidget::item {{
                 background-color: transparent;
                 border-radius: 6px;
                 margin: 2px 4px;
-            }
-            QListWidget::item:hover {
+            }}
+            QListWidget::item:hover {{
                 background-color: rgba(255, 255, 255, 0.08);
-            }
-            QListWidget::item:selected {
+            }}
+            QListWidget::item:selected {{
                 background-color: rgba(0, 122, 204, 0.35);
                 border: 1px solid rgba(0, 122, 204, 0.5);
-            }
+            }}
         """)
 
         # Add Drop Shadow
