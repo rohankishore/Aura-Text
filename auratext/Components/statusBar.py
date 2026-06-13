@@ -245,3 +245,12 @@ class StatusBar(QStatusBar):
             # Add it on the left (index 0 or default left-side addWidget)
             self.addWidget(self.breadcrumb_widget)
             self.breadcrumb_widget.show()
+
+    def toggle_notification_drawer(self):
+        from auratext.Components.Toast import NotificationDrawer
+        parent_window = self.window()
+        if hasattr(parent_window, "toast_manager"):
+            drawer = NotificationDrawer(parent_window.toast_manager, parent_window)
+            drawer.exec()
+            # Clear badge when opened
+            self.notification_btn.set_unread(False)
