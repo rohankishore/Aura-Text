@@ -274,7 +274,10 @@ class CodeEditor(QsciScintilla):
                 sel_text = self.selectedText()
                 wrapped = char + sel_text + BRACKET_PAIRS[char]
                 self.replaceSelectedText(wrapped)
-                self.setSelection(line_from, index_from, line_to, index_to + 2)
+                if line_from == line_to:
+                    self.setSelection(line_from, index_from, line_to, index_to + 2)
+                else:
+                    self.setSelection(line_from, index_from, line_to, index_to + 1)
                 return
 
             # 3. Auto-insert pairs
