@@ -131,6 +131,7 @@ class CommandPalette(QDialog):
 
         # Search Input
         self.search_input = QLineEdit()
+        self.command_input = self.search_input
         self.search_input.setPlaceholderText("Type a command...")
         self.search_input.textChanged.connect(self.filter_commands)
         self.search_input.returnPressed.connect(self.execute_selected)
