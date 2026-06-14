@@ -39,6 +39,35 @@ class ConfigPage(QWidget):
 
         # Create the settings tab widget
         self.settings_tabs = QTabWidget(self)
+        self.settings_list = []
+
+        # --- Search Bar Setup ---
+        self.search_bar = QLineEdit()
+        self.search_bar.setPlaceholderText("Search settings...")
+        self.search_bar.textChanged.connect(self.filter_settings)
+        theme_type = self._window._themes.get("theme_type", "dark")
+        if theme_type == "light":
+            search_bg = "#f0f0f0"
+            search_color = "#000000"
+            search_border = "#cccccc"
+        else:
+            search_bg = "#1e1e1e"
+            search_color = "#ffffff"
+            search_border = "#333333"
+        self.search_bar.setStyleSheet(
+            f"QLineEdit {{"
+            f"   border-radius: 8px;"
+            f"   padding: 8px 12px;"
+            f"   background-color: {search_bg};"
+            f"   color: {search_color};"
+            f"   border: 1px solid {search_border};"
+            f"   font-size: 13px;"
+            f"}}"
+            f"QLineEdit:focus {{"
+            f"   border: 1px solid #007acc;"
+            f"}}"
+        )
+        main_layout.addWidget(self.search_bar)
 
         # --- Appearance Tab Setup ---
         theme_tab = QWidget()
@@ -98,10 +127,12 @@ class ConfigPage(QWidget):
         form_layout = QFormLayout(keybinding_form_widget)
         self.keybinding_inputs = {}
         for key, label in self._window.get_keybinding_items():
+            lbl_widget = QLabel(label)
             sequence_editor = QKeySequenceEdit()
             sequence_editor.setKeySequence(QKeySequence(self._window._shortcuts.get(key, "")))
             self.keybinding_inputs[key] = sequence_editor
-            form_layout.addRow(label, sequence_editor)
+            form_layout.addRow(lbl_widget, sequence_editor)
+            self.settings_list.append((label, [lbl_widget, sequence_editor]))
         self.keybinding_layout.addWidget(keybinding_form_widget)
 
         # Add buttons inside Keybindings Tab
@@ -146,6 +177,7 @@ class ConfigPage(QWidget):
         self.theming_combobox.addItems(theme_opt)
         self.theme_layout.addWidget(theming_label)
         self.theme_layout.addWidget(self.theming_combobox)
+        self.settings_list.append(("Theming Type", [theming_label, self.theming_combobox]))
 
         # Titlebar Type
         self.titlebar_label = QLabel("Titlebar Type")
@@ -165,6 +197,7 @@ class ConfigPage(QWidget):
         self.titlebar.addItems(titlebar_opt)
         self.theme_layout.addWidget(self.titlebar_label)
         self.theme_layout.addWidget(self.titlebar)
+        self.settings_list.append(("Titlebar Type", [self.titlebar_label, self.titlebar]))
 
         # Theme
         theme_label = QLabel("Theme Color:")
@@ -172,6 +205,7 @@ class ConfigPage(QWidget):
         self.theme_input.setText(self._window._themes["theme"])
         self.theme_layout.addWidget(theme_label)
         self.theme_layout.addWidget(self.theme_input)
+        self.settings_list.append(("Theme Color", [theme_label, self.theme_input]))
 
         theme_label1 = QLabel("Theme Mode:")
         self.theme_combobox = QComboBox()
@@ -180,6 +214,7 @@ class ConfigPage(QWidget):
         self.theme_combobox.setCurrentText(self._window._themes["theme_type"])
         self.theme_layout.addWidget(theme_label1)
         self.theme_layout.addWidget(self.theme_combobox)
+        self.settings_list.append(("Theme Mode", [theme_label1, self.theme_combobox]))
 
         # Sidebar Theme
         sidebar_theme_label = QLabel("Sidebar Background:")
@@ -187,6 +222,7 @@ class ConfigPage(QWidget):
         self.sidebar_theme_input.setText(self._window._themes["sidebar_bg"])
         self.theme_layout.addWidget(sidebar_theme_label)
         self.theme_layout.addWidget(self.sidebar_theme_input)
+        self.settings_list.append(("Sidebar Background", [sidebar_theme_label, self.sidebar_theme_input]))
 
         # MenuBar Theme
         menubar_theme_label = QLabel("MenuBar Background:")
@@ -194,6 +230,7 @@ class ConfigPage(QWidget):
         self.menubar_theme_input.setText(self._window._themes["menubar_bg"])
         self.theme_layout.addWidget(menubar_theme_label)
         self.theme_layout.addWidget(self.menubar_theme_input)
+        self.settings_list.append(("MenuBar Background", [menubar_theme_label, self.menubar_theme_input]))
 
         # Margin Theme
         margin_theme_label = QLabel("Margin Background:")
@@ -201,6 +238,7 @@ class ConfigPage(QWidget):
         self.margin_theme_input.setText(self._window._themes["margin_theme"])
         self.theme_layout.addWidget(margin_theme_label)
         self.theme_layout.addWidget(self.margin_theme_input)
+        self.settings_list.append(("Margin Background", [margin_theme_label, self.margin_theme_input]))
 
         # --- Populate Editor Settings ---
         self.editor_grouping = QGroupBox("Editor Theming")
@@ -215,12 +253,14 @@ class ConfigPage(QWidget):
         self.editor_theme_input.setText(self._window._themes["editor_theme"])
         self.editor_layout.addWidget(editor_theme_label)
         self.editor_layout.addWidget(self.editor_theme_input)
+        self.settings_list.append(("Editor Background", [editor_theme_label, self.editor_theme_input]))
 
         minimap_theme_label = QLabel("Minimap Background:")
         self.minimap_theme_input = QLineEdit()
         self.minimap_theme_input.setText(self._window._themes["minimap_theme"])
         self.editor_layout.addWidget(minimap_theme_label)
         self.editor_layout.addWidget(self.minimap_theme_input)
+        self.settings_list.append(("Minimap Background", [minimap_theme_label, self.minimap_theme_input]))
 
         # Lines Background
         lines_theme_label = QLabel("Line Number Background:")
@@ -228,6 +268,7 @@ class ConfigPage(QWidget):
         self.lines_theme_input.setText(self._window._themes["lines_theme"])
         self.editor_layout.addWidget(lines_theme_label)
         self.editor_layout.addWidget(self.lines_theme_input)
+        self.settings_list.append(("Line Number Background", [lines_theme_label, self.lines_theme_input]))
 
         # Lines Foreground
         lines_fg_label = QLabel("Line Number Foreground:")
@@ -235,6 +276,7 @@ class ConfigPage(QWidget):
         self.lines_fg_input.setText(self._window._themes["lines_fg"])
         self.editor_layout.addWidget(lines_fg_label)
         self.editor_layout.addWidget(self.lines_fg_input)
+        self.settings_list.append(("Line Number Foreground", [lines_fg_label, self.lines_fg_input]))
 
         # Get the list of installed fonts
         font_names = self.get_installed_fonts()
@@ -248,6 +290,7 @@ class ConfigPage(QWidget):
             self.font_theme_combobox.setCurrentText(current_font_theme)
         self.editor_layout.addWidget(font_theme_label)
         self.editor_layout.addWidget(self.font_theme_combobox)
+        self.settings_list.append(("Font Theme", [font_theme_label, self.font_theme_combobox]))
 
         self.editor_behaviour = QGroupBox("Editor Behaviour")
         editor_tab_layout.addWidget(self.editor_behaviour)
@@ -257,6 +300,7 @@ class ConfigPage(QWidget):
 
         self.brcktclose = QCheckBox("Intelligent Auto-Close Brackets & Quotes")
         editor_behaviour_layout.addWidget(self.brcktclose)
+        self.settings_list.append(("Intelligent Auto-Close Brackets & Quotes", [self.brcktclose]))
 
         if self._window._config.get("brckt_close", "true").lower() == "true":
             self.brcktclose.setChecked(True)
@@ -265,6 +309,7 @@ class ConfigPage(QWidget):
 
         self.cmdpaletteglass = QCheckBox("Glassmorphism in Command Palette")
         editor_behaviour_layout.addWidget(self.cmdpaletteglass)
+        self.settings_list.append(("Glassmorphism in Command Palette", [self.cmdpaletteglass]))
 
         if self._window._config.get("cmdpaletteglass", "true").lower() == "true":
             self.cmdpaletteglass.setChecked(True)
@@ -290,6 +335,7 @@ class ConfigPage(QWidget):
         self.breadcrumbs.checkStateChanged.connect(self.triggerBC) # trigger when unchecked/checked
         addon_group_layout.addWidget(self.breadcrumbs)
         addon_group_layout.addWidget(self.bc_area)
+        self.settings_list.append(("Show Breadcrumb Explorer", [self.breadcrumbs, self.bc_area]))
 
         # --- Populate Behaviour Settings ---
         self.behaviour_grouping = QGroupBox("Behaviour Options")
@@ -302,18 +348,22 @@ class ConfigPage(QWidget):
         self.splash_checkbox = QCheckBox("Show Adaptive Splash Screens")
         self.splash_checkbox.setChecked(config.get("splash", "True") == "True")
         self.behaviour_layout.addWidget(self.splash_checkbox)
+        self.settings_list.append(("Show Adaptive Splash Screens", [self.splash_checkbox]))
 
         self.ttips_checkbox = QCheckBox("Show Tips in Terminal")
         self.ttips_checkbox.setChecked(config.get("terminal_tips", "True") == "True")
         self.behaviour_layout.addWidget(self.ttips_checkbox)
+        self.settings_list.append(("Show Tips in Terminal", [self.ttips_checkbox]))
 
         self.expopen_checkbox = QCheckBox("Show Explorer on Startup")
         self.expopen_checkbox.setChecked(config.get("explorer_default_open", "True") == "True")
         self.behaviour_layout.addWidget(self.expopen_checkbox)
+        self.settings_list.append(("Show Explorer on Startup", [self.expopen_checkbox]))
 
         self.open_last_file_checkbox = QCheckBox("Open the last opened file at startup")
         self.open_last_file_checkbox.setChecked(config.get("open_last_file", "True") == "True")
         self.behaviour_layout.addWidget(self.open_last_file_checkbox)
+        self.settings_list.append(("Open the last opened file at startup", [self.open_last_file_checkbox]))
 
         if config.get("breadcrumbs_show", "false").lower() == "true":
             self.breadcrumbs.setChecked(True)
@@ -350,6 +400,46 @@ class ConfigPage(QWidget):
         )
         save_button.clicked.connect(self.save_json)
         main_layout.addWidget(save_button)
+
+    def filter_settings(self, text):
+        query = text.lower().strip()
+        
+        # 1. Show all widgets if query is empty
+        if not query:
+            for label_text, widgets in self.settings_list:
+                for widget in widgets:
+                    widget.show()
+            self.theme_grouping.show()
+            self.editor_grouping.show()
+            self.editor_behaviour.show()
+            self.addongroup.show()
+            self.behaviour_grouping.show()
+            self.triggerBC()
+            return
+
+        # 2. Filter matching widgets
+        for label_text, widgets in self.settings_list:
+            matches = query in label_text.lower()
+            for widget in widgets:
+                widget.setVisible(matches)
+
+        # 3. Check group boxes visibility based on their children
+        group_boxes = [
+            self.theme_grouping,
+            self.editor_grouping,
+            self.editor_behaviour,
+            self.addongroup,
+            self.behaviour_grouping
+        ]
+        
+        for gb in group_boxes:
+            has_visible_child = False
+            for child in gb.findChildren(QWidget):
+                if child.__class__.__name__ in ["QLabel", "QLineEdit", "QComboBox", "QCheckBox", "QKeySequenceEdit"]:
+                    if child.isVisible():
+                        has_visible_child = True
+                        break
+            gb.setVisible(has_visible_child)
 
     def triggerBC(self):
         if self.breadcrumbs.isChecked():
@@ -424,38 +514,44 @@ class ConfigPage(QWidget):
             editor.setKeySequence(QKeySequence(defaults.get(key, "")))
 
     def material_theme_settings(self):
-        self.materialconfig_label = QLabel("Material Theme Type")
-        self.materialconfig_combobox = QComboBox()
+        if not hasattr(self, "materialconfig_label"):
+            self.materialconfig_label = QLabel("Material Theme Type")
+            self.materialconfig_combobox = QComboBox()
+            theme_opt = ['dark_amber',
+                         'dark_blue',
+                         'dark_cyan',
+                         'dark_lightgreen',
+                         'dark_pink',
+                         'dark_purple',
+                         'dark_red',
+                         'dark_teal',
+                         'dark_yellow',
+                         'light_amber',
+                         'light_blue',
+                         'light_cyan',
+                         'light_cyan_500',
+                         'light_lightgreen',
+                         'light_pink',
+                         'light_purple',
+                         'light_red',
+                         'light_teal',
+                         'light_yellow']
+            self.materialconfig_combobox.addItems(theme_opt)
+            self.theme_layout.addWidget(self.materialconfig_label)
+            self.theme_layout.addWidget(self.materialconfig_combobox)
+            self.settings_list.append(("Material Theme Type", [self.materialconfig_label, self.materialconfig_combobox]))
+
+        self.materialconfig_label.show()
+        self.materialconfig_combobox.show()
         self.materialconfig_combobox.setCurrentText(self._window._themes["material_type"])
-        theme_opt = ['dark_amber',
-                     'dark_blue',
-                     'dark_cyan',
-                     'dark_lightgreen',
-                     'dark_pink',
-                     'dark_purple',
-                     'dark_red',
-                     'dark_teal',
-                     'dark_yellow',
-                     'light_amber',
-                     'light_blue',
-                     'light_cyan',
-                     'light_cyan_500',
-                     'light_lightgreen',
-                     'light_pink',
-                     'light_purple',
-                     'light_red',
-                     'light_teal',
-                     'light_yellow']
-        self.materialconfig_combobox.addItems(theme_opt)
-        self.theme_layout.addWidget(self.materialconfig_label)
-        self.theme_layout.addWidget(self.materialconfig_combobox)
 
     def theming_shift(self):
         if self.theming_combobox.currentText() == "Material":
             self.material_theme_settings()
         else:
-            self.materialconfig_label.hide()
-            self.materialconfig_combobox.hide()
+            if hasattr(self, "materialconfig_label"):
+                self.materialconfig_label.hide()
+                self.materialconfig_combobox.hide()
 
     # @staticmethod
     if platform.system() == "Windows":
