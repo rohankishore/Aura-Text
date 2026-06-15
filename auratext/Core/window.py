@@ -1151,6 +1151,192 @@ class Window(QMainWindow):
         # Execute the original action
         action()
 
+class VSCodeIconProvider(QFileIconProvider):
+    def __init__(self):
+        super().__init__()
+        self.icon_cache = {}
+
+    def icon(self, file_info):
+        if isinstance(file_info, QFileIconProvider.IconType):
+            return super().icon(file_info)
+
+        path = file_info.absoluteFilePath()
+        is_dir = file_info.isDir()
+
+        cache_key = (path, is_dir)
+        if cache_key in self.icon_cache:
+            return self.icon_cache[cache_key]
+
+        icon = self._create_icon(file_info, is_dir)
+        self.icon_cache[cache_key] = icon
+        return icon
+
+    def _create_icon(self, file_info, is_dir):
+        if is_dir:
+            return self._draw_folder_icon()
+        else:
+            ext = file_info.suffix().lower()
+            if ext == "py":
+                return self._draw_python_icon()
+            elif ext == "json":
+                return self._draw_json_icon()
+            elif ext in ("db", "sqlite", "sqlite3"):
+                return self._draw_db_icon()
+            elif ext in ("txt", "log", "md", "qss", "css", "html", "js", "ts"):
+                return self._draw_text_icon()
+            else:
+                return self._draw_default_file_icon()
+
+    def _draw_folder_icon(self):
+        pixmap = QPixmap(16, 16)
+        pixmap.fill(Qt.GlobalColor.transparent)
+        painter = QPainter(pixmap)
+        painter.setRenderHint(QPainter.RenderHint.Antialiasing)
+
+        # Draw outline folder
+        pen = QPen(QColor("#70a5eb"), 1.2)
+        painter.setPen(pen)
+        painter.setBrush(QBrush(QColor(112, 165, 235, 30))) # semi-transparent blue
+
+        # Folder tab
+        painter.drawRoundedRect(2, 2, 5, 3, 1, 1)
+        # Folder body
+        painter.drawRoundedRect(2, 4, 12, 9, 1.2, 1.2)
+
+        painter.end()
+        return QIcon(pixmap)
+
+    def _draw_python_icon(self):
+        pixmap = QPixmap(16, 16)
+        pixmap.fill(Qt.GlobalColor.transparent)
+        painter = QPainter(pixmap)
+        painter.setRenderHint(QPainter.RenderHint.Antialiasing)
+
+        # Python-like snake shapes
+        painter.setPen(Qt.PenStyle.NoPen)
+        
+        # Blue snake
+        painter.setBrush(QBrush(QColor("#3572A5")))
+        painter.drawRoundedRect(3, 2, 7, 5, 2, 2)
+        painter.drawRoundedRect(5, 5, 5, 4, 2, 2)
+
+        # Yellow/Green snake
+        painter.setBrush(QBrush(QColor("#FFD43B")))
+        painter.drawRoundedRect(6, 9, 7, 5, 2, 2)
+        painter.drawRoundedRect(6, 7, 5, 4, 2, 2)
+
+        # Eyes
+        painter.setBrush(QBrush(QColor("#ffffff")))
+        painter.drawEllipse(5, 3, 1, 1)
+        painter.drawEllipse(10, 12, 1, 1)
+
+        painter.end()
+        return QIcon(pixmap)
+
+    def _draw_json_icon(self):
+        pixmap = QPixmap(16, 16)
+        pixmap.fill(Qt.GlobalColor.transparent)
+        painter = QPainter(pixmap)
+        painter.setRenderHint(QPainter.RenderHint.Antialiasing)
+
+        # Yellow curly braces
+        painter.setPen(QColor("#fbc02d"))
+        font = painter.font()
+        font.setPixelSize(12)
+        font.setBold(True)
+        painter.setFont(font)
+        painter.drawText(1, 12, "{ }")
+
+        painter.end()
+        return QIcon(pixmap)
+
+    def _draw_db_icon(self):
+        pixmap = QPixmap(16, 16)
+        pixmap.fill(Qt.GlobalColor.transparent)
+        painter = QPainter(pixmap)
+        painter.setRenderHint(QPainter.RenderHint.Antialiasing)
+
+        color = QColor("#ec407a")
+        painter.setPen(QPen(color, 1.2))
+        painter.setBrush(QBrush(QColor(236, 64, 122, 20)))
+
+        # Stacked ellipses
+        painter.drawEllipse(3, 2, 10, 4)
+        painter.drawEllipse(3, 6, 10, 4)
+        painter.drawEllipse(3, 10, 10, 4)
+
+        # Side lines
+        painter.drawLine(3, 4, 3, 12)
+        painter.drawLine(13, 4, 13, 12)
+
+        painter.end()
+        return QIcon(pixmap)
+
+    def _draw_text_icon(self):
+        pixmap = QPixmap(16, 16)
+        pixmap.fill(Qt.GlobalColor.transparent)
+        painter = QPainter(pixmap)
+        painter.setRenderHint(QPainter.RenderHint.Antialiasing)
+
+        painter.setPen(QPen(QColor("#90a4ae"), 1.2))
+        painter.setBrush(QBrush(QColor(144, 164, 174, 20)))
+
+        painter.drawRect(3, 2, 10, 12)
+
+        painter.setPen(QPen(QColor("#90a4ae"), 1))
+        painter.drawLine(5, 5, 11, 5)
+        painter.drawLine(5, 8, 11, 8)
+        painter.drawLine(5, 11, 9, 11)
+
+        painter.end()
+        return QIcon(pixmap)
+
+    def _draw_default_file_icon(self):
+        pixmap = QPixmap(16, 16)
+        pixmap.fill(Qt.GlobalColor.transparent)
+        painter = QPainter(pixmap)
+        painter.setRenderHint(QPainter.RenderHint.Antialiasing)
+
+        painter.setPen(QPen(QColor("#aaaaaa"), 1.2))
+        painter.setBrush(Qt.BrushStyle.NoBrush)
+        painter.drawRect(4, 2, 8, 12)
+
+        painter.end()
+        return QIcon(pixmap)
+
+
+from PyQt6.QtCore import QSortFilterProxyModel
+
+class RootFolderFilterProxyModel(QSortFilterProxyModel):
+    def __init__(self, root_path, parent=None):
+        super().__init__(parent)
+        self.set_root_path(root_path)
+
+    def set_root_path(self, root_path):
+        self.root_path = os.path.abspath(root_path)
+        self.parent_path = os.path.dirname(self.root_path)
+        self.invalidateFilter()
+
+    def filterAcceptsRow(self, source_row, source_parent):
+        source_model = self.sourceModel()
+        if not source_model:
+            return True
+
+        parent_path = os.path.abspath(source_model.filePath(source_parent))
+        file_info = source_model.fileInfo(source_model.index(source_row, 0, source_parent))
+        file_path = os.path.abspath(file_info.absoluteFilePath())
+
+        if parent_path == self.parent_path:
+            return file_path == self.root_path
+
+        if file_path == self.root_path:
+            return True
+        if file_path.startswith(self.root_path + os.sep) or file_path.startswith(self.root_path.replace('/', '\\') + '\\'):
+            return True
+
+        return False
+
+
     def expandSidebar__Explorer(self, project_path=None):
         root_path = (project_path if project_path is not None else cpath).strip()
         if not root_path:
@@ -1163,27 +1349,141 @@ class Window(QMainWindow):
                 lambda visible: self.onExplorerDockVisibilityChanged(visible)
             )
             self.dock.setAllowedAreas(Qt.DockWidgetArea.AllDockWidgetAreas)
+            
+            # Hide native dock title bar
+            self.dock.setTitleBarWidget(QWidget())
 
             self.explorer_tree_view = QTreeView()
+            self.explorer_tree_view.setHeaderHidden(True)
+            self.explorer_tree_view.setIndentation(18)
             self.model = QFileSystemModel()
+            self.model.setIconProvider(VSCodeIconProvider())
+            
+            self.proxy_model = RootFolderFilterProxyModel(root_path)
+            self.proxy_model.setSourceModel(self.model)
+            
             bg = self._themes["sidebar_bg"]
-            self.explorer_tree_view.setStyleSheet(
-                f"QTreeView {{background-color: {bg}; color: white; border: none; }}"
-            )
-            self.explorer_tree_view.setModel(self.model)
-            self.dock.setWidget(self.explorer_tree_view)
+            self.explorer_tree_view.setStyleSheet(f"""
+                QTreeView {{
+                    background-color: {bg};
+                    color: #cccccc;
+                    border: none;
+                    outline: none;
+                }}
+                QTreeView::item {{
+                    padding: 4px;
+                    border-radius: 3px;
+                }}
+                QTreeView::item:hover {{
+                    background-color: rgba(255, 255, 255, 0.05);
+                    color: #ffffff;
+                }}
+                QTreeView::item:selected {{
+                    background-color: rgba(255, 255, 255, 0.08);
+                    color: #ffffff;
+                }}
+                QTreeView::branch {{
+                    background-color: transparent;
+                }}
+                QTreeView::branch:has-siblings:!adjoining-item {{
+                    border-image: none;
+                    border-left: 1px solid rgba(255, 255, 255, 0.08);
+                }}
+                QTreeView::branch:has-siblings:adjoining-item {{
+                    border-image: none;
+                    border-left: 1px solid rgba(255, 255, 255, 0.08);
+                }}
+                QTreeView::branch:!has-children:!has-siblings:adjoining-item {{
+                    border-image: none;
+                    border-left: 1px solid rgba(255, 255, 255, 0.08);
+                }}
+                QTreeView::branch:has-children:closed:has-members {{
+                    border-image: none;
+                    image: url("{local_app_data.replace('\\', '/')}/icons/collapsed_chevron.svg");
+                }}
+                QTreeView::branch:has-children:open:has-members {{
+                    border-image: none;
+                    image: url("{local_app_data.replace('\\', '/')}/icons/expanded_chevron.svg");
+                }}
+            """)
+            self.explorer_tree_view.setModel(self.proxy_model)
+            
+            # Create explorer layout with custom VS Code-like header
+            dock_container = QWidget()
+            dock_layout = QVBoxLayout(dock_container)
+            dock_layout.setContentsMargins(0, 0, 0, 0)
+            dock_layout.setSpacing(0)
+            
+            # Custom title bar
+            title_bar = QWidget()
+            title_bar.setStyleSheet(f"""
+                QWidget {{
+                    background-color: {bg};
+                    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+                }}
+            """)
+            title_layout = QHBoxLayout(title_bar)
+            title_layout.setContentsMargins(12, 6, 12, 6)
+            title_layout.setSpacing(6)
+            
+            title_label = QLabel("Explorer")
+            title_label.setStyleSheet(f"""
+                color: #cccccc;
+                font-weight: bold;
+                font-size: 11px;
+                text-transform: uppercase;
+                border: none;
+            """)
+            
+            menu_btn = QPushButton("...")
+            menu_btn.setFixedSize(20, 20)
+            menu_btn.setStyleSheet(f"""
+                QPushButton {{
+                    color: #cccccc;
+                    border: none;
+                    background: transparent;
+                    font-size: 14px;
+                    font-weight: bold;
+                }}
+                QPushButton:hover {{
+                    background-color: rgba(255, 255, 255, 0.1);
+                    border-radius: 3px;
+                }}
+            """)
+            
+            title_layout.addWidget(title_label)
+            title_layout.addStretch()
+            title_layout.addWidget(menu_btn)
+            
+            dock_layout.addWidget(title_bar)
+            dock_layout.addWidget(self.explorer_tree_view)
+            
+            self.dock.setWidget(dock_container)
             self.addDockWidget(Qt.DockWidgetArea.LeftDockWidgetArea, self.dock)
             self.splitDockWidget(self.sidebar_main, self.dock, Qt.Orientation.Horizontal)
-
+ 
             self.explorer_tree_view.setFont(get_font_for_platform(plain=True))
             self.explorer_tree_view.setColumnHidden(1, True)  # File type column
             self.explorer_tree_view.setColumnHidden(2, True)  # Size column
             self.explorer_tree_view.setColumnHidden(3, True)  # Date modified column
             self.explorer_tree_view.doubleClicked.connect(self.open_file)
             self.explorer_tree_view.setExpandsOnDoubleClick(False)
-
+ 
         self.model.setRootPath(root_path)
-        self.explorer_tree_view.setRootIndex(self.model.index(root_path))
+        if hasattr(self, 'proxy_model'):
+            self.proxy_model.set_root_path(root_path)
+        
+        # Set root index to parent of root_path so root folder is displayed in the tree
+        parent_path = os.path.dirname(root_path)
+        parent_idx = self.model.index(parent_path)
+        parent_proxy_idx = self.proxy_model.mapFromSource(parent_idx)
+        self.explorer_tree_view.setRootIndex(parent_proxy_idx)
+        
+        # Auto-expand the root folder
+        root_idx = self.model.index(root_path)
+        root_proxy_idx = self.proxy_model.mapFromSource(root_idx)
+        self.explorer_tree_view.expand(root_proxy_idx)
+        
         self.dock.show()
         self.dock.raise_()
 
@@ -1750,7 +2050,10 @@ class Window(QMainWindow):
     def open_file(self, index):
         if not self.model:
             return
-        path = self.model.filePath(index)
+        source_idx = index
+        if hasattr(self, 'proxy_model') and self.proxy_model:
+            source_idx = self.proxy_model.mapToSource(index)
+        path = self.model.filePath(source_idx)
         self.open_file_from_path(path, index=index)
 
     def open_file_from_path(self, path, index=None):
@@ -1789,12 +2092,19 @@ class Window(QMainWindow):
         except FileNotFoundError:
             return
         except IsADirectoryError:
-            if self.explorer_tree_view.isExpanded(index):
-                self.explorer_tree_view.collapse(index)
-                print("Collapsing directory:", self.model.filePath(index))
-            else:
-                self.explorer_tree_view.setExpanded(index, True)
-                print("Expanding directory:", self.model.filePath(index))
+            if index is not None and self.explorer_tree_view:
+                if self.explorer_tree_view.isExpanded(index):
+                    self.explorer_tree_view.collapse(index)
+                    source_idx = index
+                    if hasattr(self, 'proxy_model') and self.proxy_model:
+                        source_idx = self.proxy_model.mapToSource(index)
+                    print("Collapsing directory:", self.model.filePath(source_idx))
+                else:
+                    self.explorer_tree_view.setExpanded(index, True)
+                    source_idx = index
+                    if hasattr(self, 'proxy_model') and self.proxy_model:
+                        source_idx = self.proxy_model.mapToSource(index)
+                    print("Expanding directory:", self.model.filePath(source_idx))
         except Exception as e:
             messagebox = QMessageBox()
             messagebox.setWindowTitle("Error"), messagebox.setText(
