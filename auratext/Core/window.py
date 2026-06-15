@@ -250,17 +250,20 @@ class RootFolderFilterProxyModel(QSortFilterProxyModel):
         if not source_model:
             return True
 
-        parent_path = os.path.abspath(source_model.filePath(source_parent))
         file_info = source_model.fileInfo(source_model.index(source_row, 0, source_parent))
         file_path = os.path.abspath(file_info.absoluteFilePath())
 
-        if parent_path == self.parent_path:
-            return file_path == self.root_path
+        root = self.root_path.lower().replace('/', '\\')
+        file_p = file_path.lower().replace('/', '\\')
 
-        if file_path == self.root_path:
+        # Descendant check (including equal)
+        if file_p == root or file_p.startswith(root + '\\'):
             return True
-        if file_path.startswith(self.root_path + os.sep) or file_path.startswith(self.root_path.replace('/', '\\') + '\\'):
-            return True
+
+        # Ancestor check
+        if root.startswith(file_p):
+            if len(file_p) <= 3 or root[len(file_p)] == '\\':
+                return True
 
         return False
 
