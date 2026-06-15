@@ -1,3 +1,5 @@
+from PyQt6.QtGui import QPainter
+from PyQt6.QtWidgets import QFileIconProvider
 import datetime
 import importlib
 import json
@@ -1363,6 +1365,7 @@ class RootFolderFilterProxyModel(QSortFilterProxyModel):
             self.proxy_model.setSourceModel(self.model)
             
             bg = self._themes["sidebar_bg"]
+            local_app_data_path = local_app_data.replace('\\', '/')
             self.explorer_tree_view.setStyleSheet(f"""
                 QTreeView {{
                     background-color: {bg};
@@ -1399,11 +1402,11 @@ class RootFolderFilterProxyModel(QSortFilterProxyModel):
                 }}
                 QTreeView::branch:has-children:closed:has-members {{
                     border-image: none;
-                    image: url("{local_app_data.replace('\\', '/')}/icons/collapsed_chevron.svg");
+                    image: url("{local_app_data_path}/icons/collapsed_chevron.svg");
                 }}
                 QTreeView::branch:has-children:open:has-members {{
                     border-image: none;
-                    image: url("{local_app_data.replace('\\', '/')}/icons/expanded_chevron.svg");
+                    image: url("{local_app_data_path}/icons/expanded_chevron.svg");
                 }}
             """)
             self.explorer_tree_view.setModel(self.proxy_model)
