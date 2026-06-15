@@ -326,7 +326,7 @@ class CodeEditor(QsciScintilla):
         if modified:
             # Add the star if it's not already there
             if not current_title.endswith(" *"):
-                window_inst.tab_widget.setTabText(index, f"{current_title} *")
+                window_inst.tab_widget.setTabText(index, f"{current_title} •")
         else:
             # Remove the star if it is there
             if current_title.endswith(" *"):
