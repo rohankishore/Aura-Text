@@ -347,7 +347,7 @@ class ConfigPage(QWidget):
         config = self._window._config
 
         self.as_wf = QCheckBox("Autosave on window focus loss")
-        self.as_wf.setChecked(config.get("as_wf", "true") == True)
+        self.as_wf.setChecked(config.get("as_wf", "True").lower() == "true")
         self.behaviour_layout.addWidget(self.as_wf)
         self.settings_list.append(("Autosave on window focus loss", [self.as_wf]))
 
@@ -490,6 +490,7 @@ class ConfigPage(QWidget):
         self._window._config["open_last_file"] = "True" if self.open_last_file_checkbox.isChecked() else "False"
         self._window._config["breadcrumbs_show"] = "True" if self.breadcrumbs.isChecked() else "False"
         self._window._config["brckt_close"] = "True" if self.brcktclose.isChecked() else "False"
+        self._window._config["as_wf"] = "True" if self.as_wf.isChecked() else "False"
 
         with open(f"{self._window.local_app_data}/data/config.json", "w") as config_file:
             json.dump(self._window._config, config_file, indent=4)
