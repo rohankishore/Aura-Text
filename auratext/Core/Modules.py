@@ -369,6 +369,8 @@ def save_document(self, force_dialog=False):
         if hasattr(self, "update_run_button_visibility"):
             self.update_run_button_visibility()
         file.close()
+        if hasattr(self, "toast_manager"):
+            self.toast_manager.show_toast(f"Saved {os.path.basename(file.name)}", "success")
         return
     except FileNotFoundError:
         QMessageBox.warning(self, "File Not Found", "The file you are trying to save does not exist.")
