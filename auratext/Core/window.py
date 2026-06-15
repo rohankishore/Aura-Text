@@ -2663,7 +2663,8 @@ class Window(QMainWindow):
 
     def changeEvent(self, event):
         if event.type() == QEvent.Type.WindowDeactivate:
-            self.autosave_all_modified()
+            if self._config.get("as_wf", "True").lower() == "true":
+                self.autosave_all_modified()
         super().changeEvent(event)
 
     @staticmethod
