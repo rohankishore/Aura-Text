@@ -480,6 +480,13 @@ class ConfigPage(QWidget):
         else:
             self._window._themes["theming"] = "material"
 
+        import re
+        for key, val in list(self._window._themes.items()):
+            if isinstance(val, str) and not val.startswith("#") and len(val.strip()) in (3, 6, 8):
+                clean_val = val.strip()
+                if re.match(r'^[0-9a-fA-F]+$', clean_val):
+                    self._window._themes[key] = f"#{clean_val}"
+
         with open(f"{self._window.local_app_data}/data/theme.json", "w") as json_file:
             json.dump(self._window._themes, json_file)
 

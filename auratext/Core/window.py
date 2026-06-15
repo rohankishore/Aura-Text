@@ -113,6 +113,14 @@ class Window(QMainWindow):
         # theme file
         with open(f"{local_app_data}/data/theme.json", "r") as themes_file:
             self._themes = json.load(themes_file)
+        
+        # Normalize hex colors to start with '#'
+        import re
+        for key, val in list(self._themes.items()):
+            if isinstance(val, str) and not val.startswith("#") and len(val.strip()) in (3, 6, 8):
+                clean_val = val.strip()
+                if re.match(r'^[0-9a-fA-F]+$', clean_val):
+                    self._themes[key] = f"#{clean_val}"
 
         # config file
         with open(f"{local_app_data}/data/config.json", "r") as config_file:
@@ -777,10 +785,10 @@ class Window(QMainWindow):
                 margin-right: 1px;
             }}
 
-            QTabBar::tab:selected {{
-                background: {tab_selected_bg};
-                color: {tab_selected_color};
-                border-top: 2px solid {tab_border_color};
+            QTabBar::tab:selected, QTabBar::tab:top:selected, QTabBar::tab:selected:top, QTabBar::tab:hover:selected {{
+                background: {tab_selected_bg} !important;
+                color: {tab_selected_color} !important;
+                border-top: 2px solid {tab_border_color} !important;
             }}
 
             QTabBar::tab:hover:!selected {{
