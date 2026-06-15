@@ -11,5 +11,6 @@
     "breadcrumbs_show": "true",
     "breadcrumbs_area": "et",
     "brckt_close": "true",
-    "cmdpaletteglass": "true"
+    "cmdpaletteglass": "true",
+    "as_wf": "true"
 }
