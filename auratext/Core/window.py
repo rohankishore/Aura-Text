@@ -239,15 +239,15 @@ class Window(QMainWindow):
         self.sidebar_main.setWidget(self.sidebar_widget)
         self.addDockWidget(Qt.DockWidgetArea.LeftDockWidgetArea, self.sidebar_main)
 
-        self.leftBar = Sidebar("", self)
-        self.leftBar.setTitleBarWidget(QWidget())
-        self.leftBar_widget = QWidget(self.leftBar)
-        self.leftBar_widget.setStyleSheet(f"QWidget{{background-color: {self._themes['sidebar_bg']};}}")
-        self.leftBar_layout = QVBoxLayout(self.leftBar_widget)
-        self.leftBar_layout.addStretch()
-        self.leftBar_layout.setAlignment(Qt.AlignmentFlag.AlignHCenter)
-        self.leftBar.setWidget(self.leftBar_widget)
-        self.addDockWidget(Qt.DockWidgetArea.LeftDockWidgetArea, self.leftBar)
+        # self.leftBar = Sidebar("", self)
+        # self.leftBar.setTitleBarWidget(QWidget())
+        # self.leftBar_widget = QWidget(self.leftBar)
+        # self.leftBar_widget.setStyleSheet(f"QWidget{{background-color: {self._themes['sidebar_bg']};}}")
+        # self.leftBar_layout = QVBoxLayout(self.leftBar_widget)
+        # self.leftBar_layout.addStretch()
+        # self.leftBar_layout.setAlignment(Qt.AlignmentFlag.AlignHCenter)
+        # self.leftBar.setWidget(self.leftBar_widget)
+        # self.addDockWidget(Qt.DockWidgetArea.LeftDockWidgetArea, self.leftBar)
 
         self.statusBar = statusBar.StatusBar(self, greeting=greeting)
         self.setStatusBar(self.statusBar)
@@ -369,8 +369,8 @@ class Window(QMainWindow):
         self.check_git_repo_async(self.cpath)
 
         self.sidebar_layout.addStretch()
-        self.leftBar_layout.addStretch()
-        self.leftBar_layout.addSpacing(45)
+        # self.leftBar_layout.addStretch()
+        # self.leftBar_layout.addSpacing(45)
 
         # Connect the button's clicked signal to the slot
         self.explorer_button.clicked.connect(lambda: self.handle_sidebar_button_click(self.explorer_button, self.expandSidebar__Explorer))
@@ -1146,7 +1146,8 @@ class Window(QMainWindow):
             )
             self.explorer_tree_view.setModel(self.model)
             self.dock.setWidget(self.explorer_tree_view)
-            self.addDockWidget(Qt.DockWidgetArea.RightDockWidgetArea, self.dock)
+            self.addDockWidget(Qt.DockWidgetArea.LeftDockWidgetArea, self.dock)
+            self.splitDockWidget(self.sidebar_main, self.dock, Qt.Orientation.Horizontal)
 
             self.explorer_tree_view.setFont(get_font_for_platform(plain=True))
             self.explorer_tree_view.setColumnHidden(1, True)  # File type column
