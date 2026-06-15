@@ -1462,9 +1462,28 @@ class Window(QMainWindow):
                 }}
             """)
             
+            close_btn = QPushButton("×")
+            close_btn.setFixedSize(20, 20)
+            close_btn.setStyleSheet(f"""
+                QPushButton {{
+                    color: #cccccc;
+                    border: none;
+                    background: transparent;
+                    font-size: 16px;
+                    font-weight: bold;
+                }}
+                QPushButton:hover {{
+                    background-color: rgba(255, 255, 255, 0.1);
+                    border-radius: 3px;
+                    color: #ff5f56;
+                }}
+            """)
+            close_btn.clicked.connect(lambda: self.dock.close())
+            
             title_layout.addWidget(title_label)
             title_layout.addStretch()
             title_layout.addWidget(menu_btn)
+            title_layout.addWidget(close_btn)
             
             dock_layout.addWidget(title_bar)
             dock_layout.addWidget(self.explorer_tree_view)
@@ -1480,20 +1499,17 @@ class Window(QMainWindow):
             self.explorer_tree_view.doubleClicked.connect(self.open_file)
             self.explorer_tree_view.setExpandsOnDoubleClick(False)
  
-        self.model.setRootPath(root_path)
+        parent_path = os.path.dirname(root_path)
+        parent_idx = self.model.setRootPath(parent_path)
+        
         if hasattr(self, 'proxy_model'):
             self.proxy_model.set_root_path(root_path)
         
-        # Set root index to parent of root_path so root folder is displayed in the tree
-        parent_path = os.path.dirname(root_path)
-        parent_idx = self.model.index(parent_path)
         parent_proxy_idx = self.proxy_model.mapFromSource(parent_idx)
         self.explorer_tree_view.setRootIndex(parent_proxy_idx)
         
-        # Auto-expand the root folder
-        root_idx = self.model.index(root_path)
-        root_proxy_idx = self.proxy_model.mapFromSource(root_idx)
-        self.explorer_tree_view.expand(root_proxy_idx)
+        # Auto-expand the root folder after a short delay once model loads it
+        QTimer.singleShot(100, lambda: self.explorer_tree_view.expand(self.proxy_model.mapFromSource(self.model.index(root_path))))
         
         self.dock.show()
         self.dock.raise_()
