@@ -1,4 +1,4 @@
-from PyQt6.QtCore import QMimeData, QPoint, Qt
+from PyQt6.QtCore import QMimeData, QPoint, Qt, QEvent
 from PyQt6.QtGui import QPixmap, QRegion, QAction
 from PyQt6.QtWidgets import QTabWidget, QMenu
 
@@ -10,6 +10,7 @@ class TabWidget(QTabWidget):
         self.tabBar().setMouseTracking(True)
         self.setMovable(True)
         self.setDocumentMode(True)
+        self.tabBar().installEventFilter(self)
         if new:
             TabWidget.setup(self)
 
@@ -66,3 +67,12 @@ class TabWidget(QTabWidget):
 
     def close_all_tabs(self):
         self.clear()
+
+    def eventFilter(self, obj, event):
+        if obj == self.tabBar() and event.type() == QEvent.Type.MouseButtonPress:
+            if event.button() == Qt.MouseButton.MiddleButton:
+                index = self.tabBar().tabAt(event.pos())
+                if index != -1:
+                    self.tabCloseRequested.emit(index)
+                    return True
+        return super().eventFilter(obj, event)
