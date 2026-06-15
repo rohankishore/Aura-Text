@@ -1,3 +1,5 @@
+from PyQt6.QtGui import QBrush
+from PyQt6.QtGui import QPen
 from PyQt6.QtGui import QPainter
 from PyQt6.QtWidgets import QFileIconProvider
 import datetime
