@@ -79,6 +79,192 @@ if not cpath:
 if not cfile:
     cfile = ""
 
+class VSCodeIconProvider(QFileIconProvider):
+    def __init__(self):
+        super().__init__()
+        self.icon_cache = {}
+
+    def icon(self, file_info):
+        if isinstance(file_info, QFileIconProvider.IconType):
+            return super().icon(file_info)
+
+        path = file_info.absoluteFilePath()
+        is_dir = file_info.isDir()
+
+        cache_key = (path, is_dir)
+        if cache_key in self.icon_cache:
+            return self.icon_cache[cache_key]
+
+        icon = self._create_icon(file_info, is_dir)
+        self.icon_cache[cache_key] = icon
+        return icon
+
+    def _create_icon(self, file_info, is_dir):
+        if is_dir:
+            return self._draw_folder_icon()
+        else:
+            ext = file_info.suffix().lower()
+            if ext == "py":
+                return self._draw_python_icon()
+            elif ext == "json":
+                return self._draw_json_icon()
+            elif ext in ("db", "sqlite", "sqlite3"):
+                return self._draw_db_icon()
+            elif ext in ("txt", "log", "md", "qss", "css", "html", "js", "ts"):
+                return self._draw_text_icon()
+            else:
+                return self._draw_default_file_icon()
+
+    def _draw_folder_icon(self):
+        pixmap = QPixmap(16, 16)
+        pixmap.fill(Qt.GlobalColor.transparent)
+        painter = QPainter(pixmap)
+        painter.setRenderHint(QPainter.RenderHint.Antialiasing)
+
+        # Draw outline folder
+        pen = QPen(QColor("#70a5eb"), 1.2)
+        painter.setPen(pen)
+        painter.setBrush(QBrush(QColor(112, 165, 235, 30))) # semi-transparent blue
+
+        # Folder tab
+        painter.drawRoundedRect(2, 2, 5, 3, 1, 1)
+        # Folder body
+        painter.drawRoundedRect(2, 4, 12, 9, 1.2, 1.2)
+
+        painter.end()
+        return QIcon(pixmap)
+
+    def _draw_python_icon(self):
+        pixmap = QPixmap(16, 16)
+        pixmap.fill(Qt.GlobalColor.transparent)
+        painter = QPainter(pixmap)
+        painter.setRenderHint(QPainter.RenderHint.Antialiasing)
+
+        # Python-like snake shapes
+        painter.setPen(Qt.PenStyle.NoPen)
+        
+        # Blue snake
+        painter.setBrush(QBrush(QColor("#3572A5")))
+        painter.drawRoundedRect(3, 2, 7, 5, 2, 2)
+        painter.drawRoundedRect(5, 5, 5, 4, 2, 2)
+
+        # Yellow/Green snake
+        painter.setBrush(QBrush(QColor("#FFD43B")))
+        painter.drawRoundedRect(6, 9, 7, 5, 2, 2)
+        painter.drawRoundedRect(6, 7, 5, 4, 2, 2)
+
+        # Eyes
+        painter.setBrush(QBrush(QColor("#ffffff")))
+        painter.drawEllipse(5, 3, 1, 1)
+        painter.drawEllipse(10, 12, 1, 1)
+
+        painter.end()
+        return QIcon(pixmap)
+
+    def _draw_json_icon(self):
+        pixmap = QPixmap(16, 16)
+        pixmap.fill(Qt.GlobalColor.transparent)
+        painter = QPainter(pixmap)
+        painter.setRenderHint(QPainter.RenderHint.Antialiasing)
+
+        # Yellow curly braces
+        painter.setPen(QColor("#fbc02d"))
+        font = painter.font()
+        font.setPixelSize(12)
+        font.setBold(True)
+        painter.setFont(font)
+        painter.drawText(1, 12, "{ }")
+
+        painter.end()
+        return QIcon(pixmap)
+
+    def _draw_db_icon(self):
+        pixmap = QPixmap(16, 16)
+        pixmap.fill(Qt.GlobalColor.transparent)
+        painter = QPainter(pixmap)
+        painter.setRenderHint(QPainter.RenderHint.Antialiasing)
+
+        color = QColor("#ec407a")
+        painter.setPen(QPen(color, 1.2))
+        painter.setBrush(QBrush(QColor(236, 64, 122, 20)))
+
+        # Stacked ellipses
+        painter.drawEllipse(3, 2, 10, 4)
+        painter.drawEllipse(3, 6, 10, 4)
+        painter.drawEllipse(3, 10, 10, 4)
+
+        # Side lines
+        painter.drawLine(3, 4, 3, 12)
+        painter.drawLine(13, 4, 13, 12)
+
+        painter.end()
+        return QIcon(pixmap)
+
+    def _draw_text_icon(self):
+        pixmap = QPixmap(16, 16)
+        pixmap.fill(Qt.GlobalColor.transparent)
+        painter = QPainter(pixmap)
+        painter.setRenderHint(QPainter.RenderHint.Antialiasing)
+
+        painter.setPen(QPen(QColor("#90a4ae"), 1.2))
+        painter.setBrush(QBrush(QColor(144, 164, 174, 20)))
+
+        painter.drawRect(3, 2, 10, 12)
+
+        painter.setPen(QPen(QColor("#90a4ae"), 1))
+        painter.drawLine(5, 5, 11, 5)
+        painter.drawLine(5, 8, 11, 8)
+        painter.drawLine(5, 11, 9, 11)
+
+        painter.end()
+        return QIcon(pixmap)
+
+    def _draw_default_file_icon(self):
+        pixmap = QPixmap(16, 16)
+        pixmap.fill(Qt.GlobalColor.transparent)
+        painter = QPainter(pixmap)
+        painter.setRenderHint(QPainter.RenderHint.Antialiasing)
+
+        painter.setPen(QPen(QColor("#aaaaaa"), 1.2))
+        painter.setBrush(Qt.BrushStyle.NoBrush)
+        painter.drawRect(4, 2, 8, 12)
+
+        painter.end()
+        return QIcon(pixmap)
+
+
+from PyQt6.QtCore import QSortFilterProxyModel
+
+class RootFolderFilterProxyModel(QSortFilterProxyModel):
+    def __init__(self, root_path, parent=None):
+        super().__init__(parent)
+        self.set_root_path(root_path)
+
+    def set_root_path(self, root_path):
+        self.root_path = os.path.abspath(root_path)
+        self.parent_path = os.path.dirname(self.root_path)
+        self.invalidateFilter()
+
+    def filterAcceptsRow(self, source_row, source_parent):
+        source_model = self.sourceModel()
+        if not source_model:
+            return True
+
+        parent_path = os.path.abspath(source_model.filePath(source_parent))
+        file_info = source_model.fileInfo(source_model.index(source_row, 0, source_parent))
+        file_path = os.path.abspath(file_info.absoluteFilePath())
+
+        if parent_path == self.parent_path:
+            return file_path == self.root_path
+
+        if file_path == self.root_path:
+            return True
+        if file_path.startswith(self.root_path + os.sep) or file_path.startswith(self.root_path.replace('/', '\\') + '\\'):
+            return True
+
+        return False
+
+
 class Sidebar(QDockWidget):
     def __init__(self, title, parent=None):
         super().__init__(title, parent)
@@ -1155,190 +1341,7 @@ class Window(QMainWindow):
         # Execute the original action
         action()
 
-class VSCodeIconProvider(QFileIconProvider):
-    def __init__(self):
-        super().__init__()
-        self.icon_cache = {}
 
-    def icon(self, file_info):
-        if isinstance(file_info, QFileIconProvider.IconType):
-            return super().icon(file_info)
-
-        path = file_info.absoluteFilePath()
-        is_dir = file_info.isDir()
-
-        cache_key = (path, is_dir)
-        if cache_key in self.icon_cache:
-            return self.icon_cache[cache_key]
-
-        icon = self._create_icon(file_info, is_dir)
-        self.icon_cache[cache_key] = icon
-        return icon
-
-    def _create_icon(self, file_info, is_dir):
-        if is_dir:
-            return self._draw_folder_icon()
-        else:
-            ext = file_info.suffix().lower()
-            if ext == "py":
-                return self._draw_python_icon()
-            elif ext == "json":
-                return self._draw_json_icon()
-            elif ext in ("db", "sqlite", "sqlite3"):
-                return self._draw_db_icon()
-            elif ext in ("txt", "log", "md", "qss", "css", "html", "js", "ts"):
-                return self._draw_text_icon()
-            else:
-                return self._draw_default_file_icon()
-
-    def _draw_folder_icon(self):
-        pixmap = QPixmap(16, 16)
-        pixmap.fill(Qt.GlobalColor.transparent)
-        painter = QPainter(pixmap)
-        painter.setRenderHint(QPainter.RenderHint.Antialiasing)
-
-        # Draw outline folder
-        pen = QPen(QColor("#70a5eb"), 1.2)
-        painter.setPen(pen)
-        painter.setBrush(QBrush(QColor(112, 165, 235, 30))) # semi-transparent blue
-
-        # Folder tab
-        painter.drawRoundedRect(2, 2, 5, 3, 1, 1)
-        # Folder body
-        painter.drawRoundedRect(2, 4, 12, 9, 1.2, 1.2)
-
-        painter.end()
-        return QIcon(pixmap)
-
-    def _draw_python_icon(self):
-        pixmap = QPixmap(16, 16)
-        pixmap.fill(Qt.GlobalColor.transparent)
-        painter = QPainter(pixmap)
-        painter.setRenderHint(QPainter.RenderHint.Antialiasing)
-
-        # Python-like snake shapes
-        painter.setPen(Qt.PenStyle.NoPen)
-        
-        # Blue snake
-        painter.setBrush(QBrush(QColor("#3572A5")))
-        painter.drawRoundedRect(3, 2, 7, 5, 2, 2)
-        painter.drawRoundedRect(5, 5, 5, 4, 2, 2)
-
-        # Yellow/Green snake
-        painter.setBrush(QBrush(QColor("#FFD43B")))
-        painter.drawRoundedRect(6, 9, 7, 5, 2, 2)
-        painter.drawRoundedRect(6, 7, 5, 4, 2, 2)
-
-        # Eyes
-        painter.setBrush(QBrush(QColor("#ffffff")))
-        painter.drawEllipse(5, 3, 1, 1)
-        painter.drawEllipse(10, 12, 1, 1)
-
-        painter.end()
-        return QIcon(pixmap)
-
-    def _draw_json_icon(self):
-        pixmap = QPixmap(16, 16)
-        pixmap.fill(Qt.GlobalColor.transparent)
-        painter = QPainter(pixmap)
-        painter.setRenderHint(QPainter.RenderHint.Antialiasing)
-
-        # Yellow curly braces
-        painter.setPen(QColor("#fbc02d"))
-        font = painter.font()
-        font.setPixelSize(12)
-        font.setBold(True)
-        painter.setFont(font)
-        painter.drawText(1, 12, "{ }")
-
-        painter.end()
-        return QIcon(pixmap)
-
-    def _draw_db_icon(self):
-        pixmap = QPixmap(16, 16)
-        pixmap.fill(Qt.GlobalColor.transparent)
-        painter = QPainter(pixmap)
-        painter.setRenderHint(QPainter.RenderHint.Antialiasing)
-
-        color = QColor("#ec407a")
-        painter.setPen(QPen(color, 1.2))
-        painter.setBrush(QBrush(QColor(236, 64, 122, 20)))
-
-        # Stacked ellipses
-        painter.drawEllipse(3, 2, 10, 4)
-        painter.drawEllipse(3, 6, 10, 4)
-        painter.drawEllipse(3, 10, 10, 4)
-
-        # Side lines
-        painter.drawLine(3, 4, 3, 12)
-        painter.drawLine(13, 4, 13, 12)
-
-        painter.end()
-        return QIcon(pixmap)
-
-    def _draw_text_icon(self):
-        pixmap = QPixmap(16, 16)
-        pixmap.fill(Qt.GlobalColor.transparent)
-        painter = QPainter(pixmap)
-        painter.setRenderHint(QPainter.RenderHint.Antialiasing)
-
-        painter.setPen(QPen(QColor("#90a4ae"), 1.2))
-        painter.setBrush(QBrush(QColor(144, 164, 174, 20)))
-
-        painter.drawRect(3, 2, 10, 12)
-
-        painter.setPen(QPen(QColor("#90a4ae"), 1))
-        painter.drawLine(5, 5, 11, 5)
-        painter.drawLine(5, 8, 11, 8)
-        painter.drawLine(5, 11, 9, 11)
-
-        painter.end()
-        return QIcon(pixmap)
-
-    def _draw_default_file_icon(self):
-        pixmap = QPixmap(16, 16)
-        pixmap.fill(Qt.GlobalColor.transparent)
-        painter = QPainter(pixmap)
-        painter.setRenderHint(QPainter.RenderHint.Antialiasing)
-
-        painter.setPen(QPen(QColor("#aaaaaa"), 1.2))
-        painter.setBrush(Qt.BrushStyle.NoBrush)
-        painter.drawRect(4, 2, 8, 12)
-
-        painter.end()
-        return QIcon(pixmap)
-
-
-from PyQt6.QtCore import QSortFilterProxyModel
-
-class RootFolderFilterProxyModel(QSortFilterProxyModel):
-    def __init__(self, root_path, parent=None):
-        super().__init__(parent)
-        self.set_root_path(root_path)
-
-    def set_root_path(self, root_path):
-        self.root_path = os.path.abspath(root_path)
-        self.parent_path = os.path.dirname(self.root_path)
-        self.invalidateFilter()
-
-    def filterAcceptsRow(self, source_row, source_parent):
-        source_model = self.sourceModel()
-        if not source_model:
-            return True
-
-        parent_path = os.path.abspath(source_model.filePath(source_parent))
-        file_info = source_model.fileInfo(source_model.index(source_row, 0, source_parent))
-        file_path = os.path.abspath(file_info.absoluteFilePath())
-
-        if parent_path == self.parent_path:
-            return file_path == self.root_path
-
-        if file_path == self.root_path:
-            return True
-        if file_path.startswith(self.root_path + os.sep) or file_path.startswith(self.root_path.replace('/', '\\') + '\\'):
-            return True
-
-        return False
 
 
     def expandSidebar__Explorer(self, project_path=None):
