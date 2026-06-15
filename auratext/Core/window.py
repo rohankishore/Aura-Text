@@ -79,6 +79,16 @@ class Sidebar(QDockWidget):
     def __init__(self, title, parent=None):
         super().__init__(title, parent)
         width = 50
+
+        self.setStyleSheet("""
+        QDockWidget {
+        
+        border: none;
+        
+        }
+        """)
+
+
         if parent and hasattr(parent, "_themes"):
             try:
                 width = int(parent._themes.get("sidebar_width", 50))
@@ -520,6 +530,22 @@ class Window(QMainWindow):
         # self.new_document()
         self.setWindowTitle("Aura Text")
         self.setWindowIcon(QIcon(f"{local_app_data}/icons/icon.ico"))
+        
+        # Make separators and dock widget borders seamless
+        bg_color = self._themes.get("sidebar_bg", "#121212")
+        self.setStyleSheet(f"""
+            QMainWindow::separator {{
+                background-color: {bg_color};
+                width: 1px;
+                height: 1px;
+            }}
+            QMainWindow::separator:hover {{
+                background-color: {bg_color};
+            }}
+            QDockWidget {{
+                border: none !important;
+            }}
+        """)
         self.configure_menuBar()
         sys.path.append(f"{local_app_data}/plugins")
         QTimer.singleShot(0, self.load_plugins)
