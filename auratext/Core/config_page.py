@@ -345,6 +345,13 @@ class ConfigPage(QWidget):
         self.behaviour_layout = behaviour_group_layout
 
         config = self._window._config
+
+        self.as_wf = QCheckBox("Autosave on window focus loss")
+        self.as_wf.setChecked(config.get("as_wf", "true") == True)
+        self.behaviour_layout.addWidget(self.as_wf)
+        self.settings_list.append(("Autosave on window focus loss", [self.as_wf]))
+
+
         self.splash_checkbox = QCheckBox("Show Adaptive Splash Screens")
         self.splash_checkbox.setChecked(config.get("splash", "True") == "True")
         self.behaviour_layout.addWidget(self.splash_checkbox)

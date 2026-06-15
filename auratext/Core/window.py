@@ -2633,6 +2633,39 @@ class Window(QMainWindow):
     def save_document_as(self):
         ModuleFile.save_document(self, force_dialog=True)
 
+    def autosave_all_modified(self):
+        for i in range(self.tab_widget.count()):
+            widget = self.tab_widget.widget(i)
+            editor = self.get_editor_from_widget(widget)
+            if editor and editor.isModified():
+                path = self.tab_file_paths.get(i, "")
+                if path:
+                    try:
+                        import platform
+                        newline = "\r\n" if platform.system() == "Windows" else "\n"
+                        with open(path, "w", encoding="utf-8", newline=newline) as f:
+                            f.write(editor.text())
+                        editor.setModified(False)
+                        
+                        # Update the title in the tab
+                        title = self.tab_widget.tabText(i)
+                        for marker in [" *", " •"]:
+                            if title.endswith(marker):
+                                title = title[:-len(marker)]
+                                break
+                        self.tab_widget.setTabText(i, title)
+                        
+                        # Update main window title if this is the current active editor
+                        if i == self.tab_widget.currentIndex():
+                            self.setWindowTitle(f"{title} ~ Aura Text")
+                    except Exception as e:
+                        print(f"Failed to auto-save {path}: {e}")
+
+    def changeEvent(self, event):
+        if event.type() == QEvent.Type.WindowDeactivate:
+            self.autosave_all_modified()
+        super().changeEvent(event)
+
     @staticmethod
     def about_github():
         webbrowser.open_new_tab("https://github.com/rohankishore/Aura-Notes")
