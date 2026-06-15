@@ -1501,16 +1501,36 @@ class Window(QMainWindow):
             self.explorer_tree_view.setExpandsOnDoubleClick(False)
  
         parent_path = os.path.dirname(root_path)
-        parent_idx = self.model.setRootPath(parent_path)
-        
+        self.model.setRootPath(parent_path)
         if hasattr(self, 'proxy_model'):
             self.proxy_model.set_root_path(root_path)
-        
-        parent_proxy_idx = self.proxy_model.mapFromSource(parent_idx)
-        self.explorer_tree_view.setRootIndex(parent_proxy_idx)
-        
-        # Auto-expand the root folder after a short delay once model loads it
-        QTimer.singleShot(100, lambda: self.explorer_tree_view.expand(self.proxy_model.mapFromSource(self.model.index(root_path))))
+
+        self._init_timer_attempts = 0
+        def check_and_apply():
+            self._init_timer_attempts += 1
+            parent_idx = self.model.index(parent_path)
+            if parent_idx.isValid() and self.model.rowCount(parent_idx) > 0:
+                parent_proxy_idx = self.proxy_model.mapFromSource(parent_idx)
+                self.explorer_tree_view.setRootIndex(parent_proxy_idx)
+                
+                root_idx = self.model.index(root_path)
+                root_proxy_idx = self.proxy_model.mapFromSource(root_idx)
+                self.explorer_tree_view.expand(root_proxy_idx)
+                
+                if hasattr(self, '_explorer_init_timer'):
+                    self._explorer_init_timer.stop()
+                return
+                
+            if self._init_timer_attempts > 40:
+                parent_proxy_idx = self.proxy_model.mapFromSource(parent_idx)
+                self.explorer_tree_view.setRootIndex(parent_proxy_idx)
+                if hasattr(self, '_explorer_init_timer'):
+                    self._explorer_init_timer.stop()
+
+        self._explorer_init_timer = QTimer(self)
+        self._explorer_init_timer.timeout.connect(check_and_apply)
+        self._explorer_init_timer.start(50)
+        check_and_apply()
         
         self.dock.show()
         self.dock.raise_()
