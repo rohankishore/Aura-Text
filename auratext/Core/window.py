@@ -741,6 +741,7 @@ class Window(QMainWindow):
     def apply_vscode_tab_style(self, target_tab_widget):
         # Use theme-aware colors
         theme_type = self._themes.get("theme_type", "dark")
+        accent_color = self._themes.get("theme", "#007acc")
         if theme_type == "light":
             pane_bg = "#f0f0f0"
             tab_bg = "#e0e0e0"
@@ -748,7 +749,7 @@ class Window(QMainWindow):
             tab_selected_bg = "#ffffff"
             tab_selected_color = "#000000"
             tab_hover_bg = "#d0d0d0"
-            tab_border_color = "#007acc"
+            tab_border_color = accent_color
             close_btn_hover_bg = "#c0c0c0"
         else:
             pane_bg = "#1e1e1e"
@@ -757,7 +758,7 @@ class Window(QMainWindow):
             tab_selected_bg = "#1e1e1e"
             tab_selected_color = "#ffffff"
             tab_hover_bg = "#373737"
-            tab_border_color = "#007acc"
+            tab_border_color = accent_color
             close_btn_hover_bg = "#4a4a4a"
         
         target_tab_widget.setStyleSheet(f"""
