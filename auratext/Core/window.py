@@ -1348,7 +1348,8 @@ class Window(QMainWindow):
 
 
     def expandSidebar__Explorer(self, project_path=None):
-        root_path = (project_path if project_path is not None else cpath).strip()
+        current_project_path = getattr(self, 'cpath', cpath)
+        root_path = (project_path if project_path is not None else current_project_path).strip()
         if not root_path:
             return
 
