@@ -287,7 +287,9 @@ class NotificationDrawer(QDialog):
             item = QListWidgetItem("No notifications")
             item.setFlags(Qt.ItemFlag.NoItemFlags)
             item.setForeground(QColor("#a5a5b2"))
-            item.setFont(QFont("Segoe UI", 10, QFont.Weight.StyleItalic))
+            font = QFont("Segoe UI", 10)
+            font.setItalic(True)
+            item.setFont(font)
             self.list_widget.addItem(item)
             return
 
