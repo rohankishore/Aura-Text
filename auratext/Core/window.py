@@ -78,7 +78,13 @@ if not cfile:
 class Sidebar(QDockWidget):
     def __init__(self, title, parent=None):
         super().__init__(title, parent)
-        self.setFixedWidth(50)
+        width = 50
+        if parent and hasattr(parent, "_themes"):
+            try:
+                width = int(parent._themes.get("sidebar_width", 50))
+            except (ValueError, TypeError):
+                width = 50
+        self.setFixedWidth(width)
         self.setAllowedAreas(Qt.DockWidgetArea.LeftDockWidgetArea)
         self.setFeatures(QDockWidget.DockWidgetFeature.NoDockWidgetFeatures)
 
