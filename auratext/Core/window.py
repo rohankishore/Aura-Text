@@ -82,6 +82,12 @@ class Sidebar(QDockWidget):
         self.setAllowedAreas(Qt.DockWidgetArea.LeftDockWidgetArea)
         self.setFeatures(QDockWidget.DockWidgetFeature.NoDockWidgetFeatures)
 
+    def resizeEvent(self, event):
+        super().resizeEvent(event)
+        parent_window = self.parent()
+        if parent_window and hasattr(parent_window, "adjust_sidebar_icon_sizes"):
+            parent_window.adjust_sidebar_icon_sizes(self, self.width())
+
 # noinspection PyUnresolvedReferences
 # no inspection for unresolved references as pylance flags inaccurately sometimes
 class Window(QMainWindow):
@@ -2666,6 +2672,42 @@ class Window(QMainWindow):
             if self._config.get("as_wf", "True").lower() == "true":
                 self.autosave_all_modified()
         super().changeEvent(event)
+
+    def adjust_sidebar_icon_sizes(self, sidebar, new_width):
+        if sidebar != self.sidebar_main:
+            return
+            
+        button_size = max(24, min(96, int(new_width * 0.6)))
+        icon_size = max(16, min(64, int(button_size * 0.64)))
+        
+        margin = max(4, int((new_width - button_size) / 2))
+        self.sidebar_layout.setContentsMargins(margin, 10, margin, 10)
+        self.sidebar_layout.setSpacing(max(6, int(new_width * 0.15)))
+        
+        theme_color = self._themes.get("theme", "#007ACC")
+        
+        def update_btn(btn, svg_name):
+            svg_path = f"{self.local_app_data}/icons/{svg_name}"
+            unselected, selected = SVGIconManager.create_stateful_icon(
+                svg_path, None, theme_color, (icon_size, icon_size)
+            )
+            btn.setFixedSize(button_size, button_size)
+            btn.setIconSize(QSize(icon_size, icon_size))
+            btn.unselected_icon = unselected
+            btn.selected_icon = selected
+            if self.selected_sidebar_button == btn:
+                btn.setIcon(selected)
+            else:
+                btn.setIcon(unselected)
+
+        if hasattr(self, "explorer_button"):
+            update_btn(self.explorer_button, "explorer.svg")
+        if hasattr(self, "search_button"):
+            update_btn(self.search_button, "search.svg")
+        if hasattr(self, "plugin_button"):
+            update_btn(self.plugin_button, "extensions.svg")
+        if hasattr(self, "commit_button"):
+            update_btn(self.commit_button, "git.svg")
 
     @staticmethod
     def about_github():
