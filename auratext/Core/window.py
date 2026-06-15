@@ -771,41 +771,43 @@ class Window(QMainWindow):
         
         target_tab_widget.setStyleSheet(f"""
             QTabWidget::pane {{
-                border: 0;
-                background: {pane_bg};
+                border: 0 !important;
+                background: {pane_bg} !important;
             }}
 
-            QTabBar::tab {{
-                background: {tab_bg};
-                color: {tab_color};
-                border: none;
+            QTabWidget QTabBar::tab, TabWidget QTabBar::tab {{
+                background: {tab_bg} !important;
+                color: {tab_color} !important;
+                border: none !important;
+                border-top: 2px solid transparent !important;
                 min-height: 20px;
                 min-width: 90px;
                 padding: 6px 12px;
                 margin-right: 1px;
             }}
 
-            QTabBar::tab:selected, QTabBar::tab:top:selected, QTabBar::tab:selected:top, QTabBar::tab:hover:selected {{
+            QTabWidget QTabBar::tab:selected, QTabWidget QTabBar::tab:top:selected, QTabWidget QTabBar::tab:selected:top, QTabWidget QTabBar::tab:hover:selected,
+            TabWidget QTabBar::tab:selected, TabWidget QTabBar::tab:top:selected, TabWidget QTabBar::tab:selected:top, TabWidget QTabBar::tab:hover:selected {{
                 background: {tab_selected_bg} !important;
                 color: {tab_selected_color} !important;
                 border-top: 2px solid {tab_border_color} !important;
             }}
 
-            QTabBar::tab:hover:!selected {{
-                background: {tab_hover_bg};
+            QTabWidget QTabBar::tab:hover:!selected, TabWidget QTabBar::tab:hover:!selected {{
+                background: {tab_hover_bg} !important;
             }}
 
-            QTabBar::close-button {{
+            QTabWidget QTabBar::close-button, TabWidget QTabBar::close-button {{
                 subcontrol-position: right;
                 margin-right: 6px;
                 width: 12px;
                 height: 12px;
                 border-radius: 2px;
-                background: transparent;
+                background: transparent !important;
             }}
 
-            QTabBar::close-button:hover {{
-                background: {close_btn_hover_bg};
+            QTabWidget QTabBar::close-button:hover, TabWidget QTabBar::close-button:hover {{
+                background: {close_btn_hover_bg} !important;
             }}
         """)
 

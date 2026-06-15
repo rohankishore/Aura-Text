@@ -224,6 +224,14 @@ class ConfigPage(QWidget):
         self.theme_layout.addWidget(self.sidebar_theme_input)
         self.settings_list.append(("Sidebar Background", [sidebar_theme_label, self.sidebar_theme_input]))
 
+        # Sidebar Width
+        sidebar_width_label = QLabel("Sidebar Width:")
+        self.sidebar_width_input = QLineEdit()
+        self.sidebar_width_input.setText(str(self._window._themes.get("sidebar_width", 50)))
+        self.theme_layout.addWidget(sidebar_width_label)
+        self.theme_layout.addWidget(self.sidebar_width_input)
+        self.settings_list.append(("Sidebar Width", [sidebar_width_label, self.sidebar_width_input]))
+
         # MenuBar Theme
         menubar_theme_label = QLabel("MenuBar Background:")
         self.menubar_theme_input = QLineEdit()
@@ -460,6 +468,10 @@ class ConfigPage(QWidget):
         self._window._themes["titlebar"] = (self.titlebar.currentText().lower())
         self._window._themes["margin_theme"] = self.margin_theme_input.text()
         self._window._themes["sidebar_bg"] = self.sidebar_theme_input.text()
+        try:
+            self._window._themes["sidebar_width"] = int(self.sidebar_width_input.text().strip())
+        except ValueError:
+            self._window._themes["sidebar_width"] = 50
         self._window._themes["menubar_bg"] = self.menubar_theme_input.text()
         self._window._themes["lines_theme"] = self.lines_theme_input.text()
         self._window._themes["lines_fg"] = self.lines_fg_input.text()
