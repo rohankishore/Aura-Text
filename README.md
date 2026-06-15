@@ -69,8 +69,8 @@
 <h2>About The Project</h2>
 
 <img width="1920" height="1100" alt="image" src="https://github.com/user-attachments/assets/17399995-7032-4d90-957e-5cef278ceb6e" />
-<img width="1920" height="1100" alt="image" src="https://github.com/user-attachments/assets/7eb477ed-1469-4303-bce2-8124efcd8114" />
-<img width="1920" height="1100" alt="image" src="https://github.com/user-attachments/assets/c65eace4-8cc5-4390-bc9c-97d17c31c17c" />
+<img width="1920" height="1140" alt="image" src="https://github.com/user-attachments/assets/1f8cd087-a43a-45b8-a8f3-36c190d6e66c" />
+<img width="1919" height="886" alt="image" src="https://github.com/user-attachments/assets/023274ee-b206-458b-a4af-d5c6e0950180" />
 
 Aura Text is an excellent text/code editor that offers a wide array of essential tools. Built with PyQt6 and Python, it harnesses the power and flexibility of these technologies.
 With Aura Text, users can access a versatile and powerful editing environment. Whether working on a small script or a complex project, Aura Text equips you with all the necessary features to streamline your workflow. From syntax highlighting and code completion to smart indentation and advanced terminal, Aura Text ensures that your coding experience is efficient and enjoyable while being extremely light on your PC.
@@ -80,7 +80,7 @@ With Aura Text, users can access a versatile and powerful editing environment. W
 ***The main highlights of Aura Text are:***
 - Edit files (duh)
 - Support up to 30 languages
-- Autocompletion
+- Autocompletion with intelligent quote and string matcher
 - Code Linting for Python (BETA) (More langs coming soon)
 - Git Clone, Commit and Push with interactive rebase and graphs
 - Command Palette for quick execution of tasks
@@ -91,7 +91,7 @@ With Aura Text, users can access a versatile and powerful editing environment. W
 - Python Console
 - Plugin support
 - Extensive theming including Material Theming support
-- Extremely customisable
+- Extremely customisable (like literally you can change every aspect of it)
   
 <!-- GETTING STARTED -->
 ## Getting Started
