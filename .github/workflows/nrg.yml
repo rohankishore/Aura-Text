@@ -1,0 +1,64 @@
+# Keeps README.md and every translate/README_<LANG>.md in sync from a single
+# source template (README.src.md) using Nanolaba Readme Generator (NRG).
+#
+#  * push to main  -> regenerate the language files and auto-commit any changes
+#  * pull request  -> drift-check only (fails if a generated file is stale or
+#                     was hand-edited instead of README.src.md)
+#
+# Edit README.src.md, never the generated README.md / translate/*.md files.
+name: NRG READMEs
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'README.src.md'
+      - '.github/workflows/nrg.yml'
+  pull_request:
+    paths:
+      - 'README.src.md'
+      - 'README.md'
+      - 'translate/**'
+      - '.github/workflows/nrg.yml'
+
+# Least privilege by default; only the regenerate job opts into write access.
+permissions:
+  contents: read
+
+jobs:
+  regenerate:
+    if: github.event_name == 'push'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+      # SHA-pinned to nanolaba/nrg-action v1.2
+      - uses: nanolaba/nrg-action@9fae0216ed0c828f520e555912776ca624d84fb5
+        with:
+          file: README.src.md
+          nrg-version: '1.2'
+      - name: Commit regenerated READMEs
+        run: |
+          files="README.md translate/README_HN.md translate/README_DE.md translate/README_ES.md translate/README_TA.md translate/README_FR.md translate/README_JA.md translate/README_PT.md translate/README_RU.md translate/ZH-CN/README_ZH-CN.md"
+          if [ -n "$(git status --porcelain $files)" ]; then
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git add $files
+            git commit -m "docs: regenerate READMEs from README.src.md"
+            git push
+          fi
+
+  drift-check:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      # SHA-pinned to nanolaba/nrg-action v1.2
+      - uses: nanolaba/nrg-action@9fae0216ed0c828f520e555912776ca624d84fb5
+        with:
+          file: README.src.md
+          mode: check
+          nrg-version: '1.2'
