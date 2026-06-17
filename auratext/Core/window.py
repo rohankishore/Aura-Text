@@ -1405,13 +1405,15 @@ class Window(QMainWindow):
                     border-image: none;
                     border-left: 1px solid rgba(255, 255, 255, 0.08);
                 }}
-                QTreeView::branch:has-children:closed:has-members {{
+                QTreeView::branch:has-children:closed {{
                     border-image: none;
                     image: url("{local_app_data_path}/icons/collapsed_chevron.svg");
+                    background-image: none;
                 }}
-                QTreeView::branch:has-children:open:has-members {{
+                QTreeView::branch:has-children:open {{
                     border-image: none;
                     image: url("{local_app_data_path}/icons/expanded_chevron.svg");
+                    background-image: none;
                 }}
             """)
             self.explorer_tree_view.setModel(self.proxy_model)
