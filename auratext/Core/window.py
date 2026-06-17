@@ -1205,13 +1205,8 @@ class Window(QMainWindow):
         
         main_layout.addWidget(editor_area)
         
-        # Initialize linter for Python files if enabled
-        if self._config.get("enable_linter", "True") == "True":
-            if file_path.endswith('.py') or not file_path:
-                linter_types = self._config.get("linter_types", "flake8").split(",")
-                from ..Components.Linter import CodeLinter
-                linter = CodeLinter(self.text_editor, file_path, linter_types)
-                self.linters[id(self.text_editor)] = linter
+        if self.text_editor.linter is not None:
+            self.linters[id(self.text_editor)] = self.text_editor.linter
         
         return container
 
@@ -2666,14 +2661,18 @@ class Window(QMainWindow):
         # Apply to all existing linters
         if checked:
             # Enable linters for existing editors
-            for editor_id, linter in self.linters.items():
-                linter.run_lint()
+            for editor in self.editors:
+                linter_in_editor = getattr(editor, "linter_in_editor", None)
+                if linter_in_editor is not None:
+                    linter_in_editor.reanalyze()
             QMessageBox.information(self, "Linter Enabled", 
                 "Linter is now enabled. Error and warning indicators will appear in Python files.")
         else:
             # Clear markers from all editors
-            for editor_id, linter in self.linters.items():
-                linter.clear_markers()
+            for editor in self.editors:
+                linter_in_editor = getattr(editor, "linter_in_editor", None)
+                if linter_in_editor is not None:
+                    linter_in_editor.clearMarkers()
             QMessageBox.information(self, "Linter Disabled", 
                 "Linter is now disabled. No error/warning indicators will be shown.")
 
