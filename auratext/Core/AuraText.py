@@ -12,6 +12,7 @@ from . import Modules as ModuleFile
 from .autocomplete_engine import PythonAutocompleteEngine
 
 from auratext.Misc.boilerplates import get_font_for_platform
+from auratext.Components.Linter import Linter, LinterForEditor
 if TYPE_CHECKING:
     from .window import Window
 
@@ -78,7 +79,7 @@ class Search(QDialog):
 
 
 class CodeEditor(QsciScintilla):
-    def __init__(self, window: Window, indentType="spaces"):
+    def __init__(self, window: Window, indentType="spaces", file_path=""):
         super().__init__(parent=None)
 
         self._themes = window._themes
@@ -121,17 +122,15 @@ class CodeEditor(QsciScintilla):
             self.setIndentationsUseTabs(True)
         else:
             print(f"ERROR: Invalid indentType '{indentType}' provided. Must be of types 'spaces' or 'tabs'.")
-            sys.exit(1)
+            print(f"WARNING: Assuming 'spaces'")
+            self.setIndentationsUseTabs(False)
         self.setMarginLineNumbers(1, True)
         self.setAutoIndent(True)
-        self.setMarginWidth(1, "#0000")
-        left_margin_index = 0
-        left_margin_width = 7
+        self._update_line_number_margin_width()
+        self.linesChanged.connect(self._update_line_number_margin_width)
         self.setMarginsForegroundColor(QColor(window._themes["lines_fg"]))
         self.setMarginsBackgroundColor(QColor(window._themes["lines_theme"]))
         font_metrics = QFontMetrics(self.font())
-        left_margin_width_pixels = font_metrics.horizontalAdvance(" ") * left_margin_width
-        self.SendScintilla(self.SCI_SETMARGINLEFT, left_margin_index, left_margin_width_pixels)
         self.setFolding(QsciScintilla.FoldStyle.BoxedTreeFoldStyle)
         self.setMarginSensitivity(2, True)
         self.setFoldMarginColors(
@@ -145,6 +144,16 @@ class CodeEditor(QsciScintilla):
         self.setBackspaceUnindents(True)
         self.setIndentationGuides(True)
         self.setReadOnly(False)
+        self.setMarginType(0, QsciScintilla.MarginType.SymbolMargin)
+        self.setMarginWidth(0, "#0000")
+        self.BREAKPOINT_MARKER = 10
+        self.markerDefine(QsciScintilla.MarkerSymbol.Circle, self.BREAKPOINT_MARKER)
+        self.setMarkerBackgroundColor(QColor("#ff5555"), self.BREAKPOINT_MARKER)
+        self.setMarkerForegroundColor(QColor("#ffffff"), self.BREAKPOINT_MARKER)
+        self.setMarginSensitivity(0, True)
+        self.setMarginSensitivity(1, True)
+        self.marginClicked.connect(self.on_margin_clicked)
+        self.breakpoints = set()
 
         self.context_menu = QMenu(self)
 
@@ -173,7 +182,15 @@ class CodeEditor(QsciScintilla):
 
         # Monkey-patch insert
         self.qscinsert = super(CodeEditor, self).insert
-        
+
+        print(f"VERBOSE: Initializing editor with file path: {file_path}")
+        pyexts = ['py', 'pyw', 'pyi']
+        if file_path.rsplit(".", 1)[-1] in pyexts:
+            self.linter = Linter()
+            self.linter_in_editor = LinterForEditor(parent=self)
+        else:
+            self.linter = None
+
         # Initial scan for colors
         QTimer.singleShot(100, self.update_color_previews)
 
@@ -550,7 +567,25 @@ class CodeEditor(QsciScintilla):
                 # Update color previews
                 QTimer.singleShot(50, self.update_color_previews)
 
+    def on_margin_clicked(self, margin, line, state):
+        if margin != 0 and margin != 1:
+            return
+
+        marker = self.BREAKPOINT_MARKER
+        if line in self.breakpoints:
+            self.breakpoints.remove(line)
+            self.markerDelete(line, marker)
+        else:
+            self.breakpoints.add(line)
+            self.markerAdd(line, marker)
+
     def insert(self, text):
         if '    ' in text:
             self.setIndentationsUseTabs(False)
         self.qscinsert(text)
+
+    def _update_line_number_margin_width(self):
+        lines = self.lines()
+        digits = max(2, len(str(lines)))
+        margin_template = " #" + ("0" * digits)
+        self.setMarginWidth(1, margin_template)

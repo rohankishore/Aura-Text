@@ -54,8 +54,20 @@ class MiniMapWidget(QWidget):
     
     @scroll_offset.setter
     def scroll_offset(self, value):
-        self._scroll_offset = value
+        self._scroll_offset = self._clamp_scroll_offset(value)
         self.update()
+
+    def _current_line_height(self):
+        total_lines = len(self.cached_lines) if self.cached_lines else 1
+        return max(2, min(4, self.height() / max(total_lines, 1)))
+
+    def _max_scroll_offset(self):
+        total_lines = len(self.cached_lines) if self.cached_lines else 0
+        content_height = total_lines * self._current_line_height()
+        return max(0.0, content_height - self.height())
+
+    def _clamp_scroll_offset(self, value):
+        return max(0.0, min(float(value), self._max_scroll_offset()))
 
     def _connect_editor_signals(self):
         """Connect to editor signals"""
@@ -100,7 +112,7 @@ class MiniMapWidget(QWidget):
         
         # Calculate target offset
         first_line = self.editor.firstVisibleLine()
-        target_offset = first_line * self.line_height
+        target_offset = self._clamp_scroll_offset(first_line * self._current_line_height())
         
         # Animate to target
         if abs(target_offset - self._scroll_offset) > 0.5:
@@ -134,9 +146,8 @@ class MiniMapWidget(QWidget):
             return
         
         # Calculate dimensions
-        total_lines = len(self.cached_lines)
-        available_height = self.height()
-        self.line_height = max(2, min(4, available_height / max(total_lines, 1)))
+        self.line_height = self._current_line_height()
+        self._scroll_offset = self._clamp_scroll_offset(self._scroll_offset)
         
         # Setup minimap font - small but readable monospace
         font = get_font_for_platform(size=2, plain=True)
@@ -148,7 +159,7 @@ class MiniMapWidget(QWidget):
         self.char_width = metrics.horizontalAdvance('X') * 0.5
         
         # Draw code lines with actual text
-        y_offset = 0
+        y_offset = -self._scroll_offset
         for i, line in enumerate(self.cached_lines):
             if y_offset > self.height():
                 break
@@ -212,7 +223,8 @@ class MiniMapWidget(QWidget):
             viewport_height = (visible_lines / total_lines) * self.height()
             
             # Make sure viewport is visible
-            viewport_height = max(viewport_height, 20)
+            viewport_height = min(max(viewport_height, 20), self.height())
+            viewport_top = max(0, min(viewport_top, self.height() - viewport_height))
             
             # Draw semi-transparent overlay on viewport
             painter.setPen(Qt.PenStyle.NoPen)

@@ -1186,7 +1186,7 @@ class Window(QMainWindow):
         editor_layout.setContentsMargins(0, 0, 0, 0)
         editor_layout.setSpacing(0)
         
-        self.text_editor = CodeEditor(self)
+        self.text_editor = CodeEditor(self, file_path=file_path)
         
         # Create minimap
         minimap = MiniMapWidget(self.text_editor, editor_area)
