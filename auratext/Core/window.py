@@ -1446,7 +1446,7 @@ class Window(QMainWindow):
             """)
             
             menu_btn = QPushButton("...")
-            menu_btn.setFixedSize(20, 20)
+            menu_btn.setFixedSize(28, 28)
             menu_btn.setStyleSheet(f"""
                 QPushButton {{
                     color: #cccccc;
@@ -1454,6 +1454,7 @@ class Window(QMainWindow):
                     background: transparent;
                     font-size: 14px;
                     font-weight: bold;
+                    padding: 2px;
                 }}
                 QPushButton:hover {{
                     background-color: rgba(255, 255, 255, 0.1);
@@ -1462,7 +1463,7 @@ class Window(QMainWindow):
             """)
             
             close_btn = QPushButton("×")
-            close_btn.setFixedSize(20, 20)
+            close_btn.setFixedSize(28, 28)
             close_btn.setStyleSheet(f"""
                 QPushButton {{
                     color: #cccccc;
@@ -1470,6 +1471,7 @@ class Window(QMainWindow):
                     background: transparent;
                     font-size: 16px;
                     font-weight: bold;
+                    padding: 2px;
                 }}
                 QPushButton:hover {{
                     background-color: rgba(255, 255, 255, 0.1);
