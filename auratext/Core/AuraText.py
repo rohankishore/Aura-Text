@@ -79,7 +79,7 @@ class Search(QDialog):
 
 
 class CodeEditor(QsciScintilla):
-    def __init__(self, window: Window, indentType="spaces", file_path=""):
+    def __init__(self, window: Window, indentType="spaces", file_path="", enable_linter=True):
         super().__init__(parent=None)
 
         self._themes = window._themes
@@ -183,11 +183,14 @@ class CodeEditor(QsciScintilla):
         # Monkey-patch insert
         self.qscinsert = super(CodeEditor, self).insert
 
-        print(f"VERBOSE: Initializing editor with file path: {file_path}")
-        pyexts = ['py', 'pyw', 'pyi']
-        if file_path.rsplit(".", 1)[-1] in pyexts:
-            self.linter = Linter()
-            self.linter_in_editor = LinterForEditor(parent=self)
+        if enable_linter:
+            print(f"VERBOSE: Initializing editor with file path: {file_path}")
+            pyexts = ['py', 'pyw', 'pyi']
+            if file_path.rsplit(".", 1)[-1] in pyexts:
+                self.linter = Linter()
+                self.linter_in_editor = LinterForEditor(parent=self)
+            else:
+                self.linter = None
         else:
             self.linter = None
 

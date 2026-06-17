@@ -1169,6 +1169,7 @@ class Window(QMainWindow):
         return editor
 
     def create_editor(self, file_path=""):
+        linter_enabled = self._config.get("enable_linter", "True") == "True"
         container = QWidget()
         main_layout = QVBoxLayout(container)
         main_layout.setContentsMargins(0, 0, 0, 0)
@@ -1186,7 +1187,7 @@ class Window(QMainWindow):
         editor_layout.setContentsMargins(0, 0, 0, 0)
         editor_layout.setSpacing(0)
         
-        self.text_editor = CodeEditor(self, file_path=file_path)
+        self.text_editor = CodeEditor(self, file_path=file_path, enable_linter=linter_enabled)
         
         # Create minimap
         minimap = MiniMapWidget(self.text_editor, editor_area)
