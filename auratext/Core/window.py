@@ -1260,7 +1260,8 @@ class Window(QMainWindow):
 
     def load_plugins(self):
         self.plugins = []
-        plugin_dir = f"{local_app_data}/plugins"
+        # plugin_dir = f"{local_app_data}/plugins"
+        plugin_dir = os.path.join(local_app_data, "plugins")
         if not os.path.isdir(plugin_dir):
             return
 
