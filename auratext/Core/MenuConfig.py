@@ -209,6 +209,10 @@ QMenu::item::selected {{
 
     tools_menu = QMenu("&Tools", self)
 
+    tools_menu.addAction("Command Palette", self.show_command_palette).setWhatsThis("Triggers the Command Palette")
+
+    tools_menu.addSeparator()
+
     tools_menu.addAction("Upload to Pastebin", self.pastebin).setWhatsThis(
         "Uploads the entire text content in your current editor to Pastebin and automatically copies the link"
     )
