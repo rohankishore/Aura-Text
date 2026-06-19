@@ -2156,6 +2156,8 @@ class Window(QMainWindow):
             return
         except IsADirectoryError:
             self.toggleExplorerExpand(index)
+        except PermissionError:
+            self.toggleExplorerExpand(index)
         except Exception as e:
             messagebox = QMessageBox()
             messagebox.setWindowTitle("Error"), messagebox.setText(
