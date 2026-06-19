@@ -2161,7 +2161,7 @@ class Window(QMainWindow):
         except Exception as e:
             messagebox = QMessageBox()
             messagebox.setWindowTitle("Error"), messagebox.setText(
-                f"An error occurred while opening the file: {e}"
+                f"An error occurred while opening the file: {type(e).__name__}: {e}"
             )
             messagebox.exec()
 
