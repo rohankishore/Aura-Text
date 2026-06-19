@@ -2104,6 +2104,21 @@ class Window(QMainWindow):
         path = self.model.filePath(source_idx)
         self.open_file_from_path(path, index=index)
 
+    def toggleExplorerExpand(self, index):
+        if index is not None and self.explorer_tree_view:
+            if self.explorer_tree_view.isExpanded(index):
+                self.explorer_tree_view.collapse(index)
+                source_idx = index
+                if hasattr(self, 'proxy_model') and self.proxy_model:
+                    source_idx = self.proxy_model.mapToSource(index)
+                print("Collapsing directory:", self.model.filePath(source_idx))
+            else:
+                self.explorer_tree_view.setExpanded(index, True)
+                source_idx = index
+                if hasattr(self, 'proxy_model') and self.proxy_model:
+                    source_idx = self.proxy_model.mapToSource(index)
+                print("Expanding directory:", self.model.filePath(source_idx))
+
     def open_file_from_path(self, path, index=None):
         image_extensions = ["png", "jpg", "jpeg", "ico", "gif", "bmp"]
         ext = path.split(".")[-1]
@@ -2140,19 +2155,7 @@ class Window(QMainWindow):
         except FileNotFoundError:
             return
         except IsADirectoryError:
-            if index is not None and self.explorer_tree_view:
-                if self.explorer_tree_view.isExpanded(index):
-                    self.explorer_tree_view.collapse(index)
-                    source_idx = index
-                    if hasattr(self, 'proxy_model') and self.proxy_model:
-                        source_idx = self.proxy_model.mapToSource(index)
-                    print("Collapsing directory:", self.model.filePath(source_idx))
-                else:
-                    self.explorer_tree_view.setExpanded(index, True)
-                    source_idx = index
-                    if hasattr(self, 'proxy_model') and self.proxy_model:
-                        source_idx = self.proxy_model.mapToSource(index)
-                    print("Expanding directory:", self.model.filePath(source_idx))
+            self.toggleExplorerExpand(index)
         except Exception as e:
             messagebox = QMessageBox()
             messagebox.setWindowTitle("Error"), messagebox.setText(
