@@ -223,3 +223,6 @@ auratext/elements.db
 .DS_Store
 ._*
 *DS_Store
+
+# Downloaded linters and such
+bin/
