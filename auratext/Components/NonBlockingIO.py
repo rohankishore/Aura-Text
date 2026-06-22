@@ -6,7 +6,7 @@ import os
 import platform
 
 # Platform-specific imports
-if platform.system() == "Windows":
+if platform.system() != "Windows":
     import fcntl
 
 # 1024 bytes was way too small, and with this chunk size, it
