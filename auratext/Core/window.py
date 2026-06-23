@@ -1187,7 +1187,7 @@ class Window(QMainWindow):
         editor_layout.setContentsMargins(0, 0, 0, 0)
         editor_layout.setSpacing(0)
         
-        self.text_editor = CodeEditor(self, file_path=file_path, enable_linter=linter_enabled)
+        self.text_editor = CodeEditor(self, file_path=file_path, enable_linter=linter_enabled, parent=self)
         
         # Create minimap
         minimap = MiniMapWidget(self.text_editor, editor_area)
@@ -1969,7 +1969,7 @@ class Window(QMainWindow):
             split_layout.setSpacing(0)
             
             # Create split editor
-            split_editor = CodeEditor(self)
+            split_editor = CodeEditor(self, parent=self)
             split_editor.setText(current_editor.text())
             
             # Create minimap for split editor

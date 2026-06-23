@@ -79,8 +79,9 @@ class Search(QDialog):
 
 
 class CodeEditor(QsciScintilla):
-    def __init__(self, window: Window, indentType="spaces", file_path="", enable_linter=True):
-        super().__init__(parent=None)
+    def __init__(self, window: Window, indentType="spaces", file_path="", enable_linter=True, parent=None):
+        super().__init__(parent=parent)
+        self.parent = parent
 
         self._themes = window._themes
         lexer = Lexers.PythonLexer(window)
