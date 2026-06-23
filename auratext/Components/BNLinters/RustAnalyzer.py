@@ -2,15 +2,16 @@ from pathlib import Path
 import subprocess
 import os
 
-from PyQt6.QtCore import QObject, QTimer
+from PyQt6.QtCore import QObject, QTimer, pyqtSignal
 
 from ..NonBlockingIO import NonBlockingIO
-from sansio_lsp_client import Client, Initialized, TextDocumentItem,VersionedTextDocumentIdentifier, TextDocumentContentChangeEvent
+from sansio_lsp_client import Client, Initialized, TextDocumentItem,VersionedTextDocumentIdentifier, TextDocumentContentChangeEvent, PublishDiagnostics
 
 class LangServerNoExistError(Exception):
     pass
 
 class RustAnalyzer(QObject):
+    diagnosticsReceived = pyqtSignal(list)
     def __init__(self, parent=None, binaryPath="", file_path=""):
         super().__init__(parent=parent)
         self.parent = parent
@@ -30,11 +31,6 @@ class RustAnalyzer(QObject):
         )
         self.io = NonBlockingIO(self.process)
         self.lsp = Client(trace="verbose", root_uri=self.rootURI)
-        self.lsp.initialize(
-            processId=os.getpid(),
-            rootUri=self.rootURI,
-            capabilities={}
-        )
         self.io.write(self.lsp.send())
         self.initialized = False
         self.version = 1
@@ -47,7 +43,8 @@ class RustAnalyzer(QObject):
 
     def handle_event(self, event):
         if isinstance(event, PublishDiagnostics):
-            self.parent.linter.display(event.diagnostics)
+            self.diagnosticsReceived.emit(event.diagnostics)
+            self.parent.lsp_in_editor.display(event.diagnostics)
 
     def onFileOpen(self):
         text = self.parent.text()
@@ -86,8 +83,8 @@ class RustAnalyzer(QObject):
         if incoming:
             for event in self.lsp.recv(incoming):
                 if isinstance(event, Initialized):
-                    self.lsp.initialized()
-                    self.io.write(self.lsp.send())
+                    # self.lsp.is_initialized()
+                    # self.io.write(self.lsp.send())
                     self.initialized = True
                     self.onFileOpen()
                 self.handle_event(event)

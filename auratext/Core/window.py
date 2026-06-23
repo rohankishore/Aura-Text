@@ -2164,6 +2164,7 @@ class Window(QMainWindow):
             messagebox.setWindowTitle("Error"), messagebox.setText(
                 f"An error occurred while opening the file: {type(e).__name__}: {e}"
             )
+            print(f"An error occurred while opening the file: {type(e).__name__}: {e}")
             messagebox.exec()
 
     def open_pdf_in_app(self, path):

@@ -168,3 +168,84 @@ class LinterForEditor(QObject):
     def live(self):
         self.lint_timer.stop()
         self.lint_timer.start(500)
+
+class LSPInEditor(QObject):
+    """Attaches to a QsciScintilla editor and shows lint markers inline for LSP"""
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.editor = parent
+        if not isinstance(parent, QsciScintilla):
+            raise TypeError("LSPInEditor must be attached to a QsciScintilla or CodeEditor")
+
+        self.ERROR_MARKER = 0
+        self.WARNING_MARKER = 1
+        self.INFO_MARKER = 2
+        self._setup_markers()
+
+        self.lint_timer = QTimer(self)
+        self.lint_timer.setTimerType(Qt.TimerType.PreciseTimer)
+        self.lint_timer.setSingleShot(True)
+        self.lint_timer.timeout.connect(lambda: QTimer.singleShot(0, self.reanalyze))
+        self.editor.textChanged.connect(self.live)
+
+    def _setup_markers(self):
+        # Error marker (red circle)
+        self.editor.markerDefine(QsciScintilla.MarkerSymbol.Circle, self.ERROR_MARKER)
+        self.editor.setMarkerBackgroundColor(QColor("#FF0000"), self.ERROR_MARKER)
+        self.editor.setMarkerForegroundColor(QColor("#FFFFFF"), self.ERROR_MARKER)
+        # Warning marker (orange circle)
+        self.editor.markerDefine(QsciScintilla.MarkerSymbol.Circle, self.WARNING_MARKER)
+        self.editor.setMarkerBackgroundColor(QColor("#FFA500"), self.WARNING_MARKER)
+        self.editor.setMarkerForegroundColor(QColor("#000000"), self.WARNING_MARKER)
+        # Info marker (blue triangle)
+        self.editor.markerDefine(QsciScintilla.MarkerSymbol.RightTriangle, self.INFO_MARKER)
+        self.editor.setMarkerBackgroundColor(QColor("#0080FF"), self.INFO_MARKER)
+        self.editor.setMarkerForegroundColor(QColor("#FFFFFF"), self.INFO_MARKER)
+        # Enable boxed annotations
+        self.editor.setAnnotationDisplay(QsciScintilla.AnnotationDisplay.AnnotationBoxed)
+
+    def display(self, messages):
+        self.clearMarkers()
+        for msg in messages:
+            severity = msg.msg_id[0].upper()
+            annotation = f"{msg.msg} ({msg.msg_id}:{msg.symbol})"
+            line = msg.line - 1
+            if severity == "E":
+                self.editor.markerAdd(line, self.ERROR_MARKER)
+            elif severity == "W":
+                self.editor.markerAdd(line, self.WARNING_MARKER)
+            else:
+                self.editor.markerAdd(line, self.INFO_MARKER)
+            self.editor.annotate(line, annotation, 0)
+
+    def displayDiagnostics(self, diagnostics):
+        self.clearMarkers()
+
+        for d in diagnostics:
+            line = d.range.start.line
+            message = d.message
+
+            severity = d.severity if hasattr(d, "severity") else 3
+
+            if severity == 1:
+                marker = self.ERROR_MARKER
+            elif severity == 2:
+                marker = self.WARNING_MARKER
+            else:
+                marker = self.INFO_MARKER
+
+            self.editor.markerAdd(line, marker)
+            self.editor.annotate(line, message, 0)
+
+    def clearMarkers(self):
+        self.editor.markerDeleteAll(self.ERROR_MARKER)
+        self.editor.markerDeleteAll(self.WARNING_MARKER)
+        self.editor.markerDeleteAll(self.INFO_MARKER)
+        self.editor.SendScintilla(QsciScintillaBase.SCI_ANNOTATIONCLEARALL)
+
+    def reanalyze(self):
+        self.editor.linter.onFileChange()
+
+    def live(self):
+        self.lint_timer.stop()
+        self.lint_timer.start(500)
