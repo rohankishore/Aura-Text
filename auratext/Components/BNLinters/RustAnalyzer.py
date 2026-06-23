@@ -1,4 +1,6 @@
 from pathlib import Path
+import subprocess
+import os
 
 from .. import NonBlockingIO
 from sansio_lsp_client import Client
