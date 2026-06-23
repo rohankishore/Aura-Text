@@ -45,6 +45,10 @@ class RustAnalyzer(QObject):
         pathobj = Path(path).resolve()
         return pathobj.as_uri()
 
+    def handle_event(self, event):
+        if isinstance(event, PublishDiagnostics):
+            self.parent.linter.display(event.diagnostics)
+
     def onFileOpen(self):
         text = self.parent.text()
         self.lsp.did_open(
