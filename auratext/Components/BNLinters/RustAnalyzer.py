@@ -2,8 +2,13 @@ from pathlib import Path
 import subprocess
 import os
 
-from .. import NonBlockingIO
-from sansio_lsp_client import Client
+from PyQt6.QtCore import QObject, QTimer
+
+from ..NonBlockingIO import NonBlockingIO
+from sansio_lsp_client import Client, Initialized, TextDocumentItem,VersionedTextDocumentIdentifier, TextDocumentContentChangeEvent
+
+class LangServerNoExistError(Exception):
+    pass
 
 class RustAnalyzer(QObject):
     def __init__(self, parent=None, binaryPath=""):
