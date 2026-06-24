@@ -15,7 +15,8 @@ from .autocomplete_engine import PythonAutocompleteEngine
 
 from auratext.Misc.boilerplates import get_font_for_platform
 from auratext.Components.Linter import Linter, LinterForEditor, LSPInEditor
-from auratext.Components.BNLinters.RustAnalyzer import RustAnalyzer, LangServerNoExistError
+# from auratext.Components.BNLinters.RustAnalyzer import RustAnalyzer, LangServerNoExistError
+from auratext.Components.LSP import GenericLSPClient, LangServerNoExistError
 
 if TYPE_CHECKING:
     from .window import Window
@@ -201,7 +202,7 @@ class CodeEditor(QsciScintilla):
                 else:
                     binaryPath = os.path.join(self.parent.local_app_data, "bin", "rust-analyzer")
                 try:
-                    self.linter = RustAnalyzer(parent=self, binaryPath=binaryPath, file_path=file_path)
+                    self.linter = GenericLSPClient(parent=self, binaryPath=binaryPath, file_path=file_path, languageID="rust")
                     self.lsp_in_editor = LSPInEditor(parent=self)
                 except LangServerNoExistError:
                     print("WARNING: This build of Aura Text has not been compiled with the Rust language server, and so it will not be available for linting for Rust files.")
