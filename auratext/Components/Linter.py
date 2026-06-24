@@ -182,12 +182,6 @@ class LSPInEditor(QObject):
         self.INFO_MARKER = 2
         self._setup_markers()
 
-        self.lint_timer = QTimer(self)
-        self.lint_timer.setTimerType(Qt.TimerType.PreciseTimer)
-        self.lint_timer.setSingleShot(True)
-        self.lint_timer.timeout.connect(lambda: QTimer.singleShot(0, self.reanalyze))
-        self.editor.textChanged.connect(self.live)
-
     def _setup_markers(self):
         # Error marker (red circle)
         self.editor.markerDefine(QsciScintilla.MarkerSymbol.Circle, self.ERROR_MARKER)
@@ -226,10 +220,11 @@ class LSPInEditor(QObject):
             message = d.message
 
             severity = d.severity if hasattr(d, "severity") else 3
+            severity_value = getattr(severity, "value", severity)
 
-            if severity == 1:
+            if severity_value == 1:
                 marker = self.ERROR_MARKER
-            elif severity == 2:
+            elif severity_value == 2:
                 marker = self.WARNING_MARKER
             else:
                 marker = self.INFO_MARKER
@@ -244,8 +239,13 @@ class LSPInEditor(QObject):
         self.editor.SendScintilla(QsciScintillaBase.SCI_ANNOTATIONCLEARALL)
 
     def reanalyze(self):
-        self.editor.linter.onFileChange()
+        linter = getattr(self.editor, "linter", None)
+        if linter is None:
+            return
+        if hasattr(linter, "live"):
+            linter.live()
+        else:
+            linter.onFileChange()
 
     def live(self):
-        self.lint_timer.stop()
-        self.lint_timer.start(500)
+        self.reanalyze()

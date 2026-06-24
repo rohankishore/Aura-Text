@@ -55,15 +55,12 @@ class NonBlockingIO:
 
         def _stdout_to_read_queue(self) -> None:
             while True:
-                # for whatever reason, nothing works unless i go ONE BYTE at a
-                # time.... this is a piece of shit
-                #
-                # TODO: read1() method?
                 assert self._process.stdout is not None
-                one_fucking_byte = self._process.stdout.read(1)
-                if not one_fucking_byte:
+                read = getattr(self._process.stdout, "read1", self._process.stdout.read)
+                chunk = read(CHUNK_SIZE)
+                if not chunk:
                     break
-                self._read_queue.put(one_fucking_byte)
+                self._read_queue.put(chunk)
 
     # Return values:
     #   - nonempty bytes object: data was read
