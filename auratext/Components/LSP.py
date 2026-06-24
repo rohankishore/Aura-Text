@@ -35,6 +35,7 @@ class GenericLSPClient(QObject):
             stdout=subprocess.PIPE,
             stderr=subprocess.DEVNULL,
             cwd=self.rootpath if os.path.isdir(self.rootpath) else None,
+            creationflags=subprocess.CREATE_NO_WINDOW,
         )
         self.io = NonBlockingIO(self.process)
         self.lsp = Client(trace="verbose", root_uri=self.rootURI)
