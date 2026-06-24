@@ -53,14 +53,14 @@ class GenericLSPClient(QObject):
         QTimer.singleShot(0, self.IOPump)
 
     def _resolveRootPath(self, file_path):
-        if file_path:
-            candidate = Path(file_path).resolve()
-            search_dir = candidate.parent if candidate.is_file() else candidate
-            if self.languageID == "rust":
+        if self.languageID == "rust":
+            if file_path:
+                candidate = Path(file_path).resolve()
+                search_dir = candidate.parent if candidate.is_file() else candidate
                 for directory in (search_dir, *search_dir.parents):
                     if (directory / "Cargo.toml").exists():
                         return str(directory)
-            return str(search_dir)
+                return str(search_dir)
 
         window_root = getattr(getattr(self.parent, "parent", None), "cpath", "")
         if window_root:
