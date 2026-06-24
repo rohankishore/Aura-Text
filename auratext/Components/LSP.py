@@ -1,6 +1,7 @@
 from pathlib import Path
 import subprocess
 import os
+import platform
 
 from PyQt6.QtCore import QObject, QTimer, Qt, pyqtSignal
 
@@ -29,14 +30,23 @@ class GenericLSPClient(QObject):
         self.file_path = file_path
         self.rootURI = self.resolveFileURIFromPath(self.rootpath)
         self.fileURI = self.resolveFileURIFromPath(self.file_path)
-        self.process = subprocess.Popen(
-            [binaryPath],
-            stdin=subprocess.PIPE,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.DEVNULL,
-            cwd=self.rootpath if os.path.isdir(self.rootpath) else None,
-            creationflags=subprocess.CREATE_NO_WINDOW,
-        )
+        if platform.system() == "Windows":
+            self.process = subprocess.Popen(
+                [binaryPath],
+                stdin=subprocess.PIPE,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.DEVNULL,
+                cwd=self.rootpath if os.path.isdir(self.rootpath) else None,
+                creationflags=subprocess.CREATE_NO_WINDOW,
+            )
+        else:
+            self.process = subprocess.Popen(
+                [binaryPath],
+                stdin=subprocess.PIPE,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.DEVNULL,
+                cwd=self.rootpath if os.path.isdir(self.rootpath) else None,
+            )
         self.io = NonBlockingIO(self.process)
         self.lsp = Client(trace="verbose", root_uri=self.rootURI)
         self.io.write(self.lsp.send())
