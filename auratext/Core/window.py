@@ -700,7 +700,8 @@ class Window(QMainWindow):
         self.statusBar.hide()
         self.editors = []
         self.linters = {}  
-        self.tab_file_paths = {}  
+        self.tab_file_paths = {}
+        self.GlobalLSPDict = {}
 
         self.about_dialog = None
 
@@ -3311,3 +3312,7 @@ class Window(QMainWindow):
                 return QIcon(icon_path)
 
         return QIcon()
+
+    def registerLSPDictEntry(self, name, data):
+        # Add an entry per language to the global dictionary
+        self.GlobalLSPDict[name] = data

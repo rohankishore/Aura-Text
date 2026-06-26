@@ -196,19 +196,22 @@ class CodeEditor(QsciScintilla):
             if file_path.rsplit(".", 1)[-1] in pyexts:
                 self.linter = Linter()
                 self.linter_in_editor = LinterForEditor(parent=self)
-            elif file_path.rsplit(".", 1)[-1] in rustexts:
-                if platform.system() == "Windows":
-                    binaryPath = os.path.join(self.parent.local_app_data, "bin", "rust-analyzer.exe")
+            else:
+                if file_path.rsplit(".", 1)[-1] in rustexts:
+                    lang = "rust"
                 else:
-                    binaryPath = os.path.join(self.parent.local_app_data, "bin", "rust-analyzer")
+                    lang = ""
+                if lang in self.parent.GlobalLSPDict:
+                    binaryPath = self.parent.GlobalLSPDict[lang]
+                else:
+                    binaryPath = ""
                 try:
-                    self.linter = GenericLSPClient(parent=self, binaryPath=binaryPath, file_path=file_path, languageID="rust")
+                    self.linter = GenericLSPClient(parent=self, binaryPath=binaryPath, file_path=file_path,
+                                                   languageID=lang)
                     self.lsp_in_editor = LSPInEditor(parent=self)
                 except LangServerNoExistError:
                     print("WARNING: This build of Aura Text has not been compiled with the Rust language server, and so it will not be available for linting for Rust files.")
                     self.linter = None
-            else:
-                self.linter = None
         else:
             self.linter = None
 
