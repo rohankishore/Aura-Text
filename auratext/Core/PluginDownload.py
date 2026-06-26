@@ -83,7 +83,7 @@ class ExtensionCard(QFrame):
         
         # Load Icon
         self.load_icon()
-        self.load_local_metadata()
+        self.load_metadata()
 
     def set_default_icon(self):
         pixmap = QPixmap(48, 48)
@@ -123,6 +123,29 @@ class ExtensionCard(QFrame):
         if not pixmap.isNull():
             self.icon_label.setPixmap(pixmap.scaled(48, 48, Qt.AspectRatioMode.KeepAspectRatio, Qt.TransformationMode.SmoothTransformation))
 
+    def load_metadata(self):
+        # 1. Try local metadata first if installed
+        local_plugins_dir = os.path.join(self.parent_downloader._window.local_app_data, "plugins")
+        local_file_path = os.path.join(local_plugins_dir, f"{self.name}.py")
+        local_dir_path = os.path.join(local_plugins_dir, self.name)
+        installed = os.path.exists(local_file_path) or os.path.isdir(local_dir_path)
+        
+        if installed:
+            self.load_local_metadata()
+            return
+            
+        # 2. Otherwise, fetch remote metadata from GitHub raw CDN (non-rate-limited)
+        if self.plugin_type == "dir":
+            data_json_url = f"https://raw.githubusercontent.com/{self.parent_downloader.username}/{self.parent_downloader.repo}/main/Plugins/{self.name}/data.json"
+            self.parent_downloader.load_text_async(data_json_url, self.on_remote_data_json_loaded)
+            
+            # Optionally also try to load first line of README.md as backup description
+            readme_url = f"https://raw.githubusercontent.com/{self.parent_downloader.username}/{self.parent_downloader.repo}/main/Plugins/{self.name}/README.md"
+            self.parent_downloader.load_text_async(readme_url, self.on_remote_readme_loaded)
+        else:
+            py_url = f"https://raw.githubusercontent.com/{self.parent_downloader.username}/{self.parent_downloader.repo}/main/Plugins/{self.name}.py"
+            self.parent_downloader.load_text_async(py_url, self.on_remote_py_loaded)
+
     def load_local_metadata(self):
         local_plugins_dir = os.path.join(self.parent_downloader._window.local_app_data, "plugins")
         local_dir = os.path.join(local_plugins_dir, self.name)
@@ -138,9 +161,12 @@ class ExtensionCard(QFrame):
                     import json
                     with open(data_json_path, "r", encoding="utf-8") as f:
                         data = json.load(f)
-                    if isinstance(data, dict) and "name" in data:
-                        self.name_label.setText(data["name"])
-                        has_metadata = True
+                    if isinstance(data, dict):
+                        if "name" in data:
+                            self.name_label.setText(data["name"])
+                            has_metadata = True
+                        if "descr" in data:
+                            self.desc_label.setText(data["descr"])
                 except Exception as e:
                     print(f"Error parsing card data.json: {e}")
             
@@ -199,6 +225,51 @@ class ExtensionCard(QFrame):
                             self.desc_label.setText(lines[0])
                 except Exception as e:
                     print(f"Error loading local metadata fallback for card {self.name}: {e}")
+
+    def on_remote_data_json_loaded(self, text):
+        import json
+        try:
+            data = json.loads(text)
+            if isinstance(data, dict):
+                if "name" in data:
+                    self.name_label.setText(data["name"])
+                if "descr" in data:
+                    self.desc_label.setText(data["descr"])
+        except Exception as e:
+            print(f"Error parsing remote data.json for card {self.name}: {e}")
+
+    def on_remote_readme_loaded(self, text):
+        try:
+            lines = [l.strip() for l in text.split("\n") if l.strip() and not l.strip().startswith("#")]
+            if lines and self.desc_label.text() == f"Extension for {self.name}":
+                self.desc_label.setText(lines[0])
+        except Exception as e:
+            print(f"Error parsing remote readme for card {self.name}: {e}")
+
+    def on_remote_py_loaded(self, text):
+        try:
+            import ast
+            tree = ast.parse(text)
+            meta = {}
+            for node in tree.body:
+                if isinstance(node, ast.Assign):
+                    for target in node.targets:
+                        if isinstance(target, ast.Name) and target.id in ("__name__", "__readme__"):
+                            value = node.value
+                            if isinstance(value, ast.Constant):
+                                meta[target.id] = value.value
+                            elif isinstance(value, ast.Str):
+                                meta[target.id] = value.s
+                                
+            if "__name__" in meta:
+                self.name_label.setText(meta["__name__"])
+            if "__readme__" in meta:
+                readme = meta["__readme__"].strip()
+                lines = [l.strip() for l in readme.split("\n") if l.strip() and not l.strip().startswith("#")]
+                if lines:
+                    self.desc_label.setText(lines[0])
+        except Exception as e:
+            print(f"Error parsing remote py fallback for card {self.name}: {e}")
 
     def mousePressEvent(self, event):
         if event.button() == Qt.MouseButton.LeftButton:
@@ -284,6 +355,21 @@ class FileDownloader(QWidget):
                 pixmap = QPixmap()
                 if pixmap.loadFromData(data):
                     callback(pixmap)
+            reply.deleteLater()
+            if manager in self._active_managers:
+                self._active_managers.remove(manager)
+                
+        manager.finished.connect(handle_finished)
+        manager.get(QNetworkRequest(QUrl(url)))
+
+    def load_text_async(self, url, callback):
+        manager = QNetworkAccessManager(self)
+        self._active_managers.append(manager)
+        
+        def handle_finished(reply):
+            if reply.error() == QNetworkReply.NetworkError.NoError:
+                data = reply.readAll().data().decode("utf-8")
+                callback(data)
             reply.deleteLater()
             if manager in self._active_managers:
                 self._active_managers.remove(manager)
