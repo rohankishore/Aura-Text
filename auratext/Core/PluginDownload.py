@@ -46,14 +46,14 @@ class ExtensionCard(QFrame):
         info_layout.setSpacing(2)
         info_layout.setContentsMargins(0, 0, 0, 0)
         
-        name_label = QLabel(name)
-        name_label.setStyleSheet("font-weight: bold; font-size: 13px; color: #cccccc; border: none; background: transparent;")
-        desc_label = QLabel(description)
-        desc_label.setStyleSheet("color: #888888; border: none; background: transparent; font-size: 11px;")
-        desc_label.setWordWrap(True)
+        self.name_label = QLabel(name)
+        self.name_label.setStyleSheet("font-weight: bold; font-size: 13px; color: #cccccc; border: none; background: transparent;")
+        self.desc_label = QLabel(description)
+        self.desc_label.setStyleSheet("color: #888888; border: none; background: transparent; font-size: 11px;")
+        self.desc_label.setWordWrap(True)
         
-        info_layout.addWidget(name_label)
-        info_layout.addWidget(desc_label)
+        info_layout.addWidget(self.name_label)
+        info_layout.addWidget(self.desc_label)
         layout.addLayout(info_layout)
         
         # Install Button
@@ -80,6 +80,7 @@ class ExtensionCard(QFrame):
         
         # Load Icon
         self.load_icon()
+        self.load_local_metadata()
 
     def set_default_icon(self):
         pixmap = QPixmap(48, 48)
@@ -118,6 +119,53 @@ class ExtensionCard(QFrame):
     def on_icon_loaded(self, pixmap):
         if not pixmap.isNull():
             self.icon_label.setPixmap(pixmap.scaled(48, 48, Qt.AspectRatioMode.KeepAspectRatio, Qt.TransformationMode.SmoothTransformation))
+
+    def load_local_metadata(self):
+        local_plugins_dir = os.path.join(self.parent_downloader._window.local_app_data, "plugins")
+        local_dir = os.path.join(local_plugins_dir, self.name)
+        legacy_file = os.path.join(local_plugins_dir, f"{self.name}.py")
+        
+        py_file_path = None
+        if os.path.isdir(local_dir):
+            py_files = [f for f in os.listdir(local_dir) if f.endswith(".py") and f != "__init__.py"]
+            if py_files:
+                best_match = None
+                for py in py_files:
+                    if py.lower() == f"{self.name.lower()}.py":
+                        best_match = py
+                        break
+                if not best_match:
+                    best_match = py_files[0]
+                py_file_path = os.path.join(local_dir, best_match)
+        elif os.path.exists(legacy_file):
+            py_file_path = legacy_file
+            
+        if py_file_path and os.path.exists(py_file_path):
+            try:
+                import ast
+                with open(py_file_path, "r", encoding="utf-8") as f:
+                    content = f.read()
+                tree = ast.parse(content)
+                meta = {}
+                for node in tree.body:
+                    if isinstance(node, ast.Assign):
+                        for target in node.targets:
+                            if isinstance(target, ast.Name) and target.id in ("__name__", "__author__", "__readme__"):
+                                value = node.value
+                                if isinstance(value, ast.Constant):
+                                    meta[target.id] = value.value
+                                elif isinstance(value, ast.Str):
+                                    meta[target.id] = value.s
+                                    
+                if "__name__" in meta:
+                    self.name_label.setText(meta["__name__"])
+                if "__readme__" in meta:
+                    readme = meta["__readme__"].strip()
+                    lines = [l.strip() for l in readme.split("\n") if l.strip() and not l.strip().startswith("#")]
+                    if lines:
+                        self.desc_label.setText(lines[0])
+            except Exception as e:
+                print(f"Error loading local metadata for card {self.name}: {e}")
 
     def mousePressEvent(self, event):
         if event.button() == Qt.MouseButton.LeftButton:
