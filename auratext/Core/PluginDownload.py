@@ -125,47 +125,77 @@ class ExtensionCard(QFrame):
         local_dir = os.path.join(local_plugins_dir, self.name)
         legacy_file = os.path.join(local_plugins_dir, f"{self.name}.py")
         
-        py_file_path = None
+        has_metadata = False
+        
         if os.path.isdir(local_dir):
-            py_files = [f for f in os.listdir(local_dir) if f.endswith(".py") and f != "__init__.py"]
-            if py_files:
-                best_match = None
-                for py in py_files:
-                    if py.lower() == f"{self.name.lower()}.py":
-                        best_match = py
-                        break
-                if not best_match:
-                    best_match = py_files[0]
-                py_file_path = os.path.join(local_dir, best_match)
-        elif os.path.exists(legacy_file):
-            py_file_path = legacy_file
+            # 1. Check data.json
+            data_json_path = os.path.join(local_dir, "data.json")
+            if os.path.exists(data_json_path):
+                try:
+                    import json
+                    with open(data_json_path, "r", encoding="utf-8") as f:
+                        data = json.load(f)
+                    if isinstance(data, dict) and "name" in data:
+                        self.name_label.setText(data["name"])
+                        has_metadata = True
+                except Exception as e:
+                    print(f"Error parsing card data.json: {e}")
             
-        if py_file_path and os.path.exists(py_file_path):
-            try:
-                import ast
-                with open(py_file_path, "r", encoding="utf-8") as f:
-                    content = f.read()
-                tree = ast.parse(content)
-                meta = {}
-                for node in tree.body:
-                    if isinstance(node, ast.Assign):
-                        for target in node.targets:
-                            if isinstance(target, ast.Name) and target.id in ("__name__", "__author__", "__readme__"):
-                                value = node.value
-                                if isinstance(value, ast.Constant):
-                                    meta[target.id] = value.value
-                                elif isinstance(value, ast.Str):
-                                    meta[target.id] = value.s
-                                    
-                if "__name__" in meta:
-                    self.name_label.setText(meta["__name__"])
-                if "__readme__" in meta:
-                    readme = meta["__readme__"].strip()
+            # 2. Check README.md
+            readme_md_path = os.path.join(local_dir, "README.md")
+            if os.path.exists(readme_md_path):
+                try:
+                    with open(readme_md_path, "r", encoding="utf-8") as f:
+                        readme = f.read().strip()
                     lines = [l.strip() for l in readme.split("\n") if l.strip() and not l.strip().startswith("#")]
                     if lines:
                         self.desc_label.setText(lines[0])
-            except Exception as e:
-                print(f"Error loading local metadata for card {self.name}: {e}")
+                except Exception as e:
+                    print(f"Error reading card README.md: {e}")
+        
+        if not has_metadata:
+            # Fallback to py AST parsing
+            py_file_path = None
+            if os.path.isdir(local_dir):
+                py_files = [f for f in os.listdir(local_dir) if f.endswith(".py") and f != "__init__.py"]
+                if py_files:
+                    best_match = None
+                    for py in py_files:
+                        if py.lower() == f"{self.name.lower()}.py":
+                            best_match = py
+                            break
+                    if not best_match:
+                        best_match = py_files[0]
+                    py_file_path = os.path.join(local_dir, best_match)
+            elif os.path.exists(legacy_file):
+                py_file_path = legacy_file
+                
+            if py_file_path and os.path.exists(py_file_path):
+                try:
+                    import ast
+                    with open(py_file_path, "r", encoding="utf-8") as f:
+                        content = f.read()
+                    tree = ast.parse(content)
+                    meta = {}
+                    for node in tree.body:
+                        if isinstance(node, ast.Assign):
+                            for target in node.targets:
+                                if isinstance(target, ast.Name) and target.id in ("__name__", "__author__", "__readme__"):
+                                    value = node.value
+                                    if isinstance(value, ast.Constant):
+                                        meta[target.id] = value.value
+                                    elif isinstance(value, ast.Str):
+                                        meta[target.id] = value.s
+                                        
+                    if "__name__" in meta:
+                        self.name_label.setText(meta["__name__"])
+                    if "__readme__" in meta:
+                        readme = meta["__readme__"].strip()
+                        lines = [l.strip() for l in readme.split("\n") if l.strip() and not l.strip().startswith("#")]
+                        if lines:
+                            self.desc_label.setText(lines[0])
+                except Exception as e:
+                    print(f"Error loading local metadata fallback for card {self.name}: {e}")
 
     def mousePressEvent(self, event):
         if event.button() == Qt.MouseButton.LeftButton:

@@ -198,43 +198,84 @@ class PluginDetailsWidget(QWidget):
     def load_local_details(self):
         local_plugins_dir = os.path.join(self._window.local_app_data, "plugins")
         
-        py_file_path = None
-        icon_path = None
-        
         local_dir = os.path.join(local_plugins_dir, self.plugin_name)
         legacy_file = os.path.join(local_plugins_dir, f"{self.plugin_name}.py")
         
+        # Default/reset metadata
+        self.metadata = {
+            "__name__": self.plugin_name,
+            "__author__": "Unknown",
+            "__readme__": "No readme details available."
+        }
+        
+        icon_path = None
+        
         if os.path.isdir(local_dir):
-            # Search for icon
+            # 1. Read data.json for name and author
+            data_json_path = os.path.join(local_dir, "data.json")
+            if os.path.exists(data_json_path):
+                try:
+                    import json
+                    with open(data_json_path, "r", encoding="utf-8") as f:
+                        data = json.load(f)
+                    if isinstance(data, dict):
+                        if "name" in data:
+                            self.metadata["__name__"] = data["name"]
+                        if "author" in data:
+                            self.metadata["__author__"] = data["author"]
+                except Exception as e:
+                    print(f"Error parsing local data.json: {e}")
+            
+            # 2. Read README.md for markdown description
+            readme_md_path = os.path.join(local_dir, "README.md")
+            if os.path.exists(readme_md_path):
+                try:
+                    with open(readme_md_path, "r", encoding="utf-8") as f:
+                        self.metadata["__readme__"] = f.read()
+                except Exception as e:
+                    print(f"Error reading local README.md: {e}")
+            
+            # 3. Search for icon
             for ext in [".png", ".jpg", ".jpeg", ".svg"]:
                 p = os.path.join(local_dir, f"icon{ext}")
                 if os.path.exists(p):
                     icon_path = p
                     break
             
-            # Search for .py file inside folder
-            py_files = [f for f in os.listdir(local_dir) if f.endswith(".py") and f != "__init__.py"]
-            if py_files:
-                best_match = None
-                for py in py_files:
-                    if py.lower() == f"{self.plugin_name.lower()}.py":
-                        best_match = py
-                        break
-                if not best_match:
-                    best_match = py_files[0]
-                py_file_path = os.path.join(local_dir, best_match)
-        elif os.path.exists(legacy_file):
-            py_file_path = legacy_file
+            # 4. Fallback to py AST parsing if fields are missing
+            if self.metadata["__name__"] == self.plugin_name or self.metadata["__author__"] == "Unknown":
+                py_files = [f for f in os.listdir(local_dir) if f.endswith(".py") and f != "__init__.py"]
+                if py_files:
+                    best_match = None
+                    for py in py_files:
+                        if py.lower() == f"{self.plugin_name.lower()}.py":
+                            best_match = py
+                            break
+                    if not best_match:
+                        best_match = py_files[0]
+                    py_file_path = os.path.join(local_dir, best_match)
+                    if py_file_path and os.path.exists(py_file_path):
+                        try:
+                            with open(py_file_path, "r", encoding="utf-8") as f:
+                                content = f.read()
+                            meta = self.extract_metadata_from_code(content)
+                            if "__name__" in meta and self.metadata["__name__"] == self.plugin_name:
+                                self.metadata["__name__"] = meta["__name__"]
+                            if "__author__" in meta and self.metadata["__author__"] == "Unknown":
+                                self.metadata["__author__"] = meta["__author__"]
+                            if "__readme__" in meta and self.metadata["__readme__"] == "No readme details available.":
+                                self.metadata["__readme__"] = meta["__readme__"]
+                        except Exception as e:
+                            print(f"Error parsing local py fallback: {e}")
 
-        if py_file_path and os.path.exists(py_file_path):
+        elif os.path.exists(legacy_file):
             try:
-                with open(py_file_path, "r", encoding="utf-8") as f:
+                with open(legacy_file, "r", encoding="utf-8") as f:
                     content = f.read()
-                
                 meta = self.extract_metadata_from_code(content)
                 self.metadata.update(meta)
             except Exception as e:
-                print(f"Error reading local plugin details: {e}")
+                print(f"Error reading legacy file: {e}")
         
         self.apply_metadata_to_ui()
         
@@ -267,21 +308,32 @@ class PluginDetailsWidget(QWidget):
                 files = json.loads(reply.readAll().data().decode("utf-8"))
                 py_url = None
                 icon_url = None
+                data_json_url = None
+                readme_md_url = None
                 
                 for f in files:
                     if f["type"] == "file":
                         name = f["name"]
-                        if name.endswith(".py") and name != "__init__.py":
+                        if name == "data.json":
+                            data_json_url = f["download_url"]
+                        elif name.lower() == "readme.md":
+                            readme_md_url = f["download_url"]
+                        elif name.endswith(".py") and name != "__init__.py":
                             if not py_url or name.lower() == f"{self.plugin_name.lower()}.py":
                                 py_url = f["download_url"]
                         elif name.lower() in ("icon.png", "icon.jpg", "icon.jpeg", "icon.svg"):
                             icon_url = f["download_url"]
                 
-                if py_url:
+                if data_json_url:
+                    self.fetch_remote_data_json(data_json_url)
+                
+                if readme_md_url:
+                    self.fetch_remote_readme(readme_md_url)
+                elif py_url and not data_json_url:
                     self.fetch_py_and_parse(py_url)
-                else:
-                    self.author_label.setText("By: Unknown")
-                    self.readme_browser.setMarkdown("No Python code file found in this plugin folder.")
+                
+                if py_url and not data_json_url:
+                    self.fetch_py_and_parse(py_url)
                 
                 if icon_url:
                     self.fetch_and_set_icon(icon_url)
@@ -291,6 +343,40 @@ class PluginDetailsWidget(QWidget):
         else:
             self.author_label.setText("By: Unknown")
             self.readme_browser.setMarkdown("Failed to fetch folder contents from GitHub API. Please check your internet connection.")
+        reply.deleteLater()
+
+    def fetch_remote_data_json(self, url):
+        self.data_manager = QNetworkAccessManager(self)
+        self.data_manager.finished.connect(self.on_data_json_fetched)
+        self.data_manager.get(QNetworkRequest(QUrl(url)))
+
+    def on_data_json_fetched(self, reply):
+        if reply.error() == QNetworkReply.NetworkError.NoError:
+            import json
+            try:
+                data = json.loads(reply.readAll().data().decode("utf-8"))
+                if isinstance(data, dict):
+                    if "name" in data:
+                        self.metadata["__name__"] = data["name"]
+                    if "author" in data:
+                        self.metadata["__author__"] = data["author"]
+                    self.apply_metadata_to_ui()
+            except Exception as e:
+                print(f"Error parsing fetched data.json: {e}")
+        reply.deleteLater()
+
+    def fetch_remote_readme(self, url):
+        self.readme_manager = QNetworkAccessManager(self)
+        self.readme_manager.finished.connect(self.on_readme_fetched)
+        self.readme_manager.get(QNetworkRequest(QUrl(url)))
+
+    def on_readme_fetched(self, reply):
+        if reply.error() == QNetworkReply.NetworkError.NoError:
+            try:
+                self.metadata["__readme__"] = reply.readAll().data().decode("utf-8")
+                self.apply_metadata_to_ui()
+            except Exception as e:
+                print(f"Error reading fetched README: {e}")
         reply.deleteLater()
 
     def fetch_py_and_parse(self, url):
