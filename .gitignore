@@ -226,3 +226,6 @@ auratext/elements.db
 
 # Downloaded linters and such
 bin/
+
+# Plugins
+plugins/*.py
