@@ -38,6 +38,7 @@ class ExtensionCard(QFrame):
         self.icon_label = QLabel(self)
         self.icon_label.setFixedSize(48, 48)
         self.icon_label.setStyleSheet("background: transparent; border: none;")
+        self.icon_label.setAttribute(Qt.WidgetAttribute.WA_TransparentForMouseEvents)
         self.set_default_icon()
         layout.addWidget(self.icon_label)
         
@@ -48,9 +49,11 @@ class ExtensionCard(QFrame):
         
         self.name_label = QLabel(name)
         self.name_label.setStyleSheet("font-weight: bold; font-size: 13px; color: #cccccc; border: none; background: transparent;")
+        self.name_label.setAttribute(Qt.WidgetAttribute.WA_TransparentForMouseEvents)
         self.desc_label = QLabel(description)
         self.desc_label.setStyleSheet("color: #888888; border: none; background: transparent; font-size: 11px;")
         self.desc_label.setWordWrap(True)
+        self.desc_label.setAttribute(Qt.WidgetAttribute.WA_TransparentForMouseEvents)
         
         info_layout.addWidget(self.name_label)
         info_layout.addWidget(self.desc_label)
