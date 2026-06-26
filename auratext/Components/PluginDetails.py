@@ -343,6 +343,11 @@ class PluginDetailsWidget(QWidget):
         name = self.metadata.get("__name__", self.plugin_name)
         self.name_label.setText(name)
         
+        # Dynamically update the tab text as well!
+        tab_index = self._window.tab_widget.indexOf(self)
+        if tab_index != -1:
+            self._window.tab_widget.setTabText(tab_index, f"Extension: {name}")
+        
         author = self.metadata.get("__author__", "Unknown")
         self.author_label.setText(f"By: {author}")
         
