@@ -248,12 +248,9 @@ class FileDownloader(QWidget):
 
     def update_install_buttons(self):
         for card in self.cards:
-            if card.plugin_type == "file":
-                local_file_path = os.path.join(self._window.local_app_data, "plugins", f"{card.name}.py")
-                installed = os.path.exists(local_file_path)
-            else:
-                local_dir_path = os.path.join(self._window.local_app_data, "plugins", card.name)
-                installed = os.path.isdir(local_dir_path)
+            local_file_path = os.path.join(self._window.local_app_data, "plugins", f"{card.name}.py")
+            local_dir_path = os.path.join(self._window.local_app_data, "plugins", card.name)
+            installed = os.path.exists(local_file_path) or os.path.isdir(local_dir_path)
                 
             if installed:
                 card.install_btn.setText("Installed")

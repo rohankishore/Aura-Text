@@ -116,12 +116,9 @@ class PluginDetailsWidget(QWidget):
         self.icon_label.setPixmap(pixmap)
 
     def is_installed(self):
-        if self.plugin_type == "file":
-            local_file = os.path.join(self._window.local_app_data, "plugins", f"{self.plugin_name}.py")
-            return os.path.exists(local_file)
-        else:
-            local_dir = os.path.join(self._window.local_app_data, "plugins", self.plugin_name)
-            return os.path.isdir(local_dir)
+        local_file = os.path.join(self._window.local_app_data, "plugins", f"{self.plugin_name}.py")
+        local_dir = os.path.join(self._window.local_app_data, "plugins", self.plugin_name)
+        return os.path.exists(local_file) or os.path.isdir(local_dir)
 
     def update_action_button_style(self):
         if self.is_installed():
@@ -158,15 +155,13 @@ class PluginDetailsWidget(QWidget):
         if self.is_installed():
             # Uninstall logic
             try:
-                if self.plugin_type == "file":
-                    local_file = os.path.join(self._window.local_app_data, "plugins", f"{self.plugin_name}.py")
-                    if os.path.exists(local_file):
-                        os.remove(local_file)
-                else:
-                    local_dir = os.path.join(self._window.local_app_data, "plugins", self.plugin_name)
-                    if os.path.isdir(local_dir):
-                        import shutil
-                        shutil.rmtree(local_dir)
+                local_file = os.path.join(self._window.local_app_data, "plugins", f"{self.plugin_name}.py")
+                local_dir = os.path.join(self._window.local_app_data, "plugins", self.plugin_name)
+                if os.path.exists(local_file):
+                    os.remove(local_file)
+                if os.path.isdir(local_dir):
+                    import shutil
+                    shutil.rmtree(local_dir)
                 
                 self._window.load_plugins()
                 self.update_action_button_style()
@@ -206,29 +201,30 @@ class PluginDetailsWidget(QWidget):
         py_file_path = None
         icon_path = None
         
-        if self.plugin_type == "file":
-            py_file_path = os.path.join(local_plugins_dir, f"{self.plugin_name}.py")
-        else:
-            local_dir = os.path.join(local_plugins_dir, self.plugin_name)
-            if os.path.isdir(local_dir):
-                # Search for icon
-                for ext in [".png", ".jpg", ".jpeg", ".svg"]:
-                    p = os.path.join(local_dir, f"icon{ext}")
-                    if os.path.exists(p):
-                        icon_path = p
+        local_dir = os.path.join(local_plugins_dir, self.plugin_name)
+        legacy_file = os.path.join(local_plugins_dir, f"{self.plugin_name}.py")
+        
+        if os.path.isdir(local_dir):
+            # Search for icon
+            for ext in [".png", ".jpg", ".jpeg", ".svg"]:
+                p = os.path.join(local_dir, f"icon{ext}")
+                if os.path.exists(p):
+                    icon_path = p
+                    break
+            
+            # Search for .py file inside folder
+            py_files = [f for f in os.listdir(local_dir) if f.endswith(".py") and f != "__init__.py"]
+            if py_files:
+                best_match = None
+                for py in py_files:
+                    if py.lower() == f"{self.plugin_name.lower()}.py":
+                        best_match = py
                         break
-                
-                # Search for .py file inside folder
-                py_files = [f for f in os.listdir(local_dir) if f.endswith(".py") and f != "__init__.py"]
-                if py_files:
-                    best_match = None
-                    for py in py_files:
-                        if py.lower() == f"{self.plugin_name.lower()}.py":
-                            best_match = py
-                            break
-                    if not best_match:
-                        best_match = py_files[0]
-                    py_file_path = os.path.join(local_dir, best_match)
+                if not best_match:
+                    best_match = py_files[0]
+                py_file_path = os.path.join(local_dir, best_match)
+        elif os.path.exists(legacy_file):
+            py_file_path = legacy_file
 
         if py_file_path and os.path.exists(py_file_path):
             try:
