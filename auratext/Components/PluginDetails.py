@@ -228,8 +228,9 @@ class PluginDetailsWidget(QWidget):
                             self.metadata["__name__"] = data["name"]
                         if "author" in data:
                             self.metadata["__author__"] = data["author"]
-                        if "descr" in data:
-                            self.metadata["descr"] = data["descr"]
+                        descr = data.get("desc") or data.get("descr")
+                        if descr:
+                            self.metadata["descr"] = descr
                 except Exception as e:
                     print(f"Error parsing local data.json: {e}")
             
@@ -374,8 +375,9 @@ class PluginDetailsWidget(QWidget):
                         self.metadata["__name__"] = data["name"]
                     if "author" in data:
                         self.metadata["__author__"] = data["author"]
-                    if "descr" in data:
-                        self.metadata["descr"] = data["descr"]
+                    descr = data.get("desc") or data.get("descr")
+                    if descr:
+                        self.metadata["descr"] = descr
                     self.apply_metadata_to_ui()
             except Exception as e:
                 print(f"Error parsing fetched data.json: {e}")

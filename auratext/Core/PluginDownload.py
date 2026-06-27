@@ -138,10 +138,6 @@ class ExtensionCard(QFrame):
         if self.plugin_type == "dir":
             data_json_url = f"https://raw.githubusercontent.com/{self.parent_downloader.username}/{self.parent_downloader.repo}/main/Plugins/{self.name}/data.json"
             self.parent_downloader.load_text_async(data_json_url, self.on_remote_data_json_loaded)
-            
-            # Optionally also try to load first line of README.md as backup description
-            readme_url = f"https://raw.githubusercontent.com/{self.parent_downloader.username}/{self.parent_downloader.repo}/main/Plugins/{self.name}/README.md"
-            self.parent_downloader.load_text_async(readme_url, self.on_remote_readme_loaded)
         else:
             py_url = f"https://raw.githubusercontent.com/{self.parent_downloader.username}/{self.parent_downloader.repo}/main/Plugins/{self.name}.py"
             self.parent_downloader.load_text_async(py_url, self.on_remote_py_loaded)
@@ -165,8 +161,10 @@ class ExtensionCard(QFrame):
                         if "name" in data:
                             self.name_label.setText(data["name"])
                             has_metadata = True
-                        if "descr" in data:
-                            self.desc_label.setText(data["descr"])
+                        descr = data.get("desc") or data.get("descr")
+                        if descr:
+                            self.desc_label.setText(descr)
+                            has_metadata = True
                 except Exception as e:
                     print(f"Error parsing card data.json: {e}")
             
@@ -233,8 +231,9 @@ class ExtensionCard(QFrame):
             if isinstance(data, dict):
                 if "name" in data:
                     self.name_label.setText(data["name"])
-                if "descr" in data:
-                    self.desc_label.setText(data["descr"])
+                descr = data.get("desc") or data.get("descr")
+                if descr:
+                    self.desc_label.setText(descr)
         except Exception as e:
             print(f"Error parsing remote data.json for card {self.name}: {e}")
 
@@ -360,7 +359,9 @@ class FileDownloader(QWidget):
                 self._active_managers.remove(manager)
                 
         manager.finished.connect(handle_finished)
-        manager.get(QNetworkRequest(QUrl(url)))
+        request = QNetworkRequest(QUrl(url))
+        request.setHeader(QNetworkRequest.KnownHeaders.UserAgentHeader, "Aura-Text-Editor")
+        manager.get(request)
 
     def load_text_async(self, url, callback):
         manager = QNetworkAccessManager(self)
@@ -375,7 +376,9 @@ class FileDownloader(QWidget):
                 self._active_managers.remove(manager)
                 
         manager.finished.connect(handle_finished)
-        manager.get(QNetworkRequest(QUrl(url)))
+        request = QNetworkRequest(QUrl(url))
+        request.setHeader(QNetworkRequest.KnownHeaders.UserAgentHeader, "Aura-Text-Editor")
+        manager.get(request)
 
     def get_file_list(self):
         api_url = f"https://api.github.com/repos/{self.username}/{self.repo}/contents/Plugins"
