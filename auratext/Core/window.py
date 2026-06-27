@@ -2000,10 +2000,15 @@ class Window(QMainWindow):
                 QMessageBox.warning(self, "No Editor", "Current tab is not a text editor.")
                 return
             
-            # Create split tab widget
-            self.split_tab_widget = TabWidget()
-            self.apply_vscode_tab_style(self.split_tab_widget)
-            self.split_tab_widget.setTabsClosable(True)
+            try:
+                # Create split tab widget
+                self.split_tab_widget = TabWidget()
+                self.apply_vscode_tab_style(self.split_tab_widget)
+                self.split_tab_widget.setTabsClosable(True)
+
+            except AttributeError:
+                QMessageBox.warning(self, "No Editor", "Current tab is not a text editor.")
+                return
             
             # Create a new editor container with same content
             split_container = QWidget()
