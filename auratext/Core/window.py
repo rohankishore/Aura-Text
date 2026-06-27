@@ -1265,24 +1265,49 @@ class Window(QMainWindow):
         if not os.path.isdir(plugin_dir):
             return
 
-        plugin_files = [
-            f.split(".")[0] for f in os.listdir(plugin_dir) if f.endswith(".py")
-        ]
-        if plugin_dir not in sys.path:
-            sys.path.append(plugin_dir)
-        for plugin_file in plugin_files:
-            if not plugin_file.isidentifier():
-                continue
-            try:
-                module = importlib.import_module(plugin_file)
+        for f in os.listdir(plugin_dir):
+            path = os.path.join(plugin_dir, f)
+            if os.path.isfile(path) and f.endswith(".py"):
+                plugin_name = f[:-3]
+                self._load_plugin_module(plugin_name, path, plugin_dir)
+            elif os.path.isdir(path):
+                py_files = [py for py in os.listdir(path) if py.endswith(".py") and py != "__init__.py"]
+                if py_files:
+                    best_match = None
+                    for py in py_files:
+                        if py.lower() == f"{f.lower()}.py":
+                            best_match = py
+                            break
+                    if not best_match:
+                        best_match = py_files[0]
+                    
+                    py_file_path = os.path.join(path, best_match)
+                    plugin_name = best_match[:-3]
+                    self._load_plugin_module(plugin_name, py_file_path, path)
+
+    def _load_plugin_module(self, plugin_name, file_path, sys_path_entry):
+        if not plugin_name.isidentifier():
+            return
+        
+        if sys_path_entry not in sys.path:
+            sys.path.append(sys_path_entry)
+            
+        try:
+            import importlib.util
+            spec = importlib.util.spec_from_file_location(plugin_name, file_path)
+            if spec and spec.loader:
+                module = importlib.util.module_from_spec(spec)
+                sys.modules[plugin_name] = module
+                spec.loader.exec_module(module)
+                
                 for name, obj in module.__dict__.items():
                     if isinstance(obj, type) and issubclass(obj, Plugin) and obj is not Plugin:
                         try:
                             self.plugins.append(obj(self))
-                        except Exception:
-                            continue
-            except Exception:
-                continue
+                        except Exception as e:
+                            print(f"Error initializing plugin class {name}: {e}")
+        except Exception as e:
+            print(f"Error loading plugin {plugin_name} from {file_path}: {e}")
 
     def onPluginDockVisibilityChanged(self, visible):
         if visible:
@@ -1700,6 +1725,24 @@ class Window(QMainWindow):
         self.tab_widget.addTab(self.settings_widget, settings_icon, "Settings")
         self.tab_widget.setCurrentWidget(self.settings_widget)
         self.statusBar.show()
+
+    def open_plugin_details(self, name, plugin_type):
+        from auratext.Components.PluginDetails import PluginDetailsWidget
+        
+        # Check if tab is already open
+        for i in range(self.tab_widget.count()):
+            widget = self.tab_widget.widget(i)
+            if isinstance(widget, PluginDetailsWidget) and widget.plugin_name == name:
+                self.tab_widget.setCurrentIndex(i)
+                return
+        
+        # Create details widget
+        details_widget = PluginDetailsWidget(name, plugin_type, self)
+        
+        # Add tab
+        icon = QIcon()
+        self.tab_widget.addTab(details_widget, icon, f"Extension: {name}")
+        self.tab_widget.setCurrentWidget(details_widget)
 
     def expandSidebar__Plugins(self):
         # Remove existing docks if they exist
@@ -2874,11 +2917,9 @@ class Window(QMainWindow):
     def change_text_editor(self, index):
         widget = self.tab_widget.widget(index)
         
-        # Check if this is a non-editor tab (like Welcome screen, DB viewer, etc.)
-        from auratext.Misc import WelcomeScreen
-        from auratext.Components.DBViewer import DBViewer
-        
-        if isinstance(widget, (WelcomeScreen.WelcomeWidget, DBViewer)):
+        # Check if this is a non-editor tab (like Welcome screen, DB viewer, Settings, PluginDetails, etc.)
+        editor = self.get_editor_from_widget(widget)
+        if not editor or not isinstance(editor, CodeEditor):
             self.statusBar.hide()
             self.run_button.hide()
             return
@@ -3015,8 +3056,10 @@ class Window(QMainWindow):
         
         # Update run button visibility after tab removal
         self.update_run_button_visibility()
-        if index < len(self.editors):
-            del self.editors[index]
+        closed_widget = self.tab_widget.widget(index)
+        editor = self.get_editor_from_widget(closed_widget)
+        if editor and editor in self.editors:
+            self.editors.remove(editor)
             self.statusBar.hide()
 
         if self.tab_widget.count() == 0:
