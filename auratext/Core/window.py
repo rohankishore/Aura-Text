@@ -2008,7 +2008,7 @@ class Window(QMainWindow):
                 self.split_tab_widget.setTabsClosable(True)
 
             except AttributeError:
-                QMessageBox.warning(self, "No Editor", "Current tab is not a text editor.")
+                QMessageBox.warning(self, "Error - No Editor", "Split Editor doesn't work on non-text-editor tabs.")
                 return
             
             # Create a new editor container with same content
