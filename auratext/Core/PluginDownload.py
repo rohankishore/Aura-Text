@@ -82,7 +82,7 @@ class ExtensionCard(QFrame):
         self.update_button = QPushButton("Update")
         self.update_button.setFixedSize(70, 26)
         self.update_button.setCursor(Qt.CursorShape.PointingHandCursor)
-        self.Update_button.setStyleSheet("""
+        self.update_button.setStyleSheet("""
             QPushButton {
                 background-color: #0e639c;
                 color: white;
@@ -293,7 +293,7 @@ class ExtensionCard(QFrame):
     def mousePressEvent(self, event):
         if event.button() == Qt.MouseButton.LeftButton:
             # Only trigger details if not clicking the install button directly
-            if not self.install_btn.geometry().contains(event.pos()):
+            if not self.install_btn.geometry().contains(event.pos()) and not self.update_button.geometry().contains(event.pos()):
                 self.parent_downloader._window.open_plugin_details(self.name, self.plugin_type)
         super().mousePressEvent(event)
 
