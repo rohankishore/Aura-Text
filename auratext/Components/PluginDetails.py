@@ -53,15 +53,20 @@ class PluginDetailsWidget(QWidget):
         self.set_default_icon()
         header_layout.addWidget(self.icon_label)
         
-        # Name and Author Layout
+        # Name, Description, and Author Layout
         info_layout = QVBoxLayout()
         self.name_label = QLabel(self.plugin_name)
         self.name_label.setStyleSheet("font-size: 20px; font-weight: bold; color: #ffffff; background: transparent; border: none;")
         
+        self.descr_label = QLabel("")
+        self.descr_label.setStyleSheet("font-size: 13px; color: #cccccc; background: transparent; border: none;")
+        self.descr_label.setWordWrap(True)
+        
         self.author_label = QLabel("By: Loading...")
-        self.author_label.setStyleSheet("font-size: 13px; color: #888888; background: transparent; border: none;")
+        self.author_label.setStyleSheet("font-size: 12px; color: #888888; background: transparent; border: none;")
         
         info_layout.addWidget(self.name_label)
+        info_layout.addWidget(self.descr_label)
         info_layout.addWidget(self.author_label)
         info_layout.addStretch()
         header_layout.addLayout(info_layout)
@@ -223,6 +228,8 @@ class PluginDetailsWidget(QWidget):
                             self.metadata["__name__"] = data["name"]
                         if "author" in data:
                             self.metadata["__author__"] = data["author"]
+                        if "descr" in data:
+                            self.metadata["descr"] = data["descr"]
                 except Exception as e:
                     print(f"Error parsing local data.json: {e}")
             
@@ -283,6 +290,9 @@ class PluginDetailsWidget(QWidget):
             pixmap = QPixmap(icon_path)
             if not pixmap.isNull():
                 self.icon_label.setPixmap(pixmap.scaled(64, 64, Qt.AspectRatioMode.KeepAspectRatio, Qt.TransformationMode.SmoothTransformation))
+                tab_index = self._window.tab_widget.indexOf(self)
+                if tab_index != -1:
+                    self._window.tab_widget.setTabIcon(tab_index, QIcon(pixmap))
 
     def load_remote_details(self):
         username = "rohankishore"
@@ -299,7 +309,9 @@ class PluginDetailsWidget(QWidget):
             
             self.manager = QNetworkAccessManager(self)
             self.manager.finished.connect(self.on_dir_contents_fetched)
-            self.manager.get(QNetworkRequest(QUrl(api_url)))
+            request = QNetworkRequest(QUrl(api_url))
+            request.setHeader(QNetworkRequest.KnownHeaders.UserAgentHeader, "Aura-Text-Editor")
+            self.manager.get(request)
 
     def on_dir_contents_fetched(self, reply):
         if reply.error() == QNetworkReply.NetworkError.NoError:
@@ -348,7 +360,9 @@ class PluginDetailsWidget(QWidget):
     def fetch_remote_data_json(self, url):
         self.data_manager = QNetworkAccessManager(self)
         self.data_manager.finished.connect(self.on_data_json_fetched)
-        self.data_manager.get(QNetworkRequest(QUrl(url)))
+        request = QNetworkRequest(QUrl(url))
+        request.setHeader(QNetworkRequest.KnownHeaders.UserAgentHeader, "Aura-Text-Editor")
+        self.data_manager.get(request)
 
     def on_data_json_fetched(self, reply):
         if reply.error() == QNetworkReply.NetworkError.NoError:
@@ -360,6 +374,8 @@ class PluginDetailsWidget(QWidget):
                         self.metadata["__name__"] = data["name"]
                     if "author" in data:
                         self.metadata["__author__"] = data["author"]
+                    if "descr" in data:
+                        self.metadata["descr"] = data["descr"]
                     self.apply_metadata_to_ui()
             except Exception as e:
                 print(f"Error parsing fetched data.json: {e}")
@@ -368,7 +384,9 @@ class PluginDetailsWidget(QWidget):
     def fetch_remote_readme(self, url):
         self.readme_manager = QNetworkAccessManager(self)
         self.readme_manager.finished.connect(self.on_readme_fetched)
-        self.readme_manager.get(QNetworkRequest(QUrl(url)))
+        request = QNetworkRequest(QUrl(url))
+        request.setHeader(QNetworkRequest.KnownHeaders.UserAgentHeader, "Aura-Text-Editor")
+        self.readme_manager.get(request)
 
     def on_readme_fetched(self, reply):
         if reply.error() == QNetworkReply.NetworkError.NoError:
@@ -382,7 +400,9 @@ class PluginDetailsWidget(QWidget):
     def fetch_py_and_parse(self, url):
         self.py_manager = QNetworkAccessManager(self)
         self.py_manager.finished.connect(self.on_py_fetched)
-        self.py_manager.get(QNetworkRequest(QUrl(url)))
+        request = QNetworkRequest(QUrl(url))
+        request.setHeader(QNetworkRequest.KnownHeaders.UserAgentHeader, "Aura-Text-Editor")
+        self.py_manager.get(request)
 
     def on_py_fetched(self, reply):
         if reply.error() == QNetworkReply.NetworkError.NoError:
@@ -398,7 +418,9 @@ class PluginDetailsWidget(QWidget):
     def fetch_and_set_icon(self, url):
         self.icon_manager = QNetworkAccessManager(self)
         self.icon_manager.finished.connect(self.on_icon_fetched)
-        self.icon_manager.get(QNetworkRequest(QUrl(url)))
+        request = QNetworkRequest(QUrl(url))
+        request.setHeader(QNetworkRequest.KnownHeaders.UserAgentHeader, "Aura-Text-Editor")
+        self.icon_manager.get(request)
 
     def on_icon_fetched(self, reply):
         if reply.error() == QNetworkReply.NetworkError.NoError:
@@ -406,6 +428,9 @@ class PluginDetailsWidget(QWidget):
             pixmap = QPixmap()
             if pixmap.loadFromData(data):
                 self.icon_label.setPixmap(pixmap.scaled(64, 64, Qt.AspectRatioMode.KeepAspectRatio, Qt.TransformationMode.SmoothTransformation))
+                tab_index = self._window.tab_widget.indexOf(self)
+                if tab_index != -1:
+                    self._window.tab_widget.setTabIcon(tab_index, QIcon(pixmap))
         reply.deleteLater()
 
     def extract_metadata_from_code(self, content):
@@ -433,6 +458,13 @@ class PluginDetailsWidget(QWidget):
         tab_index = self._window.tab_widget.indexOf(self)
         if tab_index != -1:
             self._window.tab_widget.setTabText(tab_index, f"Extension: {name}")
+            
+        descr = self.metadata.get("descr", "")
+        if not descr:
+            readme = self.metadata.get("__readme__", "").strip()
+            lines = [l.strip() for l in readme.split("\n") if l.strip() and not l.strip().startswith("#")]
+            descr = lines[0] if lines else ""
+        self.descr_label.setText(descr)
         
         author = self.metadata.get("__author__", "Unknown")
         self.author_label.setText(f"By: {author}")
