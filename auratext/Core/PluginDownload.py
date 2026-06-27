@@ -59,7 +59,7 @@ class ExtensionCard(QFrame):
         info_layout.addWidget(self.desc_label)
         layout.addLayout(info_layout)
         
-        # Install Button
+        # Install Button & update button
         self.install_btn = QPushButton("Install")
         self.install_btn.setFixedSize(70, 26)
         self.install_btn.setCursor(Qt.CursorShape.PointingHandCursor)
@@ -79,7 +79,27 @@ class ExtensionCard(QFrame):
                 color: #888888;
             }
         """)
+        self.update_button = QPushButton("Update")
+        self.update_button.setFixedSize(70, 26)
+        self.update_button.setCursor(Qt.CursorShape.PointingHandCursor)
+        self.Update_button.setStyleSheet("""
+            QPushButton {
+                background-color: #0e639c;
+                color: white;
+                border: none;
+                border-radius: 2px;
+                font-size: 11px;
+            }
+            QPushButton:hover {
+                background-color: #1177bb;
+            }
+            QPushButton:disabled {
+                background-color: #3e3e3e;
+                color: #888888;
+            }
+        """)
         layout.addWidget(self.install_btn)
+        layout.addWidget(self.update_button)
         
         # Load Icon
         self.load_icon()
