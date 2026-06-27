@@ -429,6 +429,9 @@ class FileDownloader(QWidget):
                     card.install_btn.clicked.connect(
                         lambda _, n=name, t=p_type, btn=card.install_btn: self.download_plugin(n, t, btn)
                     )
+                    card.update_button.clicked.connect(
+                        lambda _, n=name, t=p_type, btn=card.update_button: self.download_plugin(n, t, btn, update=True)
+                    )
                     self.container_layout.addWidget(card)
                     self.cards.append(card)
 
@@ -449,7 +452,7 @@ class FileDownloader(QWidget):
                 card.install_btn.setText("Install")
                 card.install_btn.setDisabled(False)
 
-    def download_plugin(self, file_name, plugin_type, button):
+    def download_plugin(self, file_name, plugin_type, button, update=False):
         if plugin_type == "file":
             selected_file = file_name + ".py"
             download_url = f"https://raw.githubusercontent.com/{self.username}/{self.repo}/main/Plugins/{selected_file}"
@@ -466,9 +469,13 @@ class FileDownloader(QWidget):
                     with open(local_file_path, "wb") as f:
                         f.write(response.content)
                     
-                    button.setText("Installed")
-                    button.setDisabled(True)
-                    QMessageBox.information(self, "Success", f"{file_name} installed successfully!")
+    
+                    if not update:
+                        button.setText("Installed")
+                        button.setDisabled(True)
+                        QMessageBox.information(self, "Success", f"{file_name} installed successfully!")
+                    else:
+                        QMessageBox.information(self, "Success", f"{file_name} updated successfully!")
                     self._window.load_plugins()
                 else:
                     QMessageBox.critical(self, "Error", f"Failed to download: HTTP {response.status_code}")
@@ -493,9 +500,12 @@ class FileDownloader(QWidget):
                                 with open(os.path.join(local_dir, f_name), "wb") as f:
                                     f.write(f_response.content)
                     
-                    button.setText("Installed")
-                    button.setDisabled(True)
-                    QMessageBox.information(self, "Success", f"{file_name} installed successfully!")
+                    if not update:
+                        button.setText("Installed")
+                        button.setDisabled(True)
+                        QMessageBox.information(self, "Success", f"{file_name} installed successfully!")
+                    else:
+                        QMessageBox.information(self, "Success", f"{file_name} updated successfully!")
                     self._window.load_plugins()
                 else:
                     QMessageBox.critical(self, "Error", f"Failed to fetch directory contents: HTTP {response.status_code}")
