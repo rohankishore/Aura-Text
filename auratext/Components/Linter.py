@@ -212,7 +212,20 @@ class LSPInEditor(QObject):
         # Enable boxed annotations
         self.editor.setAnnotationDisplay(QsciScintilla.AnnotationDisplay.AnnotationBoxed)
 
+    def freezeViewport(self):
+        # Save scroll position & cursor line
+        self._vpos = self.editor.verticalScrollBar().value()
+        line, index = self.editor.getCursorPosition()
+        self._cursor_line = line
+        self._cursor_index = index
+
+    def restoreViewport(self):
+        # Restore scroll & cursor position
+        self.editor.verticalScrollBar().setValue(self._vpos)
+        self.editor.setCursorPosition(self._cursor_line, self._cursor_index)
+
     def display(self, messages):
+        self.freezeViewport()
         self.clearMarkers()
         for msg in messages:
             severity = msg.msg_id[0].upper()
@@ -225,8 +238,10 @@ class LSPInEditor(QObject):
             else:
                 self.editor.markerAdd(line, self.INFO_MARKER)
             self.editor.annotate(line, annotation, 0)
+        self.restoreViewport()
 
     def displayDiagnostics(self, diagnostics):
+        self.freezeViewport()
         self.clearMarkers()
 
         for d in diagnostics:
@@ -245,6 +260,7 @@ class LSPInEditor(QObject):
 
             self.editor.markerAdd(line, marker)
             self.editor.annotate(line, message, 0)
+        self.restoreViewport()
 
     def clearMarkers(self):
         self.editor.markerDeleteAll(self.ERROR_MARKER)
