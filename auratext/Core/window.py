@@ -2174,12 +2174,10 @@ class Window(QMainWindow):
             if index is not None and self.explorer_tree_view:
                 if self.explorer_tree_view.isExpanded(index):
                     self.explorer_tree_view.collapse(index)
-                    source_idx = index
                     source_idx = self.proxy_model.mapToSource(index)
                     print("Collapsing directory:", self.model.filePath(source_idx))
                 else:
                     self.explorer_tree_view.setExpanded(index, True)
-                    source_idx = index
                     source_idx = self.proxy_model.mapToSource(index)
                     print("Expanding directory:", self.model.filePath(source_idx))
         else:
