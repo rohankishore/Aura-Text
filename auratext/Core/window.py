@@ -32,6 +32,7 @@ from PyQt6.QtWidgets import (
     QFileDialog,
     QSplashScreen,
     QMessageBox,
+    QProgressDialog,
     QPlainTextEdit,
     QPushButton,
     QWidget,
@@ -1260,6 +1261,16 @@ class Window(QMainWindow):
                     pass
 
     def load_plugins(self):
+        dlg = QProgressDialog("Loading plugins...", None, 0, 100, self)
+        dlg.setWindowTitle("Loading main window")
+        dlg.setWindowModality(Qt.WindowModality.WindowModal)
+        dlg.setMinimumDuration(0)  # show immediately
+        dlg.setAutoClose(False)
+        dlg.setAutoReset(False)
+        dlg.setLabelText("Loading plugins...")
+        dlg.show()
+        QApplication.processEvents()
+    
         self.plugins = []
         # plugin_dir = f"{local_app_data}/plugins"
         plugin_dir = os.path.join(local_app_data, "plugins")
@@ -1285,6 +1296,8 @@ class Window(QMainWindow):
                     py_file_path = os.path.join(path, best_match)
                     plugin_name = best_match[:-3]
                     self._load_plugin_module(plugin_name, py_file_path, path)
+
+        dlg.close()
 
     def _load_plugin_module(self, plugin_name, file_path, sys_path_entry):
         if not plugin_name.isidentifier():
