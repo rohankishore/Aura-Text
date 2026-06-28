@@ -2011,7 +2011,7 @@ class Window(QMainWindow):
             current_editor = self.get_editor_from_widget(current_widget)
             
             if not current_editor:
-                QMessageBox.warning(self, "Error : No Text Editor", "Current tab is not a text editor.")
+                QMessageBox.warning(self, "Error: No Text Editor", "Current tab is not a text editor.")
                 return
             
             try:
@@ -2021,7 +2021,7 @@ class Window(QMainWindow):
                 self.split_tab_widget.setTabsClosable(True)
 
             except AttributeError:
-                QMessageBox.warning(self, "Error : No Text Editor", "Split Editor doesn't work on non-text-editor tabs.")
+                QMessageBox.warning(self, "Error: No Text Editor", "Split Editor doesn't work on non-text-editor tabs.")
                 return
             
             # Create a new editor container with same content
