@@ -2175,14 +2175,12 @@ class Window(QMainWindow):
                 if self.explorer_tree_view.isExpanded(index):
                     self.explorer_tree_view.collapse(index)
                     source_idx = index
-                    if hasattr(self, 'proxy_model') and self.proxy_model:
-                        source_idx = self.proxy_model.mapToSource(index)
+                    source_idx = self.proxy_model.mapToSource(index)
                     print("Collapsing directory:", self.model.filePath(source_idx))
                 else:
                     self.explorer_tree_view.setExpanded(index, True)
                     source_idx = index
-                    if hasattr(self, 'proxy_model') and self.proxy_model:
-                        source_idx = self.proxy_model.mapToSource(index)
+                    source_idx = self.proxy_model.mapToSource(index)
                     print("Expanding directory:", self.model.filePath(source_idx))
         else:
             raise RuntimeError("Not expanding a non-directory object; check if you have permissions to access it.")
