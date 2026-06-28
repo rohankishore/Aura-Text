@@ -171,13 +171,20 @@ class LinterForEditor(QObject):
 
     def reanalyze(self):
         text = self.editor.text()
-        self.thread = QThread()
-        self.worker = self.LintWorker(self.editor.linter, text)
-        self.worker.moveToThread(self.thread)
-        self.thread.started.connect(self.worker.run)
-        self.worker.finished.connect(self.display)
-        self.worker.finished.connect(self.thread.quit)
-        self.thread.start()
+        thread = QThread()
+        worker = self.LintWorker(self.editor.linter, text)
+        worker.moveToThread(thread)
+        thread.started.connect(worker.run)
+        worker.finished.connect(self.display)
+        worker.finished.connect(lambda: self._quitThread(thread))
+        thread.start()
+        self.thread = thread
+        self.worker = worker
+
+    def _quitThread(self, thread):
+        thread.quit()
+        thread.wait()
+        thread.deleteLater()
 
     def live(self):
         self.lint_timer.stop()
