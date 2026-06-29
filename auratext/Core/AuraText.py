@@ -207,7 +207,7 @@ class CodeEditor(QsciScintilla):
             jspexts = ["jsp"]
             phpexts = ["php", "php3", "php4", "php5", "phps", "phpt", "phtml"]
             xmlexts = ["xml", "xhtml", "xht", "xul", "kml", "xaml", "xsml"]
-            sheadingexts = ["sh", "bsh", "bash"]
+            sheadingexts = ["sh", "bsh", "bash", "zsh", "fish", "csh", "tcsh"]
             cmdexts = ["bat", "cmd"]
             nsisexts = ["nsi", "nsh"]
             luaexts = ["lua"]
