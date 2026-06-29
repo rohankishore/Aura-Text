@@ -193,11 +193,13 @@ class CodeEditor(QsciScintilla):
             print(f"VERBOSE: Initializing editor with file path: {file_path}")
             pyexts = ['py', 'pyw', 'pyi']
             rustexts = ['rs']
-            if file_path.rsplit(".", 1)[-1] in pyexts:
+            ext = file_path.rsplit(".", 1)[-1].lower()
+
+            if ext in pyexts:
                 self.linter = Linter()
                 self.linter_in_editor = LinterForEditor(parent=self)
             else:
-                if file_path.rsplit(".", 1)[-1] in rustexts:
+                if ext in rustexts:
                     lang = "rust"
                 else:
                     lang = ""
