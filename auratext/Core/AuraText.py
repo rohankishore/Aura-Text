@@ -307,12 +307,16 @@ class CodeEditor(QsciScintilla):
         QTimer.singleShot(100, self.update_color_previews)
 
     def check_shebang(self, file_path):
-        text = retrieve_file(file_path)
-        if text.startswith("#!"):
-            shebang = text.splitlines()[0]
-            return True, shebang
-        else:
+        if not file_path or not os.path.exists(file_path):
             return False, ""
+        try:
+            text = retrieve_file(file_path)
+            if text.startswith("#!"):
+                shebang = text.splitlines()[0]
+                return True, shebang
+        except Exception:
+            pass
+        return False, ""
 
     def _rgb_to_scintilla_color(self, color: QColor) -> int:
         return (color.blue() << 16) | (color.green() << 8) | color.red()
