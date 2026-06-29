@@ -220,7 +220,7 @@ class CodeEditor(QsciScintilla):
             fortranexts = ["f", "for", "f90", "f95", "f2k"]
             texexts = ["tex"]
             sqlexts = ["sql"]
-            nfoexts = ["nfo"]
+            nfoexts = ["nfo", "log", "txt", "rtf"]
 
             ext = file_path.rsplit(".", 1)[-1].lower()
             shebang_exists, _ = self.check_shebang(file_path)
