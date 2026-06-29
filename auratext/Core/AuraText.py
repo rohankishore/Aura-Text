@@ -273,7 +273,7 @@ class CodeEditor(QsciScintilla):
                 elif ext in makeexts:
                     lang = "makefile"
                 elif ext in rcexts:
-                    lang = "cpp"
+                    lang = "rc"
                 elif ext in asexts:
                     lang = "actionscript"
                 elif ext in mxexts:
