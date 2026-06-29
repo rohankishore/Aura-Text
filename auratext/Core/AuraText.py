@@ -247,7 +247,7 @@ class CodeEditor(QsciScintilla):
                 elif ext in htmlexts:
                     lang = "html"
                 elif ext in aspexts:
-                    lang = "html"
+                    lang = "asp"
                 elif ext in cssexts:
                     lang = "css"
                 elif ext in jsexts:
