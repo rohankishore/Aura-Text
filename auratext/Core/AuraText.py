@@ -253,7 +253,7 @@ class CodeEditor(QsciScintilla):
                 elif ext in jsexts:
                     lang = "javascript"
                 elif ext in jspexts:
-                    lang = "java"
+                    lang = "jsp"
                 elif ext in phpexts:
                     lang = "php"
                 elif ext in xmlexts:
