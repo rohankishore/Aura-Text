@@ -13,7 +13,7 @@ from . import Lexers
 from . import Modules as ModuleFile
 from .autocomplete_engine import PythonAutocompleteEngine
 
-from auratext.Misc.boilerplates import get_font_for_platform
+from auratext.Misc.boilerplates import get_font_for_platform, retrieve_file
 from auratext.Components.Linter import Linter, LinterForEditor, LSPInEditor
 # from auratext.Components.BNLinters.RustAnalyzer import RustAnalyzer, LangServerNoExistError
 from auratext.Components.LSP import GenericLSPClient, LangServerNoExistError
@@ -223,6 +223,7 @@ class CodeEditor(QsciScintilla):
             nfoexts = ["nfo"]
 
             ext = file_path.rsplit(".", 1)[-1].lower()
+            shebang_exists, _ = self.check_shebang(file_path)
 
             if ext in pyexts:
                 self.linter = Linter()
@@ -258,7 +259,7 @@ class CodeEditor(QsciScintilla):
                     lang = "php"
                 elif ext in xmlexts:
                     lang = "xml"
-                elif ext in sheadingexts:
+                elif ext in sheadingexts or shebang_exists:
                     lang = "shellscript"
                 elif ext in cmdexts:
                     lang = "bat"
@@ -304,6 +305,14 @@ class CodeEditor(QsciScintilla):
 
         # Initial scan for colors
         QTimer.singleShot(100, self.update_color_previews)
+
+    def check_shebang(self, file_path):
+        text = retrieve_file(file_path)
+        if text.startswith("#!"):
+            shebang = text.splitlines()[0]
+            return True, shebang
+        else:
+            return False, ""
 
     def _rgb_to_scintilla_color(self, color: QColor) -> int:
         return (color.blue() << 16) | (color.green() << 8) | color.red()
