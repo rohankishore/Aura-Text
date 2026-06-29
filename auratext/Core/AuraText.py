@@ -297,7 +297,7 @@ class CodeEditor(QsciScintilla):
                                                    languageID=lang)
                     self.lsp_in_editor = LSPInEditor(parent=self)
                 except LangServerNoExistError:
-                    print(f"WARNING: This build of Aura Text has not been compiled with the {lang} language server, and so it will not be available for linting for Rust files.")
+                    print(f"WARNING: The {lang} language server is not installed in this copy of Aura Text, and so it will not be available for linting for Rust files.")
                     self.linter = None
         else:
             self.linter = None
