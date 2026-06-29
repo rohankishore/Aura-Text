@@ -193,6 +193,35 @@ class CodeEditor(QsciScintilla):
             print(f"VERBOSE: Initializing editor with file path: {file_path}")
             pyexts = ['py', 'pyw', 'pyi']
             rustexts = ['rs']
+            plistexts = ["plist"]
+            cexts = ["h", "hh", "hpp", "hxx", "c", "cpp", "cxx", "cc", "m", "mm"]
+            vcexts = ["vcxproj", "vcproj", "props", "vsprops", "manifest"]
+            javaexts = ["java"]
+            pascalexts = ["pas", "pp", "inc"]
+            vbexts = ["vb", "vbs"]
+            csexts = ["cs"]
+            htmlexts = ["html", "htm", "shtml", "shtm", "hta"]
+            aspexts = ["asp", "aspx"]
+            cssexts = ["css"]
+            jsexts = ["js", "json", "mjs", "jsm"]
+            jspexts = ["jsp"]
+            phpexts = ["php", "php3", "php4", "php5", "phps", "phpt", "phtml"]
+            xmlexts = ["xml", "xhtml", "xht", "xul", "kml", "xaml", "xsml"]
+            sheadingexts = ["sh", "bsh", "bash"]
+            cmdexts = ["bat", "cmd"]
+            nsisexts = ["nsi", "nsh"]
+            luaexts = ["lua"]
+            perlexts = ["pl", "pm"]
+            innoexts = ["iss"]
+            makeexts = ["mak"]
+            rcexts = ["rc"]
+            asexts = ["as"]
+            mxexts = ["mx"]
+            fortranexts = ["f", "for", "f90", "f95", "f2k"]
+            texexts = ["tex"]
+            sqlexts = ["sql"]
+            nfoexts = ["nfo"]
+
             ext = file_path.rsplit(".", 1)[-1].lower()
 
             if ext in pyexts:
@@ -201,6 +230,62 @@ class CodeEditor(QsciScintilla):
             else:
                 if ext in rustexts:
                     lang = "rust"
+                elif ext in plistexts:
+                    lang = "xml"
+                elif ext in cexts:
+                    lang = "cpp"
+                elif ext in vcexts:
+                    lang = "xml"
+                elif ext in javaexts:
+                    lang = "java"
+                elif ext in pascalexts:
+                    lang = "pascal"
+                elif ext in vbexts:
+                    lang = "visualbasic"
+                elif ext in csexts:
+                    lang = "csharp"
+                elif ext in htmlexts:
+                    lang = "html"
+                elif ext in aspexts:
+                    lang = "html"
+                elif ext in cssexts:
+                    lang = "css"
+                elif ext in jsexts:
+                    lang = "javascript"
+                elif ext in jspexts:
+                    lang = "java"
+                elif ext in phpexts:
+                    lang = "php"
+                elif ext in xmlexts:
+                    lang = "xml"
+                elif ext in sheadingexts:
+                    lang = "shellscript"
+                elif ext in cmdexts:
+                    lang = "bat"
+                elif ext in nsisexts:
+                    lang = "nsis"
+                elif ext in luaexts:
+                    lang = "lua"
+                elif ext in perlexts:
+                    lang = "perl"
+                elif ext in innoexts:
+                    lang = "iss"
+                elif ext in makeexts:
+                    lang = "makefile"
+                elif ext in rcexts:
+                    lang = "cpp"
+                elif ext in asexts:
+                    lang = "actionscript"
+                elif ext in mxexts:
+                    lang = "maxscript"
+                elif ext in fortranexts:
+                    lang = "fortran"
+                elif ext in texexts:
+                    lang = "latex"
+                elif ext in sqlexts:
+                    lang = "sql"
+                elif ext in nfoexts:
+                    lang = "plaintext"
                 else:
                     lang = ""
                 if lang in self.parent.GlobalLSPDict:
