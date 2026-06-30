@@ -1377,19 +1377,34 @@ class Window(QMainWindow):
 
                         def __init__(self, pip_bin, plugin_dep_dir, packages):
                             super().__init__()
-                            self.pip_bin = pip_bin
+                            system_pip = [sys.executable, "-m", "pip"]
+                            if os.path.exists(pip_bin):
+                                print("INFO: Using embedded python to install required libraries for plugins")
+                                self.pip_bin = pip_bin
+                            else:
+                                print("WARNING: Not running in a proper production environment; falling back to system python")
+                                self.pip_bin = system_pip
                             self.plugin_dep_dir = plugin_dep_dir
                             self.packages = packages
 
                         def run(self):
                             try:
-                                subprocess.check_call([
-                                    self.pip_bin,
-                                    "install",
-                                    "--target",
-                                    self.plugin_dep_dir,
-                                    *self.packages
-                                ])
+                                if isinstance(self.pip_bin, str):
+                                    subprocess.check_call([
+                                        self.pip_bin,
+                                        "install",
+                                        "--target",
+                                        self.plugin_dep_dir,
+                                        *self.packages
+                                    ])
+                                else:
+                                    subprocess.check_call([
+                                        *self.pip_bin,
+                                        "install",
+                                        "--target",
+                                        self.plugin_dep_dir,
+                                        *self.packages
+                                    ])
                                 self.finished.emit(True, "")
                             except Exception as e:
                                 self.finished.emit(False, str(e))
