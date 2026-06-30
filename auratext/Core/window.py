@@ -1343,15 +1343,15 @@ class Window(QMainWindow):
                         
             if missing_install_names:
                 from PyQt6.QtWidgets import QMessageBox
-                if getattr(sys, 'frozen', False):
-                    QMessageBox.warning(
-                        self,
-                        "Plugin Load Warning",
-                        f"The plugin '{plugin_name}' requires the following package(s) which are not bundled in this version of Aura-Text:\n"
-                        f"{', '.join(missing_install_names)}\n\n"
-                        f"Please run Aura-Text from source using Python to use this plugin."
-                    )
-                    return False
+                # if getattr(sys, 'frozen', False):
+                #     QMessageBox.warning(
+                #         self,
+                #         "Plugin Load Warning",
+                #         f"The plugin '{plugin_name}' requires the following package(s) which are not bundled in this version of Aura-Text:\n"
+                #         f"{', '.join(missing_install_names)}\n\n"
+                #         f"Please run Aura-Text from source using Python to use this plugin."
+                #     )
+                #     return False
                     
                 reply = QMessageBox.question(
                     self,
