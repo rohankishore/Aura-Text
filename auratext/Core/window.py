@@ -304,7 +304,12 @@ class Window(QMainWindow):
     def __init__(self, greeting=None):
         super().__init__()
         self.local_app_data = local_app_data
+        self.plugin_dep_dir = os.path.join(local_app_data, "site-packages")
+        sys.path.append(self.plugin_dep_dir)
+        self.portable_python_dir = os.path.join(os.path.dirname(sys.executable), "portable-python")
         # self._terminal_history = ""
+
+        os.makedirs(self.plugin_dep_dir, exist_ok=True)
 
         self.version = "v5.5.0"
 
@@ -1353,14 +1358,31 @@ class Window(QMainWindow):
                 )
                 
                 if reply == QMessageBox.StandardButton.Yes:
+                    if platform.system() == "Windows":
+                        portable_pip = os.path.join(self.portable_python_dir, "Scripts", "pip.exe")
+                    else:
+                        portable_pip = os.path.join(self.portable_python_dir, "bin", "pip3")
                     from PyQt6.QtCore import QThread, pyqtSignal, Qt
                     from PyQt6.QtWidgets import QProgressDialog, QApplication
                     
                     class PipWorker(QThread):
                         finished = pyqtSignal(bool, str)
+
+                        def __init__(self, pip_bin, plugin_dep_dir, packages):
+                            super().__init__()
+                            self.pip_bin = pip_bin
+                            self.plugin_dep_dir = plugin_dep_dir
+                            self.packages = packages
+
                         def run(self):
                             try:
-                                subprocess.check_call([sys.executable, "-m", "pip", "install", *missing_install_names])
+                                subprocess.check_call([
+                                    self.pip_bin,
+                                    "install",
+                                    "--target",
+                                    self.plugin_dep_dir,
+                                    *self.packages
+                                ])
                                 self.finished.emit(True, "")
                             except Exception as e:
                                 self.finished.emit(False, str(e))
@@ -1375,8 +1397,9 @@ class Window(QMainWindow):
                         install_status["success"] = success
                         install_status["error"] = err
                         progress.close()
-                        
-                    self._pip_worker = PipWorker()
+                    
+                    print(f"Installing dependencies for {plugin_name}:")
+                    self._pip_worker = PipWorker(portable_pip, self.plugin_dep_dir, missing_install_names)
                     self._pip_worker.finished.connect(on_pip_finished)
                     self._pip_worker.start()
                     
