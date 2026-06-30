@@ -2287,6 +2287,13 @@ class Window(QMainWindow):
             raise RuntimeError("Not expanding a non-directory object; check if you have permissions to access it.")
 
     def open_file_from_path(self, path, index=None):
+        # Check if the file is already open in any existing tab
+        norm_target = os.path.normpath(os.path.abspath(path))
+        for tab_idx, tab_path in self.tab_file_paths.items():
+            if tab_path and os.path.normpath(os.path.abspath(tab_path)) == norm_target:
+                self.tab_widget.setCurrentIndex(tab_idx)
+                return
+
         image_extensions = ["png", "jpg", "jpeg", "ico", "gif", "bmp"]
         ext = path.split(".")[-1]
 
@@ -2311,6 +2318,7 @@ class Window(QMainWindow):
             filedata = retrieve_file(path)
             self.new_document(title=os.path.basename(path), file_path=path)
             self.current_editor.insert(filedata)
+                
             if ext.lower() == "md":
                 self.markdown_open(filedata, path)
         except UnicodeDecodeError:
