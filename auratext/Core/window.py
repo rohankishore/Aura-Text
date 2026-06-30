@@ -1307,7 +1307,6 @@ class Window(QMainWindow):
         data_json_path = os.path.join(sys_path_entry, "data.json")
         if os.path.exists(data_json_path):
             try:
-                import json
                 with open(data_json_path, "r", encoding="utf-8") as f:
                     meta = json.load(f)
                 
@@ -1347,8 +1346,6 @@ class Window(QMainWindow):
                         if reply == QMessageBox.StandardButton.Yes:
                             from PyQt6.QtCore import QThread, pyqtSignal, Qt
                             from PyQt6.QtWidgets import QProgressDialog, QApplication
-                            import subprocess
-                            import sys
                             
                             class PipWorker(QThread):
                                 finished = pyqtSignal(bool, str)
