@@ -307,17 +307,22 @@ class TerminalEmulator(QWidget):
 
         if event.key() == Qt.Key.Key_Return or event.key() == Qt.Key.Key_Enter:
             self.execute_command()
+            event.accept()
         elif event.key() == Qt.Key.Key_Backspace:
             if len(self.current_command) > 0:
                 self.current_command = self.current_command[:-1]
                 cursor.deletePreviousChar()
+            event.accept()
         elif event.key() == Qt.Key.Key_Up:
             self.show_previous_command()
+            event.accept()
         elif event.key() == Qt.Key.Key_Down:
             self.show_next_command()
+            event.accept()
         elif event.key() == Qt.Key.Key_Left:
             if cursor.positionInBlock() > len(self.prompt):
                 cursor.movePosition(QTextCursor.MoveOperation.Left)
+            event.accept()
         elif event.key() == Qt.Key.Key_Home:
             cursor.movePosition(QTextCursor.MoveOperation.StartOfLine)
             cursor.movePosition(
@@ -325,6 +330,7 @@ class TerminalEmulator(QWidget):
                 QTextCursor.MoveMode.MoveAnchor,
                 len(self.prompt),
             )
+            event.accept()
         else:
             if cursor.positionInBlock() >= len(self.prompt):
                 self.current_command += event.text()
