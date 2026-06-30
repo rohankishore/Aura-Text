@@ -1299,101 +1299,112 @@ class Window(QMainWindow):
 
         dlg.close()
 
+    def check_and_install_dependencies(self, sys_path_entry, plugin_name):
+        # Check and resolve dependencies if data.json exists in sys_path_entry
+        data_json_path = os.path.join(sys_path_entry, "data.json")
+        if not os.path.exists(data_json_path):
+            return True
+            
+        try:
+            with open(data_json_path, "r", encoding="utf-8") as f:
+                meta = json.load(f)
+            
+            dependencies = meta.get("dependencies")
+            if not dependencies:
+                return True
+                
+            import importlib.util
+            missing_install_names = []
+            
+            if isinstance(dependencies, list):
+                for dep in dependencies:
+                    top_level = dep.split('.')[0]
+                    try:
+                        __import__(top_level)
+                    except ImportError:
+                        missing_install_names.append(dep)
+            elif isinstance(dependencies, dict):
+                for import_name, install_name in dependencies.items():
+                    top_level = import_name.split('.')[0]
+                    try:
+                        __import__(top_level)
+                    except ImportError:
+                        missing_install_names.append(install_name)
+                        
+            if missing_install_names:
+                from PyQt6.QtWidgets import QMessageBox
+                if getattr(sys, 'frozen', False):
+                    QMessageBox.warning(
+                        self,
+                        "Plugin Load Warning",
+                        f"The plugin '{plugin_name}' requires the following package(s) which are not bundled in this version of Aura-Text:\n"
+                        f"{', '.join(missing_install_names)}\n\n"
+                        f"Please run Aura-Text from source using Python to use this plugin."
+                    )
+                    return False
+                    
+                reply = QMessageBox.question(
+                    self,
+                    "Install Plugin Dependencies",
+                    f"The plugin '{plugin_name}' requires the following package(s) to be installed:\n"
+                    f"{', '.join(missing_install_names)}\n\n"
+                    f"Would you like to install them now?",
+                    QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No
+                )
+                
+                if reply == QMessageBox.StandardButton.Yes:
+                    from PyQt6.QtCore import QThread, pyqtSignal, Qt
+                    from PyQt6.QtWidgets import QProgressDialog, QApplication
+                    
+                    class PipWorker(QThread):
+                        finished = pyqtSignal(bool, str)
+                        def run(self):
+                            try:
+                                subprocess.check_call([sys.executable, "-m", "pip", "install", *missing_install_names])
+                                self.finished.emit(True, "")
+                            except Exception as e:
+                                self.finished.emit(False, str(e))
+                                
+                    progress = QProgressDialog(f"Installing dependencies for {plugin_name}...", None, 0, 0, self)
+                    progress.setWindowTitle("Installing Packages")
+                    progress.setWindowModality(Qt.WindowModality.WindowModal)
+                    progress.show()
+                    
+                    install_status = {"success": False, "error": ""}
+                    def on_pip_finished(success, err):
+                        install_status["success"] = success
+                        install_status["error"] = err
+                        progress.close()
+                        
+                    self._pip_worker = PipWorker()
+                    self._pip_worker.finished.connect(on_pip_finished)
+                    self._pip_worker.start()
+                    
+                    while self._pip_worker.isRunning():
+                        QApplication.processEvents()
+                        
+                    success = install_status["success"]
+                    err_msg = install_status["error"]
+                    self._pip_worker = None
+                    
+                    if not success:
+                        if err_msg:
+                            QMessageBox.warning(self, "Installation Failed", f"Failed to install dependencies:\n{err_msg}")
+                        return False
+                else:
+                    return False
+        except Exception as e:
+            print(f"Error checking/installing dependencies for {plugin_name}: {e}")
+            
+        return True
+
     def _load_plugin_module(self, plugin_name, file_path, sys_path_entry):
         if not plugin_name.isidentifier():
             return
         
         # Check and resolve dependencies if data.json exists in sys_path_entry
-        data_json_path = os.path.join(sys_path_entry, "data.json")
-        if os.path.exists(data_json_path):
-            try:
-                with open(data_json_path, "r", encoding="utf-8") as f:
-                    meta = json.load(f)
-                
-                dependencies = meta.get("dependencies")
-                if dependencies:
-                    import importlib.util
-                    missing_install_names = []
-                    
-                    if isinstance(dependencies, list):
-                        for dep in dependencies:
-                            top_level = dep.split('.')[0]
-                            try:
-                                __import__(top_level)
-                            except ImportError:
-                                missing_install_names.append(dep)
-                    elif isinstance(dependencies, dict):
-                        for import_name, install_name in dependencies.items():
-                            top_level = import_name.split('.')[0]
-                            try:
-                                __import__(top_level)
-                            except ImportError:
-                                missing_install_names.append(install_name)
-                                
-                    if missing_install_names:
-                        from PyQt6.QtWidgets import QMessageBox
-                        if getattr(sys, 'frozen', False):
-                            QMessageBox.warning(
-                                self,
-                                "Plugin Load Warning",
-                                f"The plugin '{plugin_name}' requires the following package(s) which are not bundled in this version of Aura-Text:\n"
-                                f"{', '.join(missing_install_names)}\n\n"
-                                f"Please run Aura-Text from source using Python to use this plugin."
-                            )
-                            return # Abort loading
-                            
-                        reply = QMessageBox.question(
-                            self,
-                            "Install Plugin Dependencies",
-                            f"The plugin '{plugin_name}' requires the following package(s) to be installed:\n"
-                            f"{', '.join(missing_install_names)}\n\n"
-                            f"Would you like to install them now?",
-                            QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No
-                        )
-                        
-                        if reply == QMessageBox.StandardButton.Yes:
-                            from PyQt6.QtCore import QThread, pyqtSignal, Qt
-                            from PyQt6.QtWidgets import QProgressDialog, QApplication
-                            
-                            class PipWorker(QThread):
-                                finished = pyqtSignal(bool, str)
-                                def run(self):
-                                    try:
-                                        subprocess.check_call([sys.executable, "-m", "pip", "install", *missing_install_names])
-                                        self.finished.emit(True, "")
-                                    except Exception as e:
-                                        self.finished.emit(False, str(e))
-                                        
-                            progress = QProgressDialog(f"Installing dependencies for {plugin_name}...", None, 0, 0, self)
-                            progress.setWindowTitle("Installing Packages")
-                            progress.setWindowModality(Qt.WindowModality.WindowModal)
-                            progress.show()
-                            
-                            install_status = {"success": False, "error": ""}
-                            def on_pip_finished(success, err):
-                                install_status["success"] = success
-                                install_status["error"] = err
-                                progress.close()
-                                
-                            self._pip_worker = PipWorker()
-                            self._pip_worker.finished.connect(on_pip_finished)
-                            self._pip_worker.start()
-                            
-                            while self._pip_worker.isRunning():
-                                QApplication.processEvents()
-                                
-                            success = install_status["success"]
-                            err_msg = install_status["error"]
-                            self._pip_worker = None
-                            
-                            if not success:
-                                if err_msg:
-                                    QMessageBox.warning(self, "Installation Failed", f"Failed to install dependencies:\n{err_msg}")
-                                return # Abort loading
-                        else:
-                            return # Abort loading
-            except Exception as e:
-                print(f"Error checking/installing dependencies for {plugin_name}: {e}")
+        if not self.check_and_install_dependencies(sys_path_entry, plugin_name):
+            return
 
         if sys_path_entry not in sys.path:
             sys.path.append(sys_path_entry)

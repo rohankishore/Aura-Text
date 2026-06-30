@@ -500,12 +500,21 @@ class FileDownloader(QWidget):
                                 with open(os.path.join(local_dir, f_name), "wb") as f:
                                     f.write(f_response.content)
                     
+                    # Resolve dependencies as part of the download/update flow
+                    deps_installed = self._window.check_and_install_dependencies(local_dir, file_name)
+                    
                     if not update:
                         button.setText("Installed")
                         button.setDisabled(True)
-                        QMessageBox.information(self, "Success", f"{file_name} installed successfully!")
+                        if deps_installed:
+                            QMessageBox.information(self, "Success", f"{file_name} and its dependencies installed successfully!")
+                        else:
+                            QMessageBox.warning(self, "Warning", f"{file_name} files downloaded, but dependencies were not installed successfully.")
                     else:
-                        QMessageBox.information(self, "Success", f"{file_name} updated successfully!")
+                        if deps_installed:
+                            QMessageBox.information(self, "Success", f"{file_name} and its dependencies updated successfully!")
+                        else:
+                            QMessageBox.warning(self, "Warning", f"{file_name} updated, but dependencies were not installed successfully.")
                     self._window.load_plugins()
                 else:
                     QMessageBox.critical(self, "Error", f"Failed to fetch directory contents: HTTP {response.status_code}")
