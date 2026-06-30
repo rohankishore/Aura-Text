@@ -1306,10 +1306,12 @@ class Window(QMainWindow):
 
         dlg.close()
 
-    def is_module_available(module_name):
-        if module_name in sys.modules:
+    def is_module_available(self, module_name):
+        try:
+            importlib.import_module(module_name)
             return True
-        return importlib.util.find_spec(module_name) is not None
+        except ImportError:
+            return False
 
     def check_and_install_dependencies(self, sys_path_entry, plugin_name):
         # Check and resolve dependencies if data.json exists in sys_path_entry
