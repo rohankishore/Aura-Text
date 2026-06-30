@@ -1319,21 +1319,29 @@ class Window(QMainWindow):
                         for dep in dependencies:
                             top_level = dep.split('.')[0]
                             try:
-                                if not importlib.util.find_spec(top_level):
-                                    missing_install_names.append(dep)
-                            except Exception:
+                                __import__(top_level)
+                            except ImportError:
                                 missing_install_names.append(dep)
                     elif isinstance(dependencies, dict):
                         for import_name, install_name in dependencies.items():
                             top_level = import_name.split('.')[0]
                             try:
-                                if not importlib.util.find_spec(top_level):
-                                    missing_install_names.append(install_name)
-                            except Exception:
+                                __import__(top_level)
+                            except ImportError:
                                 missing_install_names.append(install_name)
                                 
                     if missing_install_names:
                         from PyQt6.QtWidgets import QMessageBox
+                        if getattr(sys, 'frozen', False):
+                            QMessageBox.warning(
+                                self,
+                                "Plugin Load Warning",
+                                f"The plugin '{plugin_name}' requires the following package(s) which are not bundled in this version of Aura-Text:\n"
+                                f"{', '.join(missing_install_names)}\n\n"
+                                f"Please run Aura-Text from source using Python to use this plugin."
+                            )
+                            return # Abort loading
+                            
                         reply = QMessageBox.question(
                             self,
                             "Install Plugin Dependencies",
