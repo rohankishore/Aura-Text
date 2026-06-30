@@ -310,7 +310,7 @@ class Window(QMainWindow):
         site.addsitedir(self.plugin_dep_dir)
         self.portable_python_dir = os.path.join(os.path.dirname(sys.executable), "portable-python")
         self.portable_stdlib_dir = os.path.join(self.portable_python_dir, "lib", "python3.13")
-        sys.path.append(self.plugin_dep_dir)
+        sys.path.append(self.portable_stdlib_dir)
         site.addsitedir(self.portable_stdlib_dir)
         # self._terminal_history = ""
 
