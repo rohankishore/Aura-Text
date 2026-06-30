@@ -95,6 +95,10 @@ def main():
     download_python(url, portable_python_dir)
     if platform.system() != "Windows":
         chmod_bin(portable_python_dir)
+    if platform.system() == "Darwin":
+        print("Running on macOS, so copying portable Python to app bundle as well...", end='')
+        shutil.copytree(portable_python_dir, os.path.join(script_dir, 'dist', 'Aura Text.app', 'Contents', 'MacOS', 'portable-python'), dirs_exist_ok=True)
+        print("done")
 
 if __name__ == '__main__':
     main()
