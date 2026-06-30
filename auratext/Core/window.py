@@ -1361,10 +1361,9 @@ class Window(QMainWindow):
                 )
                 
                 if reply == QMessageBox.StandardButton.Yes:
+                    portable_pip = os.path.join(self.portable_python_dir, "bin", "pip3")
                     if platform.system() == "Windows":
-                        portable_pip = os.path.join(self.portable_python_dir, "Scripts", "pip.exe")
-                    else:
-                        portable_pip = os.path.join(self.portable_python_dir, "bin", "pip3")
+                        portable_pip += ".exe"
                     from PyQt6.QtCore import QThread, pyqtSignal, Qt
                     from PyQt6.QtWidgets import QProgressDialog, QApplication
                     
