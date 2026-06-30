@@ -15,6 +15,7 @@ import webbrowser
 import subprocess
 import qdarktheme
 import platform
+import site
 from PyQt6.QtCore import Qt, QSize, QTimer, QEvent
 from PyQt6.QtGui import QColor, QFont, QActionGroup, QFileSystemModel, QPixmap, QIcon, QShortcut, QKeySequence, QCursor
 from PyQt6.Qsci import QsciScintilla
@@ -306,6 +307,7 @@ class Window(QMainWindow):
         self.local_app_data = local_app_data
         self.plugin_dep_dir = os.path.join(local_app_data, "site-packages")
         sys.path.append(self.plugin_dep_dir)
+        site.addsitedir(self.plugin_dep_dir)
         self.portable_python_dir = os.path.join(os.path.dirname(sys.executable), "portable-python")
         # self._terminal_history = ""
 
@@ -1304,6 +1306,11 @@ class Window(QMainWindow):
 
         dlg.close()
 
+    def is_module_available(module_name):
+        if module_name in sys.modules:
+            return True
+        return importlib.util.find_spec(module_name) is not None
+
     def check_and_install_dependencies(self, sys_path_entry, plugin_name):
         # Check and resolve dependencies if data.json exists in sys_path_entry
         data_json_path = os.path.join(sys_path_entry, "data.json")
@@ -1324,16 +1331,12 @@ class Window(QMainWindow):
             if isinstance(dependencies, list):
                 for dep in dependencies:
                     top_level = dep.split('.')[0]
-                    try:
-                        __import__(top_level)
-                    except ImportError:
+                    if not self.is_module_available(top_level):
                         missing_install_names.append(dep)
             elif isinstance(dependencies, dict):
                 for import_name, install_name in dependencies.items():
                     top_level = import_name.split('.')[0]
-                    try:
-                        __import__(top_level)
-                    except ImportError:
+                    if not self.is_module_available(top_level):
                         missing_install_names.append(install_name)
                         
             if missing_install_names:
