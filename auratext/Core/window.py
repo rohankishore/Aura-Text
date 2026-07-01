@@ -2341,6 +2341,7 @@ class Window(QMainWindow):
         norm_target = os.path.normpath(os.path.abspath(path))
         for tab_idx, tab_path in self.tab_file_paths.items():
             if tab_path and os.path.normpath(os.path.abspath(tab_path)) == norm_target:
+                print("WARNING: File is already open in another editor, switching to it instead...")
                 self.tab_widget.setCurrentIndex(tab_idx)
                 return
 
