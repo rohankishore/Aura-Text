@@ -314,8 +314,9 @@ class CodeEditor(QsciScintilla):
             if text.startswith("#!"):
                 shebang = text.splitlines()[0]
                 return True, shebang
-        except Exception:
-            pass
+        except Exception as e:
+            errortype = type(e)
+            print(f"WARNING: Error parsing file for shebang: {errortype}: {e}")
         return False, ""
 
     def _rgb_to_scintilla_color(self, color: QColor) -> int:
