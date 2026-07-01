@@ -1368,7 +1368,8 @@ class Window(QMainWindow):
                 if reply == QMessageBox.StandardButton.Yes:
                     portable_pip = os.path.join(self.portable_python_dir, "bin", "pip3")
                     if platform.system() == "Windows":
-                        portable_pip += ".exe"
+                        portable_python = os.path.join(self.portable_python_dir, "bin", "python.exe")
+                        portable_pip = [portable_python, "-m", "pip"]
                     from PyQt6.QtCore import QThread, pyqtSignal, Qt
                     from PyQt6.QtWidgets import QProgressDialog, QApplication
                     
@@ -1378,7 +1379,11 @@ class Window(QMainWindow):
                         def __init__(self, pip_bin, plugin_dep_dir, packages):
                             super().__init__()
                             system_pip = [sys.executable, "-m", "pip"]
-                            if os.path.exists(pip_bin):
+                            if platform.system() == "Windows":
+                                portable_pip_exists = os.path.exists(pip_bin[0])
+                            else:
+                                portable_pip_exists = os.path.exists(pip_bin)
+                            if portable_pip_exists:
                                 print("INFO: Using embedded python to install required libraries for plugins")
                                 self.pip_bin = pip_bin
                             else:
