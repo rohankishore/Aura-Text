@@ -29,7 +29,7 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         python -m venv venv && venv\Scripts\activate
-        pip install -r requirements.txt -U
+        python -m pip install -r requirements.txt -U
     
     - name: Build Exe
       run:
