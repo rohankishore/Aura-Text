@@ -19,7 +19,8 @@ def run_pyinstaller():
             '--exclude-module', 'PyQt5',
             '--add-data', 'notepadequalequal:notepadequalequal',
             '--add-data', 'lib2to3:lib2to3',
-            '--add-data', 'auratext:auratext'
+            '--add-data', 'auratext:auratext',
+            '--noconfirm' # This is especially so annoying
         ]
 
         # Run PyInstaller

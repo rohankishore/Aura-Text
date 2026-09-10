@@ -39,7 +39,7 @@ def run_pyinstaller():
             sep = ";"
         else:
             sep = ":"
-        cmd = ['pyinstaller', '--onefile', file_path, '--name', name, '--hidden-import', 'pip', '--add-data', f"{pip_path}{sep}pip", "--clean"]
+        cmd = ['pyinstaller', '--onefile', file_path, '--name', name, '--hidden-import', 'pip', '--add-data', f"{pip_path}{sep}pip", "--clean", '--noconfirm']
         cmd.extend(hooks_exclude_list)
         subprocess.check_call(cmd)
     except Exception as e:
