@@ -104,8 +104,8 @@ Let's set up Aura Text on your PC!
 - Windows 10 x64 or later, a Linux distro running kernel 6.x or later, or macOS Ventura or later 
 - Python 3.9 or later
 - Python installation is bootstrapped with pip
-- (Recommended) A fresh venv created with `python -m venv venv` and activated with `venv\Scripts\activate`
-- The contents of `requirements.txt` installed via `pip install -r requirements.txt`
+- (Necessary because you ***DO NOT*** want to screw up your primary Python installation) A fresh venv created with `python -m venv venv` and activated with `venv\Scripts\activate`
+- The contents of `requirements.txt` installed via `python[3] -m pip install -r requirements.txt`
 - (If building an installer) Inno Setup 6.4.3 or later
   
 ### Installation
