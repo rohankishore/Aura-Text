@@ -9,6 +9,7 @@ hooks_exclude_list = [
     "--exclude-module", "matplotlib",
     "--exclude-module", "PIL",
     "--exclude-module", "PyQt6",
+    "--exclude-module", "PyQt5",
     "--exclude-module", "zmq",
     "--exclude-module", "jedi",
     "--exclude-module", "parso",
