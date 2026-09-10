@@ -36,9 +36,9 @@ def run_pyinstaller():
              name += "3"
         file_path = os.path.join(os.path.dirname(__file__), 'main.py')
         if platform.system() == "Windows":
-            pythonexe = os.path.join(os.path.dirname(__file__), 'venv', 'Scripts', 'python.exe')
+            pythonexe = os.path.join('venv', 'Scripts', 'python.exe')
         else:
-            pythonexe = os.path.join(os.path.dirname(__file__), 'venv', 'bin', 'python3')
+            pythonexe = os.path.join('venv', 'bin', 'python3')
         if not os.path.exists(pythonexe):
             raise FileNotFoundError("A venv python executable was not found. Please ensure that the virtual environment is set up correctly.")
         pip_path = pip.__path__[0]
