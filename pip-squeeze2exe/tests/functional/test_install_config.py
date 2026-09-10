@@ -1,0 +1,664 @@
+from __future__ import annotations
+
+import os
+import ssl
+import tempfile
+import textwrap
+from base64 import b64encode
+from collections.abc import Callable
+from pathlib import Path
+from typing import TYPE_CHECKING
+
+import pytest
+
+from tests.lib import CertFactory, PipTestEnvironment, ScriptFactory, TestData
+from tests.lib.server import (
+    MockServer,
+    authorization_response,
+    file_response,
+    make_mock_server,
+    package_page,
+    server_running,
+)
+from tests.lib.venv import VirtualEnvironment
+
+if TYPE_CHECKING:
+    from _typeshed.wsgi import StartResponse, WSGIApplication, WSGIEnvironment
+
+
+TEST_PYPI_INITOOLS = "https://test.pypi.org/simple/initools/"
+
+
+def test_options_from_env_vars(script: PipTestEnvironment) -> None:
+    """
+    Test if ConfigOptionParser reads env vars (e.g. not using PyPI here)
+
+    """
+    script.environ["PIP_NO_INDEX"] = "1"
+    result = script.pip("install", "-vvv", "INITools", expect_error=True)
+    assert "Ignoring indexes:" in result.stdout, str(result)
+    msg = "DistributionNotFound: No matching distribution found for INITools"
+    # Case insensitive as the new resolver canonicalizes the project name
+    assert msg.lower() in result.stdout.lower(), str(result)
+
+
+def test_command_line_options_override_env_vars(
+    script: PipTestEnvironment, virtualenv: VirtualEnvironment
+) -> None:
+    """
+    Test that command line options override environmental variables.
+
+    """
+    script.environ["PIP_INDEX_URL"] = "https://example.com/simple/"
+    result = script.pip("install", "-vvv", "INITools", expect_error=True)
+    assert "Getting page https://example.com/simple/initools" in result.stdout
+    virtualenv.clear()
+    result = script.pip(
+        "install",
+        "-vvv",
+        "--index-url",
+        "https://download.zope.org/ppix",
+        "INITools",
+        expect_error=True,
+    )
+    assert "example.com" not in result.stdout
+    assert "Getting page https://download.zope.org/ppix" in result.stdout
+
+
+@pytest.mark.network
+def test_env_vars_override_config_file(
+    script: PipTestEnvironment, virtualenv: VirtualEnvironment
+) -> None:
+    """
+    Test that environmental variables override settings in config files.
+    """
+    config_file = script.scratch_path / "test-pip.cfg"
+    # set this to make pip load it
+    script.environ["PIP_CONFIG_FILE"] = str(config_file)
+    # It's important that we test this particular config value ('no-index')
+    # because there is/was a bug which only shows up in cases in which
+    # 'config-item' and 'config_item' hash to the same value modulo the size
+    # of the config dictionary.
+    config_file.write_text(textwrap.dedent("""\
+        [global]
+        no-index = 1
+        """))
+    result = script.pip("install", "-vvv", "INITools", expect_error=True)
+    msg = "DistributionNotFound: No matching distribution found for INITools"
+    # Case insensitive as the new resolver canonicalizes the project name
+    assert msg.lower() in result.stdout.lower(), str(result)
+    script.environ["PIP_NO_INDEX"] = "0"
+    virtualenv.clear()
+    result = script.pip("install", "-vvv", "INITools")
+    assert "Successfully installed INITools" in result.stdout
+
+
+@pytest.mark.network
+def test_command_line_append_flags(
+    script: PipTestEnvironment, virtualenv: VirtualEnvironment, data: TestData
+) -> None:
+    """
+    Test command line flags that append to defaults set by environmental
+    variables.
+
+    """
+    script.environ["PIP_FIND_LINKS"] = TEST_PYPI_INITOOLS
+    result = script.pip(
+        "install",
+        "-vvv",
+        "INITools",
+        "--trusted-host",
+        "test.pypi.org",
+    )
+    assert (
+        "Fetching project page and analyzing links: https://test.pypi.org"
+        in result.stdout
+    ), str(result)
+    virtualenv.clear()
+    result = script.pip(
+        "install",
+        "-vvv",
+        "--find-links",
+        data.find_links,
+        "INITools",
+        "--trusted-host",
+        "test.pypi.org",
+    )
+    assert (
+        "Fetching project page and analyzing links: https://test.pypi.org"
+        in result.stdout
+    )
+
+
+@pytest.mark.network
+def test_command_line_appends_correctly(
+    script: PipTestEnvironment, data: TestData
+) -> None:
+    """
+    Test multiple appending options set by environmental variables.
+
+    """
+    script.environ["PIP_FIND_LINKS"] = f"{TEST_PYPI_INITOOLS} {data.find_links}"
+    result = script.pip(
+        "install",
+        "-vvv",
+        "INITools",
+        "--trusted-host",
+        "test.pypi.org",
+    )
+
+    assert (
+        "Fetching project page and analyzing links: https://test.pypi.org"
+        in result.stdout
+    ), result.stdout
+
+
+def test_config_file_override_stack(
+    script: PipTestEnvironment,
+    virtualenv: VirtualEnvironment,
+    mock_server: MockServer,
+    shared_data: TestData,
+) -> None:
+    """
+    Test config files (global, overriding a global config with a
+    local, overriding all with a command line flag).
+    """
+    mock_server.set_responses(
+        [
+            package_page({}),
+            package_page({}),
+            package_page({"INITools-0.2.tar.gz": "/files/INITools-0.2.tar.gz"}),
+            file_response(shared_data.packages.joinpath("INITools-0.2.tar.gz")),
+        ]
+    )
+    mock_server.start()
+    base_address = f"http://{mock_server.host}:{mock_server.port}"
+
+    config_file = script.scratch_path / "test-pip.cfg"
+
+    # set this to make pip load it
+    script.environ["PIP_CONFIG_FILE"] = str(config_file)
+
+    config_file.write_text(textwrap.dedent(f"""\
+        [global]
+        index-url = {base_address}/simple1
+        """))
+    script.pip("install", "-vvv", "INITools", expect_error=True)
+    virtualenv.clear()
+
+    config_file.write_text(textwrap.dedent(f"""\
+        [global]
+        index-url = {base_address}/simple1
+        [install]
+        index-url = {base_address}/simple2
+        """))
+    script.pip("install", "-vvv", "INITools", expect_error=True)
+    script.pip(
+        "install",
+        "--no-build-isolation",
+        "-vvv",
+        "--index-url",
+        f"{base_address}/simple3",
+        "INITools",
+    )
+
+    mock_server.stop()
+    requests = mock_server.get_requests()
+    assert len(requests) == 4
+    assert requests[0]["PATH_INFO"] == "/simple1/initools/"
+    assert requests[1]["PATH_INFO"] == "/simple2/initools/"
+    assert requests[2]["PATH_INFO"] == "/simple3/initools/"
+    assert requests[3]["PATH_INFO"] == "/files/INITools-0.2.tar.gz"
+
+
+def test_options_from_venv_config(
+    script: PipTestEnvironment, virtualenv: VirtualEnvironment
+) -> None:
+    """
+    Test if ConfigOptionParser reads a virtualenv-local config file
+
+    """
+    from pip._internal.configuration import CONFIG_BASENAME
+
+    conf = "[global]\nno-index = true"
+    ini = virtualenv.location / CONFIG_BASENAME
+    with open(ini, "w") as f:
+        f.write(conf)
+    result = script.pip("install", "-vvv", "INITools", expect_error=True)
+    assert "Ignoring indexes:" in result.stdout, str(result)
+    msg = "DistributionNotFound: No matching distribution found for INITools"
+    # Case insensitive as the new resolver canonicalizes the project name
+    assert msg.lower() in result.stdout.lower(), str(result)
+
+
+def test_install_no_binary_via_config_disables_cached_wheels(
+    script: PipTestEnvironment, data: TestData
+) -> None:
+    config_file = tempfile.NamedTemporaryFile(mode="wt", delete=False)
+    try:
+        script.environ["PIP_CONFIG_FILE"] = config_file.name
+        config_file.write(textwrap.dedent("""\
+            [global]
+            no-binary = :all:
+            """))
+        config_file.close()
+        res = script.pip(
+            "install",
+            "--no-build-isolation",
+            "--no-index",
+            "-f",
+            data.find_links,
+            "upper",
+            expect_stderr=True,
+        )
+    finally:
+        os.unlink(config_file.name)
+    assert "Successfully installed upper-2.0" in str(res), str(res)
+    # upper is built and not obtained from cache
+    assert "Building wheel for upper" in str(res), str(res)
+
+
+def test_prompt_for_authentication(
+    script: PipTestEnvironment, data: TestData, cert_factory: CertFactory
+) -> None:
+    """Test behaviour while installing from a index url
+    requiring authentication
+    """
+    cert_path = cert_factory()
+    ctx = ssl.create_default_context(ssl.Purpose.CLIENT_AUTH, cafile=cert_path)
+    ctx.load_cert_chain(cert_path, cert_path)
+    ctx.verify_mode = ssl.CERT_REQUIRED
+
+    server = make_mock_server(ssl_context=ctx)
+    server.mock.side_effect = [
+        package_page(
+            {
+                "simple-3.0.tar.gz": "/files/simple-3.0.tar.gz",
+            }
+        ),
+        authorization_response(data.packages / "simple-3.0.tar.gz"),
+    ]
+
+    url = f"https://{server.host}:{server.port}/simple"
+
+    with server_running(server):
+        result = script.pip(
+            "install",
+            "--index-url",
+            url,
+            "--cert",
+            cert_path,
+            "--client-cert",
+            cert_path,
+            "simple",
+            expect_error=True,
+        )
+
+    assert f"User for {server.host}:{server.port}" in result.stdout, str(result)
+
+
+def test_do_not_prompt_for_authentication(
+    script: PipTestEnvironment, data: TestData, cert_factory: CertFactory
+) -> None:
+    """Test behaviour if --no-input option is given while installing
+    from a index url requiring authentication
+    """
+    cert_path = cert_factory()
+    ctx = ssl.create_default_context(ssl.Purpose.CLIENT_AUTH, cafile=cert_path)
+    ctx.load_cert_chain(cert_path, cert_path)
+    ctx.verify_mode = ssl.CERT_REQUIRED
+
+    server = make_mock_server(ssl_context=ctx)
+
+    server.mock.side_effect = [
+        package_page(
+            {
+                "simple-3.0.tar.gz": "/files/simple-3.0.tar.gz",
+            }
+        ),
+        authorization_response(data.packages / "simple-3.0.tar.gz"),
+    ]
+
+    url = f"https://{server.host}:{server.port}/simple"
+
+    with server_running(server):
+        result = script.pip(
+            "install",
+            "--index-url",
+            url,
+            "--cert",
+            cert_path,
+            "--client-cert",
+            cert_path,
+            "--no-input",
+            "simple",
+            expect_error=True,
+        )
+
+    assert "ERROR: HTTP error 401" in result.stderr
+
+
+def test_do_not_prompt_for_authentication_git(
+    script: PipTestEnvironment, data: TestData, cert_factory: CertFactory
+) -> None:
+    """Test behaviour if --no-input option is given while installing
+    from a git http url requiring authentication
+    """
+    server = make_mock_server()
+    # Disable vscode user/password prompt, will make tests fail inside vscode
+    script.environ["GIT_ASKPASS"] = ""
+
+    # Return 401 on all URLs
+    server.mock.side_effect = lambda _, __: authorization_response(
+        data.packages / "simple-3.0.tar.gz"
+    )
+
+    url = f"git+http://{server.host}:{server.port}/simple"
+
+    with server_running(server):
+        result = script.pip(
+            "install",
+            url,
+            "--no-input",
+            expect_error=True,
+        )
+
+    assert "terminal prompts disabled" in result.stderr
+
+
+@pytest.fixture(params=(True, False), ids=("interactive", "noninteractive"))
+def interactive(request: pytest.FixtureRequest) -> bool:
+    return request.param
+
+
+@pytest.fixture(params=(True, False), ids=("auth_needed", "auth_not_needed"))
+def auth_needed(request: pytest.FixtureRequest) -> bool:
+    return request.param
+
+
+@pytest.fixture(params=(None, "disabled", "import", "subprocess", "auto"))
+def keyring_provider(request: pytest.FixtureRequest) -> str:
+    return request.param
+
+
+@pytest.fixture(params=("disabled", "import", "subprocess"))
+def keyring_provider_implementation(request: pytest.FixtureRequest) -> str:
+    return request.param
+
+
+@pytest.fixture
+def flags(
+    request: pytest.FixtureRequest,
+    interactive: bool,
+    auth_needed: bool,
+    keyring_provider: str,
+    keyring_provider_implementation: str,
+) -> list[str]:
+    if (
+        keyring_provider not in [None, "auto"]
+        and keyring_provider_implementation != keyring_provider
+    ):
+        pytest.skip()
+
+    flags = []
+    if keyring_provider is not None:
+        flags.append("--keyring-provider")
+        flags.append(keyring_provider)
+    if not interactive:
+        flags.append("--no-input")
+    if auth_needed:
+        if keyring_provider_implementation == "disabled" or (
+            not interactive and keyring_provider in [None, "auto"]
+        ):
+            request.applymarker(pytest.mark.xfail())
+    return flags
+
+
+def test_prompt_for_keyring_if_needed(
+    data: TestData,
+    cert_factory: CertFactory,
+    auth_needed: bool,
+    flags: list[str],
+    keyring_provider_implementation: str,
+    tmpdir: Path,
+    script_factory: ScriptFactory,
+    virtualenv_factory: Callable[[Path], VirtualEnvironment],
+) -> None:
+    """Test behaviour while installing from an index url
+    requiring authentication and keyring is possible.
+    """
+    workspace = tmpdir.joinpath("workspace")
+
+    virtualenv = virtualenv_factory(workspace.joinpath("venv"))
+
+    if keyring_provider_implementation == "subprocess":
+        # Install keyring into its own venv.
+        keyring_virtualenv = virtualenv_factory(workspace.joinpath("keyring"))
+        keyring_script = script_factory(
+            workspace.joinpath("keyring"), keyring_virtualenv
+        )
+        keyring_script.pip_install_local("keyring", "-f", data.common_wheels)
+
+        # Set up this venv with a PATH that can see the keyring installed in a
+        # separate venv.
+        virtualenv_script = script_factory(
+            workspace.joinpath("venv"),
+            virtualenv,
+            environ={
+                **os.environ,
+                "PATH": str(keyring_script.bin_path) + os.pathsep + os.environ["PATH"],
+            },
+        )
+    elif keyring_provider_implementation == "import":
+        # Set up a venv with keyring installed.
+        virtualenv_script = script_factory(workspace.joinpath("venv"), virtualenv)
+        virtualenv_script.pip_install_local("keyring", "-f", data.common_wheels)
+        keyring_script = virtualenv_script
+    elif keyring_provider_implementation == "disabled":
+        # Set up an venv that does not have keyring installed, nor is able to
+        # find keyring anywhere on the PATH.
+        virtualenv_script = script_factory(workspace.joinpath("venv"), virtualenv)
+        keyring_script = None
+    else:
+        pytest.fail(f"Unrecognized {keyring_provider_implementation=}")
+
+    cert_path = cert_factory()
+    ctx = ssl.create_default_context(ssl.Purpose.CLIENT_AUTH, cafile=cert_path)
+    ctx.load_cert_chain(cert_path, cert_path)
+    ctx.verify_mode = ssl.CERT_REQUIRED
+
+    response = authorization_response if auth_needed else file_response
+
+    server = make_mock_server(ssl_context=ctx)
+    server.mock.side_effect = [
+        package_page(
+            {
+                "simple-3.0.tar.gz": "/files/simple-3.0.tar.gz",
+            }
+        ),
+        response(data.packages / "simple-3.0.tar.gz"),
+        response(data.packages / "simple-3.0.tar.gz"),
+    ]
+
+    url = f"https://USERNAME@{server.host}:{server.port}/simple"
+    log_file = virtualenv_script.scratch_path / "log"
+    log_file.touch()
+
+    if keyring_script is not None:
+        keyring_content = textwrap.dedent(f"""\
+            import os
+            import sys
+            import keyring
+            from keyring.backend import KeyringBackend
+            from keyring.credentials import SimpleCredential
+
+            def log(msg):
+                with open({str(log_file)!r}, 'a', encoding='utf8') as f:
+                    f.write(msg + '\\n')
+
+            class TestBackend(KeyringBackend):
+                priority = 1
+
+                def get_credential(self, url, username):
+                    log("get_credential was called")
+                    return SimpleCredential(username="USERNAME", password="PASSWORD")
+
+                def get_password(self, url, username):
+                    log("get_password was called")
+                    return "PASSWORD"
+
+                def set_password(self, url, username):
+                    pass
+        """)
+        keyring_path = keyring_script.site_packages_path / "keyring_test.py"
+        keyring_path.write_text(keyring_content)
+
+        keyring_content = (
+            "import keyring_test;"
+            " import keyring;"
+            " keyring.set_keyring(keyring_test.TestBackend())" + os.linesep
+        )
+        keyring_path = keyring_path.with_suffix(".pth")
+        keyring_path.write_text(keyring_content)
+
+    with server_running(server):
+        virtualenv_script.pip(
+            "install",
+            "--no-build-isolation",
+            "--index-url",
+            url,
+            "--cert",
+            cert_path,
+            "--client-cert",
+            cert_path,
+            *flags,
+            "simple",
+        )
+
+    logs = log_file.read_text("utf8").splitlines()
+    if auth_needed:
+        assert "get_credential was called" in logs
+    else:
+        assert "get_credential was called" not in logs
+
+
+@pytest.mark.parametrize(
+    "isolation",
+    [
+        pytest.param("", id="legacy-isolation"),
+        pytest.param(
+            "--use-feature=venv-isolation",
+            id="venv-isolation",
+            marks=pytest.mark.xfail(reason="needs inprocess-build-deps to work"),
+        ),
+    ],
+)
+def test_build_dependency_install_uses_same_keyring_as_root(
+    isolation: str, script: PipTestEnvironment, data: TestData
+) -> None:
+    """Ensure the root and build dependency pip processes use the same keyring.
+
+    When build dependencies are installed via a pip subprocess, it should be able
+    to import the same keyring directly. While normally the subprocess will be
+    able to find the same keyring by searching PATH, if the virtual environment
+    wasn't activated, pip may either fail to find keyring or pick a different
+    keyring (from the system).
+
+    See also: https://github.com/pypa/pip/issues/14227
+
+    NOTE: venv-isolation is still affected by this bug since it's necessary
+          to apply build isolation while install build dependencies. The
+          proper fix to also enable inprocess-build-deps (which will also
+          fix this for the custom isolation logic).
+    TODO: remove this test when the subprocess build installer is gone
+    """
+    script.pip_install_local("keyring", find_links=data.common_wheels)
+
+    keyring_module = script.site_packages_path / "keyring_test.py"
+    keyring_module.write_text(textwrap.dedent("""\
+        import os
+
+        import keyring
+        from keyring.backend import KeyringBackend
+        from keyring.credentials import SimpleCredential
+
+        class TestBackend(KeyringBackend):
+            priority = 1
+
+            def get_credential(self, url, username):
+                return SimpleCredential(username="USERNAME", password="PASSWORD")
+
+            def get_password(self, url, username):
+                return "PASSWORD"
+
+            def set_password(self, url, username, password):
+                pass
+        """))
+    script.environ["PYTHON_KEYRING_BACKEND"] = "keyring_test.TestBackend"
+
+    expected_auth = "Basic " + b64encode(b"USERNAME:PASSWORD").decode("ascii")
+
+    def unauthorized_response(
+        environ: WSGIEnvironment, start_response: StartResponse
+    ) -> list[bytes]:
+        start_response("401 Unauthorized", [("WWW-Authenticate", "Basic")])
+        return []
+
+    def authenticated_index(
+        environ: WSGIEnvironment, start_response: StartResponse
+    ) -> WSGIApplication:
+        if environ.get("HTTP_AUTHORIZATION") != expected_auth:
+            return unauthorized_response
+        return package_page({})
+
+    # Emulate the bug report setup which uses --extra-url-index (which pip will access
+    # while install build dependencies). To avoid hitting PyPI, spin up a no-op index
+    # for --index-url itself.
+    primary_index = make_mock_server()
+    primary_index.mock.side_effect = lambda _, __: package_page({})
+    primary_index_url = f"http://{primary_index.host}:{primary_index.port}/simple"
+    authenticated_extra_index = make_mock_server()
+    authenticated_extra_index.mock.side_effect = authenticated_index
+    extra_index_url = (
+        f"http://{authenticated_extra_index.host}:"
+        f"{authenticated_extra_index.port}/simple"
+    )
+
+    # The script runner automatically adds the venv bin directory to PATH.
+    path_without_keyring = script.scratch_path / "path-without-keyring"
+    path_without_keyring.mkdir()
+    script.environ["PATH"] = str(path_without_keyring)
+    with server_running(primary_index), server_running(authenticated_extra_index):
+        result = script.run(
+            # Run Python directly because the python executable was lost when
+            # we removed the venv's bin directory from PATH.
+            str(script.bin_path / f"python{script.exe}"),
+            "-m",
+            "pip",
+            "wheel",
+            "--no-cache-dir",
+            "--index-url",
+            primary_index_url,
+            "--extra-index-url",
+            extra_index_url,
+            "--find-links",
+            str(data.packages),
+            "--find-links",
+            str(data.common_wheels),
+            "pep518==3.0",
+            isolation,
+        )
+
+    assert result.returncode == 0, result
+    assert "Successfully built pep518" in result.stdout, result.stdout
+
+
+@pytest.mark.network
+def test_install_quiet_log(script: PipTestEnvironment, data: TestData) -> None:
+    """
+    Test suppressing the progress bar with --quiet and --log.
+    """
+    logfile = script.scratch_path / "log"
+    result = script.pip("install", "-qqq", "setuptools==62.0.0", "--log", logfile)
+    assert result.stdout == ""
+    assert result.stderr == ""

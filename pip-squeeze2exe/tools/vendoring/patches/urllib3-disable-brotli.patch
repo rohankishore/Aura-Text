@@ -1,0 +1,37 @@
+diff --git a/src/pip/_vendor/urllib3/response.py b/src/pip/_vendor/urllib3/response.py
+--- a/src/pip/_vendor/urllib3/response.py
++++ b/src/pip/_vendor/urllib3/response.py
+@@ -17,13 +17,7 @@
+ if typing.TYPE_CHECKING:
+     from ._base_connection import BaseHTTPConnection
+
+-try:
+-    try:
+-        import brotlicffi as brotli  # type: ignore[import-not-found]
+-    except ImportError:
+-        import brotli  # type: ignore[import-not-found]
+-except ImportError:
+-    brotli = None
++brotli = None
+
+ from . import util
+ from ._base_connection import _TYPE_BODY
+diff --git a/src/pip/_vendor/urllib3/util/request.py b/src/pip/_vendor/urllib3/util/request.py
+--- a/src/pip/_vendor/urllib3/util/request.py
++++ b/src/pip/_vendor/urllib3/util/request.py
+@@ -20,15 +20,6 @@
+ SKIPPABLE_HEADERS = frozenset(["accept-encoding", "host", "user-agent"])
+
+ ACCEPT_ENCODING = "gzip,deflate"
+-try:
+-    try:
+-        import brotlicffi as _unused_module_brotli  # type: ignore[import-not-found] # noqa: F401
+-    except ImportError:
+-        import brotli as _unused_module_brotli  # type: ignore[import-not-found] # noqa: F401
+-except ImportError:
+-    pass
+-else:
+-    ACCEPT_ENCODING += ",br"
+
+ try:
+     if sys.version_info >= (3, 14):

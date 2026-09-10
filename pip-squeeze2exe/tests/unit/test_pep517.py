@@ -1,0 +1,33 @@
+import os
+from pathlib import Path
+from textwrap import dedent
+
+import pytest
+
+from pip._internal.exceptions import InvalidPyProjectBuildRequires
+from pip._internal.req import InstallRequirement
+
+
+@pytest.mark.parametrize(
+    "spec", [("./foo",), ("git+https://example.com/pkg@dev#egg=myproj",)]
+)
+def test_pep517_parsing_checks_requirements(tmpdir: Path, spec: tuple[str]) -> None:
+    tmpdir.joinpath("pyproject.toml").write_text(dedent(f"""
+            [build-system]
+            requires = [{spec[0]!r}]
+            build-backend = "foo"
+            """))
+    req = InstallRequirement(None, None)
+    req.source_dir = os.fspath(tmpdir)  # make req believe it has been unpacked
+
+    with pytest.raises(InvalidPyProjectBuildRequires) as e:
+        req.load_pyproject_toml()
+
+    error = e.value
+
+    assert str(req) in error.message
+    assert error.context
+    assert "build-system.requires" in error.context
+    assert "contains an invalid requirement" in error.context
+    assert error.hint_stmt
+    assert "PEP 518" in error.hint_stmt
