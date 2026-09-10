@@ -9,9 +9,15 @@ import zipfile
 def run_pyinstaller():
     try:
         main_script = 'main.py'
+        if platform.system() == "Windows":
+            pythonexe = os.path.join(os.path.dirname(__file__), 'venv', 'Scripts', 'python.exe')
+        else:
+            pythonexe = os.path.join(os.path.dirname(__file__), 'venv', 'bin', 'python3')
+        if not os.path.exists(pythonexe):
+            raise FileNotFoundError("A venv python executable was not found. Please ensure that the virtual environment is set up correctly.")
 
         cmd = [
-            'python', '-m', 'PyInstaller',
+            pythonexe, '-m', 'PyInstaller',
             main_script,
             '-w',  # Makes it windowed
             '--name', "Aura Text",
