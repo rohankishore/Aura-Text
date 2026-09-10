@@ -87,18 +87,30 @@ def chmod_bin(portable_python_dir):
 def main():
     run_pyinstaller()
 
-    url = detect_portablepy_url()
+    # url = detect_portablepy_url()
     script_dir = os.path.dirname(__file__)
     dist_dir = os.path.join(script_dir, "dist", "Aura Text")
-    portable_python_dir = os.path.join(dist_dir, "portable-python")
-    os.makedirs(portable_python_dir, exist_ok=True)
-    download_python(url, portable_python_dir)
-    if platform.system() != "Windows":
-        chmod_bin(portable_python_dir)
+    # portable_python_dir = os.path.join(dist_dir, "portable-python")
+    # os.makedirs(portable_python_dir, exist_ok=True)
+    # download_python(url, portable_python_dir)
+    # if platform.system() != "Windows":
+    #     chmod_bin(portable_python_dir)
+    # if platform.system() == "Darwin":
+    #     print("Running on macOS, so copying portable Python to app bundle as well...", end='')
+    #     shutil.copytree(portable_python_dir, os.path.join(script_dir, 'dist', 'Aura Text.app', 'Contents', 'MacOS', 'portable-python'), dirs_exist_ok=True)
+    #     print("done")
+
+    from portablepip.build import run_pyinstaller as build_portablepip
+    build_portablepip()
+    portablepip_exe = os.path.join(os.path.dirname(__file__), 'dist', 'portablepip3')
+    if platform.system() == "Windows":
+        portablepip_exe += ".exe"
+    portablepip_dest = os.path.join(dist_dir, "portablepip3")
+    if platform.system() == "Windows":
+        portablepip_dest += ".exe"
+    shutil.copy(portablepip_exe, portablepip_dest)
     if platform.system() == "Darwin":
-        print("Running on macOS, so copying portable Python to app bundle as well...", end='')
-        shutil.copytree(portable_python_dir, os.path.join(script_dir, 'dist', 'Aura Text.app', 'Contents', 'MacOS', 'portable-python'), dirs_exist_ok=True)
-        print("done")
+        shutil.copy(portablepip_exe, os.path.join(script_dir, 'dist', 'Aura Text.app', 'Contents', 'MacOS', "portablepip3"))
 
 if __name__ == '__main__':
     main()

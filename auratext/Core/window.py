@@ -310,6 +310,9 @@ class Window(QMainWindow):
         site.addsitedir(self.plugin_dep_dir)
         self.portable_python_dir = os.path.join(os.path.dirname(sys.executable), "portable-python")
         self.portable_stdlib_dir = os.path.join(self.portable_python_dir, "lib", "python3.13")
+        self.portable_pip_path = os.path.join(os.path.dirname(sys.executable), "portablepip3")
+        if platform.system() == "Windows":
+            self.portable_pip_path += ".exe"
         sys.path.append(self.portable_stdlib_dir)
         site.addsitedir(self.portable_stdlib_dir)
         # self._terminal_history = ""
@@ -1374,10 +1377,7 @@ class Window(QMainWindow):
                 )
                 
                 if reply == QMessageBox.StandardButton.Yes:
-                    portable_pip = os.path.join(self.portable_python_dir, "bin", "pip3")
-                    if platform.system() == "Windows":
-                        portable_python = os.path.join(self.portable_python_dir, "bin", "python.exe")
-                        portable_pip = [portable_python, "-m", "pip"]
+                    portable_pip = self.portable_pip_path
                     from PyQt6.QtCore import QThread, pyqtSignal, Qt
                     from PyQt6.QtWidgets import QProgressDialog, QApplication
                     
