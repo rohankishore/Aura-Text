@@ -32,7 +32,7 @@ jobs:
         python -m pip install -r requirements.txt -U
     
     - name: Build Exe
-      run:
+      run: |
         venv\Scripts\activate
         python build.py
 
