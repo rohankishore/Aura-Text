@@ -1,2 +1,2 @@
-git+https://github.com/matthewyang204/pip.git@squeeze2exe
+../pip-squeeze2exe/
 pyinstaller
