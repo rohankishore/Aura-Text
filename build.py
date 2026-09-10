@@ -11,7 +11,7 @@ def run_pyinstaller():
         main_script = 'main.py'
 
         cmd = [
-            'pyinstaller',
+            'python', '-m', 'PyInstaller',
             main_script,
             '-w',  # Makes it windowed
             '--name', "Aura Text",
