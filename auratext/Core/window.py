@@ -1387,11 +1387,7 @@ class Window(QMainWindow):
                         def __init__(self, pip_bin, plugin_dep_dir, packages):
                             super().__init__()
                             system_pip = [sys.executable, "-m", "pip"]
-                            if platform.system() == "Windows":
-                                portable_pip_exists = os.path.exists(pip_bin[0])
-                            else:
-                                portable_pip_exists = os.path.exists(pip_bin)
-                            if portable_pip_exists:
+                            if getattr(sys, 'frozen', False):
                                 print("INFO: Using embedded python to install required libraries for plugins")
                                 self.pip_bin = pip_bin
                             else:
