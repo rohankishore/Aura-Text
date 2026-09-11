@@ -1,0 +1,4 @@
+[build-system]
+requires = ["setuptools"]
+
+# Note: pyproject.toml is always UTF-8 🤡

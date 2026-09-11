@@ -26,3 +26,4 @@ pylint
 sansio-lsp-client>=0.13.0
 pathspec
 -r notepadequalequal/requirements.txt
+-r portablepip/requirements-recurse.txt

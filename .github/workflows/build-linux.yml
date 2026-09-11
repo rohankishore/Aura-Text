@@ -39,10 +39,12 @@ jobs:
     - name: Install dependencies
       run: |
         python3 -m pip install --upgrade pip
-        pip3 install -r requirements.txt -U
+        python3 -m venv venv && source venv/bin/activate
+        python3 -m pip install -r requirements.txt -U
     
     - name: Build Exe
-      run:
+      run: |
+        source venv/bin/activate
         python3 build.py
     - name: Upload ZIP
       uses: actions/upload-artifact@v7

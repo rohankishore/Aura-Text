@@ -1,0 +1,1080 @@
+from __future__ import annotations
+
+import datetime
+import logging
+
+import pytest
+
+from pip._vendor.packaging.specifiers import SpecifierSet
+from pip._vendor.packaging.tags import Tag
+from pip._vendor.packaging.utils import canonicalize_name
+
+from pip._internal.index.collector import LinkCollector
+from pip._internal.index.package_finder import (
+    CandidateEvaluator,
+    CandidatePreferences,
+    FormatControl,
+    LinkEvaluator,
+    LinkType,
+    PackageFinder,
+    _check_link_requires_python,
+    _extract_version_from_fragment,
+    _find_name_version_sep,
+    filter_unallowed_hashes,
+)
+from pip._internal.models.link import Link
+from pip._internal.models.release_control import ReleaseControl
+from pip._internal.models.search_scope import SearchScope
+from pip._internal.models.selection_prefs import SelectionPreferences
+from pip._internal.models.target_python import TargetPython
+from pip._internal.network.session import PipSession
+from pip._internal.utils.compatibility_tags import get_supported
+from pip._internal.utils.hashes import Hashes
+
+from tests.lib import CURRENT_PY_VERSION_INFO
+from tests.lib.index import make_mock_candidate
+
+
+@pytest.mark.parametrize(
+    "requires_python, expected",
+    [
+        ("== 3.6.4", False),
+        ("== 3.6.5", True),
+        # Test an invalid Requires-Python value.
+        ("invalid", True),
+    ],
+)
+def test_check_link_requires_python(requires_python: str, expected: bool) -> None:
+    version_info = (3, 6, 5)
+    link = Link("https://example.com", requires_python=requires_python)
+    actual = _check_link_requires_python(link, version_info)
+    assert actual == expected
+
+
+def check_caplog(
+    caplog: pytest.LogCaptureFixture, expected_level: str, expected_message: str
+) -> None:
+    assert len(caplog.records) == 1
+    record = caplog.records[0]
+    assert record.levelname == expected_level
+    assert record.message == expected_message
+
+
+@pytest.mark.parametrize(
+    "ignore_requires_python, expected",
+    [
+        (
+            False,
+            (
+                False,
+                "VERBOSE",
+                "Link requires a different Python (3.6.5 not in: '== 3.6.4'): "
+                "https://example.com",
+            ),
+        ),
+        (
+            True,
+            (
+                True,
+                "DEBUG",
+                "Ignoring failed Requires-Python check (3.6.5 not in: '== 3.6.4') "
+                "for link: https://example.com",
+            ),
+        ),
+    ],
+)
+def test_check_link_requires_python__incompatible_python(
+    caplog: pytest.LogCaptureFixture,
+    ignore_requires_python: bool,
+    expected: tuple[bool, str, str],
+) -> None:
+    """
+    Test an incompatible Python.
+    """
+    expected_return, expected_level, expected_message = expected
+    link = Link("https://example.com", requires_python="== 3.6.4")
+    caplog.set_level(logging.DEBUG)
+    actual = _check_link_requires_python(
+        link,
+        version_info=(3, 6, 5),
+        ignore_requires_python=ignore_requires_python,
+    )
+    assert actual == expected_return
+
+    check_caplog(caplog, expected_level, expected_message)
+
+
+def test_check_link_requires_python__invalid_requires(
+    caplog: pytest.LogCaptureFixture,
+) -> None:
+    """
+    Test the log message for an invalid Requires-Python.
+    """
+    link = Link("https://example.com", requires_python="invalid")
+    caplog.set_level(logging.DEBUG)
+    actual = _check_link_requires_python(link, version_info=(3, 6, 5))
+    assert actual
+
+    expected_message = (
+        "Ignoring invalid Requires-Python ('invalid') for link: https://example.com"
+    )
+    check_caplog(caplog, "DEBUG", expected_message)
+
+
+class TestLinkEvaluator:
+    @pytest.mark.parametrize(
+        "py_version_info, ignore_requires_python, expected",
+        [
+            pytest.param(
+                (3, 6, 5),
+                False,
+                (LinkType.candidate, "1.12"),
+                id="compatible",
+            ),
+            pytest.param(
+                (3, 6, 4),
+                False,
+                (
+                    LinkType.requires_python_mismatch,
+                    "1.12 Requires-Python ==3.6.5,!=3.13.3",
+                ),
+                id="requires-python-mismatch",
+            ),
+            pytest.param(
+                (3, 6, 4),
+                True,
+                (LinkType.candidate, "1.12"),
+                id="requires-python-mismatch-ignored",
+            ),
+        ],
+    )
+    def test_evaluate_link(
+        self,
+        py_version_info: tuple[int, int, int],
+        ignore_requires_python: bool,
+        expected: tuple[LinkType, str],
+    ) -> None:
+        target_python = TargetPython(py_version_info=py_version_info)
+        evaluator = LinkEvaluator(
+            project_name="twine",
+            canonical_name=canonicalize_name("twine"),
+            formats=frozenset(["source"]),
+            target_python=target_python,
+            allow_yanked=True,
+            ignore_requires_python=ignore_requires_python,
+        )
+        link = Link(
+            "https://example.com/#egg=twine-1.12",
+            requires_python="!= 3.13.3, == 3.6.5",
+        )
+        actual = evaluator.evaluate_link(link)
+        assert actual == expected
+
+    @pytest.mark.parametrize(
+        "yanked_reason, allow_yanked, expected",
+        [
+            (None, True, (LinkType.candidate, "1.12")),
+            (None, False, (LinkType.candidate, "1.12")),
+            ("", True, (LinkType.candidate, "1.12")),
+            (
+                "",
+                False,
+                (LinkType.yanked, "yanked for reason: <none given>"),
+            ),
+            ("bad metadata", True, (LinkType.candidate, "1.12")),
+            (
+                "bad metadata",
+                False,
+                (LinkType.yanked, "yanked for reason: bad metadata"),
+            ),
+            # Test a unicode string with a non-ascii character.
+            ("curly quote: \u2018", True, (LinkType.candidate, "1.12")),
+            (
+                "curly quote: \u2018",
+                False,
+                (
+                    LinkType.yanked,
+                    "yanked for reason: curly quote: \u2018",
+                ),
+            ),
+        ],
+    )
+    def test_evaluate_link__allow_yanked(
+        self,
+        yanked_reason: str,
+        allow_yanked: bool,
+        expected: tuple[LinkType, str],
+    ) -> None:
+        target_python = TargetPython(py_version_info=(3, 6, 4))
+        evaluator = LinkEvaluator(
+            project_name="twine",
+            canonical_name=canonicalize_name("twine"),
+            formats=frozenset(["source"]),
+            target_python=target_python,
+            allow_yanked=allow_yanked,
+        )
+        link = Link(
+            "https://example.com/#egg=twine-1.12",
+            yanked_reason=yanked_reason,
+        )
+        actual = evaluator.evaluate_link(link)
+        assert actual == expected
+
+    def test_evaluate_link__incompatible_wheel(self) -> None:
+        """
+        Test an incompatible wheel.
+        """
+        target_python = TargetPython(py_version_info=(3, 6, 4))
+        # Set the valid tags to an empty list to make sure nothing matches.
+        target_python._valid_tags = []
+        evaluator = LinkEvaluator(
+            project_name="sample",
+            canonical_name=canonicalize_name("sample"),
+            formats=frozenset(["binary"]),
+            target_python=target_python,
+            allow_yanked=True,
+        )
+        link = Link("https://example.com/sample-1.0-py2.py3-none-any.whl")
+        actual = evaluator.evaluate_link(link)
+        expected = (
+            LinkType.platform_mismatch,
+            "none of the wheel's tags (py2-none-any, py3-none-any) are compatible "
+            "(run pip debug --verbose to show compatible tags)",
+        )
+        assert actual == expected
+
+
+@pytest.mark.parametrize(
+    "hex_digest, expected_versions",
+    [
+        (64 * "a", ["1.0", "1.1"]),
+        (64 * "b", ["1.0", "1.2"]),
+        (64 * "c", ["1.0", "1.1", "1.2"]),
+    ],
+)
+def test_filter_unallowed_hashes(hex_digest: str, expected_versions: list[str]) -> None:
+    candidates = [
+        make_mock_candidate("1.0"),
+        make_mock_candidate("1.1", hex_digest=(64 * "a")),
+        make_mock_candidate("1.2", hex_digest=(64 * "b")),
+    ]
+    hashes_data = {
+        "sha256": [hex_digest],
+    }
+    hashes = Hashes(hashes_data)
+    actual = filter_unallowed_hashes(
+        candidates,
+        hashes=hashes,
+        project_name="my-project",
+    )
+
+    actual_versions = [str(candidate.version) for candidate in actual]
+    assert actual_versions == expected_versions
+    # Check that the return value is always different from the given value.
+    assert actual is not candidates
+
+
+def test_filter_unallowed_hashes__no_hashes(caplog: pytest.LogCaptureFixture) -> None:
+    caplog.set_level(logging.DEBUG)
+
+    candidates = [
+        make_mock_candidate("1.0"),
+        make_mock_candidate("1.1"),
+    ]
+    actual = filter_unallowed_hashes(
+        candidates,
+        hashes=Hashes(),
+        project_name="my-project",
+    )
+
+    # Check that the return value is a copy.
+    assert actual == candidates
+    assert actual is not candidates
+
+    expected_message = (
+        "Given no hashes to check 2 links for project 'my-project': "
+        "discarding no candidates"
+    )
+    check_caplog(caplog, "DEBUG", expected_message)
+
+
+def test_filter_unallowed_hashes__log_message_with_match(
+    caplog: pytest.LogCaptureFixture,
+) -> None:
+    caplog.set_level(logging.DEBUG)
+
+    # Test 1 match, 2 non-matches, 3 no hashes so all 3 values will be
+    # different.
+    candidates = [
+        make_mock_candidate("1.0"),
+        make_mock_candidate(
+            "1.1",
+        ),
+        make_mock_candidate(
+            "1.2",
+        ),
+        make_mock_candidate("1.3", hex_digest=(64 * "a")),
+        make_mock_candidate("1.4", hex_digest=(64 * "b")),
+        make_mock_candidate("1.5", hex_digest=(64 * "c")),
+    ]
+    hashes_data = {
+        "sha256": [64 * "a", 64 * "d"],
+    }
+    hashes = Hashes(hashes_data)
+    actual = filter_unallowed_hashes(
+        candidates,
+        hashes=hashes,
+        project_name="my-project",
+    )
+    assert len(actual) == 4
+
+    expected_message = (
+        "Checked 6 links for project 'my-project' against 2 hashes "
+        "(1 matches, 3 no digest): discarding 2 non-matches:\n"
+        "  https://example.com/pkg-1.4.tar.gz#sha256="
+        "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\n"
+        "  https://example.com/pkg-1.5.tar.gz#sha256="
+        "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+    )
+    check_caplog(caplog, "DEBUG", expected_message)
+
+
+def test_filter_unallowed_hashes__log_message_with_no_match(
+    caplog: pytest.LogCaptureFixture,
+) -> None:
+    caplog.set_level(logging.DEBUG)
+
+    candidates = [
+        make_mock_candidate("1.0"),
+        make_mock_candidate("1.1", hex_digest=(64 * "b")),
+        make_mock_candidate("1.2", hex_digest=(64 * "c")),
+    ]
+    hashes_data = {
+        "sha256": [64 * "a", 64 * "d"],
+    }
+    hashes = Hashes(hashes_data)
+    actual = filter_unallowed_hashes(
+        candidates,
+        hashes=hashes,
+        project_name="my-project",
+    )
+    assert len(actual) == 3
+
+    expected_message = (
+        "Checked 3 links for project 'my-project' against 2 hashes "
+        "(0 matches, 1 no digest): discarding no candidates"
+    )
+    check_caplog(caplog, "DEBUG", expected_message)
+
+
+class TestLinkEvaluatorUploadedPriorTo:
+    """Test the uploaded_prior_to functionality in LinkEvaluator.
+
+    Only effective with indexes that provide upload-time metadata.
+    """
+
+    def make_test_link_evaluator(
+        self, uploaded_prior_to: datetime.datetime | None = None
+    ) -> LinkEvaluator:
+        """Create a LinkEvaluator for testing."""
+        target_python = TargetPython()
+        return LinkEvaluator(
+            project_name="myproject",
+            canonical_name=canonicalize_name("myproject"),
+            formats=frozenset(["source", "binary"]),
+            target_python=target_python,
+            allow_yanked=True,
+            uploaded_prior_to=uploaded_prior_to,
+        )
+
+    @pytest.mark.parametrize(
+        "upload_time, uploaded_prior_to, expected_result",
+        [
+            # Test case: upload time is before the cutoff (should be accepted)
+            (
+                datetime.datetime(2023, 1, 1, 12, 0, 0, tzinfo=datetime.timezone.utc),
+                datetime.datetime(2023, 6, 1, 0, 0, 0, tzinfo=datetime.timezone.utc),
+                (LinkType.candidate, "1.0"),
+            ),
+            # Test case: upload time is after the cutoff (should be rejected)
+            (
+                datetime.datetime(2023, 8, 1, 12, 0, 0, tzinfo=datetime.timezone.utc),
+                datetime.datetime(2023, 6, 1, 0, 0, 0, tzinfo=datetime.timezone.utc),
+                (
+                    LinkType.upload_too_late,
+                    "Upload time 2023-08-01 12:00:00+00:00 not prior to "
+                    "2023-06-01 00:00:00+00:00",
+                ),
+            ),
+            # Test case: upload time equals the cutoff (should be rejected)
+            (
+                datetime.datetime(2023, 6, 1, 0, 0, 0, tzinfo=datetime.timezone.utc),
+                datetime.datetime(2023, 6, 1, 0, 0, 0, tzinfo=datetime.timezone.utc),
+                (
+                    LinkType.upload_too_late,
+                    "Upload time 2023-06-01 00:00:00+00:00 not prior to "
+                    "2023-06-01 00:00:00+00:00",
+                ),
+            ),
+            # Test case: no uploaded_prior_to set (should be accepted)
+            (
+                datetime.datetime(2023, 8, 1, 12, 0, 0, tzinfo=datetime.timezone.utc),
+                None,
+                (LinkType.candidate, "1.0"),
+            ),
+            # Test case: no upload time with filter set (should be rejected)
+            (
+                None,
+                datetime.datetime(2023, 6, 1, 0, 0, 0, tzinfo=datetime.timezone.utc),
+                (
+                    LinkType.upload_time_missing,
+                    "does not provide upload-time metadata",
+                ),
+            ),
+        ],
+    )
+    def test_evaluate_link_uploaded_prior_to(
+        self,
+        upload_time: datetime.datetime | None,
+        uploaded_prior_to: datetime.datetime | None,
+        expected_result: tuple[LinkType, str],
+    ) -> None:
+        """Test that links are properly filtered by upload time."""
+        evaluator = self.make_test_link_evaluator(uploaded_prior_to)
+        link = Link(
+            "https://example.com/myproject-1.0.tar.gz",
+            upload_time=upload_time,
+        )
+
+        actual = evaluator.evaluate_link(link)
+        if expected_result[0] == LinkType.upload_time_missing:
+            # For upload_time_missing, just check the type and
+            # that the message contains expected text
+            assert actual[0] == expected_result[0]
+            assert expected_result[1] in actual[1]
+        else:
+            assert actual == expected_result
+
+    def test_evaluate_link_no_upload_time_no_filter(self) -> None:
+        """Test that links with no upload time are accepted when no filter is set."""
+        # No uploaded_prior_to filter set
+        evaluator = self.make_test_link_evaluator(uploaded_prior_to=None)
+
+        # Link with no upload_time should be accepted when no filter is set
+        link = Link("https://example.com/myproject-1.0.tar.gz")
+        actual = evaluator.evaluate_link(link)
+
+        # Should be accepted as candidate (assuming no other issues)
+        assert actual[0] == LinkType.candidate
+        assert actual[1] == "1.0"
+
+    def test_evaluate_link_timezone_handling(self) -> None:
+        """Test that timezone-aware datetimes are handled correctly."""
+        # Set cutoff time in UTC
+        uploaded_prior_to = datetime.datetime(
+            2023, 6, 1, 12, 0, 0, tzinfo=datetime.timezone.utc
+        )
+        evaluator = self.make_test_link_evaluator(uploaded_prior_to)
+
+        # Test upload time in different timezone (earlier in UTC)
+        upload_time_est = datetime.datetime(
+            *(2023, 6, 1, 10, 0, 0),
+            tzinfo=datetime.timezone(datetime.timedelta(hours=-5)),  # EST
+        )
+        link = Link(
+            "https://example.com/myproject-1.0.tar.gz",
+            upload_time=upload_time_est,
+        )
+
+        actual = evaluator.evaluate_link(link)
+        # 10:00 EST = 15:00 UTC, which is after 12:00 UTC cutoff
+        assert actual[0] == LinkType.upload_too_late
+
+    @pytest.mark.parametrize(
+        "uploaded_prior_to",
+        [
+            datetime.datetime(2023, 6, 1, 12, 0, 0, tzinfo=datetime.timezone.utc),
+            datetime.datetime(
+                *(2023, 6, 1, 12, 0, 0),
+                tzinfo=datetime.timezone(datetime.timedelta(hours=2)),
+            ),
+        ],
+    )
+    def test_uploaded_prior_to_different_timezone_formats(
+        self, uploaded_prior_to: datetime.datetime
+    ) -> None:
+        """Test that different timezone formats for uploaded_prior_to work."""
+        evaluator = self.make_test_link_evaluator(uploaded_prior_to)
+
+        # Create a link with upload time clearly after the cutoff
+        upload_time = datetime.datetime(
+            2023, 12, 31, 23, 59, 59, tzinfo=datetime.timezone.utc
+        )
+        link = Link(
+            "https://example.com/myproject-1.0.tar.gz",
+            upload_time=upload_time,
+        )
+
+        actual = evaluator.evaluate_link(link)
+        # Should be rejected regardless of timezone format
+        assert actual[0] == LinkType.upload_too_late
+
+
+class TestCandidateEvaluator:
+    @pytest.mark.parametrize(
+        "allow_all_prereleases, prefer_binary",
+        [
+            (False, False),
+            (False, True),
+            (True, False),
+            (True, True),
+        ],
+    )
+    def test_create(self, allow_all_prereleases: bool, prefer_binary: bool) -> None:
+        target_python = TargetPython()
+        target_python._valid_tags = [Tag("py36", "none", "any")]
+        specifier = SpecifierSet()
+
+        # Convert allow_all_prereleases to release_control
+        release_control = ReleaseControl()
+        if allow_all_prereleases:
+            release_control.all_releases.add(":all:")
+
+        evaluator = CandidateEvaluator.create(
+            project_name="my-project",
+            target_python=target_python,
+            release_control=release_control,
+            prefer_binary=prefer_binary,
+            specifier=specifier,
+        )
+        assert evaluator._release_control == release_control
+        assert evaluator._prefer_binary == prefer_binary
+        assert evaluator._specifier is specifier
+        assert evaluator._supported_tags == [Tag("py36", "none", "any")]
+
+    def test_create__target_python_none(self) -> None:
+        """
+        Test passing target_python=None.
+        """
+        evaluator = CandidateEvaluator.create("my-project")
+        expected_tags = get_supported()
+        assert evaluator._supported_tags == expected_tags
+
+    def test_create__specifier_none(self) -> None:
+        """
+        Test passing specifier=None.
+        """
+        evaluator = CandidateEvaluator.create("my-project")
+        expected_specifier = SpecifierSet()
+        assert evaluator._specifier == expected_specifier
+
+    def test_get_applicable_candidates(self) -> None:
+        specifier = SpecifierSet("<= 1.11")
+        versions = ["1.10", "1.11", "1.12"]
+        candidates = [make_mock_candidate(version) for version in versions]
+        evaluator = CandidateEvaluator.create(
+            "my-project",
+            specifier=specifier,
+        )
+        actual = evaluator.get_applicable_candidates(candidates)
+        expected_applicable = candidates[:2]
+        assert [str(c.version) for c in expected_applicable] == [
+            "1.10",
+            "1.11",
+        ]
+        assert actual == expected_applicable
+
+    @pytest.mark.parametrize(
+        "specifier, expected_versions",
+        [
+            # Test no version constraint.
+            (SpecifierSet(), ["1.0", "1.2"]),
+            # Test a version constraint that excludes the candidate whose
+            # hash matches.  Then the non-allowed hash is a candidate.
+            (SpecifierSet("<= 1.1"), ["1.0", "1.1"]),
+        ],
+    )
+    def test_get_applicable_candidates__hashes(
+        self,
+        specifier: SpecifierSet,
+        expected_versions: list[str],
+    ) -> None:
+        """
+        Test a non-None hashes value.
+        """
+        candidates = [
+            make_mock_candidate("1.0"),
+            make_mock_candidate("1.1", hex_digest=(64 * "a")),
+            make_mock_candidate("1.2", hex_digest=(64 * "b")),
+        ]
+        hashes_data = {
+            "sha256": [64 * "b"],
+        }
+        hashes = Hashes(hashes_data)
+        evaluator = CandidateEvaluator.create(
+            "my-project",
+            specifier=specifier,
+            hashes=hashes,
+        )
+        actual = evaluator.get_applicable_candidates(candidates)
+        actual_versions = [str(c.version) for c in actual]
+        assert actual_versions == expected_versions
+
+    def test_compute_best_candidate(self) -> None:
+        specifier = SpecifierSet("<= 1.11")
+        versions = ["1.10", "1.11", "1.12"]
+        candidates = [make_mock_candidate(version) for version in versions]
+        evaluator = CandidateEvaluator.create(
+            "my-project",
+            specifier=specifier,
+        )
+        result = evaluator.compute_best_candidate(candidates)
+
+        assert result.all_candidates == candidates
+        expected_applicable = candidates[:2]
+        assert [str(c.version) for c in expected_applicable] == [
+            "1.10",
+            "1.11",
+        ]
+        assert result.applicable_candidates == expected_applicable
+
+        assert result.best_candidate is expected_applicable[1]
+
+    def test_compute_best_candidate__none_best(self) -> None:
+        """
+        Test returning a None best candidate.
+        """
+        specifier = SpecifierSet("<= 1.10")
+        versions = ["1.11", "1.12"]
+        candidates = [make_mock_candidate(version) for version in versions]
+        evaluator = CandidateEvaluator.create(
+            "my-project",
+            specifier=specifier,
+        )
+        result = evaluator.compute_best_candidate(candidates)
+
+        assert result.all_candidates == candidates
+        assert result.applicable_candidates == []
+        assert result.best_candidate is None
+
+    @pytest.mark.parametrize(
+        "hex_digest, expected",
+        [
+            # Test a link with no hash.
+            (None, 0),
+            # Test a link with an allowed hash.
+            (64 * "a", 1),
+            # Test a link with a hash that isn't allowed.
+            (64 * "b", 0),
+        ],
+    )
+    def test_sort_key__hash(self, hex_digest: str | None, expected: int) -> None:
+        """
+        Test the effect of the link's hash on _sort_key()'s return value.
+        """
+        candidate = make_mock_candidate("1.0", hex_digest=hex_digest)
+        hashes_data = {
+            "sha256": [64 * "a"],
+        }
+        hashes = Hashes(hashes_data)
+        evaluator = CandidateEvaluator.create("my-project", hashes=hashes)
+        sort_value = evaluator._sort_key(candidate)
+        # The hash is reflected in the first element of the tuple.
+        actual = sort_value[0]
+        assert actual == expected
+
+    @pytest.mark.parametrize(
+        "yanked_reason, expected",
+        [
+            # Test a non-yanked file.
+            (None, 0),
+            # Test a yanked file (has a lower value than non-yanked).
+            ("bad metadata", -1),
+        ],
+    )
+    def test_sort_key__is_yanked(
+        self, yanked_reason: str | None, expected: int
+    ) -> None:
+        """
+        Test the effect of is_yanked on _sort_key()'s return value.
+        """
+        candidate = make_mock_candidate("1.0", yanked_reason=yanked_reason)
+        evaluator = CandidateEvaluator.create("my-project")
+        sort_value = evaluator._sort_key(candidate)
+        # Yanked / non-yanked is reflected in the second element of the tuple.
+        actual = sort_value[1]
+        assert actual == expected
+
+    def test_sort_best_candidate__no_candidates(self) -> None:
+        """
+        Test passing an empty list.
+        """
+        evaluator = CandidateEvaluator.create("my-project")
+        actual = evaluator.sort_best_candidate([])
+        assert actual is None
+
+    def test_sort_best_candidate__best_yanked_but_not_all(
+        self,
+        caplog: pytest.LogCaptureFixture,
+    ) -> None:
+        """
+        Test the best candidates being yanked, but not all.
+        """
+        caplog.set_level(logging.INFO)
+        candidates = [
+            make_mock_candidate("4.0", yanked_reason="bad metadata #4"),
+            # Put the best candidate in the middle, to test sorting.
+            make_mock_candidate("2.0"),
+            make_mock_candidate("3.0", yanked_reason="bad metadata #3"),
+            make_mock_candidate("1.0"),
+        ]
+        expected_best = candidates[1]
+        evaluator = CandidateEvaluator.create("my-project")
+        actual = evaluator.sort_best_candidate(candidates)
+        assert actual is expected_best
+        assert str(actual.version) == "2.0"
+
+        # Check the log messages.
+        assert len(caplog.records) == 0
+
+
+class TestPackageFinder:
+    @pytest.mark.parametrize(
+        "allow_all_prereleases, prefer_binary",
+        [
+            (False, False),
+            (False, True),
+            (True, False),
+            (True, True),
+        ],
+    )
+    def test_create__candidate_prefs(
+        self,
+        allow_all_prereleases: bool,
+        prefer_binary: bool,
+    ) -> None:
+        """
+        Test that the _candidate_prefs attribute is set correctly.
+        """
+        link_collector = LinkCollector(
+            session=PipSession(),
+            search_scope=SearchScope([], [], False),
+        )
+
+        # Convert allow_all_prereleases to release_control
+        release_control = ReleaseControl()
+        if allow_all_prereleases:
+            release_control.all_releases.add(":all:")
+
+        selection_prefs = SelectionPreferences(
+            allow_yanked=True,
+            release_control=release_control,
+            prefer_binary=prefer_binary,
+        )
+        finder = PackageFinder.create(
+            link_collector=link_collector,
+            selection_prefs=selection_prefs,
+        )
+        candidate_prefs = finder._candidate_prefs
+        assert candidate_prefs.release_control == release_control
+        assert candidate_prefs.prefer_binary == prefer_binary
+
+    def test_create__link_collector(self) -> None:
+        """
+        Test that the _link_collector attribute is set correctly.
+        """
+        link_collector = LinkCollector(
+            session=PipSession(),
+            search_scope=SearchScope([], [], False),
+        )
+        finder = PackageFinder.create(
+            link_collector=link_collector,
+            selection_prefs=SelectionPreferences(allow_yanked=True),
+        )
+
+        assert finder._link_collector is link_collector
+
+    def test_create__target_python(self) -> None:
+        """
+        Test that the _target_python attribute is set correctly.
+        """
+        link_collector = LinkCollector(
+            session=PipSession(),
+            search_scope=SearchScope([], [], False),
+        )
+        target_python = TargetPython(py_version_info=(3, 7, 3))
+        finder = PackageFinder.create(
+            link_collector=link_collector,
+            selection_prefs=SelectionPreferences(allow_yanked=True),
+            target_python=target_python,
+        )
+        actual_target_python = finder._target_python
+        # The target_python attribute should be set as is.
+        assert actual_target_python is target_python
+        # Check that the attributes weren't reset.
+        assert actual_target_python.py_version_info == (3, 7, 3)
+
+    def test_create__target_python_none(self) -> None:
+        """
+        Test passing target_python=None.
+        """
+        link_collector = LinkCollector(
+            session=PipSession(),
+            search_scope=SearchScope([], [], False),
+        )
+        finder = PackageFinder.create(
+            link_collector=link_collector,
+            selection_prefs=SelectionPreferences(allow_yanked=True),
+            target_python=None,
+        )
+        # Spot-check the default TargetPython object.
+        actual_target_python = finder._target_python
+        assert actual_target_python._given_py_version_info is None
+        assert actual_target_python.py_version_info == CURRENT_PY_VERSION_INFO
+
+    @pytest.mark.parametrize("allow_yanked", [False, True])
+    def test_create__allow_yanked(self, allow_yanked: bool) -> None:
+        """
+        Test that the _allow_yanked attribute is set correctly.
+        """
+        link_collector = LinkCollector(
+            session=PipSession(),
+            search_scope=SearchScope([], [], False),
+        )
+        selection_prefs = SelectionPreferences(allow_yanked=allow_yanked)
+        finder = PackageFinder.create(
+            link_collector=link_collector,
+            selection_prefs=selection_prefs,
+        )
+        assert finder._allow_yanked == allow_yanked
+
+    @pytest.mark.parametrize("ignore_requires_python", [False, True])
+    def test_create__ignore_requires_python(self, ignore_requires_python: bool) -> None:
+        """
+        Test that the _ignore_requires_python attribute is set correctly.
+        """
+        link_collector = LinkCollector(
+            session=PipSession(),
+            search_scope=SearchScope([], [], False),
+        )
+        selection_prefs = SelectionPreferences(
+            allow_yanked=True,
+            ignore_requires_python=ignore_requires_python,
+        )
+        finder = PackageFinder.create(
+            link_collector=link_collector,
+            selection_prefs=selection_prefs,
+        )
+        assert finder._ignore_requires_python == ignore_requires_python
+
+    def test_create__format_control(self) -> None:
+        """
+        Test that the format_control attribute is set correctly.
+        """
+        link_collector = LinkCollector(
+            session=PipSession(),
+            search_scope=SearchScope([], [], False),
+        )
+        format_control = FormatControl(set(), {":all:"})
+        selection_prefs = SelectionPreferences(
+            allow_yanked=True,
+            format_control=format_control,
+        )
+        finder = PackageFinder.create(
+            link_collector=link_collector,
+            selection_prefs=selection_prefs,
+        )
+        actual_format_control = finder.format_control
+        assert actual_format_control is format_control
+        # Check that the attributes weren't reset.
+        assert actual_format_control.only_binary == {":all:"}
+
+    @pytest.mark.parametrize(
+        "allow_yanked, ignore_requires_python, only_binary, expected_formats",
+        [
+            (False, False, {}, frozenset({"binary", "source"})),
+            # Test allow_yanked=True.
+            (True, False, {}, frozenset({"binary", "source"})),
+            # Test ignore_requires_python=True.
+            (False, True, {}, frozenset({"binary", "source"})),
+            # Test a non-trivial only_binary.
+            (False, False, {"twine"}, frozenset({"binary"})),
+        ],
+    )
+    def test_make_link_evaluator(
+        self,
+        allow_yanked: bool,
+        ignore_requires_python: bool,
+        only_binary: set[str],
+        expected_formats: frozenset[str],
+    ) -> None:
+        # Create a test TargetPython that we can check for.
+        target_python = TargetPython(py_version_info=(3, 7))
+        format_control = FormatControl(set(), only_binary)
+
+        link_collector = LinkCollector(
+            session=PipSession(),
+            search_scope=SearchScope([], [], False),
+        )
+
+        finder = PackageFinder(
+            link_collector=link_collector,
+            target_python=target_python,
+            allow_yanked=allow_yanked,
+            format_control=format_control,
+            ignore_requires_python=ignore_requires_python,
+        )
+
+        # Pass a project_name that will be different from canonical_name.
+        link_evaluator = finder.make_link_evaluator("Twine")
+
+        assert link_evaluator.project_name == "Twine"
+        assert link_evaluator._canonical_name == "twine"
+        assert link_evaluator._allow_yanked == allow_yanked
+        assert link_evaluator._ignore_requires_python == ignore_requires_python
+        assert link_evaluator._formats == expected_formats
+
+        # Test the _target_python attribute.
+        actual_target_python = link_evaluator._target_python
+        # The target_python attribute should be set as is.
+        assert actual_target_python is target_python
+        # For good measure, check that the attributes weren't reset.
+        assert actual_target_python._given_py_version_info == (3, 7)
+        assert actual_target_python.py_version_info == (3, 7, 0)
+
+    @pytest.mark.parametrize(
+        "allow_all_prereleases, prefer_binary",
+        [
+            (False, False),
+            (False, True),
+            (True, False),
+            (True, True),
+        ],
+    )
+    def test_make_candidate_evaluator(
+        self,
+        allow_all_prereleases: bool,
+        prefer_binary: bool,
+    ) -> None:
+        target_python = TargetPython()
+        target_python._valid_tags = [Tag("py36", "none", "any")]
+
+        # Convert allow_all_prereleases to release_control
+        release_control = ReleaseControl()
+        if allow_all_prereleases:
+            release_control.all_releases.add(":all:")
+
+        candidate_prefs = CandidatePreferences(
+            prefer_binary=prefer_binary,
+            release_control=release_control,
+        )
+        link_collector = LinkCollector(
+            session=PipSession(),
+            search_scope=SearchScope([], [], False),
+        )
+        finder = PackageFinder(
+            link_collector=link_collector,
+            target_python=target_python,
+            allow_yanked=True,
+            candidate_prefs=candidate_prefs,
+        )
+
+        specifier = SpecifierSet()
+        # Pass hashes to check that _hashes is set.
+        hashes = Hashes({"sha256": [64 * "a"]})
+        evaluator = finder.make_candidate_evaluator(
+            "my-project",
+            specifier=specifier,
+            hashes=hashes,
+        )
+        assert evaluator._release_control == release_control
+        assert evaluator._hashes == hashes
+        assert evaluator._prefer_binary == prefer_binary
+        assert evaluator._project_name == "my-project"
+        assert evaluator._specifier is specifier
+        assert evaluator._supported_tags == [Tag("py36", "none", "any")]
+
+
+@pytest.mark.parametrize(
+    "fragment, canonical_name, expected",
+    [
+        # Trivial.
+        ("pip-18.0", "pip", 3),
+        ("zope-interface-4.5.0", "zope-interface", 14),
+        # Canonicalized name match non-canonicalized egg info. (pypa/pip#5870)
+        ("Jinja2-2.10", "jinja2", 6),
+        ("zope.interface-4.5.0", "zope-interface", 14),
+        ("zope_interface-4.5.0", "zope-interface", 14),
+        # Should be smart enough to parse ambiguous names from the provided
+        # package name.
+        ("foo-2-2", "foo", 3),
+        ("foo-2-2", "foo-2", 5),
+        # Should be able to detect collapsed characters in the egg info.
+        ("foo--bar-1.0", "foo-bar", 8),
+        ("foo-_bar-1.0", "foo-bar", 8),
+        # The package name must not ends with a dash (PEP 508), so the first
+        # dash would be the separator, not the second.
+        ("zope.interface--4.5.0", "zope-interface", 14),
+        ("zope.interface--", "zope-interface", 14),
+        # The version part is missing, but the split function does not care.
+        ("zope.interface-", "zope-interface", 14),
+    ],
+)
+def test_find_name_version_sep(
+    fragment: str, canonical_name: str, expected: int
+) -> None:
+    index = _find_name_version_sep(fragment, canonical_name)
+    assert index == expected
+
+
+@pytest.mark.parametrize(
+    "fragment, canonical_name",
+    [
+        # A dash must follow the package name.
+        ("zope.interface4.5.0", "zope-interface"),
+        ("zope.interface.4.5.0", "zope-interface"),
+        ("zope.interface.-4.5.0", "zope-interface"),
+        ("zope.interface", "zope-interface"),
+    ],
+)
+def test_find_name_version_sep_failure(fragment: str, canonical_name: str) -> None:
+    with pytest.raises(ValueError) as ctx:
+        _find_name_version_sep(fragment, canonical_name)
+    message = f"{fragment} does not match {canonical_name}"
+    assert str(ctx.value) == message
+
+
+@pytest.mark.parametrize(
+    "fragment, canonical_name, expected",
+    [
+        # Trivial.
+        ("pip-18.0", "pip", "18.0"),
+        ("zope-interface-4.5.0", "zope-interface", "4.5.0"),
+        # Canonicalized name match non-canonicalized egg info. (pypa/pip#5870)
+        ("Jinja2-2.10", "jinja2", "2.10"),
+        ("zope.interface-4.5.0", "zope-interface", "4.5.0"),
+        ("zope_interface-4.5.0", "zope-interface", "4.5.0"),
+        # Should be smart enough to parse ambiguous names from the provided
+        # package name.
+        ("foo-2-2", "foo", "2-2"),
+        ("foo-2-2", "foo-2", "2"),
+        ("zope.interface--4.5.0", "zope-interface", "-4.5.0"),
+        ("zope.interface--", "zope-interface", "-"),
+        # Should be able to detect collapsed characters in the egg info.
+        ("foo--bar-1.0", "foo-bar", "1.0"),
+        ("foo-_bar-1.0", "foo-bar", "1.0"),
+        # Invalid.
+        ("the-package-name-8.19", "does-not-match", None),
+        ("zope.interface.-4.5.0", "zope.interface", None),
+        ("zope.interface-", "zope-interface", None),
+        ("zope.interface4.5.0", "zope-interface", None),
+        ("zope.interface.4.5.0", "zope-interface", None),
+        ("zope.interface.-4.5.0", "zope-interface", None),
+        ("zope.interface", "zope-interface", None),
+    ],
+)
+def test_extract_version_from_fragment(
+    fragment: str, canonical_name: str, expected: str | None
+) -> None:
+    version = _extract_version_from_fragment(fragment, canonical_name)
+    assert version == expected

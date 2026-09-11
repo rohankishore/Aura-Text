@@ -310,6 +310,9 @@ class Window(QMainWindow):
         site.addsitedir(self.plugin_dep_dir)
         self.portable_python_dir = os.path.join(os.path.dirname(sys.executable), "portable-python")
         self.portable_stdlib_dir = os.path.join(self.portable_python_dir, "lib", "python3.13")
+        self.portable_pip_path = os.path.join(os.path.dirname(sys.executable), "portablepip3")
+        if platform.system() == "Windows":
+            self.portable_pip_path += ".exe"
         sys.path.append(self.portable_stdlib_dir)
         site.addsitedir(self.portable_stdlib_dir)
         # self._terminal_history = ""
@@ -1374,10 +1377,7 @@ class Window(QMainWindow):
                 )
                 
                 if reply == QMessageBox.StandardButton.Yes:
-                    portable_pip = os.path.join(self.portable_python_dir, "bin", "pip3")
-                    if platform.system() == "Windows":
-                        portable_python = os.path.join(self.portable_python_dir, "bin", "python.exe")
-                        portable_pip = [portable_python, "-m", "pip"]
+                    portable_pip = self.portable_pip_path
                     from PyQt6.QtCore import QThread, pyqtSignal, Qt
                     from PyQt6.QtWidgets import QProgressDialog, QApplication
                     
@@ -1387,11 +1387,7 @@ class Window(QMainWindow):
                         def __init__(self, pip_bin, plugin_dep_dir, packages):
                             super().__init__()
                             system_pip = [sys.executable, "-m", "pip"]
-                            if platform.system() == "Windows":
-                                portable_pip_exists = os.path.exists(pip_bin[0])
-                            else:
-                                portable_pip_exists = os.path.exists(pip_bin)
-                            if portable_pip_exists:
+                            if getattr(sys, 'frozen', False):
                                 print("INFO: Using embedded python to install required libraries for plugins")
                                 self.pip_bin = pip_bin
                             else:

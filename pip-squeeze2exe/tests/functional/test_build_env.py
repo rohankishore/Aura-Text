@@ -1,0 +1,527 @@
+from __future__ import annotations
+
+import os
+import shutil
+import sys
+from collections.abc import Generator
+from contextlib import contextmanager
+from pathlib import Path
+from textwrap import dedent
+from typing import Literal
+from unittest import mock
+
+import pytest
+
+from pip._internal.build_env import (
+    BuildEnvironment,
+    BuildEnvironmentInstaller,
+    InprocessBuildEnvironmentInstaller,
+    SubprocessBuildEnvironmentInstaller,
+    VenvBuildEnvironment,
+    VirtualBuildEnvironment,
+)
+from pip._internal.build_env.base import Prefix
+from pip._internal.build_env.virtual import get_system_sitepackages
+from pip._internal.cache import WheelCache
+from pip._internal.index.package_finder import PackageFinder
+from pip._internal.network.session import PipSession
+from pip._internal.operations.build.build_tracker import get_build_tracker
+
+from tests.lib import (
+    PipTestEnvironment,
+    TestData,
+    TestPipResult,
+    create_basic_wheel_for_package,
+    make_test_finder,
+)
+from tests.lib.wheel import make_wheel
+
+InstallMethod = Literal["subprocess", "inprocess"]
+IsolationMethod = Literal["virtual", "venv"]
+with_both_installers = pytest.mark.parametrize(
+    "install_method", ["subprocess", "inprocess"]
+)
+with_both_isolation_methods = pytest.mark.parametrize(
+    "isolation_method", ["virtual", "venv"]
+)
+
+
+def indent(text: str, prefix: str) -> str:
+    return "\n".join((prefix if line else "") + line for line in text.split("\n"))
+
+
+@pytest.fixture(params=["virtual", "venv"])
+def env_factory(request: pytest.FixtureRequest) -> Generator[type[BuildEnvironment]]:
+    if request.param == "virtual":
+        yield VirtualBuildEnvironment
+    else:
+        yield VenvBuildEnvironment
+
+
+@contextmanager
+def make_test_build_env_installer(
+    method: InstallMethod, finder: PackageFinder
+) -> Generator[BuildEnvironmentInstaller]:
+    if method == "subprocess":
+        yield SubprocessBuildEnvironmentInstaller(finder)
+    else:
+        with get_build_tracker() as tracker:
+            yield InprocessBuildEnvironmentInstaller(
+                finder=finder,
+                build_tracker=tracker,
+                wheel_cache=WheelCache(None),  # type: ignore
+            )
+
+
+def run_with_build_env(
+    script: PipTestEnvironment,
+    setup_script_contents: str,
+    test_script_contents: str | None = None,
+    install_method: InstallMethod = "subprocess",
+    isolation_method: IsolationMethod = "virtual",
+) -> TestPipResult:
+    build_env_script = script.scratch_path / "build_env.py"
+    scratch_path = str(script.scratch_path)
+    build_env_script.write_text(
+        dedent(f"""
+            import subprocess
+            import sys
+
+            from pip._internal.build_env import (
+                VenvBuildEnvironment,
+                VirtualBuildEnvironment,
+                InprocessBuildEnvironmentInstaller,
+                SubprocessBuildEnvironmentInstaller,
+            )
+            from pip._internal.cache import WheelCache
+            from pip._internal.index.collector import LinkCollector
+            from pip._internal.index.package_finder import PackageFinder
+            from pip._internal.models.search_scope import SearchScope
+            from pip._internal.models.selection_prefs import (
+                SelectionPreferences
+            )
+            from pip._internal.operations.build.build_tracker import get_build_tracker
+            from pip._internal.network.session import PipSession
+            from pip._internal.utils.temp_dir import global_tempdir_manager
+
+            link_collector = LinkCollector(
+                session=PipSession(),
+                search_scope=SearchScope.create([{scratch_path!r}], [], False),
+            )
+            selection_prefs = SelectionPreferences(
+                allow_yanked=True,
+            )
+            finder = PackageFinder.create(
+                link_collector=link_collector,
+                selection_prefs=selection_prefs,
+            )
+
+            with global_tempdir_manager(), get_build_tracker() as tracker:
+                if "{install_method}" == "subprocess":
+                    installer = SubprocessBuildEnvironmentInstaller(finder)
+                else:
+                    installer = InprocessBuildEnvironmentInstaller(
+                        finder=finder,
+                        build_tracker=tracker,
+                        wheel_cache=WheelCache(None),
+                    )
+                if "{isolation_method}" == "venv":
+                    build_env = VenvBuildEnvironment(installer)
+                elif "{isolation_method}" == "virtual":
+                    build_env = VirtualBuildEnvironment(installer)
+                else:
+                    assert False, "isolation method must be virtual or venv"
+            """)
+        + indent(dedent(setup_script_contents), "    ")
+        + indent(
+            dedent("""
+                if len(sys.argv) > 1:
+                    with build_env:
+                        subprocess.check_call((
+                            build_env.python_executable, sys.argv[1]
+                        ))
+                """),
+            "    ",
+        )
+    )
+    args = ["python", os.fspath(build_env_script)]
+    if test_script_contents is not None:
+        test_script = script.scratch_path / "test.py"
+        test_script.write_text(dedent(test_script_contents))
+        args.append(os.fspath(test_script))
+    return script.run(*args)
+
+
+@with_both_installers
+def test_build_env_allow_empty_requirements_install(
+    install_method: InstallMethod, env_factory: type[BuildEnvironment]
+) -> None:
+    finder = make_test_finder()
+    with make_test_build_env_installer(install_method, finder) as installer:
+        build_env = env_factory(installer)
+        for prefix in ("normal", "overlay"):
+            build_env.install_requirements(
+                [], prefix, kind="Installing build dependencies"
+            )
+
+
+def test_build_env_restores_unset_path_variables(
+    monkeypatch: pytest.MonkeyPatch, env_factory: type[BuildEnvironment]
+) -> None:
+    monkeypatch.delenv("PATH", raising=False)
+    monkeypatch.delenv("PYTHONPATH", raising=False)
+
+    with make_test_build_env_installer("inprocess", make_test_finder()) as installer:
+        with env_factory(installer):
+            pass
+
+    assert "PATH" not in os.environ
+    assert "PYTHONPATH" not in os.environ
+
+
+@with_both_installers
+def test_build_env_allow_only_one_install(
+    script: PipTestEnvironment,
+    install_method: InstallMethod,
+) -> None:
+    create_basic_wheel_for_package(script, "foo", "1.0")
+    create_basic_wheel_for_package(script, "bar", "1.0")
+    finder = make_test_finder(find_links=[os.fspath(script.scratch_path)])
+    with make_test_build_env_installer(install_method, finder) as installer:
+        build_env = VirtualBuildEnvironment(installer)
+        for prefix in ("normal", "overlay"):
+            build_env.install_requirements(
+                ["foo"], prefix, kind=f"installing foo in {prefix}"
+            )
+            with pytest.raises(AssertionError):
+                build_env.install_requirements(
+                    ["bar"], prefix, kind=f"installing bar in {prefix}"
+                )
+            with pytest.raises(AssertionError):
+                build_env.install_requirements(
+                    [], prefix, kind=f"installing in {prefix}"
+                )
+
+
+@with_both_isolation_methods
+def test_build_env_requirements_check(
+    script: PipTestEnvironment, isolation_method: IsolationMethod
+) -> None:
+    create_basic_wheel_for_package(script, "foo", "2.0")
+    create_basic_wheel_for_package(script, "bar", "1.0")
+    create_basic_wheel_for_package(script, "bar", "3.0")
+    create_basic_wheel_for_package(script, "other", "0.5")
+
+    script.pip_install_local("-f", script.scratch_path, "foo", "bar", "other")
+
+    run_with_build_env(
+        script,
+        """
+        r = build_env.check_requirements(['foo', 'bar', 'other'])
+        assert r == (set(), {'foo', 'bar', 'other'}), repr(r)
+
+        r = build_env.check_requirements(['foo>1.0', 'bar==3.0'])
+        assert r == (set(), {'foo>1.0', 'bar==3.0'}), repr(r)
+
+        r = build_env.check_requirements(['foo>3.0', 'bar>=2.5'])
+        assert r == (set(), {'foo>3.0', 'bar>=2.5'}), repr(r)
+        """,
+        isolation_method=isolation_method,
+    )
+
+    run_with_build_env(
+        script,
+        """
+        build_env.install_requirements(['foo', 'bar==3.0'], 'normal',
+                                       kind='installing foo in normal')
+
+        r = build_env.check_requirements(['foo', 'bar', 'other'])
+        assert r == (set(), {'other'}), repr(r)
+
+        r = build_env.check_requirements(['foo>1.0', 'bar==3.0'])
+        assert r == (set(), set()), repr(r)
+
+        r = build_env.check_requirements(['foo>3.0', 'bar>=2.5'])
+        assert r == ({('foo==2.0', 'foo>3.0')}, set()), repr(r)
+        """,
+        isolation_method=isolation_method,
+    )
+
+    run_with_build_env(
+        script,
+        """
+        build_env.install_requirements(['foo', 'bar==3.0'], 'normal',
+                                       kind='installing foo in normal')
+        build_env.install_requirements(['bar==1.0'], 'overlay',
+                                       kind='installing foo in overlay')
+
+        r = build_env.check_requirements(['foo', 'bar', 'other'])
+        assert r == (set(), {'other'}), repr(r)
+
+        r = build_env.check_requirements(['foo>1.0', 'bar==3.0'])
+        assert r == ({('bar==1.0', 'bar==3.0')}, set()), repr(r)
+
+        r = build_env.check_requirements(['foo>3.0', 'bar>=2.5'])
+        assert r == ({('bar==1.0', 'bar>=2.5'), ('foo==2.0', 'foo>3.0')}, \
+            set()), repr(r)
+        """,
+        isolation_method=isolation_method,
+    )
+
+    run_with_build_env(
+        script,
+        """
+        build_env.install_requirements(
+            ["bar==3.0"],
+            "normal",
+            kind="installing bar in normal",
+        )
+        r = build_env.check_requirements(
+            [
+                "bar==2.0; python_version < '3.0'",
+                "bar==3.0; python_version >= '3.0'",
+                "foo==4.0; extra == 'dev'",
+            ],
+        )
+        assert r == (set(), set()), repr(r)
+        """,
+        isolation_method=isolation_method,
+    )
+
+
+@with_both_installers
+def test_build_env_overlay_prefix_has_priority(
+    script: PipTestEnvironment, install_method: InstallMethod
+) -> None:
+    create_basic_wheel_for_package(script, "pkg", "2.0")
+    create_basic_wheel_for_package(script, "pkg", "4.3")
+    result = run_with_build_env(
+        script,
+        """
+        build_env.install_requirements(['pkg==2.0'], 'overlay',
+                                       kind='installing pkg==2.0 in overlay')
+        build_env.install_requirements(['pkg==4.3'], 'normal',
+                                       kind='installing pkg==4.3 in normal')
+        """,
+        """
+        print(__import__('pkg').__version__)
+        """,
+        install_method=install_method,
+    )
+    assert result.stdout.strip() == "2.0", str(result)
+
+
+if sys.version_info < (3, 12):
+    BUILD_ENV_ERROR_DEBUG_CODE = r"""
+            from distutils.sysconfig import get_python_lib
+            print(
+                f'imported `pkg` from `{pkg.__file__}`',
+                file=sys.stderr)
+            print('system sites:\n  ' + '\n  '.join(sorted({
+                            get_python_lib(plat_specific=0),
+                            get_python_lib(plat_specific=1),
+                    })), file=sys.stderr)
+    """
+else:
+    BUILD_ENV_ERROR_DEBUG_CODE = r"""
+            from sysconfig import get_paths
+            paths = get_paths()
+            print(
+                f'imported `pkg` from `{pkg.__file__}`',
+                file=sys.stderr)
+            print('system sites:\n  ' + '\n  '.join(sorted({
+                            paths['platlib'],
+                            paths['purelib'],
+                    })), file=sys.stderr)
+    """
+
+
+@with_both_installers
+@with_both_isolation_methods
+@pytest.mark.usefixtures("enable_user_site")
+def test_build_env_isolation(
+    script: PipTestEnvironment,
+    install_method: InstallMethod,
+    isolation_method: IsolationMethod,
+) -> None:
+    # Create dummy `pkg` wheel.
+    pkg_whl = create_basic_wheel_for_package(script, "pkg", "1.0")
+
+    # Install it to site packages.
+    script.pip_install_local(pkg_whl)
+
+    # And a copy in the user site.
+    script.pip_install_local("--ignore-installed", "--user", pkg_whl)
+
+    # And to another directory available through a .pth file.
+    target = script.scratch_path / "pth_install"
+    script.pip_install_local("-t", target, pkg_whl)
+    (script.site_packages_path / "build_requires.pth").write_text(str(target) + "\n")
+
+    # And finally to yet another directory available through PYTHONPATH.
+    target = script.scratch_path / "pypath_install"
+    script.pip_install_local("-t", target, pkg_whl)
+    script.environ["PYTHONPATH"] = target
+
+    system_sites = get_system_sitepackages()
+    # there should always be something to exclude
+    assert system_sites
+
+    run_with_build_env(
+        script,
+        "",
+        f"""
+        import sys
+
+        try:
+            import pkg
+        except ImportError:
+            pass
+        else:
+            {BUILD_ENV_ERROR_DEBUG_CODE}
+            print('sys.path:\\n  ' + '\\n  '.join(sys.path), file=sys.stderr)
+            sys.exit(1)
+        # second check: direct check of exclusion of system site packages
+        import os
+
+        normalized_path = [os.path.normcase(path) for path in sys.path]
+        for system_path in {system_sites!r}:
+            assert system_path not in normalized_path, \
+            f"{{system_path}} found in {{normalized_path}}"
+        """,
+        install_method=install_method,
+        isolation_method=isolation_method,
+    )
+
+
+def test_build_env_can_still_access_python_tools_on_system_path(
+    script: PipTestEnvironment, data: TestData
+) -> None:
+    """
+    Ensure that backend subprocesses can still run system Python tools available
+    on PATH and that those tools can import their own dependencies from the system
+    Python.
+
+    This is a regression test for https://github.com/pypa/pip/issues/13222 where
+    our legacy sitecustomize.py trick for achieving isolation broke this use-case.
+    """
+    script.pip_install_local("cmake", find_links=[data.common_wheels])
+    script.pip_install_local(
+        data.src / "python-cmake-issue-13222",
+        "--use-feature=venv-isolation",
+        find_links=[data.common_wheels],
+        build_isolation=True,
+    )
+
+
+@with_both_installers
+def test_build_env_console_scripts_use_venv_python(
+    script: PipTestEnvironment, install_method: InstallMethod
+) -> None:
+    """
+    When using venv isolation, it's important that the build environment
+    console scripts are linked with the temporary environment's Python
+    executable (and not the parent executable).
+    """
+    make_wheel(
+        name="goldfish",
+        version="1.0",
+        extra_files={
+            "goldfish/__init__.py": dedent("""
+                def main():
+                    print('hello, world')
+            """),
+        },
+        console_scripts=["goldfish = goldfish:main"],
+    ).save_to(script.scratch_path / "goldfish-1.0-py2.py3-none-any.whl")
+
+    finder = make_test_finder(find_links=[os.fspath(script.scratch_path)])
+    with make_test_build_env_installer(install_method, finder) as installer:
+        build_env = VenvBuildEnvironment(installer)
+        build_env.install_requirements(
+            ["goldfish==1.0"], "normal", kind="script dependency"
+        )
+
+    # Check that the console script import its own library.
+    console_script = shutil.which("goldfish", path=build_env._bin_path)
+    assert console_script is not None, "console script wasn't found?!"
+    result = script.run(console_script)
+    assert result.stdout == "hello, world\n"
+
+
+class TestProxyPassthrough:
+    @mock.patch("pip._internal.build_env.installer.call_subprocess")
+    def test_install_forwards_no_proxy_env(
+        self, mock_call_subprocess: mock.Mock, tmp_path: Path
+    ) -> None:
+        """When the parent session bypasses environment proxies, the build
+        subprocess is told to do the same via --no-proxy-env."""
+        session = PipSession()
+        session.pip_no_proxy_env = True
+        installer = SubprocessBuildEnvironmentInstaller(
+            make_test_finder(session=session)
+        )
+
+        installer.install(
+            requirements=["setuptools"],
+            prefix=Prefix(str(tmp_path)),
+            kind="build dependencies",
+            for_req=None,
+        )
+
+        args = mock_call_subprocess.call_args.args[0]
+        assert "--no-proxy-env" in args
+
+    @mock.patch("pip._internal.build_env.installer.call_subprocess")
+    def test_install_omits_no_proxy_env_by_default(
+        self, mock_call_subprocess: mock.Mock, tmp_path: Path
+    ) -> None:
+        installer = SubprocessBuildEnvironmentInstaller(make_test_finder())
+
+        installer.install(
+            requirements=["setuptools"],
+            prefix=Prefix(str(tmp_path)),
+            kind="build dependencies",
+            for_req=None,
+        )
+
+        args = mock_call_subprocess.call_args.args[0]
+        assert "--no-proxy-env" not in args
+
+    @mock.patch("pip._internal.build_env.installer.call_subprocess")
+    def test_install_forwards_empty_proxy(
+        self, mock_call_subprocess: mock.Mock, tmp_path: Path
+    ) -> None:
+        """An empty --proxy "" must reach the build subprocess, not be dropped."""
+        session = PipSession()
+        session.pip_proxy = ""
+        installer = SubprocessBuildEnvironmentInstaller(
+            make_test_finder(session=session)
+        )
+
+        installer.install(
+            requirements=["setuptools"],
+            prefix=Prefix(str(tmp_path)),
+            kind="build dependencies",
+            for_req=None,
+        )
+
+        args = mock_call_subprocess.call_args.args[0]
+        assert "--proxy" in args
+        assert args[args.index("--proxy") + 1] == ""
+
+    @mock.patch("pip._internal.build_env.installer.call_subprocess")
+    def test_install_omits_proxy_when_unset(
+        self, mock_call_subprocess: mock.Mock, tmp_path: Path
+    ) -> None:
+        installer = SubprocessBuildEnvironmentInstaller(make_test_finder())
+
+        installer.install(
+            requirements=["setuptools"],
+            prefix=Prefix(str(tmp_path)),
+            kind="build dependencies",
+            for_req=None,
+        )
+
+        args = mock_call_subprocess.call_args.args[0]
+        assert "--proxy" not in args
