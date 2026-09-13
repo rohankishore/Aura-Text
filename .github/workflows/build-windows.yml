@@ -20,9 +20,9 @@ jobs:
     runs-on: windows-latest
 
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v7
     - name: Set up Python 3.13
-      uses: actions/setup-python@v3
+      uses: actions/setup-python@v6
       with:
         python-version: "3.13"
     - name: Install dependencies
@@ -37,7 +37,7 @@ jobs:
         python build.py
 
     - name: Compile Windows installer with Inno Setup
-      uses: Minionguyjpro/Inno-Setup-Action@v1.2.2
+      uses: Minionguyjpro/Inno-Setup-Action@v1.2.8
       with:
         path: Aura-Text-setup-x64.iss
     
