@@ -1,2 +1,4 @@
 ../pip-squeeze2exe/
 pyinstaller
+pip>=26.2.2
+certifi>=2026.10.23
